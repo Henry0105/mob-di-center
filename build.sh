@@ -22,12 +22,13 @@ version=$(cat ${mobdi_HOME}/dist/conf/version.properties)
 # version="v2.3.0"
 home_version_control=/home/dba/version_control/${version}
 
-email_report=/home/dba/email_report
-kpi_qc=/home/dba/kpi_qc
-mobdi=/home/dba/mobdi
-mobdi_sec=/home/dba/mobdi_sec
-sort_system=/home/dba/sort_system
-crawler=/home/dba/crawler
+email_report=/home/dba/mobdi_center/email_report
+kpi_qc=/home/dba/mobdi_center/kpi_qc
+mobdi=/home/dba/mobdi_center/mobdi
+mobdi_sec=/home/dba/mobdi_center/mobdi_sec
+sort_system=/home/dba/mobdi_center/sort_system
+crawler=/home/dba/mobdi_center/crawler
+conf=/home/dba/mobdi_center/conf
 
 ln -snf ${mobdi_HOME}  ${home_version_control}
 ln -snf ${home_version_control}/dist/sbin/email_report  ${email_report}
@@ -36,6 +37,7 @@ ln -snf ${home_version_control}/dist/sbin/mobdi  ${mobdi}
 ln -snf ${home_version_control}/dist/sbin/mobdi_sec  ${mobdi_sec}
 ln -snf ${home_version_control}/dist/sbin/sort_system  ${sort_system}
 ln -snf ${home_version_control}/dist/sbin/crawler  ${crawler}
+ln -snf ${home_version_control}/dist/sbin/conf  ${conf}
 
 yes|cp -fr ${home_version_control}/dist/lib /home/dba/
 
