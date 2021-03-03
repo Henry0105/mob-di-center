@@ -17,7 +17,6 @@ source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 
 
 
@@ -30,8 +29,8 @@ source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 #mapping_carrier_par=dm_mobdi_mapping.mapping_carrier_par
 
 #out
-#dws_device_info_di=dm_mobdi_topic.dws_device_info_di
-#dws_device_info_full=dm_mobdi_topic.dws_device_info_full
+#dwd_device_info_di=dm_mobdi_master.dwd_device_info_di
+#dwd_device_info_full=dm_mobdi_master.dwd_device_info_full
 
 
 insert_day=$1
@@ -76,7 +75,7 @@ ranked_device_info as (
   where rank = 1
 )
 
-insert overwrite table $dws_device_info_di partition(day='$insert_day', plat='1')
+insert overwrite table $dwd_device_info_di partition(day='$insert_day', plat='1')
 select info.device,
        info.factory,
        info.model,
@@ -185,7 +184,7 @@ ON info.carrier = carrier_mapping.mcc_mnc
 ;
 
 --插入全量表
-insert overwrite table $dws_device_info_full partition(version='${insert_day}.1000', plat='1')
+insert overwrite table $dwd_device_info_full partition(version='${insert_day}.1000', plat='1')
 select device, factory, model, screensize, public_date, model_type, sysver, breaked, carrier, price, devicetype, processtime,model_origin,
 factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu
 from
@@ -198,7 +197,7 @@ from
     select device, factory, model_clean as model, screensize_clean as screensize, public_date, model_type, sysver_clean as sysver,
            breaked_clean as breaked, carrier_clean as carrier, price, devicetype_clean as devicetype, day as processtime,model as model_origin,
            factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu
-    from $dws_device_info_di
+    from $dwd_device_info_di
     where day='$insert_day'
     and plat='1'
 
@@ -206,7 +205,7 @@ from
 
     select device, factory, model, screensize, public_date, model_type, sysver, breaked, carrier, price, devicetype, processtime,model_origin,
     factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu
-    from $dws_device_info_full
+    from $dwd_device_info_full
     where version='${prev_1day}.1000'
     and plat='1'
   ) unioned
