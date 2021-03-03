@@ -12,18 +12,25 @@ set -x -e
 if [ -z "$1" ]; then
   exit 1
 fi
-source /home/dba/mobdi_center/conf/hive_db_table.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+
+source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+
+source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+
+
 
 #input
 #dwd_log_device_info_jh_sec_di=dm_mobdi_master.dwd_log_device_info_jh_sec_di
 
 #mapping
 #sysver_mapping_par=dm_sdk_mapping.sysver_mapping_par
-#mapping_carrier_par=dm_mobdi_mapping.mapping_carrier_par
 #brand_model_mapping_par=dm_sdk_mapping.brand_model_mapping_par
+#mapping_carrier_par=dm_mobdi_mapping.mapping_carrier_par
 
 #out
-#dws_device_info_di=dm_mobdi_master.dws_device_info_di
+#dws_device_info_di=dm_mobdi_topic.dws_device_info_di
 #dws_device_info_full=dm_mobdi_topic.dws_device_info_full
 
 

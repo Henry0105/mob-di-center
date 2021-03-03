@@ -12,7 +12,12 @@ set -x -e
 if [ -z "$1" ]; then 
   exit 1
 fi
-source /home/dba/mobdi_center/conf/hive_db_table.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+
+source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+
+source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 
 insert_day=$1
 prev_1day=`date +%Y%m%d -d "${insert_day} -1 day"`
@@ -21,8 +26,8 @@ prev_1day=`date +%Y%m%d -d "${insert_day} -1 day"`
 #dwd_log_device_info_jh_sec_di=dm_mobdi_master.dwd_log_device_info_jh_sec_di
 
 #mapping
-mapping_ios_factory_par=dm_mobdi_mapping.mapping_ios_factory_par
-mapping_carrier_par=dm_mobdi_mapping.mapping_carrier_par
+#mapping_ios_factory_par=dm_mobdi_mapping.mapping_ios_factory_par
+#mapping_carrier_par=dm_mobdi_mapping.mapping_carrier_par
 
 
 #out
