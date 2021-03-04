@@ -1,0 +1,82 @@
+<project name="SystemTrunk E2E" basedir=".">
+  <description>Calling Maven build from Ant</description>
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="dist"  location="dist"/>
+  
+  <target name="build.e2e">
+      <maven basedir="." goal="clean" resultproperty="maven.build.result" 
+               options="-e -D${skipTests} -DbuildNumber=${revision} -Dbuild.for.prod=false -Djavac.debug=true -Djavac.optimize=false"/>
+      <maven basedir="." goal="install" resultproperty="maven.build.result" 
+               options="-e -D${skipTests} -DbuildNumber=${revision} -Dbuild.for.prod=false -Djavac.debug=true -Djavac.optimize=false"/>
+  </target>
+
+  <target name="clean">
+   <maven basedir="." goal="clean" resultproperty="maven.build.result"
+               options="-e -D${skipTests} -DbuildNumber=${revision} -Dbuild.for.prod=false -Djavac.debug=true -Djavac.optimize=false"/>
+  </target>
+  
+  <target name="dist" depends="mvn-install"/>
+
+  <!--  This is the macro definition for maven Ant task  -->
+  <macrodef name="maven">
+      <attribute name="options" default="" />
+      <attribute name="goal" />
+      <attribute name="basedir" />
+      <attribute name="resultproperty" default="maven.result" />
+      <element name="args" implicit="true" optional="true" />
+      <sequential>
+          <java classname="org.codehaus.classworlds.Launcher" fork="true" dir="@{basedir}" resultproperty="@{resultproperty}">
+          <jvmarg value="-Xmx512m" />
+          <classpath>
+               <fileset dir="${maven.src.dir}/boot">
+                       <include name="*.jar" />
+               </fileset>
+               <fileset dir="${maven.src.dir}/lib">
+                       <include name="*.jar" />
+               </fileset>
+          </classpath>
+          <sysproperty key="classworlds.conf" value="${maven.src.dir}/bin/m2.conf" />
+          <sysproperty key="maven.home" value="${maven.src.dir}" />
+          <arg line="--batch-mode @{options} @{goal}" />
+          </java>
+      </sequential>
+  </macrodef>
+
+
+  <target name="mvn-install" depends="mvn-clean">
+    <property environment="env" />
+        <path id="classpath">
+           <fileset dir="${maven.src.dir}/boot">
+              <include name="plexus-classworlds-*.jar" />
+           </fileset>
+        </path>
+   <property name="mvn.mainclass" value="org.codehaus.plexus.classworlds.launcher.Launcher" />
+   <java classname="${mvn.mainclass}" classpathref="classpath" fork="true" failonerror="true">
+          <jvmarg value="-Dclassworlds.conf=${maven.src.dir}/bin/m2.conf" />
+          <jvmarg value="-Dmaven.home=${maven.src.dir}" />
+          <jvmarg value="-Dmaven.multiModuleProjectDirectory=${maven.src.dir}"/>
+          <arg value="assembly:assembly" />
+   </java>
+ </target>
+<target name="mvn-clean">
+    <property environment="env" />
+        <path id="classpath">
+           <fileset dir="${maven.src.dir}/boot">
+              <include name="plexus-classworlds-*.jar" />
+           </fileset>
+        </path>
+   <property name="mvn.mainclass" value="org.codehaus.plexus.classworlds.launcher.Launcher" />
+   <java classname="${mvn.mainclass}" classpathref="classpath" fork="true" failonerror="true">
+          <jvmarg value="-Dclassworlds.conf=${maven.src.dir}/bin/m2.conf" />
+          <jvmarg value="-Dmaven.home=${maven.src.dir}" />
+          <jvmarg value="-Dmaven.multiModuleProjectDirectory=${maven.src.dir}"/>
+          <arg value="clean" />
+   </java>
+ </target>
+                                                                                                                                                              
+</project>
+
+
+
+
