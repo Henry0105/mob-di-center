@@ -20,6 +20,35 @@ source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 
 insert_day=$1
 
+# check source data: #######################
+CHECK_DATA()
+{
+  local src_path=$1
+  hadoop fs -test -e $src_path
+  if [[ $? -eq 0 ]] ; then
+    # path存在
+    src_data_du=`hadoop fs -du -s $src_path | awk '{print $1}'`
+    # 文件夹大小不为0
+    if [[ $src_data_du != 0 ]] ;then
+      return 0
+    else
+      return 1
+    fi
+  else
+      return 1
+  fi
+}
+
+#后面有时间把改成循环判断，wait 30分钟
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_di/day=${insert_day}/source_table='pv'"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_di/day=${insert_day}/source_table='auto_location_info'"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_di/day=${insert_day}/source_table='base_station_info'"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_di/day=${insert_day}/source_table='location_info'"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_di/day=${insert_day}/source_table='log_run_new'"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_di/day=${insert_day}/source_table='log_wifi_info'"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_di/day=${insert_day}/source_table='t_location'"
+
+
 hive -v -e"
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function array_distinct_by_sorted_list as 'com.youzu.mob.java.udf.ArrayDistinctBySortedList';
