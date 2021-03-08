@@ -1,5 +1,6 @@
 package com.youzu.mob.contacts
 
+import com.youzu.mob.utils.Constants._
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
@@ -34,11 +35,11 @@ object PhoneContactsDedupFull {
          |           row_number() over
          |           (PARTITION BY duid_mapping.duid
          |           ORDER BY duid_mapping.processtime DESC, duid_mapping.device DESC) rank
-         |    FROM dm_sdk_mapping.device_duid_mapping_new duid_mapping
+         |    FROM $DWS_DEVICE_DUID_MAPPING_NEW duid_mapping
          |    LEFT SEMI JOIN
          |    (  --优化降低join的duid数量
          |      SELECT phone_contacts.duid
-         |      FROM dw_mobdi_md.phone_contacts phone_contacts
+         |      FROM $PHONE_CONTACTS phone_contacts
          |      WHERE phone_contacts.dt BETWEEN '${contacts_start_day}' AND '${contacts_end_day}'
          |      AND LENGTH(TRIM(phone_contacts.duid)) > 0
          |      GROUP BY phone_contacts.duid
@@ -79,7 +80,7 @@ object PhoneContactsDedupFull {
          |             PARTITION BY if(contacts_new.shareid = '',id_mapping_dedup.device,contacts_new.shareid), SPLIT(EXTRACT_PHONE_NUM(contacts_new.my_phone), '\\\\|')[0], SPLIT(EXTRACT_PHONE_NUM(contacts_new.phone), '\\\\|')[0]
          |             ORDER BY contacts_new.dt DESC, contacts_new.hour DESC
          |           ) rank
-         |    FROM dw_mobdi_md.phone_contacts contacts_new
+         |    FROM $PHONE_CONTACTS contacts_new
          |    LEFT JOIN
          |    id_mapping_dedup ON contacts_new.duid=id_mapping_dedup.duid
          |    WHERE contacts_new.dt BETWEEN '${contacts_start_day}' AND '${contacts_end_day}'
@@ -116,7 +117,7 @@ object PhoneContactsDedupFull {
          |         NVL(contacts_hist.zone_my_phone_fix, '') AS zone_my_phone_fix,
          |         contacts_hist.day,
          |         contacts_hist.hour
-         |  FROM dm_mobdi_master.phone_contacts_dedup_full contacts_hist
+         |  FROM $PHONE_CONTACTS_DEDUP_FULL contacts_hist
          |  LEFT SEMI JOIN
          |  (
          |    select device,my_phone
@@ -189,7 +190,7 @@ object PhoneContactsDedupFull {
          |  FROM contacts_updated_with_hist_selected
          |  UNION ALL
          |  SELECT contacts_hist.*
-         |  FROM dm_mobdi_master.phone_contacts_dedup_full contacts_hist
+         |  FROM $PHONE_CONTACTS_DEDUP_FULL contacts_hist
          |  WHERE contacts_hist.day='${last_snapshot_day}'
          |  and contacts_hist.hour='${last_snapshot_hour}'  --上一个周期
          |)
@@ -245,7 +246,7 @@ object PhoneContactsDedupFull {
     // 需要从android_id_mapping_view和ios_id_mapping_view中取最新手机号补充进来
     spark.sql(
       s"""
-         |INSERT OVERWRITE TABLE dm_mobdi_master.phone_contacts_dedup_full PARTITION
+         |INSERT OVERWRITE TABLE $PHONE_CONTACTS_DEDUP_FULL PARTITION
          |(day='${current_snapshot_day}', hour='${current_snapshot_hour}')
          |select device,
          |       my_phone,
@@ -329,7 +330,7 @@ object PhoneContactsDedupFull {
          |        union all
          |
          |        select device,concat(phone,'=',phone_tm) as phone_list,mac,idfa as imei,'' as phoneno,phone as phone_view
-         |        from dm_mobdi_mapping.ios_id_mapping_full_view
+         |        from $IOS_ID_MAPPING_FULL_VIEW
          |        where length(phone)>0
          |        and length(phone)<=10000
          |      ) phone_info lateral view explode_tags(phone_list) phone_tmp as my_phone_id_mapping,phone_tms

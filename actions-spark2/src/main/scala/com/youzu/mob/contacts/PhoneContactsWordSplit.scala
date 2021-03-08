@@ -1,7 +1,8 @@
 package com.youzu.mob.contacts
 
-import java.util.Date
+import com.youzu.mob.utils.Constants.PHONE_CONTACTS_INDEX_WORD_SPLIT_PREPARE
 
+import java.util.Date
 import org.ansj.recognition.impl.StopRecognition
 import org.ansj.splitWord.analysis.BaseAnalysis
 import org.apache.spark.ml.feature._
@@ -39,7 +40,7 @@ object PhoneContactsWordSplit {
     val DataOrigin = spark.sql(
       s"""
          |select phone,words_list
-         |from dw_mobdi_md.phone_contacts_index_word_split_prepare
+         |from $PHONE_CONTACTS_INDEX_WORD_SPLIT_PREPARE
          |where day='$day'
       """.stripMargin)
 
