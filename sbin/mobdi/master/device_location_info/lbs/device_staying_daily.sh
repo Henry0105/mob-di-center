@@ -39,7 +39,7 @@ CHECK_DATA()
   fi
 }
 
-#后面有时间把改成循环判断，wait 30分钟
+#后面有时间把改成循环判断，wait 30分钟   ，但是t-3判断文件是否存在不可行，需要判断文件生成时间
 CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_di/day=${insert_day}/source_table='pv'"
 CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_di/day=${insert_day}/source_table='auto_location_info'"
 CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_di/day=${insert_day}/source_table='base_station_info'"
