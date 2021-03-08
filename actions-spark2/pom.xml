@@ -38,7 +38,11 @@
     </properties>
 
     <dependencies>
-
+        <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+            <version>1.3.1</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
@@ -167,14 +171,6 @@
             <artifactId>play-json_2.11</artifactId>
             <version>${play.json.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.github.scopt</groupId>
-            <artifactId>scopt_${scala.binary.version}</artifactId>
-            <version>3.7.1</version>
-        </dependency>
-
-
         <dependency>
             <groupId>com.youzu.mob.dm</groupId>
             <artifactId>geohash-latlon-distance_1.6.0</artifactId>
@@ -201,11 +197,6 @@
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>com.typesafe</groupId>
-            <artifactId>config</artifactId>
-            <version>1.2.1</version>
         </dependency>
         <dependency>
             <groupId>com.meetup</groupId>
@@ -241,144 +232,78 @@
         </dependency>
 
         <dependency>
-            <groupId>mob</groupId>
+            <groupId>com.mob.mobdi</groupId>
             <artifactId>sharesdk-datadecoder</artifactId>
             <version>1.0</version>
         </dependency>
         <dependency>
-            <groupId>mob</groupId>
+            <groupId>com.mob.mobdi</groupId>
             <artifactId>hadoop-lzo</artifactId>
             <version>1.0</version>
         </dependency>
 
         <dependency>
-            <groupId>mob</groupId>
+            <groupId>com.mob.mobdi</groupId>
             <artifactId>json-lib</artifactId>
             <version>2.4</version>
         </dependency>
         <dependency>
-            <groupId>mob</groupId>
+            <groupId>com.mob.mobdi</groupId>
             <artifactId>json-simple</artifactId>
             <version>1.1.1</version>
         </dependency>
         <dependency>
-            <groupId>mob</groupId>
+            <groupId>com.mob.mobdi</groupId>
             <artifactId>hive-exec</artifactId>
             <version>0.12.0</version>
         </dependency>
         <dependency>
-            <groupId>mob</groupId>
+            <groupId>com.mob.mobdi</groupId>
             <artifactId>hbase</artifactId>
             <version>0.90.6</version>
         </dependency>
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>mob-thirdparty</id>
+            <url>http://mvn.code.mob.com/nexus/content/repositories/thirdparty/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>public</id>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <url>http://central.maven.org/maven2/</url>
+        </repository>
+        <repository>
+            <id>cloudera</id>
+            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+        </repository>
+        <repository>
+            <id>alimaven</id>
+            <name>aliyun maven</name>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
+
     <build>
         <plugins>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <version>2.5.2</version>
-                <executions>
-                    <execution>
-                        <id>install-sharesdk-datadecoder</id>
-                        <phase>clean</phase>
-                        <configuration>
-                            <file>../lib/sharesdk-datadecoder.jar</file>
-                            <repositoryLayout>default</repositoryLayout>
-                            <groupId>mob</groupId>
-                            <artifactId>sharesdk-datadecoder</artifactId>
-                            <version>1.0</version>
-                            <packaging>jar</packaging>
-                            <generatePom>true</generatePom>
-                        </configuration>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>install-hadoop-lzo</id>
-                        <phase>clean</phase>
-                        <configuration>
-                            <file>../lib/hadoop-lzo.jar</file>
-                            <repositoryLayout>default</repositoryLayout>
-                            <groupId>mob</groupId>
-                            <artifactId>hadoop-lzo</artifactId>
-                            <version>1.0</version>
-                            <packaging>jar</packaging>
-                            <generatePom>true</generatePom>
-                        </configuration>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>install-json-lib</id>
-                        <phase>clean</phase>
-                        <configuration>
-                            <file>../lib/json-lib-2.4-jdk15.jar</file>
-                            <repositoryLayout>default</repositoryLayout>
-                            <groupId>mob</groupId>
-                            <artifactId>json-lib</artifactId>
-                            <version>2.4</version>
-                            <packaging>jar</packaging>
-                            <generatePom>true</generatePom>
-                        </configuration>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>install-json-simple</id>
-                        <phase>clean</phase>
-                        <configuration>
-                            <file>../lib/json-simple-1.1.1.jar</file>
-                            <repositoryLayout>default</repositoryLayout>
-                            <groupId>mob</groupId>
-                            <artifactId>json-simple</artifactId>
-                            <version>1.1.1</version>
-                            <packaging>jar</packaging>
-                            <generatePom>true</generatePom>
-                        </configuration>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>install-hive-exec</id>
-                        <phase>clean</phase>
-                        <configuration>
-                            <file>../lib/hive-exec-0.12.0-cdh5.1.4.jar</file>
-                            <repositoryLayout>default</repositoryLayout>
-                            <groupId>mob</groupId>
-                            <artifactId>hive-exec</artifactId>
-                            <version>0.12.0</version>
-                            <packaging>jar</packaging>
-                            <generatePom>true</generatePom>
-                        </configuration>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>install-hbase</id>
-                        <phase>clean</phase>
-                        <configuration>
-                            <file>../lib/hbase-0.90.6-cdh3u5.jar</file>
-                            <repositoryLayout>default</repositoryLayout>
-                            <groupId>mob</groupId>
-                            <artifactId>hbase</artifactId>
-                            <version>0.90.6</version>
-                            <packaging>jar</packaging>
-                            <generatePom>true</generatePom>
-                        </configuration>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
 
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>

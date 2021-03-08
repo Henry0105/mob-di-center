@@ -1,17 +1,16 @@
 package com.youzu.mob.appinstall
 
+import com.youzu.mob.utils.Constants._
 import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.types._
 
 import scala.collection.mutable
-
 case class MasterReservedTime(
                         @transient spark: SparkSession,
                         outputTable: String
                         ) {
   spark.udf.register("map_agg_fn", new MapAggFunction())
-
 
   class MapAggFunction() extends UserDefinedAggregateFunction{
 
@@ -87,7 +86,7 @@ case class MasterReservedTime(
   def update(start: String, end: String, old_day: String, new_day: String): Unit = {
     spark.sql(
       s"""
-        |insert overwrite table dw_mobdi_md.device_reserved_time_incr
+        |insert overwrite table $DEVICE_RESERVED_TIME_INCR
         |select device,
         |case when size(collect_set(install_pkg))>0  then
         |str_to_map(
@@ -109,7 +108,7 @@ case class MasterReservedTime(
         |select device,case when refine_final_flag=1 then concat_ws(':',pkg,day) else null end as install_pkg,
         |case when refine_final_flag=-1 then concat_ws(':',pkg,day) else null
         |end as unstall_pkg,day
-        | from dm_mobdi_master.master_reserved_new where day>=${start} and day<=${end} and refine_final_flag in(1,-1)
+        | from $DWS_DEVICE_INSTALL_APP_RE_STATUS_DI where day>=${start} and day<=${end} and refine_final_flag in(1,-1)
         |)master
         |group by device
       """.stripMargin)
@@ -122,7 +121,7 @@ case class MasterReservedTime(
         |select device,install_date,unstall_date from ${outputTable} where day=${old_day}
         |and (size(install_date)>0 or size(unstall_date)>0)
         |union all
-        |select device,install_date,unstall_date from dw_mobdi_md.device_reserved_time_incr
+        |select device,install_date,unstall_date from $DEVICE_RESERVED_TIME_INCR
         |)a group by device
       """.stripMargin
     )
