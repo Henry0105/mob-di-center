@@ -1,6 +1,7 @@
 package com.youzu.mob.profile
 
 
+import com.youzu.mob.utils.Constants.INDEX_PROFILE_HISTORY_ALL
 import org.apache.commons.lang3.StringUtils
 import org.apache.hadoop.io.{NullWritable, Text}
 import org.apache.spark.sql.api.java.UDF1
@@ -72,7 +73,7 @@ case class OrcIndexCheck(
          |select file_name,count(1) as cnt from
          |(
          |select device,day,files.file_name as file_name from
-         |(select device,clean_fn(feature_index) as feature_index from rp_mobdi_app.index_profile_history_all where version='2020.1000')a
+         |(select device,clean_fn(feature_index) as feature_index from $INDEX_PROFILE_HISTORY_ALL where version='2020.1000')a
          | lateral view explode(feature_index) t as day,files
          |)a group by file_name
          |
