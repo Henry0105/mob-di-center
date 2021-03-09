@@ -1,6 +1,7 @@
 package com.youzu.mob.location.workandlive
 
 import com.youzu.mob.location.helper.{DbscanCluster, SparkHelper}
+import com.youzu.mob.utils.Constants._
 import org.apache.spark.SparkConf
 import org.apache.spark.storage.StorageLevel
 
@@ -59,7 +60,7 @@ object WorkAndLivePlaceClusterWork extends SparkHelper {
           s"""
              |left join
              |(
-             |  select device from dw_mobdi_md.new_work_tmp_device_live_place where stage='A' group by device
+             |  select device from $DM_MOBDI_TMP.new_work_tmp_device_live_place where stage='A' group by device
              |)t1
              |on tmp_cluster_work_live.device  = t1.device
            """.stripMargin
@@ -67,7 +68,7 @@ object WorkAndLivePlaceClusterWork extends SparkHelper {
           s"""
              |left join
              |(
-             |  select device from dw_mobdi_md.new_work_tmp_device_work_place where stage='A' group by device
+             |  select device from $DM_MOBDI_TMP.new_work_tmp_device_work_place where stage='A' group by device
              |)t1
              |on tmp_cluster_work_live.device = t1.device
            """.stripMargin
@@ -97,12 +98,12 @@ object WorkAndLivePlaceClusterWork extends SparkHelper {
           s"""
              |left join
              |(
-             |  select device from dw_mobdi_md.new_work_tmp_device_live_place where stage='A' group by device
+             |  select device from $DM_MOBDI_TMP.new_work_tmp_device_live_place where stage='A' group by device
              |)t1
              |on tmp_cluster_work_live.device  = t1.device
              |left join
              |(
-             |  select device from dw_mobdi_md.new_work_tmp_device_live_place where stage='B' group by device
+             |  select device from $DM_MOBDI_TMP.new_work_tmp_device_live_place where stage='B' group by device
              |)t2
              |on tmp_cluster_work_live.device  = t2.device
            """.stripMargin
@@ -110,12 +111,12 @@ object WorkAndLivePlaceClusterWork extends SparkHelper {
           s"""
              |left join
              |(
-             |  select device from dw_mobdi_md.new_work_tmp_device_work_place where stage='A' group by device
+             |  select device from $DM_MOBDI_TMP.new_work_tmp_device_work_place where stage='A' group by device
              |)t1
              |on tmp_cluster_work_live.device = t1.device
              |left join
              |(
-             |  select device from dw_mobdi_md.new_work_tmp_device_work_place where stage='B' group by device
+             |  select device from $DM_MOBDI_TMP.new_work_tmp_device_work_place where stage='B' group by device
              |)t2
              |on tmp_cluster_work_live.device=t2.device
            """.stripMargin
@@ -169,7 +170,7 @@ object WorkAndLivePlaceClusterWork extends SparkHelper {
 
         val work =
           s"""
-             |insert overwrite  table dw_mobdi_md.new_work_tmp_device_work_place partition(stage='$stage')
+             |insert overwrite  table $DM_MOBDI_TMP.new_work_tmp_device_work_place partition(stage='$stage')
              |select
              |   device,
              |   '' as cluster,
@@ -190,7 +191,7 @@ object WorkAndLivePlaceClusterWork extends SparkHelper {
 
         val live =
           s"""
-             |insert overwrite  table dw_mobdi_md.new_work_tmp_device_live_place partition(stage='$stage')
+             |insert overwrite  table $DM_MOBDI_TMP.new_work_tmp_device_live_place partition(stage='$stage')
              |select
              |   device,
              |   '' as cluster,
@@ -229,12 +230,12 @@ object WorkAndLivePlaceClusterWork extends SparkHelper {
 
     spark.sql(
       s"""
-         |insert overwrite table dw_mobdi_md.new_work_tmp_device_dbscan_result partition(stage='$clusterTable')
+         |insert overwrite table $DM_MOBDI_TMP.new_work_tmp_device_dbscan_result partition(stage='$clusterTable')
          |select * from tmp_rs_dbscan
        """.stripMargin)
     spark.sql(
       s"""
-         |select * from  dw_mobdi_md.new_work_tmp_device_dbscan_result where stage='$clusterTable'
+         |select * from  $DM_MOBDI_TMP.new_work_tmp_device_dbscan_result where stage='$clusterTable'
        """.stripMargin).createOrReplaceTempView("tmp_dbscan_result")
 
     // 统计各个簇点数的情况。num2用来识别工作地与居住地在一起的情况
@@ -346,7 +347,7 @@ object WorkAndLivePlaceClusterWork extends SparkHelper {
 
     spark.sql(
       s"""
-         |insert overwrite table dw_mobdi_md.new_work_tmp_device_location_cluster_rank partition(stage='$clusterTable')
+         |insert overwrite table $DM_MOBDI_TMP.new_work_tmp_device_location_cluster_rank partition(stage='$clusterTable')
          |select
          |   device,
          |   cluster,
@@ -590,7 +591,7 @@ object WorkAndLivePlaceClusterWork extends SparkHelper {
          |           distance_min,
          |           count(1) over(partition by device) as cnt
          |        from
-         |        dw_mobdi_md.new_work_tmp_device_location_cluster_rank
+         |        $DM_MOBDI_TMP.new_work_tmp_device_location_cluster_rank
          |        where (work_rank=1 or live_rank=1) and stage ='$clusterTable'
          |      )t1
          |  )t2
@@ -602,7 +603,7 @@ object WorkAndLivePlaceClusterWork extends SparkHelper {
   private def generateConfidenceSQL(clusterTable: String, confidence: String, joinSql: String, name: String) = {
 
     s"""
-       |insert overwrite table dw_mobdi_md.new_work_tmp_device_${name}_place partition(stage='$clusterTable')
+       |insert overwrite table $DM_MOBDI_TMP.new_work_tmp_device_${name}_place partition(stage='$clusterTable')
        |select
        |   tmp_cluster_work_live.device,
        |   cluster,
