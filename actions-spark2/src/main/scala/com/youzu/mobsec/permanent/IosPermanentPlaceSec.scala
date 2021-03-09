@@ -1,5 +1,6 @@
 package com.youzu.mobsec.permanent
 
+import com.youzu.mob.utils.Constants._
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 
@@ -21,13 +22,13 @@ object IosPermanentPlaceSec {
          |      select device,day,country,province,city
          |      from(
          |      select device,day,country,province,city,ROW_NUMBER() OVER(PARTITION BY device ORDER BY day desc) as rank
-         |      from dm_mobdi_master.device_ip_info
+         |      from $DWS_DEVICE_IP_INFO_DI
          |      where plat=2 and day<=$day and day >=$p30day
          |      )
          |      where rank=1
          |      )a
          |join (select device,ifids as ifid
-         |      from dm_mobdi_mapping.ios_id_mapping_full_sec_view lateral view explode(split(ifid,",")) t as ifids
+         |      from $IOS_ID_MAPPING_FULL_SEC_VIEW lateral view explode(split(ifid,",")) t as ifids
          |      where ifids<>''
          |      ) b
          |on a.device=b.device
@@ -39,26 +40,26 @@ object IosPermanentPlaceSec {
       s"""
          |select a.ifid,b.country_code as country,b.province_code as province,a.city,b.country_cn,b.province_cn,b.city_cn,count(a.city) as cnt
          |from (select * from tmp_ifid_result where city<>'') a
-         |join dm_sdk_mapping.map_city_sdk b
+         |join $MAP_CITY_SDK b
          |on a.city=b.city_code
          |group by a.ifid,b.country_code,b.province_code,a.city,b.country_cn,b.province_cn,b.city_cn
          |union all
          |select c.ifid,d.country_code as country,c.province,c.city,d.country_cn,d.province_cn,'未知' as city_cn,count(c.province) as cnt
          |from (select * from tmp_ifid_result where province<>'' and city='') c
-         |join dm_sdk_mapping.map_city_sdk d
+         |join $MAP_CITY_SDK d
          |on c.province=d.province_code
          |group by c.ifid,d.country_code,c.province,c.city,d.country_cn,d.province_cn
          |union all
          |select e.ifid,e.country,e.province,e.city,f.country_cn,'未知' as province_cn,'未知' as city_cn,count(e.country) as cnt
          |from (select * from tmp_ifid_result where country<>'' and province='' and city='') e
-         |join dm_sdk_mapping.map_city_sdk f
+         |join $MAP_CITY_SDK f
          |on e.country=f.country_code
          |group by e.ifid,e.country,e.province,e.city,f.country_cn
        """.stripMargin)
     df2.createOrReplaceTempView("tmp_city")
     spark.sql(
       s"""
-         |insert overwrite table rp_mobdi_app.ios_permanent_place_sec partition(day=$day)
+         |insert overwrite table $IOS_PERMANENT_PLACE_SEC partition(day=$day)
          |select ifid,country as permanent_country,province as permanent_province,city as permanent_city,
          |        country_cn as permanent_country_cn,province_cn as permanent_province_cn,city_cn as permanent_city_cn
          |from

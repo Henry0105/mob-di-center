@@ -1,5 +1,6 @@
 package com.youzu.mob.phonerelation
 
+import com.youzu.mob.utils.Constants.PHONE_ONEDEGREE_REL
 import org.apache.spark.HashPartitioner
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{Row, SparkSession}
@@ -128,7 +129,7 @@ object PhoneOneDegreeRelation {
     spark.createDataFrame(rdd, schema).createOrReplaceTempView("phone_onedegree_rel_tmp")
     spark.sql(
       s"""
-         |insert overwrite table rp_mobdi_app.phone_onedegree_rel partition(day=$day)
+         |insert overwrite table $PHONE_ONEDEGREE_REL partition(day=$day)
          |select phone,p_rel_list,n_rel_list,p_rel_date_list,n_rel_date_list
          |from phone_onedegree_rel_tmp
         """.stripMargin)

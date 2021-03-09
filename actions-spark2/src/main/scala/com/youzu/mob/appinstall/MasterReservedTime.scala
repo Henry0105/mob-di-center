@@ -86,7 +86,7 @@ case class MasterReservedTime(
   def update(start: String, end: String, old_day: String, new_day: String): Unit = {
     spark.sql(
       s"""
-        |insert overwrite table $DEVICE_RESERVED_TIME_INCR
+        |insert overwrite table $DM_MOBDI_TMP.device_reserved_time_incr
         |select device,
         |case when size(collect_set(install_pkg))>0  then
         |str_to_map(
@@ -121,7 +121,7 @@ case class MasterReservedTime(
         |select device,install_date,unstall_date from ${outputTable} where day=${old_day}
         |and (size(install_date)>0 or size(unstall_date)>0)
         |union all
-        |select device,install_date,unstall_date from $DEVICE_RESERVED_TIME_INCR
+        |select device,install_date,unstall_date from $DM_MOBDI_TMP.device_reserved_time_incr
         |)a group by device
       """.stripMargin
     )

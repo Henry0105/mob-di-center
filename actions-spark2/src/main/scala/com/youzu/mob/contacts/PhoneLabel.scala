@@ -1,6 +1,6 @@
 package com.youzu.mob.contacts
 
-import com.youzu.mob.utils.Constants.PHONE_CONTACTS_DEDUP_FULL
+import com.youzu.mob.utils.Constants.{DM_MOBDI_TMP, PHONE_CONTACTS_DEDUP_FULL}
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
@@ -41,7 +41,7 @@ object PhoneLabel {
          |       (
          |         select if(my_phone='',my_phone_fix,my_phone) as my_phone,
          |                device,plat,day,hour
-         |         from $PHONE_CONTACTS_DEDUP_FULL
+         |         from $DM_MOBDI_TMP.phone_contacts
          |               WHERE day='$insert_day'
          |         AND (LENGTH(my_phone) > 0 or LENGTH(my_phone_fix) > 0)
          |       ) info
@@ -80,7 +80,7 @@ object PhoneLabel {
          |           WHEN LENGTH(regexp_extract(coalesce(my_phone_fix,my_phone,''), '0000010[0-9]{10}', 0)) = 17
          |             THEN regexp_extract(coalesce(my_phone_fix,my_phone,''), '0000010[0-9]{10}', 0)
          |            ELSE 'null' END AS labeled_phone
-         |     FROM $PHONE_CONTACTS_DEDUP_FULL
+         |     FROM $DM_MOBDI_TMP.phone_contacts
          |           WHERE day='$insert_day'
          |     AND LENGTH(phone)=17
          |     AND (LENGTH(regexp_extract(phone, '0008601(3|4|5|6|7|8|9)[0-9]{9}', 0)) = 17

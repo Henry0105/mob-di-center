@@ -1,4 +1,4 @@
-package youzu.mob.travel
+package com.youzu.mob.travel
 
 object Pkgs {
   val busiAppAct = Set(

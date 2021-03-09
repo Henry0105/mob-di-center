@@ -1,14 +1,12 @@
 package com.youzu.mob.industrytags
 
+import com.youzu.mob.utils.Constants.{OFFLINE_ESTI_CONFIG, RP_DEVICE_PROFILE_FULL}
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 object GenerateEstimatePartitionTable {
   Logger.getLogger("org").setLevel(Level.ERROR)
-
-  val baseProfileTable: String = "rp_sdk_dmp.rp_device_profile_full"
-  val outputTable: String = "dm_sdk_mapping.offline_esti_config"
 
   def getOutputTableDF(
     spark: SparkSession, inputTable: String, featureType: String,
@@ -80,11 +78,11 @@ object GenerateEstimatePartitionTable {
       }
     }
 
-    val conf = new SparkConf().setAppName("Generate Estimated Partition Table: " + outputTable)
+    val conf = new SparkConf().setAppName("Generate Estimated Partition Table: " + OFFLINE_ESTI_CONFIG)
     val spark = SparkSession.builder().config(conf).enableHiveSupport().getOrCreate()
 
     val baseProfileColumnsSeq = spark.sql(
-      s"SELECT * FROM $baseProfileTable LIMIT 1"
+      s"SELECT * FROM $RP_DEVICE_PROFILE_FULL LIMIT 1"
     ).columns.toSeq
 
     var resMap: Map[String, DataFrame] = Map()
@@ -105,7 +103,7 @@ object GenerateEstimatePartitionTable {
       resDF.createOrReplaceTempView("RES_TABLE")
       spark.sql(
         s"""
-           |INSERT OVERWRITE TABLE $outputTable PARTITION (feature_type='$featureType', group_ext='$groupExt')
+           |INSERT OVERWRITE TABLE $OFFLINE_ESTI_CONFIG PARTITION (feature_type='$featureType', group_ext='$groupExt')
            |SELECT * FROM RES_TABLE
          """.stripMargin)
     }
