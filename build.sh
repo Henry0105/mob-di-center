@@ -8,7 +8,6 @@ fi
 
 mobdi_HOME="$(cd "`dirname "$0"`"; pwd)"
 cd ${mobdi_HOME}
-export MOBDI_HOME="${mobdi_HOME}"
 export JAVA_HOME=/home/dba/jdk1.8.0_45
 export PATH=$JAVA_HOME/bin:$PATH
 
