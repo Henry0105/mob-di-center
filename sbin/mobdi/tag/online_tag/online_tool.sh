@@ -18,9 +18,14 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 : '
 inPutTable:
-
+    dm_sdk_mapping.online_category_mapping_par_replace
+    dm_sdk_mapping.app_pkg_mapping_par
+    rp_mobdi_app.app_active_daily
+    rp_mobdi_app.app_active_monthly
+    dm_mobdi_topic.dws_device_install_app_re_status_di
+    dm_mobdi_topic.dws_device_install_app_status_40d_di
 outPutTable:
-
+    rp_mobdi_app.timewindow_online_profile_v2
 '
 
 function data_exists(){
