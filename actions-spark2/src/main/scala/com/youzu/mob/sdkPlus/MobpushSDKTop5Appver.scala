@@ -1,7 +1,8 @@
 package com.youzu.mob.sdkPlus
 
-import java.util.Properties
+import com.youzu.mob.utils.Constants.MOBPUSH_UNSTALL_ANALYSIS_TMP
 
+import java.util.Properties
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 import org.apache.spark.sql.SparkSession
 import org.slf4j.{Logger, LoggerFactory}
@@ -26,7 +27,7 @@ object MobpushSDKTop5Appver {
          |(select appkey,appver,day,serdatetime,row_number() over (partition by appkey order by serdatetime desc) as rank
          |from
          |(select appkey,appver,day,max(serdatetime) serdatetime
-         |from rp_mobdi_app.mobpush_unstall_analysis_tmp
+         |from $MOBPUSH_UNSTALL_ANALYSIS_TMP
          |where appver is not null and appver!=''
          |and appkey is not null and appkey!=''
          |and serdatetime is not null and serdatetime!=''

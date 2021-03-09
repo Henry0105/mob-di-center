@@ -2,6 +2,7 @@ package com.youzu.mob.tools
 
 import com.alibaba.fastjson.{JSON, JSONObject}
 import com.youzu.mob.tools.OnlineUniversalTools.getBeforeTime
+import com.youzu.mob.utils.Constants.{SDK_LBS_DAILY_POI_IOS, TIMEWINDOW_OFFLINE_PROFILE_IOS}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.SparkSession
@@ -40,8 +41,8 @@ object IosOfflineUniversalTools {
       }
     } catch {
       case ex: Exception => throw new Exception(
-        s"""There is data of table('dm_mobdi_master.sdk_lbs_daily_poi_ios') in the time window is empty!
-           |Please check the table!--->dm_mobdi_master.sdk_lbs_daily_poi_ios(from ${day} to ${bday})
+        s"""There is data of table('$SDK_LBS_DAILY_POI_IOS') in the time window is empty!
+           |Please check the table!--->$SDK_LBS_DAILY_POI_IOS(from ${day} to ${bday})
         """.stripMargin)
     }
     import spark.implicits._
@@ -51,7 +52,7 @@ object IosOfflineUniversalTools {
          |select idfa,
          |        poiinfo,
          |      day ,Row_number() over(partition by idfa,poiinfo,day order by idfa ) as rank
-         |    from dm_mobdi_master.sdk_lbs_daily_poi_ios where day <=${day} and day > ${bday} and type= ${lbstype} ) mm where mm.rank =1
+         |    from $SDK_LBS_DAILY_POI_IOS where day <=${day} and day > ${bday} and type= ${lbstype} ) mm where mm.rank =1
       """.stripMargin)
     val dineinRows = dineinRdd.rdd.mapPartitions(row => {
       var res = List[(String, List[JSONObject])]()
@@ -104,7 +105,7 @@ object IosOfflineUniversalTools {
     spark.sql(s"cache table offline_cache as select ${schemaString} from offline_tmp")
     spark.sql(s"select ${schemaString} from offline_cache").coalesce(fileNum).registerTempTable("offline_coalsece")
     spark.sql(
-      s"""insert overwrite table rp_mobdi_app.timewindow_offline_profile_ios partition(flag=${lbstype},day=${day},timewindow=${windowTime})
+      s"""insert overwrite table $TIMEWINDOW_OFFLINE_PROFILE_IOS partition(flag=${lbstype},day=${day},timewindow=${windowTime})
          |select ${schemaString} from offline_coalsece
        """.stripMargin)
   }

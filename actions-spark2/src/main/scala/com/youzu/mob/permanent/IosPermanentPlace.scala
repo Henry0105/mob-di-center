@@ -1,5 +1,6 @@
 package com.youzu.mob.permanent
 
+import com.youzu.mob.utils.Constants._
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 
@@ -21,13 +22,13 @@ object IosPermanentPlace {
          |      select device,day,country,province,city
          |      from(
          |      select device,day,country,province,city,ROW_NUMBER() OVER(PARTITION BY device ORDER BY day desc) as rank
-         |      from dm_mobdi_master.device_ip_info
+         |      from $DWS_DEVICE_IP_INFO_DI
          |      where plat=2 and day<=$day and day >=$p30day
          |      )
          |      where rank=1
          |      )a
          |join (select device,idfas as idfa
-         |      from dm_mobdi_mapping.ios_id_mapping_full_view lateral view explode(split(idfa,",")) t as idfas
+         |      from $IOS_ID_MAPPING_FULL_VIEW lateral view explode(split(idfa,",")) t as idfas
          |      where idfas<>''and idfas<>'00000000-0000-0000-0000-000000000000'
          |      ) b
          |on a.device=b.device
@@ -58,7 +59,7 @@ object IosPermanentPlace {
     df2.createOrReplaceTempView("tmp_city")
     spark.sql(
       s"""
-         |insert overwrite table rp_mobdi_app.ios_permanent_place partition(day=$day)
+         |insert overwrite table $IOS_PERMANENT_PLACE partition(day=$day)
          |select idfa,country as permanent_country,province as permanent_province,city as permanent_city,
          |        country_cn as permanent_country_cn,province_cn as permanent_province_cn,city_cn as permanent_city_cn
          |from
