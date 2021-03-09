@@ -24,32 +24,13 @@
     </properties>
 
     <profiles>
-        <profile>
-            <id>hbase1.2.0</id>
-            <properties>
-                <hbase.version>1.2.0-${cdh.version}</hbase.version>
-            </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
+
         <profile>
             <id>spark2.4.3</id>
             <properties>
                 <scala.version>2.12.8</scala.version>
                 <scala.binary.version>2.12</scala.binary.version>
                 <spark.version>2.4.3</spark.version>
-            </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-        <!--测试环境-->
-        <profile>
-            <id>test</id>
-            <properties>
-                <env>215</env>
-                <scope.value>provided</scope.value>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -104,31 +85,6 @@
             <scope>${scope.value}</scope>
         </dependency>
 
-        <!--hbase-->
-        <dependency>
-            <groupId>org.apache.hbase</groupId>
-            <artifactId>hbase-client</artifactId>
-            <version>${hbase.version}</version>
-                <scope>${scope.value}</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hbase</groupId>
-                <artifactId>hbase-server</artifactId>
-                <version>${hbase.version}</version>
-                <scope>${scope.value}</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hbase</groupId>
-                <artifactId>hbase-common</artifactId>
-                <version>${hbase.version}</version>
-                <scope>${scope.value}</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hbase</groupId>
-                <artifactId>hbase-hadoop-compat</artifactId>
-                <version>${hbase.version}</version>
-                <scope>${scope.value}</scope>
-            </dependency>
 
             <dependency>
                 <groupId>org.scalatest</groupId>
@@ -168,12 +124,6 @@
                 <version>1.0.0</version>
                 <scope>${scope.value}</scope>
             </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql.connector.version}</version>
-            <!--<scope>runtime</scope>-->
-        </dependency>
     </dependencies>
 
 
