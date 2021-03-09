@@ -1,20 +1,20 @@
 package com.youzu.mob.newscore
 
 import com.youzu.mob.tools.SparkEnv
+import com.youzu.mob.utils.Constants.DM_MOBDI_TMP
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.{SparkConf, SparkContext}
 import org.ansj.domain.Term
 import org.ansj.splitWord.analysis.{BaseAnalysis, DicAnalysis, NlpAnalysis, ToAnalysis}
 import org.ansj.library.DicLibrary
-import java.util.Arrays
 
+import java.util.Arrays
 import scala.io.Source
 import java.io._
-
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.mllib.clustering.{DistributedLDAModel, LDA}
-import java.io.File
 
+import java.io.File
 import org.ansj.recognition.impl.StopRecognition
 import org.nlpcn.commons.lang.tire.domain.Forest
 import org.nlpcn.commons.lang.tire.domain.Value
@@ -47,7 +47,7 @@ class MappingAgeContactWord2Vec(@transient spark: SparkSession) {
     var DataOrigin = spark.sql(
       s"""
          |    select phone,concat_ws(',',words_list) wordslist
-         |    from dw_mobdi_md.phone_contacts_index_word_split_prepare
+         |    from $DM_MOBDI_TMP.phone_contacts_index_word_split_prepare
          |    where day='$phone_contact_version'
   """.stripMargin)
 

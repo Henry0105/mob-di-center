@@ -1,8 +1,9 @@
-package youzu.mob.travel
+package com.youzu.mob.travel
+
+import com.youzu.mob.utils.Constants._
 
 import java.text.SimpleDateFormat
 import java.util.Calendar
-
 import org.apache.spark.sql.{Dataset, SparkSession}
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
@@ -25,13 +26,8 @@ case class AppActiveRow(
   rentcarActive: Boolean)
 
 object TravelApp {
-  val appPkgMappingTable = "dm_sdk_mapping.app_pkg_mapping_par"
-  val profileFullTable = "rp_mobdi_app.rp_device_profile_full_view"
-
-  val cleanedProfileFullTable = "cleaned_profile_full_mobdi"
-  val appActiveDailyTable = "rp_mobdi_app.app_active_daily"
+  val CLEANED_PROFILE_FULL_MOBDI = "cleaned_profile_full_mobdi"
   val narrowedAppActiveTable = "narrowed_app_active_mobdi"
-  val poiTable = "dm_mobdi_master.sdk_lbs_daily_poi"
 
   def main(args: Array[String]): Unit = {
     val day = args(0)
@@ -53,7 +49,7 @@ object TravelApp {
     import spark.implicits._
 
     val pkg2ApppkgMap: Map[String, String] = spark.sql(
-      s"select pkg, apppkg from $appPkgMappingTable where version='1000'"
+      s"select pkg, apppkg from $APP_PKG_MAPPING_PAR where version='1000'"
     ).collect().map(
       r => (r.getAs[String]("pkg"
       ), r.getAs[String]("apppkg"))).toMap
@@ -70,7 +66,7 @@ object TravelApp {
 
     val cleanedProfile: Dataset[CleanedProfileFullRow] = spark.sql(
       s"select device, segment, car, applist " +
-        s"from $profileFullTable")
+        s"from $RP_DEVICE_PROFILE_FULL_VIEW")
       .mapPartitions(
         iter => {
           iter.map(
@@ -89,11 +85,11 @@ object TravelApp {
             })
         })
 
-    cleanedProfile.createOrReplaceTempView(cleanedProfileFullTable)
+    cleanedProfile.createOrReplaceTempView(CLEANED_PROFILE_FULL_MOBDI)
 
     val narrowedAppActiveDaily: Dataset[AppActiveRow] = spark.sql(
       s"""
-         |select device, apppkg from $appActiveDailyTable where day=$day
+         |select device, apppkg from $APP_ACTIVE_DAILY where day=$day
        """.stripMargin)
       .mapPartitions(
         iter => {
@@ -165,7 +161,7 @@ object TravelApp {
          |) a
          |left join
          |(
-         |select device,country,province,city from $poiTable
+         |select device,country,province,city from $DWS_DEVICE_LBS_POI_ANDROID_SEC_DI
          |where type = 9 and day = $day group by  device,country,province,city
          |) b
          |on a.device=b.device and a.province=b.province and a.city=b.city
@@ -175,7 +171,7 @@ object TravelApp {
          |on a.province=d.province1_code and a.pprovince=d.province2_code
          |left join dm_sdk_mapping.map_city_sdk e
          |on a.pcity=e.city_code
-         |left join $cleanedProfileFullTable as g
+         |left join $CLEANED_PROFILE_FULL_MOBDI as g
          |on a.device = g.device
          |left join $narrowedAppActiveTable as h
          |on a.device = h.device
