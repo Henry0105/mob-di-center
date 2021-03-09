@@ -13,10 +13,8 @@ export PATH=$JAVA_HOME/bin:$PATH
 
 export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=256m"
 
-project_root=/home/dba
 
-# mvn clean scalastyle:check package -P$1
-mvn clean package -P$1
+mvn clean package -Pprod -Pspark2.4.3 -Dmaven.test.skip=true
 
 MOBDI_HOME=/data/walle/mobdi_center
 version=$(cat ${MOBDI_HOME}/dist/conf/version.properties)
@@ -26,11 +24,12 @@ ln -snf ${MOBDI_HOME} /home/dba/mobdi_center_versions/${version}
 
 ln -snf /home/dba/mobdi_center_versions/${version}/dist/sbin/mobdi /home/dba/mobdi_center
 
+
 yes|cp -fr /home/dba/mobdi_center_versions/${version}/dist/lib /home/dba/mobdi_center/lib
 
 # update_info=`git diff --stat  head~ head`
 
-# java -jar ./lib/mailSender-1.0.0.jar "walle" "sucess" "zhoup@mob.com,zhtli@mob.com"
+
 # 将所有脚本加上可执行权限
 chmod +x `find -iname \*.sh `
 
