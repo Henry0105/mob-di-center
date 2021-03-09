@@ -1,6 +1,6 @@
 package com.youzu.mob.contacts
 
-import com.youzu.mob.utils.Constants.PHONE_CONTACTS_INDEX_WORD_SPLIT_PREPARE
+import com.youzu.mob.utils.Constants._
 
 import java.util.Date
 import org.ansj.recognition.impl.StopRecognition
@@ -40,7 +40,7 @@ object PhoneContactsWordSplit {
     val DataOrigin = spark.sql(
       s"""
          |select phone,words_list
-         |from $PHONE_CONTACTS_INDEX_WORD_SPLIT_PREPARE
+         |from $DM_MOBDI_TMP.phone_contacts_index_word_split_prepare
          |where day='$day'
       """.stripMargin)
 
@@ -76,7 +76,7 @@ object PhoneContactsWordSplit {
     rescaledData2.repartition(300).createOrReplaceTempView("output")
     spark.sql(
       s"""
-         |insert overwrite table dw_mobdi_md.phone_contacts_index_word_split partition(day='$day')
+         |insert overwrite table $DM_MOBDI_TMP.phone_contacts_index_word_split partition(day='$day')
          |select phone,word_index,tfidf_score
          |from output
        """.stripMargin)
@@ -159,7 +159,7 @@ object PhoneContactsWordSplit {
     result2.repartition(400).createOrReplaceTempView("tmp_output")
     spark.sql(
       s"""
-         |insert overwrite table dw_mobdi_md.phone_contacts_word2vec_index partition(day='$day')
+         |insert overwrite table $DM_MOBDI_TMP.phone_contacts_word2vec_index partition(day='$day')
          |select phone,
          |       vec1_quantile,
          |       vec2_quantile,

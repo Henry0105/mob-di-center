@@ -39,7 +39,7 @@ object PhoneContactsDedupFull {
          |    LEFT SEMI JOIN
          |    (  --优化降低join的duid数量
          |      SELECT phone_contacts.duid
-         |      FROM $PHONE_CONTACTS phone_contacts
+         |      FROM $DM_MOBDI_TMP.phone_contacts phone_contacts
          |      WHERE phone_contacts.dt BETWEEN '${contacts_start_day}' AND '${contacts_end_day}'
          |      AND LENGTH(TRIM(phone_contacts.duid)) > 0
          |      GROUP BY phone_contacts.duid
@@ -80,7 +80,7 @@ object PhoneContactsDedupFull {
          |             PARTITION BY if(contacts_new.shareid = '',id_mapping_dedup.device,contacts_new.shareid), SPLIT(EXTRACT_PHONE_NUM(contacts_new.my_phone), '\\\\|')[0], SPLIT(EXTRACT_PHONE_NUM(contacts_new.phone), '\\\\|')[0]
          |             ORDER BY contacts_new.dt DESC, contacts_new.hour DESC
          |           ) rank
-         |    FROM $PHONE_CONTACTS contacts_new
+         |    FROM $DM_MOBDI_TMP.phone_contacts contacts_new
          |    LEFT JOIN
          |    id_mapping_dedup ON contacts_new.duid=id_mapping_dedup.duid
          |    WHERE contacts_new.dt BETWEEN '${contacts_start_day}' AND '${contacts_end_day}'
