@@ -25,4 +25,9 @@ object Constants {
   val APP_ACTIVE_DAILY = prop("app_active_daily")
   val DWS_DEVICE_LBS_POI_ANDROID_SEC_DI = prop("dws_device_lbs_poi_android_sec_di")
   val IOS_PERMANENT_PLACE = prop("ios_permanent_place")
+  val TRAVEL_LOCATIONS_DAILY= prop("travel_locations_daily")
+  val MAP_COUNTRY_SDK = prop("map_country_sdk")
+  val MAP_PROVINCE_LOC = prop("map_province_loc")
+  val VACATION_FLAG = prop("vacation_flag")
+  val INDEX_PROFILE_HISTORY_ALL = prop("index_profile_history_all")
 }

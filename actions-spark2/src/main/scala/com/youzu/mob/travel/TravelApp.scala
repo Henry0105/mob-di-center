@@ -153,7 +153,7 @@ object TravelApp {
          |    coalesce(cast(g.rentcarInstalled as int), 0)
          |from (
          | select device, country, province, city, pcountry,
-         |  pprovince, pcity, day from dm_mobdi_master.travel_locations_daily
+         |  pprovince, pcity, day from $TRAVEL_LOCATIONS_DAILY
          | where day = $day and (
          |     (country != pcountry and trim(country) != '' and trim(pcountry) != '')
          |     or (province != pprovince and trim(province) != '' and trim(pprovince) != '')
@@ -165,11 +165,11 @@ object TravelApp {
          |where type = 9 and day = $day group by  device,country,province,city
          |) b
          |on a.device=b.device and a.province=b.province and a.city=b.city
-         |left join dm_sdk_mapping.map_country_sdk c
+         |left join $MAP_COUNTRY_SDK c
          |on a.country=c.zone
-         |left join dm_sdk_mapping.map_province_loc d
+         |left join $MAP_PROVINCE_LOC d
          |on a.province=d.province1_code and a.pprovince=d.province2_code
-         |left join dm_sdk_mapping.map_city_sdk e
+         |left join $MAP_CITY_SDK e
          |on a.pcity=e.city_code
          |left join $CLEANED_PROFILE_FULL_MOBDI as g
          |on a.device = g.device
@@ -193,7 +193,7 @@ object TravelApp {
 
 
   def getVacationFlag(spark: SparkSession, day: String): Int = {
-    val rows = spark.sql(s"select flag from dm_sdk_mapping.vacation_flag where day=$day").collect()
+    val rows = spark.sql(s"select flag from $VACATION_FLAG where day=$day").collect()
     if (rows.nonEmpty) {
       rows(0).getInt(0)
     } else {
