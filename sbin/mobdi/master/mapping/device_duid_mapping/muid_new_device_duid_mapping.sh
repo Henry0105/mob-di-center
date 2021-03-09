@@ -27,9 +27,9 @@ ios: 从dw_mobdi_etl.log_device_info_jh (plat=2),dw_mobdi_etl.pv (plat=2)中取d
 currentDay=$1
 
 # input
-log_device_info_jh=dw_mobdi_etl.log_device_info_jh
-pv=dw_mobdi_etl.pv
-dcookie=dw_mobdi_etl.dcookie
+log_device_info_jh=dw_sdk_log.log_device_info_jh
+pv=dw_sdk_log.pv
+dcookie=dw_sdk_log.dcookie
 
 # output   名字还要修改,  dm_mobdi_topic.dws_device_duid_mapping_new  ?
 dws_device_duid_mapping_new=dm_mobdi_topic.dws_device_duid_mapping_new
