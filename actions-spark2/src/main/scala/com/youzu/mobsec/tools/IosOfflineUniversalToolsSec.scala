@@ -2,6 +2,7 @@ package com.youzu.mobsec.tools
 
 import com.alibaba.fastjson.{JSON, JSONObject}
 import com.youzu.mob.tools.OnlineUniversalTools.getBeforeTime
+import com.youzu.mob.utils.Constants._
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.SparkSession
@@ -40,8 +41,8 @@ object IosOfflineUniversalToolsSec {
       }
     } catch {
       case ex: Exception => throw new Exception(
-        s"""There is data of table('dm_mobdi_master.dwd_sdk_lbs_daily_poi_ios_sec_di') in the time window is empty!
-           |Please check the table!--->dm_mobdi_master.dwd_sdk_lbs_daily_poi_ios_sec_di(from ${day} to ${bday})
+        s"""There is data of table('$DWS_IFID_LBS_POI_IOS_SEC_DI') in the time window is empty!
+           |Please check the table!--->$DWS_IFID_LBS_POI_IOS_SEC_DI(from ${day} to ${bday})
         """.stripMargin)
     }
     import spark.implicits._
@@ -51,7 +52,7 @@ object IosOfflineUniversalToolsSec {
          |select ifid,
          |        poiinfo,
          |      day ,Row_number() over(partition by ifid,poiinfo,day order by ifid ) as rank
-         |    from dm_mobdi_master.dwd_sdk_lbs_daily_poi_ios_sec_di where day <=${day} and day > ${bday} and type= ${lbstype} ) mm where mm.rank =1
+         |    from $DWS_IFID_LBS_POI_IOS_SEC_DI where day <=${day} and day > ${bday} and type= ${lbstype} ) mm where mm.rank =1
       """.stripMargin)
     val dineinRows = dineinRdd.rdd.mapPartitions(row => {
       var res = List[(String, List[JSONObject])]()
@@ -104,7 +105,7 @@ object IosOfflineUniversalToolsSec {
     spark.sql(s"cache table offline_cache as select ${schemaString} from offline_tmp")
     spark.sql(s"select ${schemaString} from offline_cache").coalesce(fileNum).registerTempTable("offline_coalsece")
     spark.sql(
-      s"""insert overwrite table rp_mobdi_app.timewindow_offline_profile_ios_sec partition(flag=${lbstype},day=${day},timewindow=${windowTime})
+      s"""insert overwrite table $TIMEWINDOW_OFFLINE_PROFILE_IOS_SEC partition(flag=${lbstype},day=${day},timewindow=${windowTime})
          |select ${schemaString} from offline_coalsece
        """.stripMargin)
   }

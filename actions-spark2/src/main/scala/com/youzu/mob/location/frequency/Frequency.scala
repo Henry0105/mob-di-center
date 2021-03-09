@@ -1,6 +1,7 @@
 package com.youzu.mob.location.frequency
 
 import com.youzu.mob.location.helper.{DbscanCluster, SparkHelper}
+import com.youzu.mob.utils.Constants._
 import org.apache.spark.SparkConf
 import org.apache.spark.storage.StorageLevel
 
@@ -62,7 +63,7 @@ object Frequency extends SparkHelper {
 
     spark.sql(
       s"""
-         |insert overwrite table dw_mobdi_md.tmp_device_frequency_place partition(stage='$clusterTable')
+         |insert overwrite table $DM_MOBDI_TMP.tmp_device_frequency_place partition(stage='$clusterTable')
          |select
          |   device,
          |   cluster,
@@ -90,15 +91,15 @@ object Frequency extends SparkHelper {
          |    from
          |    (
          |      select device,centerlon as lon ,centerlat as lat
-         |      from dw_mobdi_md.tmp_device_work_place
+         |      from $DM_MOBDI_TMP.tmp_device_work_place
          |      where stage='$clusterTable'
          |      union all
          |      select device,centerlon as lon ,centerlat as lat
-         |      from dw_mobdi_md.tmp_device_live_place
+         |      from $DM_MOBDI_TMP.tmp_device_live_place
          |      where stage='$clusterTable'
          |      union all
          |      select device,centerlon as lon ,centerlat as lat
-         |      from dw_mobdi_md.tmp_device_frequency_place
+         |      from $DM_MOBDI_TMP.tmp_device_frequency_place
          |    )t
          |    group by device,lon,lat
          |  )b
@@ -138,7 +139,7 @@ object Frequency extends SparkHelper {
   private def useTableContainsA(clusterTable: String): Unit = {
     spark.sql(
       s"""
-         |insert overwrite table dw_mobdi_md.tmp_device_frequency_place partition(stage='$clusterTable')
+         |insert overwrite table $DM_MOBDI_TMP.tmp_device_frequency_place partition(stage='$clusterTable')
          |select a.device,a.cluster,centerlon,centerlat,
          |case when total_num>=50 and total_days>=7 then 1
          |     when total_num>=10 and total_days>=5 then 0.95
@@ -153,17 +154,17 @@ object Frequency extends SparkHelper {
          |   centerlat,
          |   total_num,
          |   total_days
-         |   from dw_mobdi_md.tmp_device_location_cluster_rank
+         |   from $DM_MOBDI_TMP.tmp_device_location_cluster_rank
          |   where stage='$clusterTable' and total_days>=2
          |)a
          |left join
          |(
          |    select device,cluster
-         |    from dw_mobdi_md.tmp_device_live_place
+         |    from $DM_MOBDI_TMP.tmp_device_live_place
          |    where stage = '$clusterTable'
          |    union all
          |    select device,cluster
-         |    from dw_mobdi_md.tmp_device_work_place
+         |    from $DM_MOBDI_TMP.tmp_device_work_place
          |    where stage ='$clusterTable'
          |)b
          |on a.device = b.device and a.cluster = b.cluster
