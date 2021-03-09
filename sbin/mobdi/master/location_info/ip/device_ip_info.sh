@@ -168,7 +168,7 @@ from
             from $dwd_t_location_sec_di
             where day='${insert_day}'
         ) unioned
-        where device rlike '^[a-f0-9]{40}$'
+        where trim(lower(muid)) rlike '^[a-f0-9]{40}$'
     ) cleaned
     group by device, plat, ipaddr, timestamp
 ) grouped
