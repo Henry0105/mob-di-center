@@ -3,7 +3,7 @@
 set -x -e
 if [ $# -lt 1 ]; then
   echo "ERROR: wrong number of parameters"
-  echo "USAGE: <insert_day>"
+  echo "USAGE: <day>"
   exit 1
 fi
 
@@ -22,7 +22,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
 #dm_mobdi_topic.dws_device_travel_location_di
 #dm_mobdi_report.ads_device_travel_di_old
 
-insert_day=$1
+day=$1
 hive_url='10.6.161.16'
 
 # 第二个参数为非必须参数，如果指定，则显示指定了 rp_mobdi_app.rp_device_location_permanent 的分区，否则使用默认最新分区数据。
@@ -58,7 +58,7 @@ WITH location_current_pre as (
   plat
   FROM $dws_device_location_current_di
   LATERAL VIEW explode(location) t_loc as location_map
-  WHERE day = '$insert_day'
+  WHERE day = '$day'
 )
 ,
 location_current_count AS(
@@ -75,7 +75,7 @@ location_current_count AS(
   ON current_pre.device=country_cnt.device
 )
 
-INSERT OVERWRITE TABLE $dws_device_travel_location_di partition (day = '$insert_day')
+INSERT OVERWRITE TABLE $dws_device_travel_location_di partition (day = '$day')
 SELECT
 location_current.device,
 location_current.country,
@@ -126,7 +126,7 @@ spark2-submit --master yarn \
             --executor-memory 12g \
             --executor-cores 4 \
             --conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
-	   /home/dba/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar  "$insert_day" "$hive_url" "$ads_device_travel_di_old"
+	   /home/dba/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar  "$day" "$hive_url" "$ads_device_travel_di_old"
 
 hive -v -e "
 set hive.vectorized.execution.enabled=true;
@@ -142,7 +142,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 
-insert  overwrite table $ads_device_travel_di_old  partition (day='$insert_day')
+insert  overwrite table $ads_device_travel_di_old  partition (day='$day')
 select device,country,province,city,pcountry,pprovince,pcity,poi_flag int,continents,travel_area,province_flag,pcity_level,vaca_flag,business_flag,busi_app_act,car,travel_app_act,cheap_flight_installed,flight_installed,flight_active,ticket_installed,ticket_active,rentcar_active,rentcar_installed
-from $ads_device_travel_di_old where day='$insert_day'
+from $ads_device_travel_di_old where day='$day'
 "

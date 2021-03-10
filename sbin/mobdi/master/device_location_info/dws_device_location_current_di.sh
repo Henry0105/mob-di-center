@@ -2,7 +2,7 @@
 
 if [ $# -lt 1 ]; then
   echo "ERROR: wrong number of parameters"
-  echo "USAGE: <insert_day>"
+  echo "USAGE: <day>"
   exit 1
 fi
 
@@ -12,7 +12,7 @@ fi
 
 source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 
-insert_day=$1
+day=$1
 
 #input
 #dws_device_ip_info_di=dm_mobdi_topic.dws_device_ip_info_di
@@ -31,7 +31,7 @@ set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 
-INSERT OVERWRITE TABLE $dws_device_location_current_di partition (day='$insert_day')
+INSERT OVERWRITE TABLE $dws_device_location_current_di partition (day='$day')
 SELECT 
 device, 
 collect_set(map('country', country, 'province', province, 'city', city, 'type', type_str)) AS location,
@@ -53,7 +53,7 @@ FROM
       CASE WHEN lower(city) = 'unknown' OR length(trim(city)) = 0 OR city IS NULL THEN '' ELSE city END AS city,
       'ip' as type,
       plat
-      FROM $dws_device_ip_info_di WHERE day = '$insert_day'
+      FROM $dws_device_ip_info_di WHERE day = '$day'
 
       UNION ALL
 
@@ -63,7 +63,7 @@ FROM
       CASE WHEN lower(city) = 'unknown' OR length(trim(city)) = 0 OR city IS NULL THEN '' ELSE city END AS city,
       type,
       plat
-      FROM $dws_device_location_staying_di WHERE day = '$insert_day'
+      FROM $dws_device_location_staying_di WHERE day = '$day'
       AND type <> 'ip'
     ) unioned
     group by device, country, province, city, plat
