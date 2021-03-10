@@ -17,16 +17,17 @@ fi
 day=$1
 
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_dashboard.properties
 
 #input
-dwd_device_location_aggr_statiscs2_w=mob_dashboard.dwd_device_location_aggr_statiscs2_w
-ads_bi_device_location_aggr_statiscs_w=mob_dashboard.ads_bi_device_location_aggr_statiscs_w
+#dwd_device_location_aggr_statiscs2_w=mob_dashboard.dwd_device_location_aggr_statiscs2_w
+#ads_bi_device_location_aggr_statiscs_w=mob_dashboard.ads_bi_device_location_aggr_statiscs_w
 
 #mapping
 #mapping_area_par=dm_sdk_mapping.mapping_area_par
 
 #output
-device_gps_dau_info_by_location_aggr=mob_dashboard.device_gps_dau_info_by_location_aggr
+#device_gps_dau_info_by_location_aggr=mob_dashboard.device_gps_dau_info_by_location_aggr
 
 :<<!
 create table mob_dashboard.device_gps_dau_info_by_location_aggr(
