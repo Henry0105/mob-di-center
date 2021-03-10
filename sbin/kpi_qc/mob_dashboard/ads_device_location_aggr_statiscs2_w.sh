@@ -9,7 +9,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_dashboard.properties
 
 :'
 input:dm_mobdi_master.dwd_device_location_di_v2
-out:mob_dashboard.dwd_device_location_aggr_statiscs2_w
+out:mob_dashboard.ads_device_location_aggr_statiscs2_w
 '
 
 #3执行hql代码
@@ -31,7 +31,7 @@ set hive.exec.dynamic.partition =true;
 set hive.exec.dynamic.partition.mode = nonstrict;
 
 
-INSERT OVERWRITE TABLE $dwd_device_location_aggr_statiscs2_w
+INSERT OVERWRITE TABLE $ads_device_location_aggr_statiscs2_w
 PARTITION(day)
 	select
 	    from_unixtime(unix_timestamp(),'yyyy-MM-dd HH:mm:ss') as crtd_tmst
