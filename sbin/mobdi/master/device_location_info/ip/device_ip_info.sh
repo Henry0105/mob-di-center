@@ -13,7 +13,7 @@ if [ -z "$1" ]; then
 fi
 
 #入参
-insert_day=$1
+day=$1
 
 #导入配置文件
 source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
@@ -63,8 +63,8 @@ SET hive.optimize.skewjoin=true;
 SET hive.exec.reducers.bytes.per.reducer = 1000000000;
 set mapreduce.reduce.memory.mb=6144;
 
-ALTER TABLE $dws_device_ip_info_di DROP IF EXISTS PARTITION (day='$insert_day');
-insert overwrite table $dws_device_ip_info_di partition(day='$insert_day')
+ALTER TABLE $dws_device_ip_info_di DROP IF EXISTS PARTITION (day='$day');
+insert overwrite table $dws_device_ip_info_di partition(day='$day')
 select device,
        plat,
        ipaddr,
@@ -100,7 +100,7 @@ from
                    networktype as network,
                    language
             from $dwd_base_station_info_sec_di
-            where day='${insert_day}'
+            where day='${day}'
 
             union all
 
@@ -111,7 +111,7 @@ from
                    networktype as network,
                    language
             from $dwd_location_info_sec_di
-            where day='${insert_day}'
+            where day='${day}'
 
             union all
 
@@ -122,7 +122,7 @@ from
                    networktype as network,
                    language
             from $dwd_auto_location_info_sec_di
-            where day='${insert_day}'
+            where day='${day}'
 
             union all
 
@@ -133,7 +133,7 @@ from
                    networktype as network,
                    language
             from $dwd_log_wifi_info_sec_di
-            where day='${insert_day}'
+            where day='${day}'
 
             union all
 
@@ -144,7 +144,7 @@ from
                    networktype as network,
                    language
             from $dwd_pv_sec_di
-            where day='${insert_day}'
+            where day='${day}'
 
             union all
 
@@ -155,7 +155,7 @@ from
                    networktype as network,
                    '' as language
             from $dwd_log_run_new_di
-            where day='${insert_day}'
+            where day='${day}'
 
             union all
 
@@ -166,7 +166,7 @@ from
                    networktype as network,
                    '' as language
             from $dwd_t_location_sec_di
-            where day='${insert_day}'
+            where day='${day}'
         ) unioned
         where trim(lower(muid)) rlike '^[a-f0-9]{40}$'
     ) cleaned
