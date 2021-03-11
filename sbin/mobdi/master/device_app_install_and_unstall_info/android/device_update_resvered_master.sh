@@ -27,8 +27,8 @@ if [ $# -lt 1 ]; then
   exit 1
 fi
 
-date1=$1
-bdate1=`date -d "$date1 -40 days" "+%Y%m%d"`
+day=$1
+bdate1=`date -d "$day -40 days" "+%Y%m%d"`
 
 hive -v -e"
 SET hive.exec.parallel=true;
@@ -45,11 +45,11 @@ SET hive.exec.max.dynamic.partitions.pernode=100000;
 SET hive.exec.dynamic.partition=true;
 SET hive.exec.dynamic.partition.mode=nonstrict;
 
-insert overwrite table ${dws_device_install_app_re_status_di} partition(day='${date1}')
+insert overwrite table ${dws_device_install_app_re_status_di} partition(day='${day}')
 select device,pkg,
        reserved_flag as refine_final_flag,
-       if(install_day='$date1',1,0) as install_flag,
-       if(unstall_day='$date1',1,0) as unstall_flag,
+       if(install_day='$day',1,0) as install_flag,
+       if(unstall_day='$day',1,0) as unstall_flag,
        final_flag
 from
 (
@@ -60,19 +60,19 @@ from
          final_flag,
          reserved_flag
   from ${dws_device_install_status}
-  where day='${date1}'
-  and process_time='$date1'
+  where day='${day}'
+  and process_time='$day'
   and (final_flag != -1
-    or from_unixtime(cast(unstall_datetime/1000 as int),'yyyyMMdd')='$date1')
+    or from_unixtime(cast(unstall_datetime/1000 as int),'yyyyMMdd')='$day')
 ) t1;
 
-insert overwrite table ${dws_device_install_app_re_status_40d_di} partition(day='${date1}')
+insert overwrite table ${dws_device_install_app_re_status_40d_di} partition(day='${day}')
 select device,pkg,reserved_flag as refine_final_flag
 from ${dws_device_install_status}
-where day='${date1}'
+where day='${day}'
 and process_time>'$bdate1'
 and (final_flag != -1
-  or from_unixtime(cast(unstall_datetime/1000 as int),'yyyyMMdd')='$date1');
+  or from_unixtime(cast(unstall_datetime/1000 as int),'yyyyMMdd')='$day');
 "
 # 增加同步数据，后金融线上工具上线以后删除
 #hive -v -e"
