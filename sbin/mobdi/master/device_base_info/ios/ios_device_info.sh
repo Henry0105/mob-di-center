@@ -19,8 +19,8 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 
 
-insert_day=$1
-prev_1day=`date +%Y%m%d -d "${insert_day} -1 day"`
+day=$1
+prev_1day=`date +%Y%m%d -d "${day} -1 day"`
 
 #input
 #dwd_log_device_info_jh_sec_di=dm_mobdi_master.dwd_log_device_info_jh_sec_di
@@ -63,7 +63,7 @@ set hive.exec.reducers.max=4000;
 with unioned_device_info as (
   select muid as device, factory, model, screensize, devicetype as devicetype, sysver, cast(breaked as string) as breaked, carrier, serdatetime, 1 as flag
   FROM $dwd_log_device_info_jh_sec_di
-  where day = '$insert_day'
+  where day = '$day'
   and plat = '2'
 ),
 
@@ -81,7 +81,7 @@ ranked_device_info as (
   where rank = 1
 )
 
-insert overwrite table $dwd_device_info_di partition(day='$insert_day', plat='2')
+insert overwrite table $dwd_device_info_di partition(day='$day', plat='2')
 select info.device,
        CASE
          WHEN info.factory IS not NULL and upper(trim(info.factory)) ='APPLE' THEN 'APPLE'
@@ -159,7 +159,7 @@ ON info.carrier = carrier_mapping.mcc_mnc
 ;
 
 --插入全量表
-insert overwrite table $dwd_device_info_full partition(version='${insert_day}.1000', plat='2')
+insert overwrite table $dwd_device_info_full partition(version='${day}.1000', plat='2')
 select device, factory, model, screensize, public_date, model_type, sysver, breaked, carrier, price, devicetype, processtime,model_origin,
 '','','','','','',''
 from 
@@ -171,7 +171,7 @@ from
     select device, factory, model_clean as model, screensize_clean as screensize, public_date, model_type, sysver_clean as sysver,
            breaked_clean as breaked, carrier_clean as carrier, price, devicetype_clean as devicetype, day as processtime, model as model_origin
     from $dwd_device_info_di
-    where day ='$insert_day'
+    where day ='$day'
     and plat='2'
 
     union all

@@ -20,10 +20,10 @@ fi
 @startdate:只取clienttime是当日或前一日的数据
 '
 #入参
-indate=$1
+day=$1
 
-startdate=`date -d "${indate} -1 days" +%Y%m%d`
-formatDate=`date -d "${indate}" +%Y-%m-%d`
+startdate=`date -d "${day} -1 days" +%Y%m%d`
+formatDate=`date -d "${day}" +%Y-%m-%d`
 formatStartdate=`date -d "${startdate}" +%Y-%m-%d`
 
 #导入配置文件
@@ -60,7 +60,7 @@ set hive.merge.size.per.task = 250000000;
 ADD jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 CREATE TEMPORARY FUNCTION clean_client_time as 'com.youzu.mob.java.udf.ClientTimeCleanUDF';
 
-insert overwrite table $dws_device_active_applist_di partition (day = '${indate}')
+insert overwrite table $dws_device_active_applist_di partition (day = '${day}')
 select a1.device,a1.plat,a1.pkg,coalesce(a2.apppkg,a1.pkg) as apppkg,a1.source,a1.client_time
 from
 (
@@ -84,7 +84,7 @@ from
                    source,
                    sort_array(split(clean_client_time('${formatDate}',clienttime_list),',')) as sort_clienttime
             from $dws_device_active_di
-            where day = '${indate}'
+            where day = '${day}'
             and source in ('runtimes','logrun','pv','xm')
             and (clienttime_list like '%${formatDate}%' or clienttime_list like '%${formatStartdate}%')
         ) t
@@ -102,7 +102,7 @@ on a1.pkg = a2.pkg;
 "
 
 hive -e "
-INSERT overwrite TABLE $device_active_applist_full PARTITION (day = ${indate})
+INSERT overwrite TABLE $device_active_applist_full PARTITION (day = ${day})
 SELECT device,
        plat,
        pkg,
@@ -134,7 +134,7 @@ FROM
                apppkg,
                day AS processtime
         FROM $dws_device_active_applist_di
-        WHERE day =${indate}
+        WHERE day =${day}
     ) a
 ) aa
 WHERE rk = 1
