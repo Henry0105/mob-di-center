@@ -37,7 +37,7 @@ create or replace view dm_mobdi_topic.dws_device_sdk_run_master_add_mdata_pv_vie
 partitioned on (day)
 as
 select device,pkg,appver,appkey,plat,commonsdkver,sdks,day
-from dm_mobdi_topic.dws_device_sdk_run_master_di``
+from dm_mobdi_topic.dws_device_sdk_run_master_di
 
 union all
 
