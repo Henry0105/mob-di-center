@@ -25,4 +25,4 @@ fi
 --class com.youzu.mob.stall.StallDataWareService \
 --conf spark.executor.memoryOverhead=10240 \
 --conf spark.driver.maxResultSize=5g \
-/home/dba/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar $day $p1 $p180 "statusStall"
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar $day $p1 $p180 "statusStall"
