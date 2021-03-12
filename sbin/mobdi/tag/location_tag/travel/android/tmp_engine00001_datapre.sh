@@ -10,24 +10,20 @@ fi
 
 day=$1
 
-function gen_uuid()
-{
-psd="/proc/sys/kernel/random/uuid"
-UUID=$(cat /proc/sys/kernel/random/uuid)
-echo $UUID
-}
 
-
+source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
 ## 源表
-device_staying_daily=dm_mobdi_master.device_staying_daily
-rp_device_location_3monthly=rp_mobdi_app.rp_device_location_3monthly
+#dws_device_location_staying_di=dm_mobdi_topic.dws_device_location_staying_di
+#rp_device_location_3monthly=dm_mobdi_report.rp_device_location_3monthly
 
 ## mapping表
-dim_bssid_type_all_mf=dm_mobdi_mapping.dim_bssid_type_all_mf
+#dim_bssid_type_all_mf=dm_mobdi_mapping.dim_bssid_type_all_mf
 
 ## 目标表
-tmp_engine00001_datapre=dw_mobdi_md.tmp_engine00001_datapre
+tmp_engine00001_datapre=dm_mobdi_tmp.tmp_engine00001_datapre
 
 ## 获取最新分区
 
@@ -55,8 +51,6 @@ if [ ${location_day} -gt ${rp_device_location_3monthly_lastday} ]; then
 location_day=${rp_device_location_3monthly_lastday}
 fi
 
-## 分区id day_uuid
-uuid_partition=${day}_`gen_uuid`
 
 sql_final="
 create temporary function get_distance as 'com.youzu.mob.java.udf.WGS84Distance';
@@ -79,13 +73,13 @@ as (
         select device, lat, lon,country,province, city, day,orig_note1, unix_timestamp(concat (day, ' ', start_time),
                 'yyyyMMdd HH:mm:ss') as starttime, unix_timestamp(concat (day, ' ', end_time),
                 'yyyyMMdd HH:mm:ss') as endtime
-        from $device_staying_daily
+        from $dws_device_location_staying_di
         where day='$day' and abnormal_flag = 0 and type = 'gps') a1
         inner join(
         select *
             from (
                 select lat, lon, day,count(1) as cnt
-                from $device_staying_daily
+                from $dws_device_location_staying_di
                 where day = '$day' and abnormal_flag = 0 and type = 'gps'
                 group by lat, lon,day
                 ) tt
@@ -141,7 +135,7 @@ from (
         select device, lat, lon, unix_timestamp(concat (day, ' ', start_time),
                 'yyyyMMdd HH:mm:ss') as starttime, unix_timestamp(concat (day, ' ', end_time),
                 'yyyyMMdd HH:mm:ss') as endtime, orig_note1, city, day,country,province
-        from $device_staying_daily
+        from $dws_device_location_staying_di
         where abnormal_flag = 0 and type = 'wifi' and orig_note1 is not null and day ='$day'
         ) t1
     inner join (
@@ -155,7 +149,7 @@ from (
     select device, lat, lon, unix_timestamp(concat (day, ' ', start_time),
                 'yyyyMMdd HH:mm:ss') as starttime, unix_timestamp(concat (day, ' ', end_time),
                 'yyyyMMdd HH:mm:ss') as endtime,country, province, city, day ,orig_note1 
-    from $device_staying_daily
+    from $dws_device_location_staying_di
     where abnormal_flag = 0 and type = 'base' and day='$day'
     ) t1
 left join (
