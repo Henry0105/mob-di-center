@@ -45,36 +45,42 @@ insert overwrite table $timewindow_online_profile_v2 partition (flag=23,day=$day
 select device,concat(cate,'_23_90') as feature, count(distinct apppkg) as cnt
 from
 (
-select cleaned.device,shuce.cate,cleaned.apppkg
-from
-(
-select device,coalesce(clean.apppkg,reserved.pkg) as apppkg
-from
-(
-select device,pkg
-from $dws_device_install_app_re_status_di
-where day>'$p90day' and day<='$day'
-      and refine_final_flag in (1,0,-1,2)
-union all
-select device,pkg
-from $dws_device_install_app_status_40d_di
-where day='$p90day'
-      and final_flag in (0,1)
-) reserved
-left join
-(
-  select pkg,apppkg from $app_pkg_mapping_par where version='$app_pkg_mapping_partion'
-)clean
-on reserved.pkg=clean.pkg
-) cleaned
-join
-(
-  select apppkg,cate from $app_category_shuce_car where version='1000'
-) shuce
-on cleaned.apppkg=shuce.apppkg
-)grouped group by device,cate
-"
+    select cleaned.device,shuce.cate,cleaned.apppkg
+    from
+    (
+        select device,coalesce(clean.apppkg,reserved.pkg) as apppkg
+        from
+        (
+            select device,pkg
+            from $dws_device_install_app_re_status_di
+            where day>'$p90day'
+            and day<='$day'
+            and refine_final_flag in (1,0,-1,2)
 
+            union all
+
+            select device,pkg
+            from $dws_device_install_app_status_40d_di
+            where day='$p90day'
+            and final_flag in (0,1)
+        ) reserved
+        left join
+        (
+          select pkg,apppkg
+          from $app_pkg_mapping_par
+          where version='$app_pkg_mapping_partion'
+        )clean
+        on reserved.pkg=clean.pkg
+    ) cleaned
+    join
+    (
+        select apppkg,cate
+        from $app_category_shuce_car
+        where version='1000'
+    ) shuce
+    on cleaned.apppkg=shuce.apppkg
+)grouped group by device,cate;
+"
 
 ## 生成新安装线上标签
 hive -v -e "
