@@ -2,6 +2,8 @@ package com.youzu.mob.stall
 
 import org.apache.spark.sql.SparkSession
 
+import com.youzu.mob.utils.Constants._
+
 class StallDataMarket {
 
   /**
@@ -21,7 +23,7 @@ class StallDataMarket {
          |(
          |  select device,pkg,
          |         max(process_time) over (partition by device) as upload_time
-         |  from dm_mobdi_master.dws_device_install_status
+         |  from $DWS_DEVICE_INSTALL_STATUS
          |  where day='${datetime}'
          |  and final_flag<>-1
          |) tt
@@ -48,7 +50,7 @@ class StallDataMarket {
          |from
          |(
          |  select device,applist,process_time,update_time
-         |  from dm_mobdi_master.dm_device_applist_full
+         |  from $DM_DEVICE_APPLIST_FULL
          |  where day = '${fulltime}'
          |) a
          |full join

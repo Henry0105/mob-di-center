@@ -6,6 +6,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.storage.StorageLevel
+import com.youzu.mob.utils.Constants._
 
 /** 生成GA联系人一度正反关系表 */
 object PhoneOneDegreeRelation {
@@ -41,7 +42,8 @@ object PhoneOneDegreeRelation {
    * @return 通讯录数据rdd
    */
   def loadDate(spark: SparkSession): RDD[(String, String, String)] = {
-    val inputPath = s"/user/hive/warehouse/rp_mobdi_app.db/rp_gapoi_myphone_phone/day=$day"
+    val Array(db, tbl) = RP_GAPOI_MYPHONE_PHONE.split("\\.")
+    val inputPath = s"/user/hive/warehouse/$db.db/$tbl/day=$day"
     val fileType = "lzo"
     val delimiter = "\\u0001"
     var rdd: RDD[(String, String, String)] = null

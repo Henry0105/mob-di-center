@@ -1,5 +1,6 @@
 package com.youzu.mob.industrytags
 
+import com.youzu.mob.utils.Constants
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 import org.apache.log4j.{Level, Logger}
@@ -8,7 +9,7 @@ object CalculateIndustryTagsForGroup {
   Logger.getLogger("org").setLevel(Level.ERROR)
 
   val baseProfileTable: String = "rp_sdk_dmp.rp_device_profile_full"
-  val featureTable: String = "dm_sdk_mapping.offline_esti_config"
+  val featureTable: String = Constants.OFFLINE_ESTI_CONFIG
   val weightField: String = "weight_field"
 
   def printUsage(): Unit = {
