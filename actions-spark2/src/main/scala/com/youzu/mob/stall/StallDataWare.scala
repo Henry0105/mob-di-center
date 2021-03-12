@@ -1,6 +1,7 @@
 package com.youzu.mob.stall
 
 import org.apache.spark.sql.SparkSession
+import com.youzu.mob.utils.Constants._
 
 class StallDataWare {
 
@@ -38,7 +39,7 @@ class StallDataWare {
          |             clienttime,
          |             concat(unix_timestamp(serdatetime, 'yyyy-MM-dd HH:mm:ss'), '000')),
          |           '-1') as trace
-         |  from dm_mobdi_master.dwd_log_device_unstall_app_info_sec_di
+         |  from $DWD_LOG_DEVICE_UNSTALL_APP_INFO_SEC_DI
          |  where day='${datetime}'
          |  and trim(lower(deviceid)) rlike '^[a-f0-9]{40}$$'
          |  and trim(deviceid)!='0000000000000000000000000000000000000000'
@@ -61,7 +62,7 @@ class StallDataWare {
          |             clienttime,
          |             concat(unix_timestamp(serdatetime, 'yyyy-MM-dd HH:mm:ss'), '000')),
          |           '1') as trace
-         |  from dm_mobdi_master.dwd_log_device_install_app_incr_info_sec_di
+         |  from $DWD_LOG_DEVICE_INSTALL_APP_INCR_INFO_SEC_DI
          |  where day='${datetime}'
          |  and trim(lower(device)) rlike '^[a-f0-9]{40}$$'
          |  and trim(device)!='0000000000000000000000000000000000000000'
@@ -92,7 +93,7 @@ class StallDataWare {
          |           serdatetime,
          |           clienttime,
          |           rank() over(partition by trim(lower(device)) order by serdatetime desc ) as rank
-         |    from dm_mobdi_master.dwd_log_device_install_app_all_info_sec_di
+         |    from $DWD_LOG_DEVICE_INSTALL_APP_ALL_INFO_SEC_DI
          |    where day=${datetime}
          |    and trim(lower(device)) rlike '^[a-f0-9]{40}$$'
          |    and trim(device)!='0000000000000000000000000000000000000000'

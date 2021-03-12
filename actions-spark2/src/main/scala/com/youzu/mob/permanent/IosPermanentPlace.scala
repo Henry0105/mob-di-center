@@ -40,19 +40,19 @@ object IosPermanentPlace {
       s"""
          |select a.idfa,b.country_code as country,b.province_code as province,a.city,b.country_cn,b.province_cn,b.city_cn,count(a.city) as cnt
          |from (select * from tmp_idfa_result where city<>'') a
-         |join dm_sdk_mapping.map_city_sdk b
+         |join $MAP_CITY_SDK b
          |on a.city=b.city_code
          |group by a.idfa,b.country_code,b.province_code,a.city,b.country_cn,b.province_cn,b.city_cn
          |union all
          |select c.idfa,d.country_code as country,c.province,c.city,d.country_cn,d.province_cn,'未知' as city_cn,count(c.province) as cnt
          |from (select * from tmp_idfa_result where province<>'' and city='') c
-         |join dm_sdk_mapping.map_city_sdk d
+         |join $MAP_CITY_SDK d
          |on c.province=d.province_code
          |group by c.idfa,d.country_code,c.province,c.city,d.country_cn,d.province_cn
          |union all
          |select e.idfa,e.country,e.province,e.city,f.country_cn,'未知' as province_cn,'未知' as city_cn,count(e.country) as cnt
          |from (select * from tmp_idfa_result where country<>'' and province='' and city='') e
-         |join dm_sdk_mapping.map_city_sdk f
+         |join $MAP_CITY_SDK f
          |on e.country=f.country_code
          |group by e.idfa,e.country,e.province,e.city,f.country_cn
        """.stripMargin)
