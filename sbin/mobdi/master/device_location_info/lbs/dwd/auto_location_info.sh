@@ -27,12 +27,24 @@ plus_2day=`date +%Y%m%d -d "${day} +2 day"`
 echo "startday: "$day
 echo "endday:   "$plus_2day
 
-ip_mapping_sql="
-    add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
-    create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_latlon_blacklist_mf', 'day');
-"
-last_ip_mapping_partition=(`hive -e "$ip_mapping_sql"`)
+#ip_mapping_sql="
+#    add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
+#    create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
+#    SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_latlon_blacklist_mf', 'day');
+#"
+#last_ip_mapping_partition=(`hive -e "$ip_mapping_sql"`)
+
+#获取小于当前日期的最大分区
+par_arr=(`hive -e "show partitions dm_mobdi_mapping.dim_latlon_blacklist_mf" |awk -F '=' '{print $2}'|xargs`)
+for par in ${par_arr[@]}
+do
+  if [ $par -le $day ]
+  then
+    last_ip_mapping_partition=$par
+  else
+    break
+  fi
+done
 
 # check source data: #######################
 CHECK_DATA()

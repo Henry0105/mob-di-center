@@ -50,12 +50,23 @@ CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_log
 CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_log_wifi_info_sec_di/day=${plus_2day}"
 # ##########################################
 
-bssid_mapping_sql="
-    add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
-    create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_mapping_bssid_location_clear_mf', 'day');
-"
-last_bssid_mapping_mapping_partition=(`hive -e "$bssid_mapping_sql"`)
+#bssid_mapping_sql="
+#    add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
+#    create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
+#    SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_mapping_bssid_location_clear_mf', 'day');
+#"
+#last_bssid_mapping_mapping_partition=(`hive -e "$bssid_mapping_sql"`)
+#获取小于当前日期的最大分区
+par_arr=(`hive -e "show partitions dm_mobdi_mapping.dim_mapping_bssid_location_clear_mf" |awk -F '=' '{print $2}'|xargs`)
+for par in ${par_arr[@]}
+do
+  if [ $par -le $day ]
+  then
+    last_bssid_mapping_mapping_partition=$par
+  else
+    break
+  fi
+done
 
 ip_mapping_sql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
@@ -64,12 +75,24 @@ ip_mapping_sql="
 "
 last_ip_mapping_partition=(`hive -e "$ip_mapping_sql"`)
 
-ip_mapping_sql="
-    add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
-    create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_latlon_blacklist_mf', 'day');
-"
-last_ip_mapping_partition_latlon=(`hive -e "$ip_mapping_sql"`)
+#ip_mapping_sql="
+#    add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
+#    create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
+#    SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_latlon_blacklist_mf', 'day');
+#"
+#last_ip_mapping_partition_latlon=(`hive -e "$ip_mapping_sql"`)
+#获取小于当前日期的最大分区
+par_arr=(`hive -e "show partitions dm_mobdi_mapping.dim_latlon_blacklist_mf" |awk -F '=' '{print $2}'|xargs`)
+for par in ${par_arr[@]}
+do
+  if [ $par -le $day ]
+  then
+    last_ip_mapping_partition_latlon=$par
+  else
+    break
+  fi
+done
+
 
 hive -v -e"
 SET mapreduce.map.memory.mb=6144;
