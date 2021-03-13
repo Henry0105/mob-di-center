@@ -100,13 +100,13 @@ with auto_location_info as (
   '' as orig_note2,
   accuracy,apppkg,clientip as ipaddr,serdatetime,language
   from $dwd_auto_location_info_sec_di
-  where day between '$insert_day' and '$plus_2day'  --取开始日期起3天范围
-  and from_unixtime(CAST(clienttime/1000 as BIGINT), 'yyyyMMdd') = '$insert_day' --取clienttime转换为当日的数据
+  where day between '$day' and '$plus_2day'  --取开始日期起3天范围
+  and from_unixtime(CAST(clienttime/1000 as BIGINT), 'yyyyMMdd') = '$day' --取clienttime转换为当日的数据
   and trim(lower(muid)) rlike '^[a-f0-9]{40}$' and trim(muid)!='0000000000000000000000000000000000000000'
   and plat in (1,2)
 )
 
-insert overwrite table $dwd_device_location_info_di partition (day='$insert_day', source_table='auto_location_info')
+insert overwrite table $dwd_device_location_info_di partition (day='$day', source_table='auto_location_info')
 select
     nvl(device,'') as device,
     nvl(duid,'') as duid,
