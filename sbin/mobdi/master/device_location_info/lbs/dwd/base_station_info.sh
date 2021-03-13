@@ -141,7 +141,7 @@ base_station_info2 as ( --电信
        nid,
        bid,
        sid,CONCAT(unix_timestamp(serdatetime),'000') as serdatetime,language
-  from $base_station_info
+  from $dwd_device_location_info_di
   where day between '$day' and '$plus_2day'
   and from_unixtime(CAST(datetime/1000 as BIGINT), 'yyyyMMdd') = '$day'
   and trim(lower(device)) rlike '^[a-f0-9]{40}$' and trim(device)!='0000000000000000000000000000000000000000'
