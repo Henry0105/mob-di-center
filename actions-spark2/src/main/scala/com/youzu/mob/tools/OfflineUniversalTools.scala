@@ -11,6 +11,7 @@ import org.apache.spark.sql.SparkSession
 import scala.collection.mutable
 import scala.util.control.Breaks._
 import scala.collection.mutable.ArrayBuffer
+import com.youzu.mob.utils.Constants._
 
 object OfflineUniversalTools {
   def main(args: Array[String]): Unit = {
@@ -107,7 +108,7 @@ object OfflineUniversalTools {
     spark.sql(s"cache table offline_cache as select ${schemaString} from offline_tmp")
     spark.sql(s"select ${schemaString} from offline_cache").coalesce(fileNum).registerTempTable("offline_coalsece")
     spark.sql(
-      s"""insert overwrite table rp_mobdi_app.timewindow_offline_profile
+      s"""insert overwrite table $TIMEWINDOW_OFFLINE_PROFILE
          |partition (flag=${lbstype},day=${day},timewindow=${windowTime})
          |select ${schemaString} from offline_coalsece
        """.stripMargin)

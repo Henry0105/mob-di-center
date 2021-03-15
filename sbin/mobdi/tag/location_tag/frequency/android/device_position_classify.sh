@@ -9,8 +9,8 @@ set -x -e
 '
 
 #入参
-daypre=$1
-day=${daypre:0:6}01
+day=$1
+date=${day:0:6}01
 
 #导入配置文件
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
@@ -59,7 +59,7 @@ with frequency_info as(
              area,
              cnt
       from $rp_device_frequency_3monthly
-      where day='$day'
+      where day='$date'
       and length(trim(area))>0
     ) frequency
     inner join $chinese_area_code_new area_mapping
@@ -67,7 +67,7 @@ with frequency_info as(
   )t
 )
 
-insert overwrite table $ads_device_frequencry_position_classify partition(day =$day)
+insert overwrite table $ads_device_frequencry_position_classify partition(day =$date)
 select device,
        case
          when sum(unben_sum) >sum(rural_sum) then 1

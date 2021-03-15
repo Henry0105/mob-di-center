@@ -6,6 +6,8 @@ import java.util.{Calendar, Date}
 import com.alibaba.fastjson.JSON
 import org.apache.spark.sql.SparkSession
 
+import com.youzu.mob.utils.Constants._
+
 object OnlineUniversalTools {
   def main(args: Array[String]): Unit = {
     val json = new createJson(args)
@@ -35,7 +37,7 @@ object OnlineUniversalTools {
       .coalesce(json.fileNum).registerTempTable("nolabel_online_coalsece")
     spark.sql(
       s"""insert overwrite table
-         |rp_mobdi_app.timewindow_online_profile
+         |$TIMEWINDOW_ONLINE_PROFILE
          |partition(flag=${json.mappingtype},day=${json.day},timewindow=${json.windowTime})
          |select ${json.processfield},feature,cnt from nolabel_online_coalsece
        """.stripMargin)
@@ -81,7 +83,7 @@ object OnlineUniversalTools {
     spark.sql(
       s"""
          |cache table mappingtable as
-         |select relation,category,total,percent from dm_mobdi_mapping.online_category_mapping
+         |select relation,category,total,percent from $ONLINE_CATEGORY_MAPPING
          |where type =${mappingtype}
        """.stripMargin)
     if ("".equals(labelTable)) {
@@ -164,7 +166,7 @@ object OnlineUniversalTools {
         }
       }
       list.toIterator
-    }).toDF(schemaString.split(","): _*).registerTempTable("online_tmp")
+    }).toDF(schemaString.split(","): _*).createOrReplaceTempView("online_tmp")
 
     if ("1".equals(computeType)) {
       spark.sql(
@@ -177,7 +179,7 @@ object OnlineUniversalTools {
           |select device,count(*) as count from (
           |select device,relation,Row_number() over(partition by device,relation order by device) as rank
           |from sourcetable group by device,relation) mm where mm.rank = 1 group by device
-        """.stripMargin).registerTempTable("allcount")
+        """.stripMargin).createOrReplaceTempView("allcount")
 
       spark.sql(
         s"""CACHE table online_cache as
@@ -187,9 +189,9 @@ object OnlineUniversalTools {
            |left join allcount c on c.device = online.device""".stripMargin)
     }
 
-    spark.sql(s"select ${schemaString} from online_cache").coalesce(fileNum).registerTempTable("online_coalsece")
+    spark.sql(s"select ${schemaString} from online_cache").coalesce(fileNum).createOrReplaceTempView("online_coalsece")
     spark.sql(
-      s"""insert overwrite table rp_mobdi_app.timewindow_online_profile
+      s"""insert overwrite table $TIMEWINDOW_ONLINE_PROFILE
          |partition(flag=${mappingtype},day=${day},timewindow=${windowTime})
          |select ${schemaString} from online_coalsece
        """.stripMargin)
