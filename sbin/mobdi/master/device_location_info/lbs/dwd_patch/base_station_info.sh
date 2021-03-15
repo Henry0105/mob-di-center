@@ -6,23 +6,24 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
+#source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+#source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+#source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+
 ###源表
-base_station_info=dm_mobdi_master.dwd_base_station_info_sec_di
+dwd_base_station_info_sec_di=dm_mobdi_master.dwd_base_station_info_sec_di
 
 ###映射表
 dim_latlon_blacklist_mf=dm_mobdi_mapping.dim_latlon_blacklist_mf
 mapping_ip_attribute_code=dm_sdk_mapping.mapping_ip_attribute_code
-#dim_base_dbscan_result_month=dm_sdk_mapping.dim_base_dbscan_result_month
 dim_base_dbscan_result_month=dm_mobdi_mapping.dim_base_dbscan_result_month
 
 ###目标表
-dw_device_location_di=dm_mobdi_master.dwd_device_location_di
+dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
 
-insert_day=$1
-plus_1day=`date +%Y%m%d -d "${insert_day} +1 day"`
-plus_2day=`date +%Y%m%d -d "${insert_day} +2 day"`
-echo "startday: "$insert_day
-echo "endday:   "$plus_2day
+
+day=$1
+echo "startday: "$day
 
 # check source data: #######################
 CHECK_DATA()
@@ -42,7 +43,7 @@ CHECK_DATA()
       return 1
   fi
 }
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_base_station_info_sec_di/day=${insert_day}"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_base_station_info_sec_di/day=${day}"
 # ##########################################
 
 base_station_mapping_sql="
@@ -59,12 +60,23 @@ ip_mapping_sql="
 "
 last_ip_mapping_partition=(`hive -e "$ip_mapping_sql"`)
 
-ip_mapping_sql="
-    add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
-    create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_latlon_blacklist_mf', 'day');
-"
-last_ip_mapping_partition_latlon=(`hive -e "$ip_mapping_sql"`)
+#ip_mapping_sql="
+#    add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
+#    create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
+#    SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_latlon_blacklist_mf', 'day');
+#"
+#last_ip_mapping_partition_latlon=(`hive -e "$ip_mapping_sql"`)
+#获取小于当前日期的最大分区
+par_arr=(`hive -e "show partitions dm_mobdi_mapping.dim_latlon_blacklist_mf" |awk -F '=' '{print $2}'|xargs`)
+for par in ${par_arr[@]}
+do
+  if [ $par -le $day ]
+  then
+    last_ip_mapping_partition_latlon=$par
+  else
+    break
+  fi
+done
 
 HADOOP_USER_NAME=dba hive -v -e"
 SET mapreduce.map.memory.mb=4096;
@@ -84,7 +96,7 @@ create temporary function get_ip_attribute as 'com.youzu.mob.java.udf.GetIpAttri
 
 with base_station_info1 as ( --移动,联通
   select
-      nvl(device, '') as device,
+      nvl(muid, '') as device,
       duid,
       from_unixtime(CAST(datetime/1000 as BIGINT), 'HH:mm:ss') as time,
       day as processtime,
@@ -100,10 +112,10 @@ with base_station_info1 as ( --移动,联通
            else 3 end as flag,
       ipaddr,
        apppkg,case when serdatetime='-1' or length(trim(serdatetime))<2 then '' else CONCAT(unix_timestamp(serdatetime),'000') end as serdatetime,language
-  from $base_station_info
-  where day='$insert_day'
-  and from_unixtime(CAST(datetime/1000 as BIGINT), 'yyyyMMdd') = '$insert_day'
-  and trim(lower(device)) rlike '^[a-f0-9]{40}$' and trim(device)!='0000000000000000000000000000000000000000'
+  from $dwd_base_station_info_sec_di
+  where day = '$day'
+  and from_unixtime(CAST(datetime/1000 as BIGINT), 'yyyyMMdd') = '$day'
+  and trim(lower(muid)) rlike '^[a-f0-9]{40}$' and trim(muid)!='0000000000000000000000000000000000000000'
   and plat in (1,2)
   and ((lac is not null or  cell is not null) and (bid is  null and sid is  null and nid is  null))
 ),
@@ -124,9 +136,9 @@ base_station_info2 as ( --电信
        nid,
        bid,
        sid,CONCAT(unix_timestamp(serdatetime),'000') as serdatetime,language
-  from $base_station_info
-  where day='$insert_day'
-  and from_unixtime(CAST(datetime/1000 as BIGINT), 'yyyyMMdd') = '$insert_day'
+  from $dwd_base_station_info_sec_di
+  where day = '$day'
+  and from_unixtime(CAST(datetime/1000 as BIGINT), 'yyyyMMdd') = '$day'
   and trim(lower(device)) rlike '^[a-f0-9]{40}$' and trim(device)!='0000000000000000000000000000000000000000'
   and plat in (1,2)
   and ((bid is not null or  sid is not null or  nid is not null) and (lac is  null and cell is  null ))
@@ -143,103 +155,129 @@ base_station_mapping as(
     from $dim_base_dbscan_result_month where day = '$last_base_station_mapping_partition'
 )
 
-insert overwrite table $dw_device_location_di partition (day='$insert_day', source_table='base_station_info')
+insert overwrite table $dwd_device_location_info_di partition (day='$day', source_table='base_station_info')
 select
-    trim(lower(device)) device,
-    duid,
-    if(a.lat is null or a.lat > 90 or a.lat < -90, '', a.lat) as lat,
-    if(a.lon is null or a.lon> 180 or a.lon< -180, '', a.lon) as lon,
-    time,
-    processtime,
+    nvl(device,'') as device,
+    nvl(duid,'') as duid,
+    nvl(lat,'') as lat,
+    nvl(lon,'') as lon,
+    nvl(time,'') as time,
+    nvl(processtime,'') as processtime,
     nvl(country,'') as country,
     nvl(province,'') as province,
     nvl(city,'') as city,
-    area,
-    street,
-    plat,
-    if(network is null or (trim(lower(network)) not rlike '^(2g)|(3g)|(4g)|(5g)|(cell)|(wifi)|(bluetooth)$'),'',trim(lower(network))) as network,
-    type,
-    data_source,
-    orig_note1,
-    orig_note2,
-    accuracy,
-    if(apppkg is null or trim(apppkg) in ('null','NULL') or trim(apppkg)!=regexp_extract(trim(apppkg),'([a-zA-Z0-9\.\_-]+)',0),'',trim(apppkg)) as apppkg,
-    orig_note3,
-    case when b.lat is not null and b.lon is not null and b.stage is not null then 1 else 0 end as abnormal_flag,
-    ga_abnormal_flag
-from (select
-          device, duid,lat,lon,time, processtime,country,province,city,area,street,
-          plat, network, type, data_source, orig_note1, orig_note2, accuracy,apppkg, orig_note3,ipaddr,serdatetime,language,ga_abnormal_flag,
-          case  when type='base' and  network = '4g' and network is not null then 'B'
-                when (type='ip' and  network='wifi' and area<>'' and network is not null and area is not null) or (type='base' and not(network = '4g' and network is not null) )  then 'C'
-                when type='ip' and not(network='wifi' and area<>'' and network is not null and area is not null) then 'D' else '' end as stage
-      from (select
-                device, duid,
-                coalesce(base_station_location.lat, ip_mapping.bd_lat, '') as lat,
-                coalesce(base_station_location.lon, ip_mapping.bd_lon, '') as lon,
-                time, processtime,
-                coalesce(base_station_location.country, ip_mapping.country_code, '') as country,
-                coalesce(base_station_location.province, ip_mapping.province_code, '') as province,
-                coalesce(base_station_location.city, ip_mapping.city_code, '') as city,
-                coalesce(base_station_location.district, ip_mapping.area_code, '') as area,
-                coalesce(base_station_location.street, '') as street,
-                plat, network,
-                case when base_station_location.lat is null or base_station_location.lon is null then 'ip' else type end as type,
-                data_source,
-                case when base_station_location.lat is null or base_station_location.lon is null then concat('ip=', ipaddr) else orig_note1 end as orig_note1,
-                case when base_station_location.lat is null or base_station_location.lon is null then '' else orig_note2 end as orig_note2,
-                coalesce(base_station_location.accuracy, ip_mapping.accuracy) as accuracy, apppkg, nvl(network_type,'') as orig_note3,ipaddr,serdatetime,language,
-                base_station_location.ga_abnormal_flag
-            from (select
-                      device, duid,
-                      base_station_mapping.lat as lat,
-                      base_station_mapping.lon as lon,
-                      time, processtime, plat, network, type, data_source,
-                      concat('lac,cell=', base_station_mapping.lac, ',', base_station_mapping.cell) as orig_note1,
-                      concat('mcc,mnc=', base_station_mapping.mcc, ',', base_station_mapping.mnc) as orig_note2,
-                      base_station_mapping.acc as accuracy,
-                      base_station_mapping.country,
-                      base_station_mapping.province,
-                      base_station_mapping.city,
-                      base_station_mapping.district,
-                      base_station_mapping.street,
-                      ipaddr,apppkg,network_type,serdatetime,language,
-                      if(base_station_mapping.ga_abnormal_flag is null,0,base_station_mapping.ga_abnormal_flag) as ga_abnormal_flag
-                  from base_station_info1
-                  left join base_station_mapping
-                  on (base_station_mapping.lac = base_station_info1.lac and base_station_mapping.cell = base_station_info1.cell
-                  and base_station_mapping.flag = base_station_info1.flag)  --通过基站信息关联
+    nvl(area,'') as area,
+    nvl(street,'') as street,
+    nvl(plat,'') as plat,
+    nvl(network,'') as network,
+    nvl(type,'') as type,
+    nvl(data_source,'') as data_source,
+    nvl(orig_note1,'') as orig_note1,
+    nvl(orig_note2,'') as orig_note2,
+    nvl(accuracy,'') as accuracy,
+    nvl(apppkg,'') as apppkg,
+    nvl(orig_note3,'') as orig_note3,
+    nvl(abnormal_flag,'') as abnormal_flag,
+    nvl(ga_abnormal_flag,'') as ga_abnormal_flag
+from (
+    select
+        trim(lower(device)) device,
+        duid,
+        if(a.lat is null or a.lat > 90 or a.lat < -90, '', a.lat) as lat,
+        if(a.lon is null or a.lon> 180 or a.lon< -180, '', a.lon) as lon,
+        time,
+        processtime,
+        country,
+        province,
+        city,
+        area,
+        street,
+        plat,
+        if(network is null or (trim(lower(network)) not rlike '^(2g)|(3g)|(4g)|(5g)|(cell)|(wifi)|(bluetooth)$'),'',trim(lower(network))) as network,
+        type,
+        data_source,
+        orig_note1,
+        orig_note2,
+        accuracy,
+        if(apppkg is null or trim(apppkg) in ('null','NULL') or trim(apppkg)!=regexp_extract(trim(apppkg),'([a-zA-Z0-9\.\_-]+)',0),'',trim(apppkg)) as apppkg,
+        orig_note3,
+        case when b.lat is not null and b.lon is not null and b.stage is not null then 1 else 0 end as abnormal_flag,
+        ga_abnormal_flag
+    from (select
+              device, duid,lat,lon,time, processtime,country,province,city,area,street,
+              plat, network, type, data_source, orig_note1, orig_note2, accuracy,apppkg, orig_note3,ipaddr,serdatetime,language,ga_abnormal_flag,
+              case  when type='base' and  network = '4g' and network is not null then 'B'
+                    when (type='ip' and  network='wifi' and area<>'' and network is not null and area is not null) or (type='base' and not(network = '4g' and network is not null) )  then 'C'
+                    when type='ip' and not(network='wifi' and area<>'' and network is not null and area is not null) then 'D' else '' end as stage
+          from (select
+                    device, duid,
+                    coalesce(base_station_location.lat, ip_mapping.bd_lat, '') as lat,
+                    coalesce(base_station_location.lon, ip_mapping.bd_lon, '') as lon,
+                    time, processtime,
+                    coalesce(base_station_location.country, ip_mapping.country_code, '') as country,
+                    coalesce(base_station_location.province, ip_mapping.province_code, '') as province,
+                    coalesce(base_station_location.city, ip_mapping.city_code, '') as city,
+                    coalesce(base_station_location.district, ip_mapping.area_code, '') as area,
+                    coalesce(base_station_location.street, '') as street,
+                    plat, network,
+                    case when base_station_location.lat is null or base_station_location.lon is null then 'ip' else type end as type,
+                    data_source,
+                    case when base_station_location.lat is null or base_station_location.lon is null then concat('ip=', ipaddr) else orig_note1 end as orig_note1,
+                    case when base_station_location.lat is null or base_station_location.lon is null then '' else orig_note2 end as orig_note2,
+                    coalesce(base_station_location.accuracy, ip_mapping.accuracy) as accuracy, apppkg, nvl(network_type,'') as orig_note3,ipaddr,serdatetime,language,
+                    base_station_location.ga_abnormal_flag
+                from (select
+                          device, duid,
+                          base_station_mapping.lat as lat,
+                          base_station_mapping.lon as lon,
+                          time, processtime, plat, network, type, data_source,
+                          concat('lac,cell=', base_station_mapping.lac, ',', base_station_mapping.cell) as orig_note1,
+                          concat('mcc,mnc=', base_station_mapping.mcc, ',', base_station_mapping.mnc) as orig_note2,
+                          base_station_mapping.acc as accuracy,
+                          base_station_mapping.country,
+                          base_station_mapping.province,
+                          base_station_mapping.city,
+                          base_station_mapping.district,
+                          base_station_mapping.street,
+                          ipaddr,apppkg,network_type,serdatetime,language,
+                          if(base_station_mapping.ga_abnormal_flag is null,0,base_station_mapping.ga_abnormal_flag) as ga_abnormal_flag
+                      from base_station_info1
+                      left join base_station_mapping
+                      on (base_station_mapping.lac = base_station_info1.lac and base_station_mapping.cell = base_station_info1.cell
+                      and base_station_mapping.flag = base_station_info1.flag)  --通过基站信息关联
 
-                  union all
+                      union all
 
-                  select
-                      device, duid,
-                      base_station_mapping.lat as lat,
-                      base_station_mapping.lon as lon,
-                      time, processtime, plat, network, type, data_source,
-                      concat('nid,bid=', base_station_mapping.lac, ',', base_station_mapping.cell) as orig_note1,
-                      concat('mcc,sid=', base_station_mapping.mcc, ',', base_station_mapping.mnc) as orig_note2,
-                      base_station_mapping.acc as accuracy,
-                      base_station_mapping.country,
-                      base_station_mapping.province,
-                      base_station_mapping.city,
-                      base_station_mapping.district,
-                      base_station_mapping.street,
-                      ipaddr,apppkg,network_type,serdatetime,language,
-                      if(base_station_mapping.ga_abnormal_flag is null,0,base_station_mapping.ga_abnormal_flag) as ga_abnormal_flag
-                  from base_station_info2
-                  left join  base_station_mapping
-                  on (base_station_mapping.lac = base_station_info2.nid and base_station_mapping.cell = base_station_info2.bid
-                  and base_station_mapping.mnc=base_station_info2.sid and base_station_mapping.flag = base_station_info2.flag)
-            ) base_station_location
-            left join (select * from $mapping_ip_attribute_code where day='$last_ip_mapping_partition') ip_mapping
-            on (case when base_station_location.lat is not null and base_station_location.lon is not null then concat('', rand()) else get_ip_attribute(base_station_location.ipaddr) end = ip_mapping.minip) --通过ip信息关联
-      ) aa
-) a
-left join (select lat,lon,stage from $dim_latlon_blacklist_mf where day='$last_ip_mapping_partition_latlon') b
-on round(a.lat,5)=round(b.lat,5)
-and round(a.lon,5)=round(b.lon,5)
-and a.stage=b.stage
+                      select
+                          device, duid,
+                          base_station_mapping.lat as lat,
+                          base_station_mapping.lon as lon,
+                          time, processtime, plat, network, type, data_source,
+                          concat('nid,bid=', base_station_mapping.lac, ',', base_station_mapping.cell) as orig_note1,
+                          concat('mcc,sid=', base_station_mapping.mcc, ',', base_station_mapping.mnc) as orig_note2,
+                          base_station_mapping.acc as accuracy,
+                          base_station_mapping.country,
+                          base_station_mapping.province,
+                          base_station_mapping.city,
+                          base_station_mapping.district,
+                          base_station_mapping.street,
+                          ipaddr,apppkg,network_type,serdatetime,language,
+                          if(base_station_mapping.ga_abnormal_flag is null,0,base_station_mapping.ga_abnormal_flag) as ga_abnormal_flag
+                      from base_station_info2
+                      left join  base_station_mapping
+                      on (base_station_mapping.lac = base_station_info2.nid and base_station_mapping.cell = base_station_info2.bid
+                      and base_station_mapping.mnc=base_station_info2.sid and base_station_mapping.flag = base_station_info2.flag)
+                ) base_station_location
+                left join (select * from $mapping_ip_attribute_code where day='$last_ip_mapping_partition') ip_mapping
+                on (case when base_station_location.lat is not null and base_station_location.lon is not null then concat('', rand()) else get_ip_attribute(base_station_location.ipaddr) end = ip_mapping.minip) --通过ip信息关联
+          ) aa
+    ) a
+    left join (select lat,lon,stage from $dim_latlon_blacklist_mf where day='$last_ip_mapping_partition_latlon') b
+    on round(a.lat,5)=round(b.lat,5)
+    and round(a.lon,5)=round(b.lon,5)
+    and a.stage=b.stage
+)a
+group by  device,duid,lat,lon,time,processtime,country,province,city,area,street,plat,network,type,data_source,orig_note1,orig_note2,accuracy,apppkg,orig_note3,abnormal_flag,ga_abnormal_flag
 ;
 "
 
