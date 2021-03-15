@@ -1,0 +1,120 @@
+#!/bin/bash
+
+set -x -e
+
+if [ -z "$1" ]; then
+  exit 1
+fi
+
+###源表
+location_info=dm_mobdi_master.dwd_location_info_sec_di
+
+###映射表
+dim_latlon_blacklist_mf=dm_mobdi_mapping.dim_latlon_blacklist_mf
+geohash6_area_mapping_par=dm_sdk_mapping.geohash6_area_mapping_par
+geohash8_lbs_info_mapping_par=dm_sdk_mapping.geohash8_lbs_info_mapping_par
+
+###目标表
+dw_device_location_di=dm_mobdi_master.dwd_device_location_di
+
+insert_day=$1
+echo "runday: "$insert_day
+
+ip_mapping_sql="
+    add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
+    create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
+    SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_latlon_blacklist_mf', 'day');
+"
+last_ip_mapping_partition=(`hive -e "$ip_mapping_sql"`)
+
+hive -v -e "
+SET hive.exec.parallel=true;
+SET hive.exec.parallel.thread.number=10;
+SET hive.auto.convert.join=true;
+SET hive.map.aggr=true;
+SET hive.merge.mapfiles=true;
+SET hive.merge.mapredfiles=true;
+set hive.merge.size.per.task=128000000;
+set hive.merge.smallfiles.avgsize=128000000;
+
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/dependencies/lib/lamfire-2.1.4.jar;
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
+create temporary function coordConvert as 'com.youzu.mob.java.udf.CoordConvertor';
+create temporary function get_geohash as 'com.youzu.mob.java.udf.GetGeoHash';
+
+with location_info as (
+  select
+      nvl(deviceid, '') as device,
+      duid,
+      case when latitude is not null and longitude is not null and (latitude-round(latitude,1))*10<>0.0 and (longitude-round(longitude,1))*10<>0.0 then round(cast(split(coordConvert(latitude, longitude, 'wsg84', 'bd09'), ',')[0] as double), 6) else '' end as lat,  --wgs84转换为bd09
+      case when latitude is not null and longitude is not null and (latitude-round(latitude,1))*10<>0.0 and (longitude-round(longitude,1))*10<>0.0 then round(cast(split(coordConvert(latitude, longitude, 'wsg84', 'bd09'), ',')[1] as double), 6) else '' end as lon,
+      from_unixtime(CAST(clienttime/1000 as BIGINT), 'HH:mm:ss') as time,
+      day as processtime,
+      plat,
+      networktype as network,
+      'gps' as type,
+      case when location_type = 1 then 'gps' when location_type = 2 then 'network' else 'unknown_gps' end as data_source,
+      '' as orig_note1,
+      '' as orig_note2,
+      accuracy,
+      apppkg,clientip as ipaddr,serdatetime,language
+  from $location_info
+  where day = '$insert_day'
+  and from_unixtime(CAST(clienttime/1000 as BIGINT), 'yyyyMMdd') = '$insert_day'
+  and trim(lower(deviceid)) rlike '^[a-f0-9]{40}$' and trim(deviceid)!='0000000000000000000000000000000000000000'
+  and plat in (1,2)
+)
+
+insert overwrite table $dw_device_location_di partition (day='$insert_day', source_table='location_info')
+select
+    trim(lower(device)) device,
+    duid,
+    if(a.lat is null or a.lat > 90 or a.lat < -90, '', a.lat) as lat,
+    if(a.lon is null or a.lon> 180 or a.lon< -180, '', a.lon) as lon,
+    time,
+    processtime,
+    nvl(country,'') as country,
+    nvl(province,'') as province,
+    nvl(city,'') as city,
+    area,
+    street,
+    plat,
+    if(network is null or (trim(lower(network)) not rlike '^(2g)|(3g)|(4g)|(5g)|(cell)|(wifi)|(bluetooth)$'),'',trim(lower(network))) as network,
+    type,
+    data_source,
+    orig_note1,
+    orig_note2,
+    accuracy,
+    if(apppkg is null or trim(apppkg) in ('null','NULL') or trim(apppkg)!=regexp_extract(trim(apppkg),'([a-zA-Z0-9\.\_-]+)',0),'',trim(apppkg)) as apppkg,
+    orig_note3,
+    case when b.lat is null and b.lon is null then 0 else 1 end as abnormal_flag,
+    0 as ga_abnormal_flag
+from (select
+          device, duid,
+          coalesce(lat, '') as lat,
+          coalesce(lon, '') as lon,
+          time, processtime,
+          substr(coalesce(geo6.province, geohash8_mapping.province_code, ''), 1, 2) as country,
+          coalesce(geo6.province, geohash8_mapping.province_code, '') as province,
+          coalesce(geo6.city, geohash8_mapping.city_code, '') as city,
+          coalesce(geo6.area, geohash8_mapping.area_code, '') as area,
+          '' as street,
+          plat, network, type, data_source, orig_note1, orig_note2, accuracy, apppkg, '' as orig_note3,ipaddr,serdatetime,language
+      from (select
+                device, duid, lat, lon, time, processtime,
+                geohash6_mapping.province_code as province,
+                geohash6_mapping.city_code as city,
+                geohash6_mapping.area_code as area,
+                geohash6_mapping.geohash_6_code,
+                plat, network, type, data_source, orig_note1, orig_note2, accuracy,apppkg,ipaddr,serdatetime,language
+            from location_info log
+            left join (select * from $geohash6_area_mapping_par where version='1000') geohash6_mapping
+            on (get_geohash(lat, lon, 6) = geohash6_mapping.geohash_6_code) --根据geohash6关联
+      ) geo6
+      left join (select * from $geohash8_lbs_info_mapping_par where version='1000') geohash8_mapping
+      on (case when geo6.geohash_6_code is null then get_geohash(lat, lon, 8) else concat('', rand()) end = geohash8_mapping.geohash_8_code)  --未关联上的再根据geohash8关联
+)a
+left join (select lat,lon from $dim_latlon_blacklist_mf where day='$last_ip_mapping_partition' and stage='A') b
+on round(a.lat,5)=round(b.lat,5) and round(a.lon,5)=round(b.lon,5)
+;
+"
