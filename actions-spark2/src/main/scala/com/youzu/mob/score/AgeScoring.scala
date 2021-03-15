@@ -1,5 +1,6 @@
 package com.youzu.mob.score
 
+import com.youzu.mob.utils.Constants.TP_SDK_TMP
 import org.apache.spark.SparkConf
 import org.apache.spark.ml.classification.LogisticRegressionModel
 import org.apache.spark.sql.SparkSession
@@ -44,10 +45,10 @@ object AgeScoring {
       "device", "prediction", "probability").
       registerTempTable("lr_scoring_age")
 
-    spark.sql("DROP TABLE IF EXISTS tp_sdk_tmp.result_age_scoring_tmp")
+    spark.sql(s"DROP TABLE IF EXISTS $TP_SDK_TMP.result_age_scoring_tmp")
     spark.sql(
-      """
-        |create table tp_sdk_tmp.result_age_scoring_tmp as
+      s"""
+        |create table $TP_SDK_TMP.result_age_scoring_tmp as
         |select device,(prediction+5) as age,probability from lr_scoring_age
       """.stripMargin)
   }
