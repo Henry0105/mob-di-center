@@ -338,7 +338,7 @@ from (
                        area_code as ip_area_code,
                        accuracy as ip_accuracy,
                        'wifi_connect_type=1' as orig_note3
-                from $dw_mobdi_md.wifi_scan_list_collected
+                from $wifi_scan_list_collected
                 where day='$insert_day'
             ) wifi_scan_list
             left join (
@@ -391,13 +391,13 @@ union all
            select deviceid,bssid,ssid,clienttime,clientip,networktype,duid,plat,processday,apppkg,
                   lat,lon,bssid_country,bssid_province,bssid_city,bssid_district,bssid_street,bssid_accuracy,
                   'wifi_connect_type=2' as orig_note3
-           from $dw_mobdi_md.wifi_scan_list_not_collected_high_probability
+           from $wifi_scan_list_not_collected_high_probability
            where day='$insert_day'
        union all
            select deviceid,bssid,ssid,clienttime,clientip,networktype,duid,plat,processday,apppkg,
                   lat,lon,bssid_country,bssid_province,bssid_city,bssid_district,bssid_street,bssid_accuracy,
                   'wifi_connect_type=3' as orig_note3
-           from $dw_mobdi_md.wifi_scan_list_not_collected_low_probability_final
+           from $wifi_scan_list_not_collected_low_probability_final
            where day='$insert_day'
         ) t1
     ) b
