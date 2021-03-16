@@ -1,5 +1,6 @@
 package com.youzu.mob.score
 
+import com.youzu.mob.utils.Constants.TP_SDK_TMP
 import org.apache.spark.SparkConf
 import org.apache.spark.ml.classification.LogisticRegressionModel
 import org.apache.spark.sql.SparkSession
@@ -37,10 +38,10 @@ object KidsScoring {
       r.getAs[org.apache.spark.ml.linalg.Vector](2).apply(r.getDouble(1).toInt))
     ).toDF("device", "prediction", "probability").registerTempTable("lr_scoring_kids")
 
-    spark.sql("DROP TABLE IF EXISTS tp_sdk_tmp.result_kids_scoring_tmp")
+    spark.sql(s"DROP TABLE IF EXISTS $TP_SDK_TMP.result_kids_scoring_tmp")
     spark.sql(
-      """
-        |create table tp_sdk_tmp.result_kids_scoring_tmp as
+      s"""
+        |create table $TP_SDK_TMP.result_kids_scoring_tmp as
         |select device,case when prediction = 0 then 2
         |       when prediction = 1 then 3
         |       when prediction = 2 then 4

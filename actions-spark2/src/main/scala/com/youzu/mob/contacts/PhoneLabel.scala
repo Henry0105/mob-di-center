@@ -1,6 +1,6 @@
 package com.youzu.mob.contacts
 
-import com.youzu.mob.utils.Constants.{DM_MOBDI_TMP, PHONE_CONTACTS_DEDUP_FULL}
+import com.youzu.mob.utils.Constants.{DM_MOBDI_TMP, PHONE_CONTACTS_DEDUP_FULL, PHONE_LABEL}
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
@@ -89,7 +89,7 @@ object PhoneLabel {
          |                                or LENGTH(regexp_extract(phone, '000853[0-9]{11}', 0)) = 17
          |         or LENGTH(regexp_extract(phone, '0000010[0-9]{10}', 0)) = 17
          |             ))
-         |		 insert overwrite table rp_mobdi_app.phone_label partition (day='$insert_day')
+         |		 insert overwrite table $PHONE_LABEL partition (day='$insert_day')
          |   SELECT NVL(phone_device_mapping.device, '') AS device,
          |          t1.phone,
          |          t1.label,

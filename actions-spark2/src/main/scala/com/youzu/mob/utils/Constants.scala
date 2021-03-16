@@ -51,4 +51,9 @@ object Constants {
   val RP_GAPOI_MYPHONE_PHONE = prop("rp_gapoi_myphone_phone")
   val DEVICE_LOCATION_CURRENT = prop("dws_device_location_current_di")
   val RP_DEVICE_LOCATION_PERMANENT = prop("rp_device_location_permanent")
+
+  val ANDROID_ID_MAPPING_FULL_VIEW = prop("android_id_mapping_full_view")
+  val DM_DEVICE_APPLIST_INCR = prop("dm_device_applist_incr")
+  val PHONE_LABEL = prop("phone_label")
+  val TP_SDK_TMP = prop("tp_sdk_tmp")
 }

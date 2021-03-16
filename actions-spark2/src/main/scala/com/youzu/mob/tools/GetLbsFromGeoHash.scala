@@ -10,9 +10,9 @@ object GetLbsFromGeoHash {
     val fields = args(1)
     val spark = SparkSession.builder().enableHiveSupport().getOrCreate()
     spark.sql(
-      """
+      s"""
         |cache table mapping_tmp as
-        |select * from dm_sdk_mapping.geohash6_area_mapping
+        |select * from $GEOHASH6_AREA_MAPPING
       """.stripMargin)
     spark.sql(
       s"""
