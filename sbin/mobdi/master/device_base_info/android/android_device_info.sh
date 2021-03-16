@@ -30,7 +30,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #out
 #dwd_device_info_di=dm_mobdi_master.dwd_device_info_di
-#dwd_device_info_full=dm_mobdi_master.dwd_device_info_full
+#dwd_device_info_df=dm_mobdi_master.dwd_device_info_df
 
 
 day=$1
