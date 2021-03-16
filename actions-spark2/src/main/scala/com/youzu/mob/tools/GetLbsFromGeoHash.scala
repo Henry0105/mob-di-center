@@ -1,6 +1,7 @@
 package com.youzu.mob.tools
 
 import org.apache.spark.sql.SparkSession
+import com.youzu.mob.utils.Constants._
 
 object GetLbsFromGeoHash {
   def main(args: Array[String]): Unit = {
@@ -9,9 +10,9 @@ object GetLbsFromGeoHash {
     val fields = args(1)
     val spark = SparkSession.builder().enableHiveSupport().getOrCreate()
     spark.sql(
-      """
+      s"""
         |cache table mapping_tmp as
-        |select * from dm_sdk_mapping.geohash6_area_mapping
+        |select * from $GEOHASH6_AREA_MAPPING
       """.stripMargin)
     spark.sql(
       s"""
@@ -35,7 +36,7 @@ object GetLbsFromGeoHash {
         |  geohash6_tmp t where t.province is null
         | )m
         | left join
-        | dm_sdk_mapping.geohash8_lbs_info_mapping c
+        | $GEOHASH8_LBS_INFO_MAPPING c
         | on c.geohash_8_code = m.geohash
       """.stripMargin)
   }

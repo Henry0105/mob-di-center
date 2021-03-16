@@ -1,7 +1,7 @@
 package com.youzu.mob.ppx
 
+import com.youzu.mob.utils.Constants._
 import org.apache.spark.sql.SparkSession
-
 
 object PPXScore {
 
@@ -61,12 +61,12 @@ object PPXScore {
          |  from
          |  (
          |    select device, ppx_encode(t.app) as app_encode
-         |    from rp_mobdi_app.device_profile_label_full_par
+         |    from $DEVICE_PROFILE_LABEL_FULL_PAR
          |    lateral view explode(split(app_distinct(applist),',')) t as app
          |    where version='${day}.1000'
          |  )profile_full
          |  left join
-         |  dm_mobdi_mapping.dim_ppx_app_mapping ppx_app
+         |  $DIM_PPX_APP_MAPPING
          |  on profile_full.app_encode = ppx_app.app_wd
          |)t
          |group by device
@@ -105,7 +105,7 @@ object PPXScore {
 
     spark.sql(
       s"""
-         |insert overwrite table rp_mobdi_app.ads_ppx_score_weekly partition(day=${day})
+         |insert overwrite table $ADS_PPX_SCORE_WEEKLY partition(day=${day})
          |select device, score1, score2,
          |  case when probability <0 then 0
          |       when probability >1 then 1

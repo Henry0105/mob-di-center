@@ -2,6 +2,8 @@ package com.youzu.mob.stall
 
 import org.apache.spark.sql.SparkSession
 
+import com.youzu.mob.utils.Constants._
+
 class StallDataMarket {
 
   /**
@@ -14,14 +16,14 @@ class StallDataMarket {
 
     spark.sql(
       s"""
-         |insert overwrite table dm_mobdi_master.dm_device_applist_incr partition (day='${datetime}')
+         |insert overwrite table $DM_DEVICE_APPLIST_INCR partition (day='${datetime}')
          |select device,concat_ws(',',sort_array(collect_set(pkg))) as applist,
          |       max(upload_time) as process_time
          |from
          |(
          |  select device,pkg,
          |         max(process_time) over (partition by device) as upload_time
-         |  from dm_mobdi_master.dws_device_install_status
+         |  from $DWS_DEVICE_INSTALL_STATUS
          |  where day='${datetime}'
          |  and final_flag<>-1
          |) tt
@@ -35,7 +37,7 @@ class StallDataMarket {
 
     spark.sql(
       s"""
-         |insert overwrite table dm_mobdi_master.dm_device_applist_full partition (day='${datetime}')
+         |insert overwrite table $DM_DEVICE_APPLIST_FULL partition (day='${datetime}')
          |select nvl(a.device,b.device) as device,
          |       case when a.device is null then b.applist
          |            when b.device is null then a.applist
@@ -48,13 +50,13 @@ class StallDataMarket {
          |from
          |(
          |  select device,applist,process_time,update_time
-         |  from dm_mobdi_master.dm_device_applist_full
+         |  from $DM_DEVICE_APPLIST_FULL
          |  where day = '${fulltime}'
          |) a
          |full join
          |(
          |  select device,applist,upload_time
-         |  from dm_mobdi_master.dm_device_applist_incr
+         |  from $DM_DEVICE_APPLIST_INCR
          |  where day='${datetime}'
          |)b on a.device=b.device
       """.stripMargin)

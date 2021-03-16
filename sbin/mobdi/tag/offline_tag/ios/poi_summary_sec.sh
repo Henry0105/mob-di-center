@@ -25,7 +25,7 @@ windowTime=$2
 lbstype=$3
 field=$4
 spark2-submit --master yarn --deploy-mode client \
---class com.youzu.mobsec.tools.IosOfflineUniversalToolsSec \
+--class com.youzu.mob.tools.IosOfflineUniversalToolsSec \
 --driver-memory 10G \
 --executor-memory 15G \
 --executor-cores 5 \

@@ -1,5 +1,6 @@
 package com.youzu.mob.score
 
+import com.youzu.mob.utils.Constants.TP_SDK_TMP
 import org.apache.spark.SparkConf
 import org.apache.spark.ml.classification.LogisticRegressionModel
 import org.apache.spark.ml.linalg.{Vector => mlVector, Vectors => mlVectors}
@@ -37,10 +38,10 @@ object GenderScoring {
       select("device", "prediction", "probability").
       registerTempTable("result_gender_rdd_tmp")
 
-    spark.sql("DROP TABLE IF EXISTS tp_sdk_tmp.result_gender_scoring_tmp")
+    spark.sql(s"DROP TABLE IF EXISTS $TP_SDK_TMP.result_gender_scoring_tmp")
     spark.sql(
-      """
-        |create table tp_sdk_tmp.result_gender_scoring_tmp as
+      s"""
+        |create table $TP_SDK_TMP.result_gender_scoring_tmp as
         |select device,prediction as gender from result_gender_rdd_tmp
       """.stripMargin)
   }

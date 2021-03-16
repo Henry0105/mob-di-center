@@ -1,5 +1,6 @@
 package com.youzu.mob.score
 
+import com.youzu.mob.utils.Constants.TP_SDK_TMP
 import org.apache.spark.SparkConf
 
 import scala.collection.mutable.ArrayBuffer
@@ -37,10 +38,10 @@ object EduScoring {
 
     edu_full.registerTempTable("result_edu_rdd_tmp")
 
-    spark.sql("DROP TABLE IF EXISTS tp_sdk_tmp.result_edu_scoring_tmp")
+    spark.sql(s"DROP TABLE IF EXISTS $TP_SDK_TMP.result_edu_scoring_tmp")
     spark.sql(
-      """
-        |create table tp_sdk_tmp.result_edu_scoring_tmp as
+      s"""
+        |create table $TP_SDK_TMP.result_edu_scoring_tmp as
         |select device,(prediction+6) as edu from result_edu_rdd_tmp
       """.stripMargin)
   }

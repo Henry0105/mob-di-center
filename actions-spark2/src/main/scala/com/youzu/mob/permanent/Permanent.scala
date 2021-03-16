@@ -1,6 +1,6 @@
 package com.youzu.mob.permanent
 
-
+import com.youzu.mob.utils.Constants._
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 import scala.collection.mutable
@@ -22,8 +22,8 @@ object Permanent {
 
     import spark.implicits._
 
-    val df = spark.sql(s"select device,location,day from dm_mobdi_master." +
-      s"device_location_current where day between $p90day and $day and plat='1'")
+    val df = spark.sql(s"select device,location,day from $DEVICE_LOCATION_CURRENT " +
+      s"where day between $p90day and $day and plat='1'")
 
     //展开location，提取其中的 "country", "province", "city"
     df.mapPartitions(row => {
@@ -113,7 +113,7 @@ object Permanent {
          |group by device
          |)
          |)
-         |insert overwrite  table rp_mobdi_app.rp_device_location_permanent partition(day='$day')
+         |insert overwrite  table $RP_DEVICE_LOCATION_PERMANENT partition(day='$day')
          |select device,
          |       COALESCE(country,'') as country,
          |       countrycount,
