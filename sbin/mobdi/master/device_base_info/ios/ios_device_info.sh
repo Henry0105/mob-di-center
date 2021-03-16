@@ -32,7 +32,7 @@ prev_1day=`date +%Y%m%d -d "${day} -1 day"`
 
 #out
 #dwd_device_info_di=dm_mobdi_master.dwd_device_info_di
-#dwd_device_info_full=dm_mobdi_master.dwd_device_info_full
+#dwd_device_info_df=dm_mobdi_master.dwd_device_info_df
 
 
 ios_factory_mapping_sql="
