@@ -17,14 +17,16 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
+source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+
 day=$1
 
 mapdb="dm_sdk_mapping"
-tmpdb="dw_mobdi_md"
-middb="dw_mobdi_md"
-appdb="rp_mobdi_app"
+tmpdb="dw_mobdi_tmp"
+middb="dw_mobdi_tmp"
+appdb="rp_mobdi_report"
 ##input
-device_applist_new="dm_mobdi_mapping.device_applist_new"
+device_applist_new=${dim_device_applist_new_di}
 
 ##mapping
 app_category_index_mapping="tp_mobdi_model.mapping_app_category_index_new"

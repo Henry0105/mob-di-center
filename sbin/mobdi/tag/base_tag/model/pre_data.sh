@@ -17,6 +17,7 @@ fi
 day=$1
 source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 
 ## input
 label_device_applist_cnt=$label_l1_applist_refine_cnt_di
@@ -35,9 +36,9 @@ drop temporary function GET_LAST_PARTITION;
 lastPartition=(`hive -e "$sql"`)
 
 ##tmp table
-label_merge_all="dw_mobdi_md.model_merge_all_features"
+label_merge_all=$model_merge_all_features
 ## output
-transfered_feature_table="dw_mobdi_md.model_transfered_features"
+transfered_feature_table=$model_transfered_features
 
 hive -v -e "
 set hive.exec.parallel=true;

@@ -12,10 +12,15 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-full_version=`hive -e "show partitions rp_mobdi_app.device_profile_label_full_par"| grep -v 'monthly_bak'|awk -F '=' '{print $2}'|tail -n 1`
+source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+
+tmpdb="dw_mobdi_tmp"
+appdb="rp_mobdi_report"
+
+full_version=`hive -e "show partitions ${appdb}.device_profile_label_full_par"| grep -v 'monthly_bak'|awk -F '=' '{print $2}'|tail -n 1`
 
 ## input
-result_scoring_par=${label_l2_result_scoring_di}
+result_scoring_par="${appdb}.label_l2_result_scoring_di"
 
 ##中间落地表
 models_with_confidence_pre_par=dw_mobdi_md.models_with_confidence_pre_par
@@ -24,16 +29,16 @@ models_with_confidence_pre_par=dw_mobdi_md.models_with_confidence_pre_par
 model_confidence_config_maping="tp_mobdi_model.model_confidence_config_maping"
 
 ##output 添加了置信度并做了逻辑自洽的表
-confidence_logic=${label_l2_model_with_confidence_union_logic_di}
+confidence_logic="${appdb}.label_l2_model_with_confidence_union_logic_di"
 
 day=$1
 echo ${day}
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+
 #step 1: 计算置模型标签值及值的置信度
 last_conf_par=`hive -e "show partitions tp_mobdi_model.model_confidence_config_maping" | sort | tail -n 1`
 
 hive -v -e "
-insert overwrite table dw_mobdi_md.models_with_confidence_pre
+insert overwrite table ${tmpdb}.models_with_confidence_pre
 select device,prediction,probability,day,kind,
        case
          when normal_probability = 1 then 0.9
@@ -89,74 +94,6 @@ inner join
   where day='$day'
   and kind='consume_level'
 ) b on a.prediction=b.prediction
-
-union all
-select device,prediction,probability,day,kind,
-       case
-         when normal_probability = 1 then 0.9
-         when (quadratic_coefficient*pow(normal_probability,2)+primary_coefficient*normal_probability+intercept) > 1 then 1.0
-         when (quadratic_coefficient*pow(normal_probability,2)+primary_coefficient*normal_probability+intercept) < 0 then 0.0
-         else (quadratic_coefficient*pow(normal_probability,2)+primary_coefficient*normal_probability+intercept)
-       end as confidence
-from
-(
-  select device,a1.prediction,probability,day,a1.kind,
-         case
-           when probability > max_probability then probability
-           when probability <= max_probability and probability >= min_probability
-           then (probability-min_probability)/(max_probability-min_probability)
-           else 0.0
-         end as normal_probability,
-         quadratic_coefficient,primary_coefficient,intercept
-  from
-  (
-    select *
-    from $model_confidence_config_maping
-    where $last_conf_par
-    and kind='occ_1002'
-  ) a1
-  inner join
-  (
-    select device,prediction,probability,day,kind
-    from $result_scoring_par
-    where day='$day'
-    and kind='occupation_1002'
-  ) a2 on a1.prediction = a2.prediction
-) a
-
-union all
-select device,prediction,probability,day,kind,
-       case
-         when normal_probability = 1 then 0.9
-         when (quadratic_coefficient*pow(normal_probability,2)+primary_coefficient*normal_probability+intercept) > 1 then 1.0
-         when (quadratic_coefficient*pow(normal_probability,2)+primary_coefficient*normal_probability+intercept) < 0 then 0.0
-         else (quadratic_coefficient*pow(normal_probability,2)+primary_coefficient*normal_probability+intercept)
-       end as confidence
-from
-(
-  select device,a1.prediction,probability,day,a1.kind,
-         case
-           when probability > max_probability then probability
-           when probability <= max_probability and probability >= min_probability
-           then (probability-min_probability)/(max_probability-min_probability)
-           else 0.0
-         end as normal_probability,
-         quadratic_coefficient,primary_coefficient,intercept
-  from
-  (
-    select *
-    from $model_confidence_config_maping
-    where $last_conf_par
-    and kind='income'
-  ) a1
-  inner join
-  (
-    select device,prediction,probability,day,kind
-    from $result_scoring_par
-    where day='$day'
-    and kind='income_1001_v2'
-  ) a2 on a1.prediction = a2.prediction
-) a
 ;
 
 insert overwrite table $models_with_confidence_pre_par partition(day='$day')
@@ -230,14 +167,14 @@ spark2-submit --class com.youzu.mob.newscore.ModelProfileTableMerge \
 
 #全字段去重
 hive -v -e "
-insert overwrite table $label_l2_model_with_confidence_union_logic_di partition(day=$day)
+insert overwrite table ${appdb}.label_l2_model_with_confidence_union_logic_di partition(day=$day)
 select device,gender,gender_cl,agebin,agebin_cl,edu,edu_cl,income,income_cl,kids,kids_cl,
        car,car_cl,house,house_cl,married,married_cl,occupation,occupation_cl,industry,
        industry_cl,agebin_1001,agebin_1001_cl,city_level,special_time,consum_level,
        life_stage,income_1001,income_1001_cl,occupation_1001,occupation_1001_cl,consume_level,
        consume_level_cl,agebin_1002,agebin_1002_cl,agebin_1003,agebin_1003_cl,income_1001_v2,
        income_1001_v2_cl,occupation_1002,occupation_1002_cl
-from $label_l2_model_with_confidence_union_logic_di
+from ${appdb}.label_l2_model_with_confidence_union_logic_di
 where day = '$day'
 group by device,gender,gender_cl,agebin,agebin_cl,edu,edu_cl,income,income_cl,kids,kids_cl,
        car,car_cl,house,house_cl,married,married_cl,occupation,occupation_cl,industry,

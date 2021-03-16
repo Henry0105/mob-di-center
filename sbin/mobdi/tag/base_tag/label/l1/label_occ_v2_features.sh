@@ -13,11 +13,13 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
+source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+
 day=$1
-tmpdb="dw_mobdi_md"
-appdb="rp_mobdi_app"
+tmpdb="dw_mobdi_tmp"
+appdb="rp_mobdi_report"
 #input
-device_applist_new="dm_mobdi_mapping.device_applist_new"
+device_applist_new=${dim_device_applist_new_di}
 
 #mapping
 mapping_app_cate_index1="dm_sdk_mapping.mapping_age_cate_index1"
@@ -138,7 +140,7 @@ select x.device,y.phone_pre3,y.year from
       (
         select a.device,concat(phone,'=',phone_ltm) phone_list
         from seed a
-        join dm_mobdi_mapping.android_id_mapping_full_view b
+        join dm_mobdi_mapping.dim_id_mapping_android_df_view b
         on a.device=b.device
       )c lateral view explode_tags(phone_list) n as phone,pn_tm
     )d       where length(phone) = 11
@@ -173,7 +175,7 @@ left join
 (
 select * from
 dw_mobdi_md.tmp_anticheat_device_bssid_cnt_30days
-where day=GET_LAST_PARTITION('dw_mobdi_md', 'tmp_anticheat_device_bssid_cnt_30days', 'day')
+where day=GET_LAST_PARTITION('dw_mobdi_tmp', 'tmp_anticheat_device_bssid_cnt_30days', 'day')
 )b
 on a.device=b.device
 )c where rn=1;
@@ -195,7 +197,7 @@ left join
 (
   select *
   from dw_mobdi_md.tmp_anticheat_device_avgdistance_pre
-  where day=GET_LAST_PARTITION('dw_mobdi_md', 'tmp_anticheat_device_avgdistance_pre', 'day') and timewindow='30'
+  where day=GET_LAST_PARTITION('dw_mobdi_tmp', 'tmp_anticheat_device_avgdistance_pre', 'day') and timewindow='30'
 )b
 on a.device=b.device
 )c where rn=1
@@ -218,7 +220,7 @@ left join
 (
   select *
   from dw_mobdi_md.tmp_anticheat_device_nightdistance_pre
-  where day=GET_LAST_PARTITION('dw_mobdi_md', 'tmp_anticheat_device_nightdistance_pre', 'day') and timewindow='30'
+  where day=GET_LAST_PARTITION('dw_mobdi_tmp', 'tmp_anticheat_device_nightdistance_pre', 'day') and timewindow='30'
 )b
 on a.device=b.device
 )c where rn=1

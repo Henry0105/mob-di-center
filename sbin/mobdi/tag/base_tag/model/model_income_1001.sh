@@ -20,20 +20,24 @@ if [ $# -ne 1 ]; then
 fi
 day=$1
 
+source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+
+tmpdb="dw_mobdi_tmp"
+appdb="rp_mobdi_report"
+
 #input
-transfered_feature_table="dw_mobdi_md.model_transfered_features"
-label_merge_all="dw_mobdi_md.model_merge_all_features"
+transfered_feature_table="${tmpdb}.model_transfered_features"
+label_merge_all="${tmpdb}.model_merge_all_features"
 label_apppkg_feature_index=${label_l1_apppkg_feature_index}
 label_apppkg_category_index=${label_l1_apppkg_category_index}
 
-income_1001_university_bssid_index=dw_mobdi_md.income_1001_university_bssid_index
-income_1001_shopping_mall_bssid_index=dw_mobdi_md.income_1001_shopping_mall_bssid_index
-income_1001_traffic_bssid_index=dw_mobdi_md.income_1001_traffic_bssid_index
-income_1001_hotel_bssid_index=dw_mobdi_md.income_1001_hotel_bssid_index
+income_1001_university_bssid_index=${tmpdb}.income_1001_university_bssid_index
+income_1001_shopping_mall_bssid_index=${tmpdb}.income_1001_shopping_mall_bssid_index
+income_1001_traffic_bssid_index=${tmpdb}.income_1001_traffic_bssid_index
+income_1001_hotel_bssid_index=${tmpdb}.income_1001_hotel_bssid_index
 
-
-income_1001_pid_contacts_index=dw_mobdi_md.income_1001_pid_contacts_index_sec
-income_1001_pid_contacts_word2vec_index=dw_mobdi_md.income_1001_phone_contacts_word2vec_index
+income_1001_pid_contacts_index=${tmpdb}.income_1001_pid_contacts_index_sec   # 加密表
+income_1001_pid_contacts_word2vec_index=${tmpdb}.income_1001_phone_contacts_word2vec_index  # 需要改表名
 
 
 modelPath="/dmgroup/dba/modelpath/20191128/income_1001/incomemodel_lr_201911_new"
@@ -41,8 +45,8 @@ threshold="0.9,1.2,1.15,1.0,0.6"
 length=21696
 
 #tmp
-income_1001_device_index="dw_mobdi_md.income_1001_device_index"
-income_1001_all_index="dw_mobdi_md.income_1001_all_index"
+income_1001_device_index="${tmpdb}.income_1001_device_index"
+income_1001_all_index="${tmpdb}.income_1001_all_index"
 #output
 outputTable=${label_l2_result_scoring_di}
 
