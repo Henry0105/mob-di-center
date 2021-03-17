@@ -93,24 +93,24 @@ with live_place as(
     from
     (
       select *,row_number() over(partition by device order by confidence desc) as rk
-      from dw_mobdi_md.tmp_device_live_place
+      from $tmp_device_live_place
       where stage in('A','B','C','D')
     ) live
-    left join (select * from dm_sdk_mapping.geohash6_area_mapping_par where version='1000') geohash6_mapping
+    left join (select * from $geohash6_area_mapping_par where version='1000') geohash6_mapping
     on (get_geohash(centerlat, centerlon, 6) = geohash6_mapping.geohash_6_code)
     where live.rk = 1
     )geo6
-    left join (select * from dm_sdk_mapping.geohash8_lbs_info_mapping_par where version='1000') geohash8_mapping
+    left join (select * from $geohash8_lbs_info_mapping_par where version='1000') geohash8_mapping
     on (case when geo6.geohash_6_code is null then get_geohash(lat_home, lon_home, 8) else concat('', rand()) end = geohash8_mapping.geohash_8_code)
   )t
   left  join
-  (select country,country_code from dm_sdk_mapping.mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par') group by country,country_code) mapping_country
+  (select country,country_code from $mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par') group by country,country_code) mapping_country
   on t.country=mapping_country.country_code
   left join
-  (select province,province_code from dm_sdk_mapping.mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par') group by province,province_code) mapping_province
+  (select province,province_code from $mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par') group by province,province_code) mapping_province
   on t.province=mapping_province.province_code
   left join
-  (select city,city_code from dm_sdk_mapping.mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par') group by city,city_code) mapping_city
+  (select city,city_code from $mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par') group by city,city_code) mapping_city
   on t.city=mapping_city.city_code
   left join
   (
@@ -118,7 +118,7 @@ with live_place as(
    from
    (
     select area_poi,area_code,row_number() over(partition by area_code order by length(area_poi)) as rank
-    from dm_sdk_mapping.mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par')
+    from $mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par')
    ) min_area
    where rank=1
   ) mapping_area
@@ -175,36 +175,36 @@ work_place as (
     from
     (
       select *,row_number() over(partition by device order by confidence desc) as rk
-      from dw_mobdi_md.tmp_device_work_place
+      from $tmp_device_work_place
       where stage in('A','B','C','D')
     ) work
-    left join (select * from dm_sdk_mapping.geohash6_area_mapping_par where version='1000') geohash6_mapping
+    left join (select * from $geohash6_area_mapping_par where version='1000') geohash6_mapping
     on (get_geohash(centerlat, centerlon, 6) = geohash6_mapping.geohash_6_code)
     where work.rk = 1
     )geo6
-    left join (select * from dm_sdk_mapping.geohash8_lbs_info_mapping_par where version='1000') geohash8_mapping
+    left join (select * from $geohash8_lbs_info_mapping_par where version='1000') geohash8_mapping
     on (case when geo6.geohash_6_code is null then get_geohash(lat_work, lon_work, 8) else concat('', rand()) end = geohash8_mapping.geohash_8_code)
   )t
   left  join
-  (select country,country_code from dm_sdk_mapping.mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par') group by country,country_code) mapping_country
+  (select country,country_code from $mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par') group by country,country_code) mapping_country
   on t.country=mapping_country.country_code
   left join
-  (select province,province_code from dm_sdk_mapping.mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par') group by province,province_code) mapping_province
+  (select province,province_code from $mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par') group by province,province_code) mapping_province
   on t.province=mapping_province.province_code
   left join
-  (select city,city_code from dm_sdk_mapping.mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par') group by city,city_code) mapping_city
+  (select city,city_code from $mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par') group by city,city_code) mapping_city
   on t.city=mapping_city.city_code
   left join
   (
    select area_poi,area_code from(
     select area_poi,area_code,row_number() over(partition by area_code order by length(area_poi)) as rank
-    from dm_sdk_mapping.mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par')
+    from $mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par')
     ) min_area
     where rank=1
     ) mapping_area
   on t.area=mapping_area.area_code
 )
-insert overwrite table rp_mobdi_app.rp_device_location_3monthly partition(day='${days}')
+insert overwrite table $rp_device_location_3monthly partition(day='${days}')
 select
    device,
    round(lon_home,6) as lon_home,
