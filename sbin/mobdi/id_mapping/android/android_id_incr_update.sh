@@ -23,13 +23,13 @@ fi
 insert_day=$1
 
 #input
-device_oaid_mapping_incr=dm_mobdi_mapping.device_oaid_mapping_incr
-phone_mapping_incr=dw_mobdi_md.phone_mapping_incr
+device_oaid_mapping_incr=dm_mobdi_mapping.dim_device_oaid_mapping_di
+phone_mapping_incr=dm_mobdi_topic.dws_phone_mapping_di
 mapping_carrier_country=dm_sdk_mapping.mapping_carrier_country
-android_id_mapping_incr=dw_mobdi_md.android_id_mapping_incr
+dws_id_mapping_android_di=dm_mobdi_topic.dws_id_mapping_android_di
 
 #output
-android_id_mapping_incr=dm_mobdi_master.dwd_android_id_mapping_sec_di
+dws_id_mapping_android_di=dm_mobdi_topic.dws_id_mapping_android_di
 
 hive -e "
 set mapreduce.map.memory.mb=6144;
@@ -63,7 +63,7 @@ with android_device_carrierarray as (  --device对应的 carrier array
   from
   (
     select device, imsi1
-    from $android_id_mapping_incr
+    from $dws_id_mapping_android_di
     lateral view explode(ARRAY_DISTINCT(split(imsi, ','), imsiarray)) t_imsi as imsi1
     where day='$insert_day' and size(ARRAY_DISTINCT(split(imsi, ','), imsiarray)) > 0
   ) t1
@@ -76,13 +76,13 @@ with android_device_carrierarray as (  --device对应的 carrier array
 android_device_phone as (
   select
       t1.device,
-      concat_ws(',',t2.phoneno,t2.ext_phoneno,t2.sms_phoneno,mobauth.phone) as phone,
-      concat_ws(',',t2.phoneno_tm,t2.ext_phoneno_tm,t2.sms_phoneno_tm,mobauth.phone_tm) as phone_tm,
+      concat_ws(',',t2.phoneno,t2.ext_phoneno,t2.sms_phoneno,mobauth_phone) as phone,
+      concat_ws(',',t2.phoneno_tm,t2.ext_phoneno_tm,t2.sms_phoneno_tm,mobauth_phone_tm) as phone_tm,
       t2.imsi,
       t2.imsi_tm
   from (
     select case when device is not null or length(trim(device)) > 0 then device else concat('',rand()) end as device
-    from $android_id_mapping_incr
+    from $dws_id_mapping_android_di
     where day = $insert_day
   ) t1
   left join
@@ -125,7 +125,7 @@ android_device_oaid as (
   )a group by device
 )
 
-insert overwrite table $android_id_mapping_incr partition(day=$insert_day)
+insert overwrite table $dws_id_mapping_android_di partition(day=$insert_day)
 select
     coalesce(e.device, f.device) as device,
     mac,
@@ -140,7 +140,7 @@ select
     phoneno_tm,
     imsi,
     imsi_tm,
-    imsiarray
+    imsiarray,
     snsuid_list,
     simserialno_tm,
     serialno_tm,
@@ -171,7 +171,7 @@ from
         phoneno_tm,
         d.imsi,
         d.imsi_tm,
-        imsiarray
+        imsiarray,
         snsuid_list,
         simserialno_tm,
         serialno_tm,
@@ -198,7 +198,7 @@ from
         simserialno,
         phoneno,
         phoneno_tm,
-        imsiarray
+        imsiarray,
         snsuid_list,
         simserialno_tm,
         serialno_tm,
@@ -212,7 +212,7 @@ from
       from
       (
         select *
-        from $android_id_mapping_incr
+        from $dws_id_mapping_android_di
         where day=$insert_day
       ) a
       left join android_device_carrierarray b

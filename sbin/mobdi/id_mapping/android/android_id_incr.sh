@@ -8,25 +8,6 @@ if [ $# -lt 1 ]; then
   exit 1
 fi
 
-:<<!
-生成dw_mobdi_md.android_id_mapping_incr增量表：
-取dw_mobdi_etl.log_device_info_jh和dw_mobdi_etl.log_device_info的数据根据device去重
-
-具体详情：
-1. 清洗log_device_info_jh 这个表里面的字段信息，imei做15位长度验证，mac会优先选取macarray里面waln0并验证mac的准确性，如果没有就以实际获取到的mac为准。获取数据的时间格式调整，及黑名单数据的过滤。
-2. 以device为准整合imei，mac，serialno，phone等信息，同时计算imei，mac，serialno，phone对应的首次时间及最新活跃时间。
-3. 调整数据统一数据的入库格式
-4. 按device去重，以mac为排序条件，选取第一个
-5. log_device_info这表处理与log_device_info_jh类似，不过log_device_info很多信息为空所以处理较为简单，同时log_device_info这表在进入mobdi时已经过滤黑名单，不需要再次过滤。
-6. 两个表处理完成后通过进行union合并，当两个表出现相同的device时，以log_device_info_jh为准。
-7. 以上过程最终形成表android_id_mapping_incr
-
-muid版本：
-1. 入库时，将 muid 以 device 为别名 入库
-2. 从dw_mobdi_etl.log_device_info_jh和dw_mobdi_etl.log_device_info取数时，
-   对字段的校验和过滤以wiki：  http://c.mob.com/pages/viewpage.action?pageId=47416256 为准
-!
-
 
 day=$1
 
@@ -38,7 +19,7 @@ blacklist=dm_sdk_mapping.blacklist
 dws_device_snsuid_list_android=dm_mobdi_topic.dws_device_snsuid_list_android
 
 # output
-dwd_id_mapping_android_di=dm_mobdi_master.dwd_id_mapping_android_di
+dws_id_mapping_android_di=dm_mobdi_topic.dws_id_mapping_android_di
 
 
 empty2null() {
@@ -46,7 +27,7 @@ f="$1"
 echo "if(length($f) <= 0, null, $f)"
 }
 
-hive -e"
+HADOOP_USER_NAME=dba hive -e"
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function imeiarray_clear as 'com.youzu.mob.java.udf.ImeiArrayClear';
 create temporary function imsiarray_clear as 'com.youzu.mob.java.udf.ImsiArrayClear';
@@ -56,16 +37,27 @@ create temporary function extract_phone_num as 'com.youzu.mob.java.udf.PhoneNumE
 create temporary function luhn_checker as 'com.youzu.mob.java.udf.LuhnChecker';
 create temporary function array_distinct as 'com.youzu.mob.java.udf.ArrayDistinct';
 create temporary function imei_array_union as 'com.youzu.mob.mobdi.ImeiArrayUnion';
+create temporary function imei_verify AS 'com.youzu.mob.java.udf.ImeiVerify';
+create temporary function extract_phone_num2 as 'com.youzu.mob.java.udf.PhoneNumExtract2';
+create temporary function extract_phone_num3 as 'com.youzu.mob.java.udf.PhoneNumExtract3';
+create temporary function string_sub_str as 'com.youzu.mob.mobdi.StringSubStr';
 set hive.exec.parallel=true;
-SET mapreduce.map.memory.mb=4096;
-SET mapreduce.map.java.opts='-Xmx3g';
-set mapreduce.child.map.java.opts='-Xmx6g';
-set mapreduce.reduce.memory.mb=4096;
-SET mapreduce.reduce.java.opts='-Xmx3g';
+set mapreduce.map.memory.mb=12288;
+set mapreduce.map.java.opts='-Xmx10240m' -XX:+UseG1GC;
+set mapreduce.child.map.java.opts='-Xmx10240m';
+set mapreduce.reduce.memory.mb=12288;
+set mapreduce.reduce.java.opts='-Xmx10240m';
+SET hive.map.aggr=true;
+set hive.groupby.skewindata=true;
+set hive.groupby.mapaggr.checkinterval=100000;
+set hive.skewjoin.key=100000;
+set hive.optimize.skewjoin=true;
+set mapred.job.reuse.jvm.num.tasks=10;
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 
 
-insert overwrite table $dwd_id_mapping_android_di partition(day=$day)
-select muid as device,mac,macarray,imei,imeiarray,
+insert overwrite table $dws_id_mapping_android_di partition(day=$day)
+select device,mac,macarray,imei,imeiarray,
 serialno,adsid,androidid,simserialno,
 phoneno,phoneno_tm,imsi,imsi_tm,imsiarray,snsuid_list,simserialno_tm,serialno_tm,mac_tm,
         imei_tm,
@@ -74,7 +66,7 @@ phoneno,phoneno_tm,imsi,imsi_tm,imsiarray,snsuid_list,simserialno_tm,serialno_tm
         null as oaid,
         null as oaid_tm
         from (
-select muid,mac,macarray,orig_imei,imei,imeiarray,
+select device,mac,macarray,orig_imei,imei,imeiarray,
 serialno,adsid,androidid,simserialno,
 phoneno,phoneno_tm,imsi,imsi_tm,imsiarray,snsuid_list,
     simserialno_tm,
@@ -84,12 +76,11 @@ phoneno,phoneno_tm,imsi,imsi_tm,imsiarray,snsuid_list,
         orig_imei_tm,
         adsid_tm,
         androidid_tm,
-    row_number() over (partition by muid order by mac desc) as rank from (
+    row_number() over (partition by device order by mac desc) as rank from (
 select
-    c.muid,
+    c.device as device,
     case when length(mac) = 0 then null else mac end as mac,
     case when size(macarray[0]) = 0 then null else macarray end as macarray,
-    case when length(orig_imei) = 0 then null else orig_imei end as orig_imei,
     case when length(imei) = 0 then null else imei end as imei,
     case when size(imeiarray) = 0 then null else imeiarray end as imeiarray,
     case when length(serialno) = 0 then null else serialno end as serialno,
@@ -105,13 +96,19 @@ select
     simserialno_tm,
     serialno_tm,
     mac_tm,
-    orig_imei_tm,
     imei_tm,
     adsid_tm,
-    androidid_tm
+    androidid_tm,
+    array() as carrierarray,
+    null as phone,
+    null as phone_tm,
+case when length(orig_imei) = 0 then null else orig_imei end as orig_imei,
+    orig_imei_tm,
+    null as oaid,
+    null as oaid_tm
 from (
     select
-        muid,
+        device,
         mac,
         macarray,
         orig_imei,
@@ -124,6 +121,7 @@ from (
         simserialno,
         simserialno_tm,
         phoneno,
+	phoneno_tm,
         imsi,
         imsi_tm,
         imsiarray,
@@ -131,11 +129,10 @@ from (
         orig_imei_tm,
         imei_tm,
         adsid_tm,
-        androidid_tm,
-        phoneno_tm
+        androidid_tm
     from (
         select
-            muid,
+            device,
             concat_ws(',', collect_list(mac)) as mac,
             sort_array(collect_set(macmap)) as macarray,
             coalesce(collect_list(imei)[0],'') as orig_imei,
@@ -159,36 +156,36 @@ from (
             concat_ws(',', collect_list(phoneno_tm)) as phoneno_tm
             from (
             select
-                muid,
+               device_info_jh.muid as device,
                 CASE
                   WHEN blacklist_mac.value IS NOT NULL THEN ''
                   WHEN mac is not null and mac <> '' then mac
                   ELSE ''
                 END as mac,
                 macmap,
-                imei,
+                `empty2null 'imei'` as imei,
                 imei_arr,
                 imeiarray,
-                serialno,
-                adsid,
-                androidid,
-                simserialno,
-                phoneno,
-                imsi,
+               `empty2null 'serialno'` as serialno,
+               `empty2null 'adsid'` as adsid,
+               `empty2null 'androidid'` as androidid,
+               `empty2null 'simserialno'` as simserialno,
+               `empty2null 'phoneno'` as phoneno,
+               `empty2null 'imsi'` as imsi,
                 imsi_tm,
                 imsiarray,
                 CASE
                   WHEN blacklist_mac.value IS NOT NULL THEN ''
-                  WHEN mac is not null then mac_tm
+                  WHEN mac is not null and mac <> '' then mac_tm
                   ELSE ''
                 END as mac_tm,
                 imei_tm,
                 imei_arr_tm,
-                serialno_tm,
-                adsid_tm,
-                androidid_tm,
-                simserialno_tm
-                phoneno_tm
+                cast(if(length(trim(serialno))=0 or serialno is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as serialno_tm,
+                cast(if(length(trim(adsid))=0 or serialno is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as adsid_tm,
+                cast(if(length(trim(androidid))=0 or serialno is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as androidid_tm,
+                cast(if(length(trim(simserialno)) = 0 or simserialno is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as simserialno_tm,
+                cast(if(length(trim(phoneno)) = 0 or phoneno is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as phoneno_tm
             from
             (
               select
@@ -197,9 +194,9 @@ from (
                   case
                     when get_mac(macarray) is not null and get_mac(macarray) <> '02:00:00:00:00:00' then lower(get_mac(macarray))
                     when trim(lower(mac)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or mac is null then ''
-                    when regexp_replace(trim(lower(mac)), ' |-|\\.|:|\073', '') in ('000000000000', '020000000000') then ''
-                    when regexp_replace(trim(lower(mac)), ' |-|\\.|:|\073', '') rlike '^[0-9a-f]{12}$'
-                    then substring(regexp_replace(regexp_replace(trim(lower(mac)), ' |-|\\.|:|\073', ''), '(.{2})', '\$1:'), 1, 17)
+                    when regexp_replace(trim(lower(mac)), ' |-|\\\\.|:|\073', '') in ('000000000000', '020000000000') then ''
+                    when regexp_replace(trim(lower(mac)), ' |-|\\\\.|:|\073', '') rlike '^[0-9a-f]{12}$'
+                    then substring(regexp_replace(regexp_replace(trim(lower(mac)), ' |-|\\\\.|:|\073', ''), '(.{2})', '\$1:'), 1, 17)
                     else ''
                   end as mac,
 
@@ -229,15 +226,15 @@ from (
 
                   case
                     when lower(trim(adsid)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or adsid is null then ''
-                    when regexp_replace(lower(trim(adsid)), ' |-|\\.|:|\073','') rlike '0{32}' then ''
-                    when regexp_replace(lower(trim(adsid)), ' |-|\\.|:|\073','') rlike '^[0-9a-f]{32}$'
+                    when regexp_replace(lower(trim(adsid)), ' |-|\\\\.|:|\073','') rlike '0{32}' then ''
+                    when regexp_replace(lower(trim(adsid)), ' |-|\\\\.|:|\073','') rlike '^[0-9a-f]{32}$'
                     then concat
                     (
-                      substring(regexp_replace(trim(upper(adsid)), ' |-|\\.|:|\073', '') , 1, 8), '-',
-                      substring(regexp_replace(trim(upper(adsid)), ' |-|\\.|:|\073', '') , 9, 4), '-',
-                      substring(regexp_replace(trim(upper(adsid)), ' |-|\\.|:|\073', '') , 13, 4), '-',
-                      substring(regexp_replace(trim(upper(adsid)), ' |-|\\.|:|\073', '') , 17, 4), '-',
-                      substring(regexp_replace(trim(upper(adsid)), ' |-|\\.|:|\073', '') , 21, 12)
+                      substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 1, 8), '-',
+                      substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 9, 4), '-',
+                      substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 13, 4), '-',
+                      substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 17, 4), '-',
+                      substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 21, 12)
                     )
                     else ''
                   end as adsid,
@@ -256,10 +253,10 @@ from (
 
                   case
                     when lower(trim(phoneno)) rlike '[0-9a-f]{32}' then ''
-                    when length(split(extract_phone_num2(extract_phone_num3(trim(phoneno), trim(simserialn), trim(cast(carrier as string)),trim(imsi))), ',')[0]) = 17
-                    then string_sub_str(split(extract_phone_num2(extract_phone_num3(trim(phoneno), trim(simserialn), trim(cast(carrier as string)), trim(imsi))), ',')[0])
+                    when length(split(extract_phone_num2(extract_phone_num3(trim(phoneno), trim(simserialno), trim(cast(carrier as string)),trim(imsi))), ',')[0]) = 17
+                    then string_sub_str(split(extract_phone_num2(extract_phone_num3(trim(phoneno), trim(simserialno), trim(cast(carrier as string)), trim(imsi))), ',')[0])
                     else ''
-                  end as phone
+                  end as phoneno,
 
                   case
                     when lower(trim(imsi)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or imsi is null then ''
@@ -285,27 +282,22 @@ from (
                       then imei_array_union('date',imeiarray_clear(imeiarray),unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss'))
                     else null
                   end as imei_arr_tm,
-
-                  cast(if(length(trim(serialno))=0 or serialno is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as serialno_tm,
-                  cast(if(length(trim(adsid))=0 or serialno is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as adsid_tm,
-                  cast(if(length(trim(androidid))=0 or serialno is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as androidid_tm,
-                  cast(if(length(trim(simserialno)) = 0 or simserialno is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as simserialno_tm,
-                  cast(if(length(trim(phoneno)) = 0 or phoneno is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as phoneno_tm
+                  serdatetime
               from $log_device_info_jh as jh
               lateral view explode(coalesce(macarray, array(map()))) tf as m
               where jh.dt = '$day' and jh.plat = 1 and muid is not null and length(muid)=40
             ) device_info_jh
             left join
             (SELECT value FROM $blacklist where type='mac' and day=20180702 GROUP BY value) blacklist_mac
-            on (substring(regexp_replace(regexp_replace(trim(lower(device_info_jh.mac)), ' |-|\\.|:|\073',''), '(.{2})', '\$1:'), 1, 17)=blacklist_mac.value)
+            on (substring(regexp_replace(regexp_replace(trim(lower(device_info_jh.mac)), ' |-|\\\\.|:|\073',''), '(.{2})', '\$1:'), 1, 17)=blacklist_mac.value)
         ) as a
-        group by muid
+        group by device
     ) as b
 
     union all
 
     select
-        muid,
+        device,
         concat_ws(',', collect_list(mac)) as mac,
         array(map()) as macarray,
         coalesce(collect_list(imei)[0],'') as orig_imei,
@@ -329,60 +321,68 @@ from (
         concat_ws(',', collect_list(androidid_tm)) as androidid_tm
     from (
         select
-            muid,
+          device,
+          if(length(mac)=0, null, mac) as mac,
+          if(length(imei) = 0 ,null,imei) as imei,
+          if (length(adsid)=0, null, adsid) as adsid,
+          if (length(androidid)=0, null, androidid) as androidid,
+          cast(if(length(trim(mac)) = 0 or mac is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as mac_tm,
+          cast(if(length(trim(imei)) = 0 or imei is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as imei_tm,
+          cast(if(length(adsid)=0 or adsid is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as adsid_tm,
+          cast(if(length(androidid)=0 or androidid is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as androidid_tm
+        from
+        (
+          select
+              a.muid as device,
 
-            case
-              when trim(lower(mac)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or mac is null then ''
-              when regexp_replace(trim(lower(mac)), ' |-|\\.|:|\073', '') in ('000000000000', '020000000000') then ''
-              when regexp_replace(trim(lower(mac)), ' |-|\\.|:|\073', '') rlike '^[0-9a-f]{12}$'
-              then substring(regexp_replace(regexp_replace(trim(lower(mac)), ' |-|\\.|:|\073', ''), '(.{2})', '\$1:'), 1, 17)
-              else ''
-            end as mac,
+              case
+                when trim(lower(mac)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or mac is null then ''
+                when regexp_replace(trim(lower(mac)), ' |-|\\\\.|:|\073', '') in ('000000000000', '020000000000') then ''
+                when regexp_replace(trim(lower(mac)), ' |-|\\\\.|:|\073', '') rlike '^[0-9a-f]{12}$'
+                then substring(regexp_replace(regexp_replace(trim(lower(mac)), ' |-|\\\\.|:|\073', ''), '(.{2})', '\$1:'), 1, 17)
+                else ''
+              end as mac,
 
-            case
-              when trim(udid) rlike '0{14,17}' then ''
-              when length(trim(lower(udid))) = 16 and trim(udid) rlike '^[0-9]+$' then if(imei_verify(regexp_replace(trim(lower(substring(udid,1,14))), ' |/|-|imei:', '')), regexp_replace(trim(lower(udid)), ' |/|-|imei:', ''),'')
-              when length(trim(lower(udid))) = 16 and trim(udid) not rlike '^[0-9]+$' then ''
-              when imei_verify(regexp_replace(trim(lower(udid)), ' |/|-|udid:', '')) then regexp_replace(trim(lower(udid)), ' |/|-|imei:', '')
-              else ''
-            end as imei,
+              case
+                when trim(udid) rlike '0{14,17}' then ''
+                when length(trim(lower(udid))) = 16 and trim(udid) rlike '^[0-9]+$' then if(imei_verify(regexp_replace(trim(lower(substring(udid,1,14))), ' |/|-|imei:', '')), regexp_replace(trim(lower(udid)), ' |/|-|imei:', ''),'')
+                when length(trim(lower(udid))) = 16 and trim(udid) not rlike '^[0-9]+$' then ''
+                when imei_verify(regexp_replace(trim(lower(udid)), ' |/|-|udid:', '')) then regexp_replace(trim(lower(udid)), ' |/|-|imei:', '')
+                else ''
+              end as imei,
 
-            case
-              when lower(trim(adsid)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or adsid is null then ''
-              when regexp_replace(lower(trim(adsid)), ' |-|\\.|:|\073','') rlike '0{32}' then ''
-              when regexp_replace(lower(trim(adsid)), ' |-|\\.|:|\073','') rlike '^[0-9a-f]{32}$'
-              then concat
-              (
-                substring(regexp_replace(trim(upper(adsid)), ' |-|\\.|:|\073', '') , 1, 8), '-',
-                substring(regexp_replace(trim(upper(adsid)), ' |-|\\.|:|\073', '') , 9, 4), '-',
-                substring(regexp_replace(trim(upper(adsid)), ' |-|\\.|:|\073', '') , 13, 4), '-',
-                substring(regexp_replace(trim(upper(adsid)), ' |-|\\.|:|\073', '') , 17, 4), '-',
-                substring(regexp_replace(trim(upper(adsid)), ' |-|\\.|:|\073', '') , 21, 12)
-              )
-              else ''
-            end as adsid,
+              case
+                when lower(trim(adsid)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or adsid is null then ''
+                when regexp_replace(lower(trim(adsid)), ' |-|\\\\.|:|\073','') rlike '0{32}' then ''
+                when regexp_replace(lower(trim(adsid)), ' |-|\\\\.|:|\073','') rlike '^[0-9a-f]{32}$'
+                then concat
+                (
+                  substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 1, 8), '-',
+                  substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 9, 4), '-',
+                  substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 13, 4), '-',
+                  substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 17, 4), '-',
+                  substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 21, 12)
+                )
+                else ''
+              end as adsid,
 
-            case
-              when lower(trim(androidid)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or androidid is null then ''
-              when lower(trim(androidid)) rlike '^[0-9a-f]{14,16}$' then lower(trim(androidid))
-              else ''
-            end as androidid,
-
-            case when length(mac)>0 then cast(unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss') as  string) else null end as mac_tm,
-            cast(if(luhn_checker(regexp_replace(trim(udid), ' |/|-','')),unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss'),null) as string)  as imei_tm,
-            cast(if(length(adsid)=0,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as adsid_tm,
-            cast(if(length(androidid)=0,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as androidid_tm
-        from $log_device_info as a
-        left join (select muid  from $log_device_info_jh where dt = '$day' and plat = 1 and muid is not null  and length(muid)=40 group by muid) as jh
-        on a.muid = jh.muid
-        where jh.muid is null and a.plat = 1 and a.dt = '$day' and a.muid is not null and length(a.muid)=40
+              case
+                when lower(trim(androidid)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or androidid is null then ''
+                when lower(trim(androidid)) rlike '^[0-9a-f]{14,16}$' then lower(trim(androidid))
+                else ''
+              end as androidid,
+              serdatetime
+          from $log_device_info as a
+          left join (select muid  from $log_device_info_jh where dt = '$day' and plat = 1 and muid is not null  and length(muid)=40 group by muid) as jh
+          on a.muid = jh.muid
+          where jh.muid is null and a.plat = 1 and a.dt = '$day' and a.muid is not null and length(a.muid)=40
+        ) tt
     ) as b
-    group by muid
+    group by device
 ) as c
 left join $dws_device_snsuid_list_android as e
-on (case when length(c.muid)=40 then c.muid else concat('',rand()) end = e.deviceid)
+on (case when length(c.device)=40 then c.device else concat('',rand()) end = e.deviceid)
 ) as f
 ) as g
 where g.rank = 1
-
 "

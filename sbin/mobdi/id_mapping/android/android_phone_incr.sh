@@ -63,6 +63,9 @@ set mapreduce.child.map.java.opts='-Xmx3g';
 set mapreduce.reduce.memory.mb=4096;
 SET mapreduce.reduce.java.opts='-Xmx3g';
 SET mapreduce.map.java.opts='-Xmx3g';
+set mapreduce.job.queuename=root.yarn_data_compliance2;
+
+
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function extract_phone_num2 as 'com.youzu.mob.java.udf.PhoneNumExtract2';
 
@@ -228,7 +231,7 @@ select
 from
 (
   select
-    android_incr_explode.device,
+    android_incr_explode.device as device,
     concat_ws(',',collect_list(android_mac_exchange.phone_set)) as phone_mac,
     concat_ws(',',collect_list(android_mac_exchange.phone_tm_set)) as phone_mac_tm,
     concat_ws(',',collect_list(android_imei15_exchange.phone_set),collect_list(android_imei14_exchange.phone_set)) as phone_imei,
@@ -236,7 +239,7 @@ from
   from
   (
     select
-        android_incr.device,
+        android_incr.device as device,
         t_mac.mac1 as mac,
         t_imei.imei1 as imei
         from
@@ -294,9 +297,9 @@ phoneno_imsi as (
           nvl(a.imsi_tm, null) as imsi_tm
         from
         (
-          select device,
+          select android_id_incr.device as device,
              phoneno,
-             phoneno_tm
+             phoneno_tm,
              ext_phoneno_v.phone as ext_phoneno,
              ext_phoneno_v.phone_tm as ext_phoneno_tm,
              imsi,
@@ -326,25 +329,22 @@ phoneno_imsi as (
 
 
 
-ext_phone_imsi as (  -- phone对应的imsi_set
-  select
-     case
-        when lower(trim(owner_data)) rlike '[0-9a-f]{32}' then ''
-        when length(split(extract_phone_num2(trim(owner_data)), ',')[0]) = 17 then string_sub_str(split(extract_phone_num2(trim(owner_data)), ',')[0])
-        else ''
-     end as phoneno
-     concat_ws(',',collect_list(trim(ext_data))) as imsi,
-     concat_ws(',',collect_list(cast(unix_timestamp(processtime,'yyyyMMdd') as string))) as imsi_tm
-  from $ext_phone_mapping_incr
-  where type='phone_imsi'
-  and length(trim(ext_data)) > 0
-  and owner_data rlike '^[1][3-8]\\\d{9}$'
-  and length(split(extract_phone_num2(trim(owner_data)), ',')[0]) = 17
-  group by split(extract_phone_num2(trim(owner_data)), ',')[0]
+
+
+ext_phone_imsi as (
+select
+split(extract_phone_num2(trim(owner_data)), ',')[0] as phoneno,
+concat_ws(',',collect_list(trim(ext_data))) as imsi,
+concat_ws(',',collect_list(cast(unix_timestamp(processtime,'yyyyMMdd') as string))) as imsi_tm
+from $ext_phone_mapping_incr
+where type='phone_imsi'
+and length(trim(ext_data)) > 0
+and owner_data rlike '^[1][3-8]\\\d{9}$'
+and length(split(extract_phone_num2(trim(owner_data)), ',')[0]) = 17
+group by split(extract_phone_num2(trim(owner_data)), ',')[0]
 ),
 
 
-ext_imsi_v as(
 select phone_explode.device,
        concat_ws(',',collect_list(ext_phone_imsi.imsi)) as ext_imsi,
        concat_ws(',',collect_list(ext_phone_imsi.imsi_tm)) as ext_imsi_tm
@@ -360,18 +360,19 @@ group by device
 
 
 insert overwrite table $dws_phone_mapping_di partition(day=$insert_day,plat=1)
-select
-  phoneno_imsi.device,
-  phoneno_imsi.phoneno,
-  phoneno_imsi.phoneno_tm,
-  phoneno_imsi.ext_phoneno,
-  phoneno_imsi.ext_phoneno_tm,
-  phoneno_imsi.imsi,
-  phoneno_imsi.imsi_tm,
+select phoneno_imsi.device as device,
+  phoneno_imsi.phoneno as phoneno,
+  phoneno_imsi.phoneno_tm as phoneno_tm,
+  phoneno_imsi.ext_phoneno as ext_phoneno,
+  phoneno_imsi.ext_phoneno_tm as ext_phoneno_tm,
+  phoneno_imsi.sms_phoneno as sms_phoneno,
+  phoneno_imsi.sms_phoneno_tm as sms_phoneno_tm,
+  phoneno_imsi.imsi as imsi,
+  phoneno_imsi.imsi_tm as imsi_tm,
   ext_imsi_v.ext_imsi as ext_imsi,
   ext_imsi_v.ext_imsi_tm as ext_imsi_tm,
-  phoneno_imsi.mobauth_phone,
-  phoneno_imsi.mobauth_phone_tm
+  phoneno_imsi.mobauth_phone as mobauth_phone,
+  phoneno_imsi.mobauth_phone_tm as mobauth_phone_tm
 from phoneno_imsi
 left join ext_imsi_v
 on phoneno_imsi.device=ext_imsi_v.device

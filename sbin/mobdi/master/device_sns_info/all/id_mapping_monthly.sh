@@ -84,8 +84,8 @@ from
 group by snsplat, lower(trim(snsuid)),lower(trim(deviceid)), plat;
 
 
-
-insert overwrite table $tmp_device_snsuid_android
+drop table if exists $tmp_device_snsuid_android;
+create table $tmp_device_snsuid_android stored as orc as
 select lower(trim(deviceid)), snsplat, lower(trim(snsuid)), max(maxday) maxday
 from $dws_device_snsuid_mi
 where par_time>=$prev18Month
@@ -94,8 +94,8 @@ and plat=1
 group by lower(trim(deviceid)), snsplat, lower(trim(snsuid));
 
 
-
-insert overwrite table $tmp_device_snsuid_ios
+drop table if exists $tmp_device_snsuid_ios;
+create table $tmp_device_snsuid_ios stored as orc as
 select lower(trim(deviceid)), snsplat, lower(trim(snsuid)), max(maxday) maxday
 from rp_mobdi_app.rp_sdk_device_snsuid_mi
 where par_time>=$prev18Month
