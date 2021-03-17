@@ -4,9 +4,9 @@
 @describe:t-3 的 staying_daily
 @projectName:
 @BusinessName:
-@SourceTable:dm_mobdi_master.dwd_device_location_di
+@SourceTable:dm_mobdi_master.dwd_device_location_info_di
 @TargetTable:dm_mobdi_topic.dws_device_location_staying_di
-@TableRelation:dm_mobdi_master.dwd_device_location_di->dm_mobdi_topic.dws_device_location_staying_di
+@TableRelation:dm_mobdi_master.dwd_device_location_info_di->dm_mobdi_topic.dws_device_location_staying_di
 '
 
 set -x -e
@@ -21,19 +21,19 @@ source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 day=$1
 insert_day=`date -d "$day +2 days" +%Y-%m-%d`
 
-# check source data: #######################
+# check source data: ####################### 新流程建表后可删，只保留一个staying_daily即可
 while true
 do
-  hadoop fs -test -e "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_di/day=${day}"
+  hadoop fs -test -e "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_info_di/day=${day}"
   if [[ $? -eq 0 ]] ; then
     # path存在
-    src_data_date=`hadoop fs -ls "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_di/day=${day}" | awk '{print $6}'`
+    src_data_date=`hadoop fs -ls "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_info_di/day=${day}" | awk '{print $6}'`
     # 判断几个分区的文件更新时间是否是在3天后
     if [[ ${src_data_date:0:11} > $insert_day && ${src_data_date:11:11} > $insert_day && ${src_data_date:22:11} > $insert_day && ${src_data_date:33:11} > $insert_day && ${src_data_date:44:11} > $insert_day && ${src_data_date:55:11} > $insert_day && ${src_data_date:66:11} > $insert_day && ${src_data_date:77:11} > $insert_day ]] ;then
       break
     else
       sleep 1800
-      echo "===========  wait for dwd_device_location_di ============="
+      echo "===========  wait for dwd_device_location_info_di ============="
     fi
   fi
 done
@@ -58,14 +58,14 @@ set mapreduce.reduce.memory.mb=6144;
 
 with ranked_device_time as (
   select
-  muid, duid, lat, lon, time, processtime, country, province, city, area, street, plat, network, type, data_source, orig_note1, orig_note2, accuracy,apppkg,abnormal_flag,ga_abnormal_flag
+  device, duid, lat, lon, time, processtime, country, province, city, area, street, plat, network, type, data_source, orig_note1, orig_note2, accuracy,apppkg,abnormal_flag,ga_abnormal_flag
   from
   (
     select
-    muid, duid, lat, lon, time, processtime, country, province, city, area, street, plat, network, type, data_source, orig_note1, orig_note2, accuracy,
-    row_number() over(partition by muid, lat, lon, time order by level) as rank,apppkg,abnormal_flag,ga_abnormal_flag
+    device, duid, lat, lon, time, processtime, country, province, city, area, street, plat, network, type, data_source, orig_note1, orig_note2, accuracy,
+    row_number() over(partition by device, lat, lon, time order by level) as rank,apppkg,abnormal_flag,ga_abnormal_flag
     from (
-      select muid, duid,
+      select device, duid,
       round(cast(lat as double), 6) as lat,
       round(cast(lon as double), 6) as lon,
       time, processtime, country, province, city, area, street, plat, network, type, data_source, orig_note1, orig_note2, accuracy,
@@ -75,7 +75,7 @@ with ranked_device_time as (
            when type = 'ip' then 5
            else 999 end as level,apppkg,abnormal_flag,
            ga_abnormal_flag
-      from $dwd_device_location_di
+      from $dwd_device_location_info_di
       where day='$day'
       and (type <> 'ip' or data_source in('pv', 'run')) and data_source<>'wifi_scan_list'
     ) location_daily
@@ -88,24 +88,24 @@ with ranked_device_time as (
 --array_distinct_by_sorted_list功能是基于已排序的列表去重，去重原则是取每个分组的第一条数据。
 device_location_start_time as (
   select
-  muid, lat, lon, start_time,
-  row_number() over(partition by muid order by start_time,lat,lon) as join_key
+  device, lat, lon, start_time,
+  row_number() over(partition by device order by start_time,lat,lon) as join_key
   from
     (
     select
-    muid, split(split(list1, '=')[0], ',')[0] as lat, split(split(list1, '=')[0], ',')[1] as lon,  split(list1, '=')[1] as start_time
+    device, split(split(list1, '=')[0], ',')[0] as lat, split(split(list1, '=')[0], ',')[1] as lon,  split(list1, '=')[1] as start_time
     from
     (
       select
-      muid, array_distinct_by_sorted_list(collect_list(concat(latlon, '=', time)), '=') as lists
+      device, array_distinct_by_sorted_list(collect_list(concat(latlon, '=', time)), '=') as lists
       from
       (
         select
-        muid, time, concat(lat, ',', lon) as latlon
+        device, time, concat(lat, ',', lon) as latlon
         from ranked_device_time
-        distribute by muid sort by muid, time, latlon
+        distribute by device sort by device, time, latlon
       ) ordered_records
-      group by muid
+      group by device
     ) distincted_records
     lateral view explode(lists) t_list as list1
   ) ranked_records
@@ -125,20 +125,20 @@ device_location_start_time as (
 
 device_location_start_and_end_time as (
   select
-  device_location_start_time.muid, lat, lon, device_location_start_time.start_time, case when other_start_time.start_time is null then '23:59:59' else other_start_time.start_time end as end_time
+  device_location_start_time.device, lat, lon, device_location_start_time.start_time, case when other_start_time.start_time is null then '23:59:59' else other_start_time.start_time end as end_time
   from device_location_start_time
   left join
   (
     select
-    muid, start_time, (join_key-1) as join_key_plus  --device_location_start_time的index与 device_location_start_time的下一个index进行匹配
+    device, start_time, (join_key-1) as join_key_plus  --device_location_start_time的index与 device_location_start_time的下一个index进行匹配
     from device_location_start_time
   ) other_start_time
-  on device_location_start_time.muid = other_start_time.muid and device_location_start_time.join_key = other_start_time.join_key_plus
+  on device_location_start_time.device = other_start_time.device and device_location_start_time.join_key = other_start_time.join_key_plus
 )
 
 insert overwrite table $dws_device_location_staying_di partition (day='$day')
 select
-device_location_start_and_end_time.muid as device,
+device_location_start_and_end_time.device,
 ranked_device_time.duid,
 device_location_start_and_end_time.lat,
 device_location_start_and_end_time.lon,
@@ -148,11 +148,11 @@ processtime, country, province, city, area, street, plat, network, type, data_so
 from device_location_start_and_end_time
 inner join ranked_device_time
 on (
-  ranked_device_time.muid = device_location_start_and_end_time.muid
+  ranked_device_time.device = device_location_start_and_end_time.device
   and ranked_device_time.lat = device_location_start_and_end_time.lat
   and ranked_device_time.lon = device_location_start_and_end_time.lon
   and device_location_start_and_end_time.start_time = ranked_device_time.time
 )
-distribute by device_location_start_and_end_time.muid sort by device_location_start_and_end_time.muid, device_location_start_and_end_time.start_time
+distribute by device_location_start_and_end_time.device sort by device_location_start_and_end_time.device, device_location_start_and_end_time.start_time
 ;
 "
