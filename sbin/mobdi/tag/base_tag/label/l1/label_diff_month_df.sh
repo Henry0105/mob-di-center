@@ -4,6 +4,9 @@
 # 作为pre_data的输入
 #source /home/mobdi_test/public/util/util.sh
 
+
+source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+
 day=$1
 year=`date -d "${day}" +%Y`
 month=`date -d "${day}" +%m`

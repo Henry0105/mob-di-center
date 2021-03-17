@@ -9,8 +9,13 @@ set -x -e
 
 day=$1
 
+source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+
+tmpdb="dw_mobdi_tmp"
+appdb="rp_mobdi_report"
+
 ##input
-device_applist_new="dm_mobdi_mapping.device_applist_new"
+device_applist_new=${dim_device_applist_new_di}
 ##output
 label_device_applist_cnt=${label_l1_applist_refine_cnt_di}
 

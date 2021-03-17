@@ -24,7 +24,7 @@ dim_phone_mapping_df=dm_mobdi_mapping.dim_phone_mapping_df
 
 
 
-hive -e"
+ADOOP_USER_NAME=dba hive -e"
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function mobdi_array_udf as 'com.youzu.mob.java.udf.MobdiArrayUtilUDF2';
 

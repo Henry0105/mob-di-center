@@ -14,10 +14,12 @@ fi
 '
 # 无model直接使用
 
+source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+
 date=$1
 
 ##input
-device_applist_new="dm_mobdi_mapping.device_applist_new"
+device_applist_new=${dim_device_applist_new_di}
 
 #output
 label_taglist_di=${label_l1_taglist_di}

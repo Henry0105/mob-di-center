@@ -82,7 +82,7 @@ drop temporary function GET_LAST_PARTITION;
 "
 full_last_version=(`hive -e "$full_partition_sql"`)
 
-hive -e"
+HADOOP_USER_NAME=dba hive -e"
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function array_union as 'com.youzu.mob.java.udf.ArrayUnionUDF';
 create temporary function array_diff as 'com.youzu.mob.java.udf.ArrayDiffUDF';

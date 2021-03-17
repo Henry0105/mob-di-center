@@ -18,7 +18,10 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
+source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+
 day=$1
+
 #input
 #dws_device_ip_info="dm_mobdi_master.device_ip_info"
 dws_device_ip_info=${dws_device_ip_info_di}

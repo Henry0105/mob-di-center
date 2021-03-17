@@ -159,7 +159,7 @@ ON info.carrier = carrier_mapping.mcc_mnc
 ;
 
 --插入全量表
-insert overwrite table $dwd_device_info_full partition(version='${day}.1000', plat='2')
+insert overwrite table $dwd_device_info_df partition(version='${day}.1000', plat='2')
 select device, factory, model, screensize, public_date, model_type, sysver, breaked, carrier, price, devicetype, processtime,model_origin,
 '','','','','','',''
 from 
@@ -177,7 +177,7 @@ from
     union all
 
     select device, factory, model, screensize, public_date, model_type, sysver, breaked, carrier, price, devicetype, processtime ,model_origin
-    from $dwd_device_info_full
+    from $dwd_device_info_df
     where version = '${prev_1day}.1000'
     and plat='2'
   ) unioned

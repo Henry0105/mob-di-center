@@ -6,10 +6,12 @@ set -x -e
 @projectName:MOBDI
 '
 
+source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+
 day=$1
 
 ##input
-device_applist_new="dm_mobdi_mapping.device_applist_new"
+device_applist_new=${dim_device_applist_new_di}
 ##mapping
 app2vec_mapping_par="dm_sdk_mapping.app2vec_mapping_par"
 ##output

@@ -11,10 +11,13 @@ set -x -e
 @parameters
 @day:传入日期参数,为脚本运行日期(重跑不同)
 !
-day=$1
+
+source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+
+date=$1
 
 ##input
-device_applist_new="dm_mobdi_mapping.device_applist_new"
+device_applist_new=${dim_device_applist_new_di}
 ##mapping
 mapping_special_identity="tp_mobdi_model.mapping_special_identity"
 

@@ -3,9 +3,13 @@ set -x -e
 
 # 作为pre_data的输入
 
+source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+
+appdb="rp_mobdi_report"
+
 day=$1
 ## input table
-rp_device_location_3monthly="rp_mobdi_app.rp_device_location_3monthly"
+rp_device_location_3monthly="${appdb}.rp_device_location_3monthly"
 
 ## mapping table
 house_price_mapping_par="tp_mobdi_model.house_price_mapping_par"

@@ -13,6 +13,8 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
+source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+
 day=$1
 b30day=`date -d "$day -30 days" "+%Y%m%d"`
 

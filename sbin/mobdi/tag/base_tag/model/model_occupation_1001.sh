@@ -19,8 +19,13 @@ if [ $# -ne 1 ]; then
 fi
 day=$1
 
+source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+
+tmpdb="dw_mobdi_tmp"
+appdb="rp_mobdi_report"
+
 #input
-label_merge_all="dw_mobdi_md.model_merge_all_features"
+label_merge_all="${tmpdb}.model_merge_all_features"
 label_apppkg_feature_index=${label_l1_apppkg_feature_index}
 label_apppkg_category_index=${label_l1_apppkg_category_index}
 
@@ -29,7 +34,7 @@ threshold="0.55,0.8,0.6,1.0,0.75,0.5,0.65,2.8"
 length=42000
 
 #tmp
-occupation_1001_all_index=dw_mobdi_md.occupation_1001_all_index
+occupation_1001_all_index=${tmpdb}.occupation_1001_all_index
 
 #output
 outputTable=${label_l2_result_scoring_di}
