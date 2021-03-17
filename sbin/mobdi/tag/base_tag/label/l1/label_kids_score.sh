@@ -12,8 +12,10 @@ set -x -e
 !
 day=$1
 
-#input
-device_applist_new="dm_mobdi_mapping.device_applist_new"
+source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+
+##input
+device_applist_new=${dim_device_applist_new_di}
 #mapping
 kids_pkg03="tp_mobdi_model.kids_pkg03"
 kids_pkg37="tp_mobdi_model.kids_pkg37"

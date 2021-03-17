@@ -19,6 +19,11 @@ if [ $# -ne 1 ]; then
 fi
 day=$1
 
+source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+
+tmpdb="dw_mobdi_tmp"
+appdb="rp_mobdi_report"
+
 #seed="select device,applist from test.zhangxy_consume_device_sample2"
 seed="select device,applist from ${label_l1_applist_refine_cnt_di} where day='$day'"
 mapping="dm_sdk_mapping.mapping_consume_pkg"

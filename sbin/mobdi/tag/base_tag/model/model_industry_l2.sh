@@ -22,11 +22,16 @@ fi
 
 day=$1
 
+source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+
+tmpdb="dw_mobdi_tmp"
+appdb="rp_mobdi_report"
+
 ## input
-transfered_feature_table="dw_mobdi_md.model_transfered_features"
+transfered_feature_table="${tmpdb}.model_transfered_features"
 label_apppkg_feature_index=${label_l1_apppkg_feature_index}
 
-model_occupation="rp_mobdi_app.label_l2_result_scoring_di" #需要occupation跑出来先
+model_occupation="${appdb}.label_l2_result_scoring_di" #需要occupation跑出来先
 model="/dmgroup/dba/modelpath/20190815/linear_regression_model/industrymodel_whitecollar;/dmgroup/dba/modelpath/20190815/linear_regression_model/industrymodel_service;/dmgroup/dba/modelpath/20190815/linear_regression_model/industrymodel_bluecollar;/dmgroup/dba/modelpath/20190815/linear_regression_model/industrymodel_individual"
 length=330000
 thresholds="
