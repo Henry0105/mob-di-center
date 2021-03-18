@@ -323,7 +323,7 @@ object PhoneContactsDedupFull {
          |      from
          |      (
          |        select device,concat(phone,'=',phone_tm) as phone_list,mac,imei,'' as phoneno,phone as phone_view
-         |        from $ANDROID_ID_MAPPING_FULL_VIEW
+         |        from $DIM_ID_MAPPING_ANDROID_DF_VIEW
          |        where length(phone)>0
          |        and length(phone)<=10000
          |

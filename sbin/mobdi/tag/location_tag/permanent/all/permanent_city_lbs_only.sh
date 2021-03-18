@@ -18,7 +18,7 @@ cd `dirname $0`
 day=''
 #参数，开始日期，建议为源表最新分区；当需要补数据时，为补数据开始日
 day_start=''
-lastDay=`hive -e "show partitions dm_mobdi_master.device_staying_daily" | sort | tail -n 1 | awk -F= '{print $2}'`
+lastDay=`hive -e "show partitions dm_mobdi_topic.dws_device_location_staying_di" | sort | tail -n 1 | awk -F= '{print $2}'`
 echo $lastDay
 day=$lastDay
 day_start=$lastDay

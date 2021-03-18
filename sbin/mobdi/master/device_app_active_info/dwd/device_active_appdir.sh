@@ -40,7 +40,7 @@ set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
 
-INSERT OVERWRITE TABLE $dwd_device_active_di PARTITION (day = '$day', plat, source)
+INSERT OVERWRITE TABLE $dws_device_active_di PARTITION (day = '$day', plat, source)
 SELECT device,
        pkg,
        apppkg,

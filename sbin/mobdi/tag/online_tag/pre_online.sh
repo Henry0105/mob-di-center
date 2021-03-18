@@ -195,7 +195,7 @@ function gen_tmp_table(){
     elif [ $source_type -eq 6 ];then
       echo "计算居住时间apppkg安装"
       #todo
-      inputTable='dm_mobdi_master.device_install_app_master_new'
+      inputTable='dm_mobdi_topic.dws_device_install_app_status_40d_di'
       deviceSql="
 	       select device,coalesce(mapping.apppkg, device.pkg) as relation,${theday} as day,count(1) as num
            from
@@ -230,7 +230,7 @@ function gen_tmp_table(){
     elif [ $source_type -eq 7 ];then
       echo "计算居住时间apppkg卸载"
       #todo
-      inputTable='dm_mobdi_master.device_install_app_master_new'
+      inputTable='dm_mobdi_topic.dws_device_install_app_status_40d_di'
       deviceSql="
 	       select device,coalesce(mapping.apppkg, device.pkg) as relation,${theday} as day,count(1) as num
            from
@@ -264,7 +264,7 @@ function gen_tmp_table(){
       "
     elif [ $source_type -eq 10 ];then
 		echo "计算装过，final_flag 0,1,装过为8和10结合"
-      inputTable='dm_mobdi_master.device_install_app_master_new'
+      inputTable='dm_mobdi_topic.dws_device_install_app_status_40d_di'
       deviceSql="
 	       select device,coalesce(mapping.apppkg, device.pkg) as relation,${theday} as day,count(1) as num
            from
@@ -280,7 +280,7 @@ function gen_tmp_table(){
 			"
     elif [ $source_type -eq 9 ];then
 		echo "计算在装，final_flag <> -1"
-      inputTable='dm_mobdi_master.device_install_app_master_new'
+      inputTable='dm_mobdi_topic.dws_device_install_app_status_40d_di'
       deviceSql="
 	       select device,coalesce(mapping.apppkg, device.pkg) as relation,${theday} as day,count(1) as num
            from

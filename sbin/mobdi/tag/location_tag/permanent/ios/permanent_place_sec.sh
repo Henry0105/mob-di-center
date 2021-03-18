@@ -9,7 +9,7 @@
 @TableRelation:dm_sdk_mapping.map_city_sdk,dm_mobdi_master.device_ip_info,dm_mobdi_mapping.ios_id_mapping_full_view->rp_mobdi_app.ios_permanent_place
 '
 ##input:
-device_ip_info=dm_mobdi_master.device_ip_info
+device_ip_info=dm_mobdi_topic.dws_device_ip_info_di
 
 ##mapping:
 ios_id_mapping_sec_df_view=dm_mobdi_mapping.ios_id_mapping_full_sec_view

@@ -96,7 +96,7 @@ from
                sdks,
                $day as processtime,
                size(split(sservertime_list,',')) as cnt
-        from $dwd_device_active_di
+        from $dws_device_active_di
         where day='${day}'
         and source in ('pv','logrun')
     ) a

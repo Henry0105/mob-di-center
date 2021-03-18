@@ -126,7 +126,7 @@ with base_station_info1 as ( --移动,联通
 ),
 base_station_info2 as ( --电信
   select
-      nvl(device, '') as device,
+      nvl(muid, '') as device,
       duid,
       from_unixtime(CAST(datetime/1000 as BIGINT), 'HH:mm:ss') as time,
       day as processtime,
@@ -144,7 +144,7 @@ base_station_info2 as ( --电信
   from $dwd_base_station_info_sec_di
   where day between '$day' and '$plus_2day'
   and from_unixtime(CAST(datetime/1000 as BIGINT), 'yyyyMMdd') = '$day'
-  and trim(lower(device)) rlike '^[a-f0-9]{40}$' and trim(device)!='0000000000000000000000000000000000000000'
+  and trim(lower(muid)) rlike '^[a-f0-9]{40}$' and trim(muid)!='0000000000000000000000000000000000000000'
   and plat in (1,2)
   and ((bid is not null or  sid is not null or  nid is not null) and (lac is  null and cell is  null ))
 ),

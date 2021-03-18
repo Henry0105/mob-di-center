@@ -26,10 +26,10 @@ day=$1
 log_device_info_jh=dm_mobdi_master.dwd_log_device_info_jh_sec_di
 
 #mapping
-sdk_device_snsuid_list_android=dw_mobdi_md.sdk_device_snsuid_list_android
+sdk_device_snsuid_list_android=dm_mobdi_topic.dws_device_snsuid_list_android
 
 #output
-android_id_mapping_incr=dm_mobdi_master.dwd_android_id_mapping_sec_di
+android_id_mapping_incr=dm_mobdi_topic.dws_id_mapping_android_sec_di
 
 
 #置空函数，简化代码

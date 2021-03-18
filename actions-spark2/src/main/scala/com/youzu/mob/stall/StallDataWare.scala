@@ -15,7 +15,7 @@ class StallDataWare {
   def appInstallActionDI(spark: SparkSession, datetime: String): Unit = {
     spark.sql(
       s"""
-         |insert overwrite table dm_mobdi_master.dwd_device_app_install_di partition(day=${datetime})
+         |insert overwrite table $DWS_DEVICE_APP_INSTALL_DI partition(day=${datetime})
          |select device,pkg,
          |       max(install_flag) as install_flag,
          |       max(unstall_flag) as unstall_flag,
@@ -78,7 +78,7 @@ class StallDataWare {
 
     spark.sql(
       s"""
-         |insert overwrite table dm_mobdi_master.dwd_device_app_info_df partition(day=${datetime})
+         |insert overwrite table $DWS_DEVICE_APP_INFO_DF partition(day=${datetime})
          |select device,pkg,max(all_time) as all_time
          |from
          |(

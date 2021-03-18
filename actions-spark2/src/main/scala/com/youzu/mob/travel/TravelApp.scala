@@ -153,7 +153,7 @@ object TravelApp {
          |    coalesce(cast(g.rentcarInstalled as int), 0)
          |from (
          | select device, country, province, city, pcountry,
-         |  pprovince, pcity, day from $TRAVEL_LOCATIONS_DAILY
+         |  pprovince, pcity, day from $DWS_DEVICE_TRAVEL_LOCATION_DI
          | where day = $day and (
          |     (country != pcountry and trim(country) != '' and trim(pcountry) != '')
          |     or (province != pprovince and trim(province) != '' and trim(pprovince) != '')
