@@ -22,7 +22,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 ## input
 label_device_applist_cnt=$label_l1_applist_refine_cnt_di
 label_citylevel_df=$label_l2_citylevel_df
-device_info_master_full_par=$dwd_device_info_df
+dwd_device_info_df=$dwd_device_info_df
 label_house_price_mf=$label_l1_house_price_mf
 label_diff_month_mf=$label_l1_diff_month_df
 label_apppkg_category_index=$label_l1_apppkg_category_index
@@ -79,7 +79,7 @@ left join
            when price is null or length(trim(price)) = 0 then 'unknown'
            else price
          end as price
-  from $device_info_master_full_par
+  from $dwd_device_info_df
   where version = '$day.1000'
   and plat = '1'
 ) a3 on a1.device = a3.device

@@ -1,12 +1,13 @@
 package com.youzu.mob.stall
 
+import com.youzu.mob.utils.Constants.{DWS_DEVICE_APP_INFO_DF, DWS_DEVICE_APP_INSTALL_DI, DWS_DEVICE_INSTALL_STATUS}
 import org.apache.spark.sql.SparkSession
 
 
 class StallDataWareService {
 
   /**
-    * sourcetable   ${db}.dwd_device_app_info_df,${db}.dwd_device_app_install_di
+    * sourcetable   ,${db}.dwd_device_app_install_di
     * targettable ${db}.dws_device_install_status
     *
     * @param spark
@@ -31,13 +32,13 @@ class StallDataWareService {
          |from
          |(
          |  select *
-         |  from ${db}.dws_device_install_status
+         |  from $DWS_DEVICE_INSTALL_STATUS
          |  where day='${statustime}' and reserved_flag <> '-1'
          |) t1
          |inner join
          |(
          |  select device
-         |  from ${db}.dwd_device_app_info_df
+         |  from $DWS_DEVICE_APP_INFO_DF
          |  where day='${datetime}'
          |  group by device
          |) part on part.device = t1.device
@@ -60,7 +61,7 @@ class StallDataWareService {
          |from
          |(
          |  select *
-         |  from ${db}.dwd_device_app_info_df
+         |  from $DWS_DEVICE_APP_INFO_DF
          |  where day='${datetime}'
          |) a
          |full join ${partTable1} b
@@ -90,7 +91,7 @@ class StallDataWareService {
          |from
          |(
          |  select device,pkg,final_time,final_flag,process_time,install_datetime,unstall_datetime,all_datetime
-         |  from ${db}.dws_device_install_status
+         |  from $DWS_DEVICE_INSTALL_STATUS
          |  where day = '${statustime}'
          |) t1
          |full join ${partTable2} part
@@ -103,7 +104,7 @@ class StallDataWareService {
          |select t1.device,pkg,trace_list,install_datetime,unstall_datetime
          |    from
          |    (select device,pkg,trace_list,install_datetime,unstall_datetime
-         |     from ${db}.dwd_device_app_install_di
+         |     from $DWS_DEVICE_APP_INSTALL_DI
          |     where day='${datetime}'
          |    ) t1
          |    inner join
@@ -122,13 +123,13 @@ class StallDataWareService {
          |  from
          |  (
          |    select device
-         |    from ${db}.dwd_device_app_install_di
+         |    from $DWS_DEVICE_APP_INSTALL_DI
          |    where day='${datetime}'
          |
          |    union all
          |
          |    select device
-         |    from ${db}.dwd_device_app_info_df
+         |    from $DWS_DEVICE_APP_INFO_DF
          |    where day='${datetime}'
          |  ) t
          |  group by device
@@ -165,7 +166,7 @@ class StallDataWareService {
     // di数据对full 数据进行更新
     spark.sql(
       s"""
-         |insert overwrite table ${db}.dws_device_install_status partition(day='${datetime}')
+         |insert overwrite table $DWS_DEVICE_INSTALL_STATUS partition(day='${datetime}')
          |select tt.device,pkg,install_datetime,unstall_datetime,all_datetime,final_flag,final_time,reserved_flag,
          |       if(time.device is not null,'${datetime}',tt.process_time) as process_time
          |from ${partTable6} tt

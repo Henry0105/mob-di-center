@@ -100,14 +100,14 @@ set hive.exec.dynamic.partition.mode=nonstrict;
 
 insert overwrite table $timewindow_online_profile_v3 partition(day=${day},feature)
 select device,cnt,'5353_1000' as feature
-from dm_mobdi_master.device_install_app_count
+from dm_mobdi_report.ads_device_install_app_cash_p2p_cnt_di
 where day=${day}
 and type=5
 
 union all
 
 select device,cnt,'5354_1000' as feature
-from dm_mobdi_master.device_install_app_count
+from dm_mobdi_report.ads_device_install_app_cash_p2p_cnt_di
 where day=${day}
 and type=1;
 "

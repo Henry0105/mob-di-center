@@ -4,6 +4,8 @@ object Constants {
 
   private def prop(key: String): String = PropUtils.getProperty(key)
   val DM_MOBDI_TMP = prop("dw_mobdi_md")
+  val TP_SDK_TMP = prop("tp_sdk_tmp")
+
   val DWS_DEVICE_INSTALL_APP_RE_STATUS_DI = prop("dws_device_install_app_re_status_di")
   val DWS_DEVICE_DUID_MAPPING_NEW = prop("dws_device_duid_mapping_new")
   val PHONE_CONTACTS_DEDUP_FULL = prop("phone_contacts_dedup_full")
@@ -25,18 +27,16 @@ object Constants {
   val APP_ACTIVE_DAILY = prop("app_active_daily")
   val DWS_DEVICE_LBS_POI_ANDROID_SEC_DI = prop("dws_device_lbs_poi_android_sec_di")
   val IOS_PERMANENT_PLACE = prop("ios_permanent_place")
-  val TRAVEL_LOCATIONS_DAILY= prop("travel_locations_daily")
+  val DWS_DEVICE_TRAVEL_LOCATION_DI= prop("dws_device_travel_location_di")
   val MAP_COUNTRY_SDK = prop("map_country_sdk")
   val MAP_PROVINCE_LOC = prop("map_province_loc")
   val VACATION_FLAG = prop("vacation_flag")
   val INDEX_PROFILE_HISTORY_ALL = prop("index_profile_history_all")
   val DWS_DEVICE_INSTALL_STATUS = prop("dws_device_install_status")
-  val DM_DEVICE_APPLIST_FULL = prop("dm_device_applist_full")
   val DWD_LOG_DEVICE_UNSTALL_APP_INFO_SEC_DI = prop("dwd_log_device_unstall_app_info_sec_di")
   val DWD_LOG_DEVICE_INSTALL_APP_INCR_INFO_SEC_DI = prop("dwd_log_device_install_app_incr_info_sec_di")
   val DWD_LOG_DEVICE_INSTALL_APP_ALL_INFO_SEC_DI = prop("dwd_log_device_install_app_all_info_sec_di")
-  val DWD_DEVICE_APP_INFO_DF = prop("dwd_device_app_info_df")
-  val DWD_DEVICE_APP_INSTALL_DI = prop("dwd_device_app_install_di")
+  val DWS_DEVICE_APP_INSTALL_DI = prop("dws_device_app_install_di")
   val ONLINE_CATEGORY_MAPPING = prop("online_category_mapping")
   val DWD_LOG_SHARE_NEW_DI = prop("dwd_log_share_new_di")
   val DIM_SHARE_LEVEL_MAPPING = prop("dim_share_level_mapping")
@@ -52,8 +52,8 @@ object Constants {
   val DEVICE_LOCATION_CURRENT = prop("dws_device_location_current_di")
   val RP_DEVICE_LOCATION_PERMANENT = prop("rp_device_location_permanent")
 
-  val ANDROID_ID_MAPPING_FULL_VIEW = prop("android_id_mapping_full_view")
-  val DM_DEVICE_APPLIST_INCR = prop("dm_device_applist_incr")
   val PHONE_LABEL = prop("phone_label")
-  val TP_SDK_TMP = prop("tp_sdk_tmp")
+
+  val DWS_DEVICE_APP_INFO_DF = prop("dws_device_app_info_df")
+  val DIM_ID_MAPPING_ANDROID_DF_VIEW = prop("dim_id_mapping_android_df_view")
 }

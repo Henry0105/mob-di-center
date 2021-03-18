@@ -9,16 +9,16 @@ set -v -e
 '
 
 : "
-create or replace view dm_mobdi_master.device_sdk_run_master_add_mdata_pv_view
+create or replace view dm_mobdi_topic.dws_device_sdk_run_master_add_mdata_pv_view
 partitioned on (day)
 as
 select device,pkg,appver,appkey,plat,commonsdkver,sdks,day
-from dm_mobdi_master.device_sdk_run_master
+from dm_mobdi_topic.dws_device_sdk_run_master_di
 
 union all
 
 select device,pkg,appver,appkey,plat,commonsdkver,sdks,day
-from dm_mobdi_master.dwd_device_active_di
+from dm_mobdi_topic.dws_device_active_di
 where source='mdata_pv'
 
 union all

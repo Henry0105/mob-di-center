@@ -9,7 +9,7 @@ day=$1
 # 无model使用
 
 #input
-device_lbs_poi_daily=dm_mobdi_master.device_lbs_poi_daily
+device_lbs_poi_daily=dm_mobdi_topic.dws_device_lbs_poi_10type_di
 #output
 label_ios_hospital_active_day_cnt=${label_ios_hospital_active_day_cnt}
 

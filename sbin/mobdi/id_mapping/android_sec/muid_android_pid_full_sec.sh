@@ -24,10 +24,10 @@ insert_day=$1
 pday=`date +%Y%m%d -d "${insert_day} -1 day"`
 
 #input
-pid_mapping_incr=dm_mobdi_master.dwd_pid_mapping_sec_di
+pid_mapping_incr=dm_mobdi_topic.dws_pid_mapping_sec_di
 
 #output（自依赖）
-pid_mapping_full_sec=dm_mobdi_mapping.pid_mapping_sec_df
+pid_mapping_full_sec=dm_mobdi_mapping.dim_pid_mapping_sec_df
 
 :<<!
 取dm_mobdi_mapping.phone_mapping_full最后一个分区的全量数据与dw_mobdi_md.phone_mapping_incr的分区数据进行全量更新
@@ -125,10 +125,10 @@ if [[ "$delete_day" -ne "$LastMonthLastDay" ]]; then
   # 保留每月最后一天的数据
   # do delete thing
   echo "deleting version: ${delete_day}.1000 if exists"
-  hive -e "alter table dm_mobdi_mapping.pid_mapping_sec_df DROP IF EXISTS PARTITION (version='${delete_day}.1000',plat=1);"
+  hive -e "alter table dm_mobdi_mapping.dim_pid_mapping_sec_df DROP IF EXISTS PARTITION (version='${delete_day}.1000',plat=1);"
   echo "deleting version: ${delete_day}.1001 if exists"
-  hive -e "alter table dm_mobdi_mapping.pid_mapping_sec_df DROP IF EXISTS PARTITION (version='${delete_day}.1001',plat=1);"
+  hive -e "alter table dm_mobdi_mapping.dim_pid_mapping_sec_df DROP IF EXISTS PARTITION (version='${delete_day}.1001',plat=1);"
   echo "deleting version: ${delete_day}.1002 if exists"
-  hive -e "alter table dm_mobdi_mapping.pid_mapping_sec_df DROP IF EXISTS PARTITION (version='${delete_day}.1002',plat=1);"
+  hive -e "alter table dm_mobdi_mapping.dim_pid_mapping_sec_df DROP IF EXISTS PARTITION (version='${delete_day}.1002',plat=1);"
 fi
 # ### END DELETE
