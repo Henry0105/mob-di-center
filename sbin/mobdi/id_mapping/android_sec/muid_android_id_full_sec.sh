@@ -23,7 +23,7 @@ fi
 day=$1
 
 #input
-android_id_mapping_incr=dm_mobdi_master.dwd_android_id_mapping_sec_di
+android_id_mapping_incr=dm_mobdi_topic.dws_id_mapping_android_sec_di
 
 #output
 android_id_mapping_full=dm_mobdi_mapping.android_id_mapping_sec_df

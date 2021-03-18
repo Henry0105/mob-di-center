@@ -3,7 +3,7 @@
 @owner: menff
 @describe: 设备的社交账号信息汇总
 20190313 update:
-    1.表迁移:dw_mobdi_md.sdk_device_snsuid_list_android和dw_mobdi_md.sdk_device_snsuid_list_ios
+    1.表迁移:dm_mobdi_topic.dws_device_snsuid_list_android和dw_mobdi_md.sdk_device_snsuid_list_ios
     2.如下表废弃:
       dm_sdk_master.android_id_mapping
       dm_sdk_master.android_id_mapping_full
@@ -97,7 +97,7 @@ group by lower(trim(deviceid)), snsplat, lower(trim(snsuid));
 drop table if exists $tmp_device_snsuid_ios;
 create table $tmp_device_snsuid_ios stored as orc as
 select lower(trim(deviceid)), snsplat, lower(trim(snsuid)), max(maxday) maxday
-from rp_mobdi_app.rp_sdk_device_snsuid_mi
+from dm_mobdi_topic.dws_device_snsuid_mi
 where par_time>=$prev18Month
 and par_time<=$prevMonth
 and plat=2
@@ -159,16 +159,16 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
-insert overwrite table rp_mobdi_app.rp_device_snsuid_full partition(day='20200101',plat=1)
+insert overwrite table dm_mobdi_topic.dws_device_snsuid_mf partition(day='20200101',plat=1)
 select snsplat,lower(trim(snsuid)) as snsuid,lower(trim(deviceid)) as deviceid,min(minday) as minday,max(maxday) as maxday
-from rp_mobdi_app.rp_sdk_device_snsuid_mi
+from dm_mobdi_topic.dws_device_snsuid_mi
 where par_time<='202001'
 and plat=1
 group by snsplat,lower(trim(snsuid)),lower(trim(deviceid));
 
-insert overwrite table rp_mobdi_app.rp_device_snsuid_full partition(day='20200101',plat=2)
+insert overwrite table dm_mobdi_topic.dws_device_snsuid_mf partition(day='20200101',plat=2)
 select snsplat,lower(trim(snsuid)) as snsuid,lower(trim(deviceid)) as deviceid,min(minday) as minday,max(maxday) as maxday
-from rp_mobdi_app.rp_sdk_device_snsuid_mi
+from dm_mobdi_topic.dws_device_snsuid_mi
 where par_time<='202001'
 and plat=2
 group by snsplat,lower(trim(snsuid)),lower(trim(deviceid));

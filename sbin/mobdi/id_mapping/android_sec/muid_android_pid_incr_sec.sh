@@ -24,13 +24,13 @@ insert_day=$1
 
 #input
 log_device_pid_dedup=dm_mobdi_master.dwd_log_device_pid_sec_di
-android_id_mapping_incr=dm_mobdi_master.dwd_android_id_mapping_sec_di
+android_id_mapping_incr=dm_mobdi_topic.dws_id_mapping_android_sec_di
 mobauth_operator_login=dm_mobdi_master.dwd_mobauth_operator_login_sec_di
 mobauth_operator_auth=dm_mobdi_master.dwd_mobauth_operator_auth_sec_di
 mobauth_pvlog=dm_mobdi_master.dwd_mobauth_pvlog_sec_di
 
 #output
-pid_mapping_incr=dm_mobdi_master.dwd_pid_mapping_sec_di
+pid_mapping_incr=dm_mobdi_topic.dws_pid_mapping_sec_di
 
 hive -e "
 set mapreduce.map.memory.mb=6144;

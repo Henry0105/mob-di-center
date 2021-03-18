@@ -24,13 +24,13 @@ insert_day=$1
 
 #input
 device_oiid_incr=dm_mobdi_mapping.device_oiid_mapping_sec_di
-pid_mapping_incr=dm_mobdi_master.dwd_pid_mapping_sec_di
+pid_mapping_incr=dm_mobdi_topic.dws_pid_mapping_sec_di
 
 #mapping
 dim_isid_attribute_full_par_sec=dm_mobdi_mapping.dim_isid_attribute_full_par_secview
 
 #output
-android_id_mapping_incr=dm_mobdi_master.dwd_android_id_mapping_sec_di
+android_id_mapping_incr=dm_mobdi_topic.dws_id_mapping_android_sec_di
 
 hive -e "
 set mapreduce.map.memory.mb=6144;

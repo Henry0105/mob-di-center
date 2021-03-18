@@ -54,7 +54,7 @@ object OfflineUniversalTools {
          |device,
          |poiinfo,
          |day ,Row_number() over(partition by device,poiinfo,day order by device ) as rank
-         |from dm_mobdi_master.sdk_lbs_daily_poi
+         |from $DWS_DEVICE_LBS_POI_ANDROID_SEC_DI
          |where day <=${day} and day > ${bday} and type= ${lbstype} ) mm where mm.rank =1
       """.stripMargin)
     val dineinRows = dineinRdd.rdd.mapPartitions(row => {
@@ -151,7 +151,7 @@ object OfflineUniversalTools {
         val bfday = getBeforeTime(day, i)
         val fs = FileSystem.get(conf)
         val count = fs.getContentSummary(
-          new Path(s"/user/hive/warehouse/dm_mobdi_master.db/sdk_lbs_daily_poi/type=${lbstype}/day=${bfday}"))
+          new Path(s"/user/hive/warehouse/dm_mobdi_topic.db/dws_device_lbs_poi_android_sec_di/type=${lbstype}/day=${bfday}"))
         println(s"${bfday}--->" + count.getLength)
         if (count.getLength < 1048576) {
           isture = false
