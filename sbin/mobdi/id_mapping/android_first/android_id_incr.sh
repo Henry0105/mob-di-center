@@ -31,7 +31,7 @@ echo "if(length($f) <= 0, null, $f)"
 
 HADOOP_USER_NAME=dba hive -e"
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
-create temporary function imeiarray_clear as 'com.youzu.mob.java.udf.ImeiArrayClear';
+create temporary function imeiarray_clear as 'com.youzu.mob.java.udf.ImeiArrayLuhnClear';
 create temporary function imsiarray_clear as 'com.youzu.mob.java.udf.ImsiArrayClear';
 create temporary function get_mac as 'com.youzu.mob.java.udf.GetMacByWlan0';
 create temporary function combine_unique as 'com.youzu.mob.java.udf.CombineUniqueUDAF';
@@ -118,11 +118,11 @@ from (
         select
           device,
           if(length(mac)=0, null, mac) as mac,
-          if(length(imei) = 0 ,null,imei) as imei,
+          if(length(trim(if(luhn_checker(imei), imei, ''))) = 0 ,null,imei) as imei,
           if (length(adsid)=0, null, adsid) as adsid,
           if (length(androidid)=0, null, androidid) as androidid,
           cast(if(length(trim(mac)) = 0 or mac is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as mac_tm,
-          cast(if(length(trim(imei)) = 0 or imei is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as imei_tm,
+          cast(if(length(trim(if(luhn_checker(imei), imei, ''))) = 0 or imei is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as imei_tm,
           cast(if(length(adsid)=0 or adsid is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as adsid_tm,
           cast(if(length(androidid)=0 or androidid is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as androidid_tm
         from

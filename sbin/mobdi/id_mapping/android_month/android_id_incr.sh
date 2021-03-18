@@ -38,7 +38,7 @@ echo "if(length($f) <= 0, null, $f)"
 
 HADOOP_USER_NAME=dba hive -e"
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
-create temporary function imeiarray_clear as 'com.youzu.mob.java.udf.ImeiArrayClear';
+create temporary function imeiarray_clear as 'com.youzu.mob.java.udf.ImeiArrayLuhnClear';
 create temporary function imsiarray_clear as 'com.youzu.mob.java.udf.ImsiArrayClear';
 create temporary function get_mac as 'com.youzu.mob.java.udf.GetMacByWlan0';
 create temporary function combine_unique as 'com.youzu.mob.java.udf.CombineUniqueUDAF';
@@ -165,25 +165,25 @@ from (
             concat_ws(',', collect_list(androidid_tm)) as androidid_tm,
             concat_ws(',', collect_list(simserialno_tm)) as simserialno_tm,
             concat_ws(',', collect_list(phoneno_tm)) as phoneno_tm
-            from (
+        from
+        (
             select
-               device_info_jh.muid as device,
+                device_info_jh_mac.device as device,
                 CASE
                   WHEN blacklist_mac.value IS NOT NULL THEN null
                   WHEN mac is not null and mac <> '' then mac
                   ELSE null
                 END as mac,
                 macmap,
-                `empty2null 'imei'` as imei,
+                imei,
                 imei_arr,
                 imeiarray,
-               `empty2null 'serialno'` as serialno,
-               `empty2null 'adsid'` as adsid,
-               `empty2null 'androidid'` as androidid,
-               `empty2null 'simserialno'` as simserialno,
-               `empty2null 'phoneno'` as phoneno,
-               `empty2null 'imsi'` as imsi,
-                imsi_tm,
+                serialno,
+                adsid,
+                androidid,
+                simserialno,
+                phoneno,
+                imsi,
                 imsiarray,
                 CASE
                   WHEN blacklist_mac.value IS NOT NULL THEN null
@@ -192,115 +192,132 @@ from (
                 END as mac_tm,
                 imei_tm,
                 imei_arr_tm,
-                cast(if(length(trim(serialno))=0 or serialno is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as serialno_tm,
-                cast(if(length(trim(adsid))=0 or serialno is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as adsid_tm,
-                cast(if(length(trim(androidid))=0 or serialno is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as androidid_tm,
-                cast(if(length(trim(simserialno)) = 0 or simserialno is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as simserialno_tm,
-                cast(if(length(trim(phoneno)) = 0 or phoneno is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as phoneno_tm
+                imsi_tm,
+                serialno_tm,
+                adsid_tm,
+                androidid_tm,
+                simserialno_tm,
+                phoneno_tm
             from
             (
-              select
-                  muid,
+                select
+                    device_info_jh.muid as device,
+                    case
+                        when trim(lower(mac)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or mac is null then ''
+                        when regexp_replace(trim(lower(mac)), ' |-|\\\\.|:|\073', '') in ('000000000000', '020000000000') then ''
+                        when regexp_replace(trim(lower(mac)), ' |-|\\\\.|:|\073', '') rlike '^[0-9a-f]{12}$'
+                        then substring(regexp_replace(regexp_replace(trim(lower(mac)), ' |-|\\\\.|:|\073', ''), '(.{2})', '\$1:'), 1, 17)
+                        else ''
+                      end as mac,
+                    macmap,
+                    if(length(trim(if(luhn_checker(imei), imei, ''))) = 0 ,null,imei) as imei,
+                    imei_arr,
+                    imeiarray,
+                   `empty2null 'serialno'` as serialno,
+                   `empty2null 'adsid'` as adsid,
+                   `empty2null 'androidid'` as androidid,
+                   `empty2null 'simserialno'` as simserialno,
+                   `empty2null 'phoneno'` as phoneno,
+                   `empty2null 'imsi'` as imsi,
+                    imsiarray,
+                    cast(unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss') as string) as mac_tm,
+                    cast(if(length(trim(if(luhn_checker(imei), imei, ''))) = 0 or imei is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as imei_tm,
+                    imei_arr_tm,
+                    cast(if(length(trim(imsi))=0 or imsi is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as imsi_tm,
+                    cast(if(length(trim(serialno))=0 or serialno is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as serialno_tm,
+                    cast(if(length(trim(adsid))=0 or adsid is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as adsid_tm,
+                    cast(if(length(trim(androidid))=0 or androidid is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as androidid_tm,
+                    cast(if(length(trim(simserialno)) = 0 or simserialno is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as simserialno_tm,
+                    cast(if(length(trim(phoneno)) = 0 or phoneno is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as phoneno_tm
+                from
+                (
+                    select
+                        muid,
+                        case
+                          when get_mac(macarray) is not null and get_mac(macarray) <> '02:00:00:00:00:00' then lower(get_mac(macarray))
+                          else mac
+                        end as mac,
 
-                  case
-                    when get_mac(macarray) is not null and get_mac(macarray) <> '02:00:00:00:00:00' then lower(get_mac(macarray))
-                    when trim(lower(mac)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or mac is null then ''
-                    when regexp_replace(trim(lower(mac)), ' |-|\\\\.|:|\073', '') in ('000000000000', '020000000000') then ''
-                    when regexp_replace(trim(lower(mac)), ' |-|\\\\.|:|\073', '') rlike '^[0-9a-f]{12}$'
-                    then substring(regexp_replace(regexp_replace(trim(lower(mac)), ' |-|\\\\.|:|\073', ''), '(.{2})', '\$1:'), 1, 17)
-                    else ''
-                  end as mac,
+                        m as macmap,
 
-                  m as macmap,
+                        case
+                          when trim(imei) rlike '0{14,17}' then ''
+                          when length(trim(lower(imei))) = 16 and trim(imei) rlike '^[0-9]+$' then if(imei_verify(regexp_replace(trim(lower(substring(imei,1,14))), ' |/|-|imei:', '')), regexp_replace(trim(lower(imei)), ' |/|-|imei:', ''),'')
+                          when length(trim(lower(imei))) = 16 and trim(imei) not rlike '^[0-9]+$' then ''
+                          when imei_verify(regexp_replace(trim(lower(imei)), ' |/|-|imei:', '')) then regexp_replace(trim(lower(imei)), ' |/|-|imei:', '')
+                          else ''
+                        end as imei,
 
-                  case
-                    when trim(imei) rlike '0{14,17}' then ''
-                    when length(trim(lower(imei))) = 16 and trim(imei) rlike '^[0-9]+$' then if(imei_verify(regexp_replace(trim(lower(substring(imei,1,14))), ' |/|-|imei:', '')), regexp_replace(trim(lower(imei)), ' |/|-|imei:', ''),'')
-                    when length(trim(lower(imei))) = 16 and trim(imei) not rlike '^[0-9]+$' then ''
-                    when imei_verify(regexp_replace(trim(lower(imei)), ' |/|-|imei:', '')) then regexp_replace(trim(lower(imei)), ' |/|-|imei:', '')
-                    else ''
-                  end as imei,
+                        imeiarray_clear(imeiarray) as imeiarray,
 
-                  imeiarray_clear(imeiarray) as imeiarray,
+                        case
+                          when length(imei_array_union('field',imeiarray_clear(imeiarray),unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')))>0
+                            then imei_array_union('field',imeiarray_clear(imeiarray),unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss'))
+                          else null
+                        end as imei_arr,
 
-                  case
-                    when length(imei_array_union('field',imeiarray_clear(imeiarray),unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')))>0
-                      then imei_array_union('field',imeiarray_clear(imeiarray),unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss'))
-                    else null
-                  end as imei_arr,
+                        case
+                          when lower(trim(serialno)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or serialno is null then ''
+                          when lower(trim(serialno)) rlike '^[0-9a-z]{6,32}$' then lower(trim(serialno))
+                          else ''
+                        end as serialno,
 
-                  case
-                    when lower(trim(serialno)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or serialno is null then ''
-                    when lower(trim(serialno)) rlike '^[0-9a-z]{6,32}$' then lower(trim(serialno))
-                    else ''
-                  end as serialno,
+                        case
+                          when lower(trim(adsid)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or adsid is null then ''
+                          when regexp_replace(lower(trim(adsid)), ' |-|\\\\.|:|\073','') rlike '0{32}' then ''
+                          when regexp_replace(lower(trim(adsid)), ' |-|\\\\.|:|\073','') rlike '^[0-9a-f]{32}$'
+                          then concat
+                          (
+                            substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 1, 8), '-',
+                            substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 9, 4), '-',
+                            substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 13, 4), '-',
+                            substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 17, 4), '-',
+                            substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 21, 12)
+                          )
+                          else ''
+                        end as adsid,
 
-                  case
-                    when lower(trim(adsid)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or adsid is null then ''
-                    when regexp_replace(lower(trim(adsid)), ' |-|\\\\.|:|\073','') rlike '0{32}' then ''
-                    when regexp_replace(lower(trim(adsid)), ' |-|\\\\.|:|\073','') rlike '^[0-9a-f]{32}$'
-                    then concat
-                    (
-                      substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 1, 8), '-',
-                      substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 9, 4), '-',
-                      substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 13, 4), '-',
-                      substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 17, 4), '-',
-                      substring(regexp_replace(trim(upper(adsid)), ' |-|\\\\.|:|\073', '') , 21, 12)
-                    )
-                    else ''
-                  end as adsid,
+                        case
+                          when lower(trim(androidid)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or androidid is null then ''
+                          when lower(trim(androidid)) rlike '^[0-9a-f]{14,16}$' then lower(trim(androidid))
+                          else ''
+                        end as androidid,
 
-                  case
-                    when lower(trim(androidid)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or androidid is null then ''
-                    when lower(trim(androidid)) rlike '^[0-9a-f]{14,16}$' then lower(trim(androidid))
-                    else ''
-                  end as androidid,
+                        case
+                          when lower(trim(simserialno)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or simserialno is null then ''
+                          when lower(trim(simserialno)) rlike '^[0-9a-z]{19,20}$' then lower(trim(simserialno))
+                          else ''
+                        end as simserialno,
 
-                  case
-                    when lower(trim(simserialno)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or simserialno is null then ''
-                    when lower(trim(simserialno)) rlike '^[0-9a-z]{19,20}$' then lower(trim(simserialno))
-                    else ''
-                  end as simserialno,
+                        case
+                          when lower(trim(phoneno)) rlike '[0-9a-f]{32}' then ''
+                          when length(split(extract_phone_num2(extract_phone_num3(trim(phoneno), trim(simserialno), trim(cast(carrier as string)),trim(imsi))), ',')[0]) = 17
+                          then string_sub_str(split(extract_phone_num2(extract_phone_num3(trim(phoneno), trim(simserialno), trim(cast(carrier as string)), trim(imsi))), ',')[0])
+                          else ''
+                        end as phoneno,
 
-                  case
-                    when lower(trim(phoneno)) rlike '[0-9a-f]{32}' then ''
-                    when length(split(extract_phone_num2(extract_phone_num3(trim(phoneno), trim(simserialno), trim(cast(carrier as string)),trim(imsi))), ',')[0]) = 17
-                    then string_sub_str(split(extract_phone_num2(extract_phone_num3(trim(phoneno), trim(simserialno), trim(cast(carrier as string)), trim(imsi))), ',')[0])
-                    else ''
-                  end as phoneno,
+                        case
+                          when lower(trim(imsi)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or imsi is null then ''
+                          when trim(imsi) rlike '^[0-9]{14,15}$' then trim(imsi)
+                          else ''
+                        end as imsi,
 
-                  case
-                    when lower(trim(imsi)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other') or imsi is null then ''
-                    when trim(imsi) rlike '^[0-9]{14,15}$' then trim(imsi)
-                    else ''
-                  end as imsi,
+                        imsiarray_clear(imsiarray) as  imsiarray,
 
-                  cast(if(length(imsi)=0,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as imsi_tm,
-                  imsiarray_clear(imsiarray) as  imsiarray,
-
-                  case
-                    when get_mac(macarray) is not null and get_mac(macarray) <> '02:00:00:00:00:00'
-                      then cast(unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss') as string)
-                    when `empty2null 'mac'` is not null
-                      then cast(unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss') as string)
-                    else null
-                  end as mac_tm,
-
-                  cast(if(luhn_checker(regexp_replace(trim(imei), ' |/|-','')),unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss'),null)  as string) as imei_tm,
-
-                  case
-                    when length(imei_array_union('field',imeiarray_clear(imeiarray),unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')))>0
-                      then imei_array_union('date',imeiarray_clear(imeiarray),unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss'))
-                    else null
-                  end as imei_arr_tm,
-                  serdatetime
-              from $log_device_info_jh as jh
-              lateral view explode(coalesce(macarray, array(map()))) tf as m
-              where jh.dt >='$startdate' and jh.dt <= '$enddate' and  jh.plat = 1 and muid is not null and length(muid)=40
-            ) device_info_jh
+                        case
+                          when length(imei_array_union('field',imeiarray_clear(imeiarray),unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')))>0
+                            then imei_array_union('date',imeiarray_clear(imeiarray),unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss'))
+                          else null
+                        end as imei_arr_tm,
+                        serdatetime
+                    from $log_device_info_jh as jh
+                    lateral view explode(coalesce(macarray, array(map()))) tf as m
+                    where jh.dt >='$startdate' and jh.dt <= '$enddate' and  jh.plat = 1 and muid is not null and length(muid)=40
+                ) device_info_jh
+            ) device_info_jh_mac
             left join
             (SELECT value FROM $blacklist where type='mac' and day=20180702 GROUP BY value) blacklist_mac
-            on (substring(regexp_replace(regexp_replace(trim(lower(device_info_jh.mac)), ' |-|\\\\.|:|\073',''), '(.{2})', '\$1:'), 1, 17)=blacklist_mac.value)
+            on (substring(regexp_replace(regexp_replace(trim(lower(device_info_jh_mac.mac)), ' |-|\\\\.|:|\073',''), '(.{2})', '\$1:'), 1, 17)=blacklist_mac.value)
         ) as a
         group by device
     ) as b
@@ -334,11 +351,11 @@ from (
         select
           device,
           if(length(mac)=0, null, mac) as mac,
-          if(length(imei) = 0 ,null,imei) as imei,
+          if(length(trim(if(luhn_checker(imei), imei, ''))) = 0 ,null,imei) as imei,
           if (length(adsid)=0, null, adsid) as adsid,
           if (length(androidid)=0, null, androidid) as androidid,
           cast(if(length(trim(mac)) = 0 or mac is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as mac_tm,
-          cast(if(length(trim(imei)) = 0 or imei is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as imei_tm,
+          cast(if(length(trim(if(luhn_checker(imei), imei, ''))) = 0 or imei is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as imei_tm,
           cast(if(length(adsid)=0 or adsid is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as adsid_tm,
           cast(if(length(androidid)=0 or androidid is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as androidid_tm
         from

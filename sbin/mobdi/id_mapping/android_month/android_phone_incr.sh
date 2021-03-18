@@ -88,7 +88,7 @@ create temporary function string_sub_str as 'com.youzu.mob.mobdi.StringSubStr';
 with android_imei14_exchange as (
   select
     imei,
-    concat_ws(',',collect_list(phone) )as phone_set,
+    concat_ws(',',collect_list(string_sub_str(phone)) )as phone_set,
     concat_ws(',',collect_list( phone_tm )) as phone_tm_set
   from
   (
@@ -101,14 +101,14 @@ with android_imei14_exchange as (
     and length(trim(owner_data)) = 14
     and ext_data rlike '^[1][3-8]\\\d{9}$'
     and length(split(extract_phone_num2(trim(ext_data)), ',')[0]) = 17
-  )imei_14
+  ) imei_14
   group by imei
 ),
 
 
 android_imei15_exchange as (
   select imei,
-  concat_ws(',',collect_list(phone) )as phone_set,
+  concat_ws(',',collect_list(string_sub_str(phone)) )as phone_set,
   concat_ws(',',collect_list( phone_tm )) as phone_tm_set
   from
   (
@@ -122,7 +122,7 @@ android_imei15_exchange as (
     and length(trim(owner_data)) = 15
     and ext_data rlike '^[1][3-8]\\\d{9}$'
     and length(split(extract_phone_num2(trim(ext_data)), ',')[0]) = 17
-  )imei_15
+  ) imei_15
   group by imei
 ),
 
@@ -130,7 +130,7 @@ android_imei15_exchange as (
 android_mac_exchange as (
   select
     lower(regexp_replace(trim(owner_data),':','')) as mac,
-    concat_ws(',',collect_list(split(extract_phone_num2(trim(ext_data)), ',')[0])) as phone_set,
+    concat_ws(',',collect_list(string_sub_str(split(extract_phone_num2(trim(ext_data)), ',')[0]))) as phone_set,
     concat_ws(',',collect_list(cast(unix_timestamp(processtime,'yyyyMMdd') as string))) as phone_tm_set
   from $ext_phone_mapping_incr
   where type='mac_phone'
@@ -143,7 +143,7 @@ android_mac_exchange as (
 
 sms_phoneno as (
   select muid as device,
-  concat_ws(',',collect_list(phone)) as phone,
+  concat_ws(',',collect_list(string_sub_str(phone))) as phone,
   concat_ws(',',collect_list(cast( if(unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss') is not null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss'),unix_timestamp('$enddate','yyyyMMdd')) as string))) as phone_tm
   from(
     select
@@ -343,7 +343,7 @@ phoneno_imsi as (
 
 ext_phone_imsi as (
 select
-split(extract_phone_num2(trim(owner_data)), ',')[0] as phoneno,
+string_sub_str(split(extract_phone_num2(trim(owner_data)), ',')[0]) as phoneno,
 concat_ws(',',collect_list(trim(ext_data))) as imsi,
 concat_ws(',',collect_list(cast(unix_timestamp(processtime,'yyyyMMdd') as string))) as imsi_tm
 from $ext_phone_mapping_incr
@@ -351,7 +351,7 @@ where type='phone_imsi'
 and length(trim(ext_data)) > 0
 and owner_data rlike '^[1][3-8]\\\d{9}$'
 and length(split(extract_phone_num2(trim(owner_data)), ',')[0]) = 17
-group by split(extract_phone_num2(trim(owner_data)), ',')[0]
+group by string_sub_str(split(extract_phone_num2(trim(owner_data)), ',')[0])
 ),
 
 
