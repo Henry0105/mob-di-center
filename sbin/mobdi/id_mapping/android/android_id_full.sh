@@ -88,14 +88,11 @@ create temporary function array_union as 'com.youzu.mob.java.udf.ArrayUnionUDF';
 create temporary function array_diff as 'com.youzu.mob.java.udf.ArrayDiffUDF';
 create temporary function mobdi_array_udf as 'com.youzu.mob.java.udf.MobdiArrayUtilUDF2';
 create temporary function ARRAY_DISTINCT as 'com.youzu.mob.java.udf.ArrayDistinct';
-
-
-SET mapreduce.map.memory.mb=8192;
-SET mapreduce.map.java.opts='-Xmx6g';
-SET mapreduce.child.map.java.opts='-Xmx6g';
-set mapreduce.reduce.memory.mb=10240;
-SET mapreduce.reduce.java.opts='-Xmx8g';
-
+set mapreduce.map.memory.mb=4096;
+set mapreduce.map.java.opts='-Xmx3860m' -XX:+UseG1GC;
+set mapreduce.child.map.java.opts='-Xmx3860m';
+set mapreduce.reduce.memory.mb=8192;
+set mapreduce.reduce.java.opts='-Xmx6144m';
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;

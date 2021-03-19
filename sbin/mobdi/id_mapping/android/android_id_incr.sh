@@ -42,11 +42,11 @@ create temporary function extract_phone_num2 as 'com.youzu.mob.java.udf.PhoneNum
 create temporary function extract_phone_num3 as 'com.youzu.mob.java.udf.PhoneNumExtract3';
 create temporary function string_sub_str as 'com.youzu.mob.mobdi.StringSubStr';
 set hive.exec.parallel=true;
-set mapreduce.map.memory.mb=12288;
-set mapreduce.map.java.opts='-Xmx10240m' -XX:+UseG1GC;
-set mapreduce.child.map.java.opts='-Xmx10240m';
-set mapreduce.reduce.memory.mb=12288;
-set mapreduce.reduce.java.opts='-Xmx10240m';
+set mapreduce.map.memory.mb=4096;
+set mapreduce.map.java.opts='-Xmx3860m' -XX:+UseG1GC;
+set mapreduce.child.map.java.opts='-Xmx3860m';
+set mapreduce.reduce.memory.mb=8192;
+set mapreduce.reduce.java.opts='-Xmx6144m';
 SET hive.map.aggr=true;
 set hive.groupby.skewindata=true;
 set hive.groupby.mapaggr.checkinterval=100000;
