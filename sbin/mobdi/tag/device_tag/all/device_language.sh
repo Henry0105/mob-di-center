@@ -31,19 +31,24 @@ day="$1"
 #参数，开始日期，建议为源表最新分区；当需要补数据时，为补数据开始日期
 day_start="$1"
 
+
+source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
 #input
-dwd_log_wifi_info_sec_di=dm_mobdi_master.dwd_log_wifi_info_sec_di
-dwd_pv_sec_di=dm_mobdi_master.dwd_pv_sec_di
+#dwd_log_wifi_info_sec_di=dm_mobdi_master.dwd_log_wifi_info_sec_di
+#dwd_pv_sec_di=dm_mobdi_master.dwd_pv_sec_di
 
 #mapping
-lang_code_mapping=dm_sdk_mapping.lang_code_mapping
-map_country_sdk=dm_sdk_mapping.map_country_sdk
+#lang_code_mapping=dm_sdk_mapping.lang_code_mapping
+#map_country_sdk=dm_sdk_mapping.map_country_sdk
 
 #md
 tmp_device_language_tmp=dw_mobdi_tmp.tmp_device_language_tmp
 
 #out
-device_language=rp_mobdi_report.device_language
+#device_language=rp_mobdi_report.device_language
 
 #生成增量数据，主要为获取该段时间内的语言数据，可一次性跑多天
 HADOOP_USER_NAME=dba hive -e "
@@ -164,4 +169,4 @@ FROM
 )s2
 WHERE rn=1;
 "
-~/jdk1.8.0_45/bin/java -cp /home/dba/lib/mysql-utils-1.0-jar-with-dependencies.jar  com.mob.TagUpdateTime -d rp_mobdi_report -t device_language
+#~/jdk1.8.0_45/bin/java -cp /home/dba/lib/mysql-utils-1.0-jar-with-dependencies.jar  com.mob.TagUpdateTime -d rp_mobdi_report -t device_language
