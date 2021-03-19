@@ -26,6 +26,10 @@ step4：
 
 
 insert_day=$1
+# 获取当前日期的下个月第一天
+nextmonth=`date -d "${insert_day} +1 month" +%Y%m01`
+# 获取当前日期所在月的最后一天
+enddate=`date -d "$nextmonth last day" +%Y%m%d`
 
 log_device_phone_sql="
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
@@ -127,21 +131,22 @@ android_mac_exchange as (  --mac 对应 phone_set
 ),
 
 
--- 默认添加了muid
-sms_phoneno as (  --device对应 phone_set
+sms_phoneno as (
   select muid as device,
   concat_ws(',',collect_list(string_sub_str(phone))) as phone,
-  concat_ws(',',collect_list(cast( if(unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss') is not null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss'),unix_timestamp('$insert_day','yyyyMMdd')) as string))) as phone_tm
+  concat_ws(',',collect_list(cast( if(unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss') is not null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss'),unix_timestamp('$enddate','yyyyMMdd')) as string))) as phone_tm
   from(
     select
       muid,
-      split(extract_phone_num2(concat('+',zone,' ',phone)),',')[0] as phone,
+      case
+        when lower(trim(phone)) rlike '[0-9a-f]{32}' then ''
+        when zone in ('852','853','886','86', '1', '7', '81', '82') then split(extract_phone_num2(concat('+', zone, ' ', phone)), ',')[0]
+      else ''
+      end as phone,
       serdatetime
     from $log_device_phone_dedup
     where day='$dedup_last_partition'
-    and devices_plat = 1 and zone in ('852','853','886','86', '1', '7', '81', '82')
     and length(trim(muid)) = 40
-    and phone rlike '^[1][3-8]\\\d{9}$|^([6|9])\\\d{7}$|^[0][9]\\\d{8}$|^[6]([8|6])\\\d{5}$'
   ) t
   where length(phone)=17
   group by muid

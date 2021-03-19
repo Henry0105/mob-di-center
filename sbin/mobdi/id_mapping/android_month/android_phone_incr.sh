@@ -148,13 +148,15 @@ sms_phoneno as (
   from(
     select
       muid,
-      split(extract_phone_num2(concat('+',zone,' ',phone)),',')[0] as phone,
+      case
+        when lower(trim(phone)) rlike '[0-9a-f]{32}' then ''
+        when zone in ('852','853','886','86', '1', '7', '81', '82') then split(extract_phone_num2(concat('+', zone, ' ', phone)), ',')[0]
+      else ''
+      end as phone,
       serdatetime
     from $log_device_phone_dedup
     where day='$dedup_last_partition'
-    and devices_plat = 1 and zone in ('852','853','886','86', '1', '7', '81', '82')
     and length(trim(muid)) = 40
-    and phone rlike '^[1][3-8]\\\d{9}$|^([6|9])\\\d{7}$|^[0][9]\\\d{8}$|^[6]([8|6])\\\d{5}$'
   ) t
   where length(phone)=17
   group by muid
