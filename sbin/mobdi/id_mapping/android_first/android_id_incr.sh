@@ -142,7 +142,7 @@ from (
                 when trim(udid) rlike '0{14,17}' then ''
                 when length(trim(lower(udid))) = 16 and trim(udid) rlike '^[0-9]+$' then if(imei_verify(regexp_replace(trim(lower(substring(udid,1,14))), ' |/|-|imei:', '')), regexp_replace(trim(lower(udid)), ' |/|-|imei:', ''),'')
                 when length(trim(lower(udid))) = 16 and trim(udid) not rlike '^[0-9]+$' then ''
-                when imei_verify(regexp_replace(trim(lower(udid)), ' |/|-|udid:', '')) then regexp_replace(trim(lower(udid)), ' |/|-|imei:', '')
+                when imei_verify(regexp_replace(trim(lower(udid)), ' |/|-|imei:', '')) then regexp_replace(trim(lower(udid)), ' |/|-|imei:', '')
                 else ''
               end as imei,
 
