@@ -8,7 +8,7 @@ set -x -e
 
 if [ $# -ne 2 ]; then
     echo "ERROR: wrong number of parameters"
-    echo "USAGE: <day>"
+    echo "USAGE: <day> <timewindow>"
     exit 1
 fi
 
