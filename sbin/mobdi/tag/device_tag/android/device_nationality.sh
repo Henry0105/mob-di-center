@@ -59,39 +59,42 @@ fi
 
 indate=$1
 
+
+source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+
 echo "start step 1"
 
-permanent_sql="show partitions rp_mobdi_app.rp_device_location_permanent;"
+permanent_sql="show partitions $rp_device_location_permanent;"
 permanent_par=(` hive -e "$permanent_sql"`)
 permanent_last_par=${permanent_par[(${#permanent_par[*]}-1)]#*=}
 permanent_arr=(${permanent_last_par//// })
 permanent_last_day=${permanent_arr[0]}
 
-apprank_sql="show partitions rp_appgo_common.app_rank_monthly_2;"
+apprank_sql="show partitions $app_rank_monthly_2;"
 apprank_par=(` hive -e "$apprank_sql"`)
 apprank_last_par=${apprank_par[(${#apprank_par[*]}-1)]#*=}
 apprank_arr=(${apprank_last_par//// })
 apprank_last_day=${apprank_arr[0]}
 
-carrier_par=` hive -e "show partitions dm_mobdi_master.device_info_master_full_par" | tail -n 1`
+carrier_par=` hive -e "show partitions $dwd_device_info_df" | tail -n 1`
 carrier_last=${carrier_par%/*}
 echo $carrier_last
 
 
-
-
 #input
 
-dim_device_applist_new_di=dm_mobdi_mapping.dim_device_applist_new_di
-device_language=rp_mobdi_report.device_language
-map_country_sdk=dm_sdk_mapping.map_country_sdk
-rp_device_location_permanent=rp_mobdi_report.rp_device_location_permanent
-app_rank_monthly_2=rp_appgo_common.app_rank_monthly_2
-dws_device_ip_info_di=dm_mobdi_topic.dws_device_ip_info_di
-mapping_carrier_country=dm_sdk_mapping.mapping_carrier_country
-dwd_device_info_df=dm_mobdi_master.dwd_device_info_df
-app_pkg_mapping_par=dm_sdk_mapping.app_pkg_mapping_par
-
+#dim_device_applist_new_di=dm_mobdi_mapping.dim_device_applist_new_di
+#device_language=rp_mobdi_report.device_language
+#map_country_sdk=dm_sdk_mapping.map_country_sdk
+#rp_device_location_permanent=rp_mobdi_report.rp_device_location_permanent
+#app_rank_monthly_2=rp_appgo_common.app_rank_monthly_2
+#dws_device_ip_info_di=dm_mobdi_topic.dws_device_ip_info_di
+#mapping_carrier_country=dm_sdk_mapping.mapping_carrier_country
+#dwd_device_info_df=dm_mobdi_master.dwd_device_info_df
+#app_pkg_mapping_par=dm_sdk_mapping.app_pkg_mapping_par
 
 
 #tmp
@@ -105,7 +108,7 @@ tmp_device_nationality_carrier=dw_mobdi_tmp.tmp_device_nationality_carrier
 tmp_device_nationality_apprank_cnt=dw_mobdi_tmp.tmp_device_nationality_apprank_cnt
 
 #output
-device_nationality=rp_mobdi_report.device_nationality
+#device_nationality=rp_mobdi_report.device_nationality
 
 
 
@@ -125,7 +128,7 @@ and processtime = ${indate}
 group by device;
 "
 #全量device可以从full表获取
-lastest_par=` hive -e "show partitions rp_mobdi_app.device_language" | tail -n 1`
+lastest_par=` hive -e "show partitions $device_language" | tail -n 1`
 echo $lastest_par
 
 wait
