@@ -434,7 +434,7 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.speculation=true \
 --conf spark.driver.maxResultSize=4g \
 --conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
-/home/dba/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$day" "$dw_mobdi_tmp"
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar "$day" "$dw_mobdi_tmp"
 
 #考虑所有的组合情况，看是否匹配
 hive -v -e "
