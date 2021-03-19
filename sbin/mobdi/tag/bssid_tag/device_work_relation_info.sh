@@ -139,7 +139,7 @@ insert overwrite table $tmp_workday_bssid_device_info partition (day = '$day')
 select bssid,device,real_date
 from
 (
-    select device,bssid,ssid,day,
+    select muid as device,bssid,ssid,day,
            from_unixtime(cast(substring(datetime, 1, 10) as bigint), 'yyyyMMdd') as real_date,
            from_unixtime(cast(substring(datetime, 1, 10) as bigint), 'HH') as hours
      from $dwd_log_wifi_info_sec_di

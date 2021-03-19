@@ -102,8 +102,7 @@ select device,
              when country='cn' and ( province ='' or province is null )
                then 'cn_unknow_province'
              else 'abroad'
-        end as province_cn,
-       muid
+        end as province_cn
 from ${dwd_device_location_info_di} where day='${day}'
 distribute by device sort by city asc
 exit;"
