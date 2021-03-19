@@ -84,23 +84,23 @@ FROM
   SELECT device,lower(trim(regexp_replace(language,'-','_'))) as language,plat,day
   FROM
   (
-    SELECT trim(lower(device)) as device,language,plat,day
+    SELECT trim(lower(muid)) as device,language,plat,day
     FROM $dwd_log_wifi_info_sec_di
     WHERE day>=$day_start
     and day<=$day
     and language is not null
-    and trim(lower(device)) rlike '^[a-f0-9]{40}$'
-    and trim(device)!='0000000000000000000000000000000000000000'
+    and trim(lower(muid)) rlike '^[a-f0-9]{40}$'
+    and trim(muid)!='0000000000000000000000000000000000000000'
 
     UNION ALL
             
-    SELECT trim(lower(deviceid)) AS device,language,plat,day
+    SELECT trim(lower(muid)) AS device,language,plat,day
     FROM $dwd_pv_sec_di
     WHERE day>=$day_start
     and day<=$day
     and language is not null
-    and trim(lower(deviceid)) rlike '^[a-f0-9]{40}$'
-    and trim(deviceid)!='0000000000000000000000000000000000000000'
+    and trim(lower(muid)) rlike '^[a-f0-9]{40}$'
+    and trim(muid)!='0000000000000000000000000000000000000000'
   )s
   GROUP BY device,lower(trim(regexp_replace(language,'-','_'))),plat,day
 ) a

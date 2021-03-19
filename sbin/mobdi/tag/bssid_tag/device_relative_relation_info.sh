@@ -138,7 +138,7 @@ from
         select bssid,device
         from
         (
-            select device,bssid,ssid,day,
+            select muid as device,bssid,ssid,day,
             from_unixtime(cast(substring(datetime, 1, 10) as bigint), 'yyyyMMdd') as real_date
             from $dwd_log_wifi_info_sec_di
             where day > '$p3monthDay' 
@@ -394,7 +394,7 @@ with bssid_device_connectDays_info as (
                     select device,bssid,real_date 
                     from
                     ( 
-                        select device,bssid,ssid,
+                        select muid as device,bssid,ssid,
                                from_unixtime(cast(substring(datetime, 1, 10) as bigint), 'yyyyMMdd') as real_date
                         from $dwd_log_wifi_info_sec_di
                         where day > '$p3monthDay' 
@@ -466,7 +466,7 @@ with device_activeDays_info as (
         select device,real_date
         from
         (
-            select device,bssid,ssid,day
+            select muid as device,bssid,ssid,day
                   ,from_unixtime(cast(substring(datetime, 1, 10) as bigint), 'yyyyMMdd') as real_date
             from $dwd_log_wifi_info_sec_di
             where day > '$p3monthDay' 
