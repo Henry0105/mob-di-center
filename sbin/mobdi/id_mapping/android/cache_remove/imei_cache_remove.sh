@@ -10,7 +10,7 @@ p3day=`date -d "$day -3 days" +%Y%m%d`
 full_partition_sql="
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'android_id_mapping_full', 'version');
+SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_id_mapping_android_df', 'version');
 drop temporary function GET_LAST_PARTITION;
 "
 full_last_version=(`hive -e "$full_partition_sql"`)
@@ -307,7 +307,7 @@ drop table if exists $tmp_imei_device_every_day_total;
 create table $tmp_imei_device_every_day_total stored as orc as
 select device,concat_ws(',',collect_set(imei)) as imeis
 from
-(select device,imei from  $imei_buffer_blacklist where day='$day' group by device,imei) t1
+(select device,imei from  $dim_imei_buffer_blacklist where day='$day' group by device,imei) t1
 group by device;
 
 

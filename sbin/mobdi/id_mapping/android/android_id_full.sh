@@ -117,32 +117,41 @@ select
     mobdi_array_udf('date', lower(a.imei), a.imei_ltm,  lower(b.imei), b.imei_tm,'max','/hiveDW/dm_mobdi_md/imei_blacklist/') as imei_ltm,
     `update_array 'imeiarray'`,
     `update_array_tm 'imeiarray'`,
-    mobdi_array_udf('field', a.serialno, a.serialno_tm,  b.serialno, b.serialno_tm,'min') as serialno,
-    mobdi_array_udf('date', a.serialno, a.serialno_tm,  b.serialno, b.serialno_tm,'min') as serialno_tm,
-    mobdi_array_udf('date', a.serialno, a.serialno_ltm, b.serialno, b.serialno_tm,'max') as serialno_ltm,
+    mobdi_array_udf('field', a.serialno, a.serialno_tm,  b.serialno, b.serialno_tm,'min', '/hiveDW/dm_mobdi_md/serialno_blacklist/') as serialno,
+    mobdi_array_udf('date', a.serialno, a.serialno_tm,  b.serialno, b.serialno_tm,'min',  '/hiveDW/dm_mobdi_md/serialno_blacklist/') as serialno_tm,
+    mobdi_array_udf('date', a.serialno, a.serialno_ltm, b.serialno, b.serialno_tm,'max',  '/hiveDW/dm_mobdi_md/serialno_blacklist/') as serialno_ltm,
+
     mobdi_array_udf('field', a.adsid, a.adsid_tm, b.adsid, b.adsid_tm,'min') as adsid,
     mobdi_array_udf('date', a.adsid, a.adsid_tm, b.adsid, b.adsid_tm,'min') as adsid_tm,
     mobdi_array_udf('date', a.adsid, a.adsid_ltm,b.adsid, b.adsid_tm,'max') as adsid_ltm,
-    mobdi_array_udf('field', a.androidid, a.androidid_tm,b.androidid, b.androidid_tm,'min') as androidid,
-    mobdi_array_udf('date', a.androidid, a.androidid_tm, b.androidid, b.androidid_tm,'min') as androidid_tm,
-    mobdi_array_udf('date', a.androidid, a.androidid_ltm, b.androidid, b.androidid_tm,'max') as androidid_ltm,
-    mobdi_array_udf('field', a.simserialno, a.simserialno_tm,b.simserialno, b.simserialno_tm,'min') as simserialno,
-    mobdi_array_udf('date', a.simserialno, a.simserialno_tm, b.simserialno, b.simserialno_tm,'min') as simserialno_tm,
-    mobdi_array_udf('date', a.simserialno, a.simserialno_ltm,b.simserialno, b.simserialno_tm,'max') as simserialno_ltm,
-    mobdi_array_udf('field', a.imsi, a.imsi_tm, b.imsi, b.imsi_tm,'min') as imsi,
-    mobdi_array_udf('date', a.imsi, a.imsi_tm, b.imsi, b.imsi_tm,'min') as imsi_tm,
-    mobdi_array_udf('date', a.imsi, a.imsi_ltm, b.imsi, b.imsi_tm,'max') as imsi_ltm,
+
+    mobdi_array_udf('field', a.androidid, a.androidid_tm,b.androidid, b.androidid_tm,'min',  '/hiveDW/dm_mobdi_md/androidid_blacklist/') as androidid,
+    mobdi_array_udf('date', a.androidid, a.androidid_tm, b.androidid, b.androidid_tm,'min',  '/hiveDW/dm_mobdi_md/androidid_blacklist/') as androidid_tm,
+    mobdi_array_udf('date', a.androidid, a.androidid_ltm, b.androidid, b.androidid_tm,'max', '/hiveDW/dm_mobdi_md/androidid_blacklist/') as androidid_ltm,
+
+    mobdi_array_udf('field', a.simserialno, a.simserialno_tm,b.simserialno, b.simserialno_tm,'min', '/hiveDW/dm_mobdi_md/simserialno_blacklist/') as simserialno,
+    mobdi_array_udf('date', a.simserialno, a.simserialno_tm, b.simserialno, b.simserialno_tm,'min', '/hiveDW/dm_mobdi_md/simserialno_blacklist/') as simserialno_tm,
+    mobdi_array_udf('date', a.simserialno, a.simserialno_ltm,b.simserialno, b.simserialno_tm,'max', '/hiveDW/dm_mobdi_md/simserialno_blacklist/') as simserialno_ltm,
+
+    mobdi_array_udf('field', a.imsi, a.imsi_tm, b.imsi, b.imsi_tm,'min', '/hiveDW/dm_mobdi_md/imsi_blacklist/') as imsi,
+    mobdi_array_udf('date', a.imsi, a.imsi_tm, b.imsi, b.imsi_tm,'min',  '/hiveDW/dm_mobdi_md/imsi_blacklist/') as imsi_tm,
+    mobdi_array_udf('date', a.imsi, a.imsi_ltm, b.imsi, b.imsi_tm,'max', '/hiveDW/dm_mobdi_md/imsi_blacklist/') as imsi_ltm,
+
     `update_array 'imsiarray'`,
     `update_array_tm 'imsiarray'`,
-     mobdi_array_udf('field', a.phone, a.phone_tm,b.phone, b.phone_tm,'min','/hiveDW/dm_mobdi_md/phone_blacklist/')as phone,
-     mobdi_array_udf('date', a.phone, a.phone_tm,b.phone, b.phone_tm,'min','/hiveDW/dm_mobdi_md/phone_blacklist/') as phone_tm,
-     mobdi_array_udf('date', a.phone, a.phone_ltm, b.phone, b.phone_tm,'max','/hiveDW/dm_mobdi_md/phone_blacklist/') as phone_ltm,
+
+     mobdi_array_udf('field', a.phone, a.phone_tm,b.phone, b.phone_tm,'min','/hiveDW/dm_mobdi_md/phone2_blacklist/')as phone,
+     mobdi_array_udf('date', a.phone, a.phone_tm,b.phone, b.phone_tm,'min','/hiveDW/dm_mobdi_md/phone2_blacklist/') as phone_tm,
+     mobdi_array_udf('date', a.phone, a.phone_ltm, b.phone, b.phone_tm,'max','/hiveDW/dm_mobdi_md/phone2_blacklist/') as phone_ltm,
+
     if(a.device = b.device, if(snsuid_list_tm < b.day, b.snsuid_list, a.snsuid_list), coalesce(b.snsuid_list, a.snsuid_list)) snsuid_list,
     if(a.device = b.device, if(snsuid_list_tm < b.day, b.day, snsuid_list_tm), coalesce(b.day, snsuid_list_tm)) as snsuid_list_tm,
     ARRAY_DISTINCT(a.carrierarray, b.carrierarray) as carrierarray,
+
     mobdi_array_udf('field', lower(a.orig_imei), a.orig_imei_tm, lower(b.orig_imei), b.orig_imei_tm,'min','/hiveDW/dm_mobdi_md/imei_blacklist/') as orig_imei,
     mobdi_array_udf('date', lower(a.orig_imei), a.orig_imei_tm,   lower(b.orig_imei), b.orig_imei_tm,'min','/hiveDW/dm_mobdi_md/imei_blacklist/') as orig_imei_tm,
     mobdi_array_udf('date', lower(a.orig_imei), a.orig_imei_ltm,  lower(b.orig_imei), b.orig_imei_tm,'max','/hiveDW/dm_mobdi_md/imei_blacklist/') as orig_imei_ltm,
+
     mobdi_array_udf('field', a.oaid, a.oaid_tm, b.oaid, b.oaid_tm,'min') as oaid,
     mobdi_array_udf('date', a.oaid, a.oaid_tm, b.oaid, b.oaid_tm,'min') as oaid_tm,
     mobdi_array_udf('date', a.oaid, a.oaid_ltm, b.oaid, b.oaid_tm,'max') as oaid_ltm
