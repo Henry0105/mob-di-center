@@ -22,6 +22,13 @@ fi
 
 insert_day=$1
 
+# 获取当前日期的下个月第一天
+nextmonth=`date -d "${insert_day} +1 month" +%Y%m01`
+# 获取当前日期所在月的第一天
+startdate=`date -d"${insert_day}" +%Y%m01`
+# 获取当前日期所在月的最后一天
+enddate=`date -d "$nextmonth last day" +%Y%m%d`
+
 #input
 device_oaid_mapping_incr=dm_mobdi_mapping.dim_device_oaid_mapping_di
 phone_mapping_incr=dm_mobdi_topic.dws_phone_mapping_di
@@ -31,12 +38,12 @@ dws_id_mapping_android_di=dm_mobdi_topic.dws_id_mapping_android_di
 #output
 dws_id_mapping_android_di=dm_mobdi_topic.dws_id_mapping_android_di
 
-hive -e "
+HADOOP_USER_NAME=dba hive -e "
 set mapreduce.map.memory.mb=4096;
 set mapreduce.map.java.opts='-Xmx3860m' -XX:+UseG1GC;
 set mapreduce.child.map.java.opts='-Xmx3860m';
-set mapreduce.reduce.memory.mb=8192;
-set mapreduce.reduce.java.opts='-Xmx6144m';
+set mapreduce.reduce.memory.mb=12288;
+set mapreduce.reduce.java.opts='-Xmx10240m';
 set hive.groupby.skewindata=true;
 SET hive.map.aggr=true;
 SET hive.auto.convert.join=true;
@@ -50,6 +57,7 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function ARRAY_DISTINCT as 'com.youzu.mob.java.udf.ArrayDistinct';
@@ -65,7 +73,7 @@ with android_device_carrierarray as (  --device对应的 carrier array
     select device, imsi1
     from $dws_id_mapping_android_di
     lateral view explode(ARRAY_DISTINCT(split(imsi, ','), imsiarray)) t_imsi as imsi1
-    where day='$insert_day' and size(ARRAY_DISTINCT(split(imsi, ','), imsiarray)) > 0
+    where day ='$insert_day' and size(ARRAY_DISTINCT(split(imsi, ','), imsiarray)) > 0
   ) t1
   inner join (select mcc_mnc, operator from $mapping_carrier_country) carrier_mapping on (substring(t1.imsi1, 0, 5) = carrier_mapping.mcc_mnc)
   group by t1.device
@@ -83,7 +91,7 @@ android_device_phone as (
   from (
     select case when device is not null or length(trim(device)) > 0 then device else concat('',rand()) end as device
     from $dws_id_mapping_android_di
-    where day = $insert_day
+    where day ='$insert_day'
   ) t1
   left join
   (
@@ -100,7 +108,7 @@ android_device_phone as (
         mobauth_phone,
         mobauth_phone_tm
     from $phone_mapping_incr
-    where day=$insert_day
+    where day ='$insert_day'
     and plat =1
   )t2
   on t1.device = t2.device
@@ -119,7 +127,7 @@ android_device_oaid as (
         oaid,
         max(oaid_tm) as oaid_tm
     from $device_oaid_mapping_incr
-    where day='$insert_day'
+    where day ='$insert_day'
     and device is not null
     group by device,oaid
   )a group by device
@@ -213,7 +221,7 @@ from
       (
         select *
         from $dws_id_mapping_android_di
-        where day=$insert_day
+        where day ='$insert_day'
       ) a
       left join android_device_carrierarray b
       on ((case when a.device is not null or length(trim(a.device)) > 0 then a.device else concat('', rand()) end) = b.device)

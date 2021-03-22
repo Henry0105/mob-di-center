@@ -26,6 +26,14 @@ step4：
 
 
 insert_day=$1
+# 获取当前日期的下个月第一天
+nextmonth=`date -d "${insert_day} +1 month" +%Y%m01`
+# 获取当前日期所在月的第一天
+startdate=`date -d"${insert_day}" +%Y%m01`
+# 获取当前日期所在月的最后一天
+enddate=`date -d "$nextmonth last day" +%Y%m%d`
+
+
 log_device_phone_sql="
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
@@ -48,33 +56,36 @@ mobauth_pvlog=dw_sdk_log.mobauth_pvlog
 dws_phone_mapping_di=dm_mobdi_topic.dws_phone_mapping_di
 
 
-hive -e "
+HADOOP_USER_NAME=dba hive -e "
 SET hive.exec.parallel=true;
 SET hive.exec.parallel.thread.number=15;
 SET hive.auto.convert.join=true;
-SET hive.map.aggr=true;
 SET hive.merge.mapfiles=true;
 set hive.merge.size.per.task=256000000;
 set hive.merge.smallfiles.avgsize=256000000;
-
 set mapreduce.map.memory.mb=4096;
 set mapreduce.map.java.opts='-Xmx3860m' -XX:+UseG1GC;
 set mapreduce.child.map.java.opts='-Xmx3860m';
-set mapreduce.reduce.memory.mb=8192;
-set mapreduce.reduce.java.opts='-Xmx6144m';
+set mapreduce.reduce.memory.mb=12288;
+set mapreduce.reduce.java.opts='-Xmx10240m';
+SET hive.map.aggr=true;
+set hive.groupby.skewindata=true;
+set hive.groupby.mapaggr.checkinterval=100000;
+set hive.skewjoin.key=100000;
+set hive.optimize.skewjoin=true;
+set mapred.job.reuse.jvm.num.tasks=10;
 
 set mapreduce.job.queuename=root.yarn_data_compliance2;
 
-
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function extract_phone_num2 as 'com.youzu.mob.java.udf.PhoneNumExtract2';
+create temporary function string_sub_str as 'com.youzu.mob.mobdi.StringSubStr';
 
 
---android incr
-with android_imei14_exchange as (  --14位imei 对应 phone_set
+with android_imei14_exchange as (
   select
     imei,
-    concat_ws(',',collect_list(phone) )as phone_set,
+    concat_ws(',',collect_list(string_sub_str(phone)) )as phone_set,
     concat_ws(',',collect_list( phone_tm )) as phone_tm_set
   from
   (
@@ -87,14 +98,14 @@ with android_imei14_exchange as (  --14位imei 对应 phone_set
     and length(trim(owner_data)) = 14
     and ext_data rlike '^[1][3-8]\\\d{9}$'
     and length(split(extract_phone_num2(trim(ext_data)), ',')[0]) = 17
-  )imei_14
+  ) imei_14
   group by imei
 ),
 
 
-android_imei15_exchange as (  --15位imei 对应 phone_set
+android_imei15_exchange as (
   select imei,
-  concat_ws(',',collect_list(phone) )as phone_set,
+  concat_ws(',',collect_list(string_sub_str(phone)) )as phone_set,
   concat_ws(',',collect_list( phone_tm )) as phone_tm_set
   from
   (
@@ -108,15 +119,15 @@ android_imei15_exchange as (  --15位imei 对应 phone_set
     and length(trim(owner_data)) = 15
     and ext_data rlike '^[1][3-8]\\\d{9}$'
     and length(split(extract_phone_num2(trim(ext_data)), ',')[0]) = 17
-  )imei_15
+  ) imei_15
   group by imei
 ),
 
 
-android_mac_exchange as (  --mac 对应 phone_set
+android_mac_exchange as (
   select
     lower(regexp_replace(trim(owner_data),':','')) as mac,
-    concat_ws(',',collect_list(split(extract_phone_num2(trim(ext_data)), ',')[0])) as phone_set,
+    concat_ws(',',collect_list(string_sub_str(split(extract_phone_num2(trim(ext_data)), ',')[0]))) as phone_set,
     concat_ws(',',collect_list(cast(unix_timestamp(processtime,'yyyyMMdd') as string))) as phone_tm_set
   from $ext_phone_mapping_incr
   where type='mac_phone'
@@ -127,21 +138,22 @@ android_mac_exchange as (  --mac 对应 phone_set
 ),
 
 
--- 默认添加了muid
-sms_phoneno as (  --device对应 phone_set
+sms_phoneno as (
   select muid as device,
-  concat_ws(',',collect_list(phone)) as phone,
+  concat_ws(',',collect_list(string_sub_str(phone))) as phone,
   concat_ws(',',collect_list(cast( if(unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss') is not null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss'),unix_timestamp('$insert_day','yyyyMMdd')) as string))) as phone_tm
   from(
     select
       muid,
-      split(extract_phone_num2(concat('+',zone,' ',phone)),',')[0] as phone,
+      case
+        when lower(trim(phone)) rlike '[0-9a-f]{32}' then ''
+        when zone in ('852','853','886','86', '1', '7', '81', '82') then split(extract_phone_num2(concat('+', zone, ' ', phone)), ',')[0]
+      else ''
+      end as phone,
       serdatetime
     from $log_device_phone_dedup
     where day='$dedup_last_partition'
-    and devices_plat = 1 and zone in ('852','853','886','86', '1', '7', '81', '82')
     and length(trim(muid)) = 40
-    and phone rlike '^[1][3-8]\\\d{9}$|^([6|9])\\\d{7}$|^[0][9]\\\d{8}$|^[6]([8|6])\\\d{5}$'
   ) t
   where length(phone)=17
   group by muid
@@ -198,7 +210,7 @@ mobauth_phone_v as (
                 and phone is not null
                 and length(duid) = 40
                 and duid = regexp_extract(duid, '[0-9a-f]{40}', 0)
-                and day = '$insert_day'
+                and  day = '$insert_day'
                 group by duid,phone
             ) t1
             inner join
@@ -238,10 +250,9 @@ from
     concat_ws(',',collect_list(android_imei15_exchange.phone_tm_set),collect_list(android_imei14_exchange.phone_tm_set)) as phone_imei_tm
   from
   (
-    select
-        android_incr.device as device,
-        t_mac.mac1 as mac,
-        t_imei.imei1 as imei
+    select android_incr.device as device,
+     t_mac.mac1 as mac,
+     t_imei.imei1 as imei
         from
         (
           SELECT
@@ -329,11 +340,9 @@ phoneno_imsi as (
 
 
 
-
-
 ext_phone_imsi as (
 select
-split(extract_phone_num2(trim(owner_data)), ',')[0] as phoneno,
+string_sub_str(split(extract_phone_num2(trim(owner_data)), ',')[0]) as phoneno,
 concat_ws(',',collect_list(trim(ext_data))) as imsi,
 concat_ws(',',collect_list(cast(unix_timestamp(processtime,'yyyyMMdd') as string))) as imsi_tm
 from $ext_phone_mapping_incr
@@ -341,10 +350,11 @@ where type='phone_imsi'
 and length(trim(ext_data)) > 0
 and owner_data rlike '^[1][3-8]\\\d{9}$'
 and length(split(extract_phone_num2(trim(owner_data)), ',')[0]) = 17
-group by split(extract_phone_num2(trim(owner_data)), ',')[0]
+group by string_sub_str(split(extract_phone_num2(trim(owner_data)), ',')[0])
 ),
 
 
+ext_imsi_v as(
 select phone_explode.device,
        concat_ws(',',collect_list(ext_phone_imsi.imsi)) as ext_imsi,
        concat_ws(',',collect_list(ext_phone_imsi.imsi_tm)) as ext_imsi_tm
