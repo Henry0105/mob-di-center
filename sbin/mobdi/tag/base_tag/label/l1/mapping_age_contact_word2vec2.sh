@@ -15,16 +15,18 @@ fi
 
 day=$1
 
+#导入配置文件
+source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+
 #input
-mapdb="dm_mobdi_mapping"
 model_path="/dmgroup/dba/modelpath/20200810/mapping_age_contact_word2vec"
 
 #output
-output_table="${mapdb}.mapping_contacts_word2vec2"
-
+mapping_contacts_word2vec2=dm_mobdi_mapping.mapping_contacts_word2vec2
+mapping_contacts_word2vec2_view=dm_mobdi_mapping.mapping_contacts_word2vec2_view
 
 hive -v -e "
-create table if not exists $output_table
+create table if not exists $mapping_contacts_word2vec2
 (
   phone string COMMENT '通讯录手机号',
   w2v_100 array<double> COMMENT 'array double的向量'
@@ -36,7 +38,7 @@ stored as orc;
 phone_contact_version=(`hive  -e "
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dw_mobdi_md', 'phone_contacts_index_word_split_prepare', 'day');
+SELECT GET_LAST_PARTITION('dw_mobdi_tmp', 'phone_contacts_index_word_split_prepare', 'day');
 "`)
 
 
@@ -53,9 +55,9 @@ spark2-submit --master yarn  --deploy-mode cluster  \
 --conf spark.driver.memory=2G \
 --conf spark.shuffle.service.enabled=true \
 --jars /home/dba/lib/ansj_seg-5.1.6.jar,/home/dba/lib/nlp-lang-1.7.7.jar \
-/home/dba/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar $day $phone_contact_version $model_path $output_table
+/home/dba/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar $day $phone_contact_version $model_path $mapping_contacts_word2vec2
 
 hive -v -e "
-create or replace view ${mapdb}.mapping_contacts_word2vec2_view as
-select phone,w2v_100 from ${mapdb}.mapping_contacts_word2vec2 where day='$day'
+create or replace view $mapping_contacts_word2vec2_view as
+select phone,w2v_100 from $mapping_contacts_word2vec2 where day='$day'
 "
