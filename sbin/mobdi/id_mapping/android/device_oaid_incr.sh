@@ -14,6 +14,13 @@ fi
 
 day=$1
 
+# 获取当前日期的下个月第一天
+nextmonth=`date -d "${day} +1 month" +%Y%m01`
+# 获取当前日期所在月的第一天
+startdate=`date -d"${day}" +%Y%m01`
+# 获取当前日期所在月的最后一天
+enddate=`date -d "$nextmonth last day" +%Y%m%d`
+
 # input
 log_device_info_jh=dw_sdk_log.log_device_info_jh
 dws_device_duid_mapping_new=dm_mobdi_topic.dws_device_duid_mapping_new
@@ -23,7 +30,23 @@ awaken_dfl=dw_sdk_log.awaken_dfl
 dim_device_oaid_mapping_di=dm_mobdi_mapping.dim_device_oaid_mapping_di
 
 
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
+set hive.exec.parallel=true;
+set hive.exec.parallel.thread.number=8;
+set mapreduce.map.memory.mb=4096;
+set mapreduce.map.java.opts='-Xmx3860m' -XX:+UseG1GC;
+set mapreduce.child.map.java.opts='-Xmx3860m';
+set mapreduce.reduce.memory.mb=12288;
+set mapreduce.reduce.java.opts='-Xmx10240m';
+SET hive.map.aggr=true;
+set hive.groupby.skewindata=true;
+set hive.groupby.mapaggr.checkinterval=100000;
+set hive.skewjoin.key=100000;
+set hive.optimize.skewjoin=true;
+set mapred.job.reuse.jvm.num.tasks=10;
+set mapreduce.job.queuename=root.yarn_data_compliance2;
+
+
 insert overwrite table $dim_device_oaid_mapping_di partition (day='$day',source='log_device_info_jh')
 select
     trim(lower(muid)) as device,
@@ -48,7 +71,22 @@ and trim(muid) != '0000000000000000000000000000000000000000'
 以dw_sdk_log.awaken_dfl表(oaid， duid)为基准，left join  dm_mobdi_topic.dws_device_duid_mapping_new（device，duid） ,根据duid关联，得到device，oaid
 !
 
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
+set hive.exec.parallel=true;
+set hive.exec.parallel.thread.number=8;
+set mapreduce.map.memory.mb=4096;
+set mapreduce.map.java.opts='-Xmx3860m' -XX:+UseG1GC;
+set mapreduce.child.map.java.opts='-Xmx3860m';
+set mapreduce.reduce.memory.mb=12288;
+set mapreduce.reduce.java.opts='-Xmx10240m';
+SET hive.map.aggr=true;
+set hive.groupby.skewindata=true;
+set hive.groupby.mapaggr.checkinterval=100000;
+set hive.skewjoin.key=100000;
+set hive.optimize.skewjoin=true;
+set mapred.job.reuse.jvm.num.tasks=10;
+set mapreduce.job.queuename=root.yarn_data_compliance2;
+
 insert overwrite table $dim_device_oaid_mapping_di partition (day='$day',source='awaken_dfl')
 select
     b.device,
