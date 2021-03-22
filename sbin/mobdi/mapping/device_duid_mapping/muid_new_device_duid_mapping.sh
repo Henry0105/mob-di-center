@@ -77,7 +77,7 @@ from
              '' as dcookie,
              processtime
       from $log_device_info_jh
-      where dt=$currentDay
+      where dt='$currentDay'
       and plat in (1, 2)
 
       union all
@@ -88,7 +88,7 @@ from
              '' as dcookie,
              day as processtime
       from $pv
-      where day=$currentDay and plat in (1, 2)
+      where day='$currentDay' and plat in (1, 2)
 
       union all
 
@@ -98,7 +98,7 @@ from
              lower(trim(duidcookie)) as dcookie,
              day as processtime
       from $dcookie
-      where day=$currentDay
+      where day='$currentDay'
     ) as a
     where length(duid) > 0
     group by device, duid, plat, dcookie, processtime
