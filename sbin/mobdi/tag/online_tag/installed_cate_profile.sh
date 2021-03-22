@@ -35,10 +35,10 @@ source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
 tmp=dm_mobdi_tmp
 
 #input
-#dim_device_applist_new_di=dm_mobdi_mapping.device_applist_new
+#dim_device_applist_new_di=dim_mobdi_mapping.dim_device_applist_new_di
 
 #mapping
-#app_category_mapping_par=dm_sdk_mapping.app_category_mapping_par
+#app_category_mapping_par=dim_sdk_mapping.app_category_mapping_par
 
 #tmp
 cleaned_app_category_mapping=${tmp}.cleaned_app_category_mapping
