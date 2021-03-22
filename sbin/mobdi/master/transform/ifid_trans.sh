@@ -11,10 +11,10 @@ source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 ifid_full=archive_id_laws.ifid_full
 
 # output
-dim_ifid_transform_full_par_sec=dm_mobdi_mapping.dim_ifid_transform_full_par_sec
+#dim_ifid_transform_full_par_sec=dm_mobdi_mapping.dim_ifid_transform_full_par_sec
 
 # view
-dim_ifid_transform_full_par_secview=dm_mobdi_mapping.dim_ifid_transform_full_par_secview
+#dim_ifid_transform_full_par_secview=dm_mobdi_mapping.dim_ifid_transform_full_par_secview
 
 
 hive -v -e "
