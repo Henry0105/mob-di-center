@@ -22,7 +22,7 @@ bssid_mapping_sql="
 last_partition=(`hive -e "$bssid_mapping_sql"`)
 
 
-newestThreePartitions=`hive -e "show partitions dm_mobdi_mapping.dim_mapping_bssid_location_mf" | awk -v day=${last_partition} -F '=' '$2<=day {print $0}'| sort| tail -n 3| xargs echo| sed 's/\s/,/g'`
+newestThreePartitions=`hive -e "show partitions $dim_mapping_bssid_location_mf" | awk -v day=${last_partition} -F '=' '$2<=day {print $0}'| sort| tail -n 3| xargs echo| sed 's/\s/,/g'`
 
 
 last_second_partition=`echo $newestThreePartitions |cut -d"," -f2`
