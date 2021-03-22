@@ -32,11 +32,11 @@ dws_id_mapping_android_di=dm_mobdi_topic.dws_id_mapping_android_di
 dws_id_mapping_android_di=dm_mobdi_topic.dws_id_mapping_android_di
 
 hive -e "
-set mapreduce.map.memory.mb=6144;
-set mapreduce.map.java.opts='-Xmx5500m' -XX:+UseG1GC;
-set mapreduce.child.map.java.opts='-Xmx5500m';
-set mapreduce.reduce.memory.mb=6144;
-set mapreduce.reduce.java.opts='-Xmx5500m' -XX:+UseG1GC;
+set mapreduce.map.memory.mb=4096;
+set mapreduce.map.java.opts='-Xmx3860m' -XX:+UseG1GC;
+set mapreduce.child.map.java.opts='-Xmx3860m';
+set mapreduce.reduce.memory.mb=8192;
+set mapreduce.reduce.java.opts='-Xmx6144m';
 set hive.groupby.skewindata=true;
 SET hive.map.aggr=true;
 SET hive.auto.convert.join=true;

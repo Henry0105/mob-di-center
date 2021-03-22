@@ -24,16 +24,14 @@ dim_phone_mapping_df=dm_mobdi_mapping.dim_phone_mapping_df
 
 
 
-ADOOP_USER_NAME=dba hive -e"
+HADOOP_USER_NAME=dba hive -e"
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function mobdi_array_udf as 'com.youzu.mob.java.udf.MobdiArrayUtilUDF2';
-
-
-SET hive.vectorized.execution.enabled=true;
-SET hive.vectorized.execution.reduce.enabled=true;
-SET hive.exec.parallel=true;
-SET hive.exec.parallel.thread.number=10;
-set mapreduce.reduce.memory.mb=6144;
+set mapreduce.map.memory.mb=4096;
+set mapreduce.map.java.opts='-Xmx3860m' -XX:+UseG1GC;
+set mapreduce.child.map.java.opts='-Xmx3860m';
+set mapreduce.reduce.memory.mb=8192;
+set mapreduce.reduce.java.opts='-Xmx6144m';
 
 insert overwrite table $dim_phone_mapping_df partition (version='${insert_day}.1000',plat=1)
 select

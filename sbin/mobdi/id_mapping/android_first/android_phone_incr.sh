@@ -61,13 +61,11 @@ SET hive.map.aggr=true;
 SET hive.merge.mapfiles=true;
 set hive.merge.size.per.task=256000000;
 set hive.merge.smallfiles.avgsize=256000000;
-
-SET mapreduce.map.memory.mb=8192;
-set mapreduce.map.java.opts='-Xmx8g';
-set mapreduce.child.map.java.opts='-Xmx8g';
-set mapreduce.reduce.memory.mb=8192;
-SET mapreduce.reduce.java.opts='-Xmx8g';
-SET mapreduce.map.java.opts='-Xmx8g';
+set mapreduce.map.memory.mb=4096;
+set mapreduce.map.java.opts='-Xmx3860m' -XX:+UseG1GC;
+set mapreduce.child.map.java.opts='-Xmx3860m';
+set mapreduce.reduce.memory.mb=12288;
+set mapreduce.reduce.java.opts='-Xmx10240m';
 set mapreduce.job.queuename=root.yarn_data_compliance2;
 
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
