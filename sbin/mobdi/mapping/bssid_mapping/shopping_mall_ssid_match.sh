@@ -15,7 +15,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #源表
-#poi_config_mapping_par=dm_sdk_mapping.poi_config_mapping_par
+#poi_config_mapping_par=dim_sdk_mapping.poi_config_mapping_par
 
 #中间库
 shopping_mall_poi_info=dw_mobdi_tmp.shopping_mall_poi_info
@@ -46,10 +46,10 @@ one_bssid_ssid_with_multiple_shopping_mall_info=dw_mobdi_tmp.one_bssid_ssid_with
 
 
 #目标表
-#dim_shopping_mall_ssid_bssid_match_info_mf=dm_mobdi_mapping.dim_shopping_mall_ssid_bssid_match_info_mf
+#dim_shopping_mall_ssid_bssid_match_info_mf=dim_mobdi_mapping.dim_shopping_mall_ssid_bssid_match_info_mf
 
 #mapping表
-#dim_mapping_bssid_location_mf=dm_mobdi_mapping.dim_mapping_bssid_location_mf
+#dim_mapping_bssid_location_mf=dim_mobdi_mapping.dim_mapping_bssid_location_mf
 
 #解析商场poi表,flag_mall是业务需要的字段
 hive -v -e "
