@@ -27,7 +27,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 #dws_device_active_di=dm_mobdi_topic.dws_device_active_di
 
 #mapping表
-#mapping_ip_attribute_code=dm_sdk_mapping.mapping_ip_attribute_code
+#mapping_ip_attribute_code=dim_sdk_mapping.mapping_ip_attribute_code
 
 #目标表
 #dws_device_sdk_run_master_di=dm_mobdi_topic.dws_device_sdk_run_master_di

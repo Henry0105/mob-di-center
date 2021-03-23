@@ -21,8 +21,8 @@ source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 #dws_device_install_app_status_40d_di=dm_mobdi_topic.dws_device_install_app_status_40d_di
 
 #mapping表
-#app_pkg_mapping_par=dm_sdk_mapping.app_pkg_mapping_par
-#app_category_shuce_car=dm_sdk_mapping.app_category_shuce_car
+#app_pkg_mapping_par=dim_sdk_mapping.app_pkg_mapping_par
+#app_category_shuce_car=dim_sdk_mapping.app_category_shuce_car
 
 #输出表
 #timewindow_online_profile_v2=dm_mobdi_report.timewindow_online_profile_v2

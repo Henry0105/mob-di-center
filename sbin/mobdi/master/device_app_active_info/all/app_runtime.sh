@@ -35,7 +35,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 #dws_device_active_di=dm_mobdi_topic.dws_device_active_di
 
 #mapping
-#app_pkg_mapping_par=dm_sdk_mapping.app_pkg_mapping_par
+#app_pkg_mapping_par=dim_sdk_mapping.app_pkg_mapping_par
 
 #output
 #dws_device_active_applist_di=dm_mobdi_topic.dws_device_active_applist_di
