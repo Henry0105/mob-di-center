@@ -11,10 +11,10 @@ source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 ieid_full=archive_id_laws.ieid_full
 
 # output
-#dim_ieid_transform_full_par_sec=dm_mobdi_mapping.dim_ieid_transform_full_par_sec
+#dim_ieid_transform_full_par_sec=dim_mobdi_mapping.dim_ieid_transform_full_par_sec
 
 # view
-#dim_ieid_transform_full_par_secview=dm_mobdi_mapping.dim_ieid_transform_full_par_secview
+#dim_ieid_transform_full_par_secview=dim_mobdi_mapping.dim_ieid_transform_full_par_secview
 
 :<<!
 CREATE TABLE dm_mobdi_mapping.dim_ieid_transform_full_par_sec(
