@@ -9,14 +9,14 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 # input
 pid_full=archive_id_laws.pid_full
-#caller_loc_china_clean=dm_sdk_mapping.caller_loc_china_clean
-#mapping_phonenum_year=dm_sdk_mapping.mapping_phonenum_year
+#caller_loc_china_clean=dim_sdk_mapping.caller_loc_china_clean
+#mapping_phonenum_year=dim_sdk_mapping.mapping_phonenum_year
 
 # output
-#dim_pid_attribute_full_par_sec=dm_mobdi_mapping.dim_pid_attribute_full_par_sec
+#dim_pid_attribute_full_par_sec=dim_mobdi_mapping.dim_pid_attribute_full_par_sec
 
 # view
-#dim_pid_attribute_full_par_secview=dm_mobdi_mapping.dim_pid_attribute_full_par_secview
+#dim_pid_attribute_full_par_secview=dim_mobdi_mapping.dim_pid_attribute_full_par_secview
 
 hive -v -e "
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/pid_encrypt.jar;
