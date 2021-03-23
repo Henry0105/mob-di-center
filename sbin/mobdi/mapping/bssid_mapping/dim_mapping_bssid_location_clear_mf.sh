@@ -6,18 +6,17 @@ day=$1
 
 #导入配置文件
 source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 
 ## input
-#dim_mapping_bssid_location_mf=dm_mobdi_mapping.dim_mapping_bssid_location_mf
+#dim_mapping_bssid_location_mf=dim_mobdi_mapping.dim_mapping_bssid_location_mf
 
 ## output
-#dim_mapping_bssid_location_clear_mf=dm_mobdi_mapping.dim_mapping_bssid_location_clear_mf
+#dim_mapping_bssid_location_clear_mf=dim_mobdi_mapping.dim_mapping_bssid_location_clear_mf
 
 bssid_mapping_sql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_mapping_bssid_location_mf', 'day');
+    SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_mapping_bssid_location_mf', 'day');
 "
 last_partition=(`hive -e "$bssid_mapping_sql"`)
 
