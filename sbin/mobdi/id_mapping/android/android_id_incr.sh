@@ -324,10 +324,10 @@ from (
                 ) device_info_jh
             ) device_info_jh_mac
             left join
-                (SELECT value FROM $blacklist where type='mac' and day='20180702' GROUP BY value) jh_blacklist_mac
+                (SELECT lower(value) as value FROM $blacklist where type='mac' and day='20180702' GROUP BY lower(value)) jh_blacklist_mac
             on (substring(regexp_replace(regexp_replace(trim(lower(device_info_jh_mac.mac)), ' |-|\\\\.|:|\073',''), '(.{2})', '\$1:'), 1, 17)=jh_blacklist_mac.value)
             left join
-                (SELECT value FROM $blacklist where type='imei' and day='20180702' GROUP BY value) jh_blacklist_imei
+                (SELECT lower(value) as value FROM $blacklist where type='imei' and day='20180702' GROUP BY lower(value)) jh_blacklist_imei
             on device_info_jh_mac.imei=jh_blacklist_imei.value
         ) as a
         group by device
@@ -439,10 +439,10 @@ from (
           where jh.muid is null and a.plat = 1 and a.dt = '$day' and a.muid is not null and length(a.muid)=40
         ) tt
         left join
-         (SELECT value FROM $blacklist where type='mac' and day='20180702' GROUP BY value) log_blacklist_mac
+         (SELECT lower(value) as value FROM $blacklist where type='mac' and day='20180702' GROUP BY lower(value)) log_blacklist_mac
             on (substring(regexp_replace(regexp_replace(trim(lower(tt.mac)), ' |-|\\\\.|:|\073',''), '(.{2})', '\$1:'), 1, 17)=log_blacklist_mac.value)
         left join
-         (SELECT value FROM $blacklist where type='imei' and day='20180702' GROUP BY value) log_blacklist_imei
+         (SELECT lower(value) as value FROM $blacklist where type='imei' and day='20180702' GROUP BY lower(value)) log_blacklist_imei
             on tt.imei=log_blacklist_imei.value
     ) as b
     group by device

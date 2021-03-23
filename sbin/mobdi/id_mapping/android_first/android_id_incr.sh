@@ -193,10 +193,10 @@ from (
           where a.plat = 1 and a.dt >= '20150514' and a.dt <='20151231' and a.muid is not null and length(a.muid)=40
         ) tt
         left join
-         (SELECT value FROM $blacklist where type='mac' and day='20180702' GROUP BY value) log_blacklist_mac
+         (SELECT lower(value) as value FROM $blacklist where type='mac' and day='20180702' GROUP BY lower(value)) log_blacklist_mac
             on (substring(regexp_replace(regexp_replace(trim(lower(tt.mac)), ' |-|\\\\.|:|\073',''), '(.{2})', '\$1:'), 1, 17)=log_blacklist_mac.value)
         left join
-         (SELECT value FROM $blacklist where type='imei' and day='20180702' GROUP BY value) log_blacklist_imei
+         (SELECT lower(value) as value FROM $blacklist where type='imei' and day='20180702' GROUP BY lower(value)) log_blacklist_imei
             on tt.imei=log_blacklist_imei.value
 
     ) as b
