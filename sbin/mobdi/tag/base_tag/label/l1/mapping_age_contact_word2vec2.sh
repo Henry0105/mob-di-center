@@ -22,8 +22,8 @@ source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 model_path="/dmgroup/dba/modelpath/20200810/mapping_age_contact_word2vec"
 
 #output
-mapping_contacts_word2vec2=dm_mobdi_mapping.mapping_contacts_word2vec2
-mapping_contacts_word2vec2_view=dm_mobdi_mapping.mapping_contacts_word2vec2_view
+#mapping_contacts_word2vec2=dim_mobdi_mapping.mapping_contacts_word2vec2
+#mapping_contacts_word2vec2_view=dim_mobdi_mapping.mapping_contacts_word2vec2_view
 
 hive -v -e "
 create table if not exists $mapping_contacts_word2vec2
@@ -55,7 +55,7 @@ spark2-submit --master yarn  --deploy-mode cluster  \
 --conf spark.driver.memory=2G \
 --conf spark.shuffle.service.enabled=true \
 --jars /home/dba/lib/ansj_seg-5.1.6.jar,/home/dba/lib/nlp-lang-1.7.7.jar \
-/home/dba/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar $day $phone_contact_version $model_path $mapping_contacts_word2vec2
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar $day $phone_contact_version $model_path $mapping_contacts_word2vec2
 
 hive -v -e "
 create or replace view $mapping_contacts_word2vec2_view as
