@@ -319,7 +319,7 @@ from (
                         end as imei_arr_tm,
                         serdatetime
                     from $log_device_info_jh as jh
-                    lateral view explode(coalesce(macarray, array(map()))) tf as m
+                    lateral view explode(coalesce(if(size(macarray) = 0,null,macarray), array(map()))) tf as m
                     where jh.dt = '$day' and  jh.plat = 1 and muid is not null and length(muid)=40
                 ) device_info_jh
             ) device_info_jh_mac

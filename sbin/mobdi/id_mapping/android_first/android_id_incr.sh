@@ -96,7 +96,7 @@ from (
         concat_ws(',', collect_list(mac)) as mac,
         array(map()) as macarray,
         coalesce(collect_list(imei)[0],'') as orig_imei,
-        concat_ws(',', collect_list(imei)) as imei,
+        concat_ws(',', if(size(collect_list(imei))>0, collect_list(imei),null)) as imei,
         array() as imeiarray,
         '' as serialno,
         '' as serialno_tm,
@@ -110,8 +110,8 @@ from (
         '' as imsi_tm,
         array() as imsiarray,
         concat_ws(',', collect_list(mac_tm)) as mac_tm,
-                concat_ws(',', collect_list(imei_tm)) as orig_imei_tm,
-        concat_ws(',', collect_list(imei_tm)) as imei_tm,
+        concat_ws(',', if(size(collect_list(imei_tm))>0, collect_list(imei_tm)[0],null)) as orig_imei_tm,
+        concat_ws(',', if(size(collect_list(imei_tm))>0, collect_list(imei_tm),null)) as imei_tm,
         concat_ws(',', collect_list(adsid_tm)) as adsid_tm,
         concat_ws(',', collect_list(androidid_tm)) as androidid_tm
     from (
