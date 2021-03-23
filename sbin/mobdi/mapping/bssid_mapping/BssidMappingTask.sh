@@ -900,7 +900,7 @@ fi
 bssidTypeAllSql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_bssid_type_all_mf', 'day');
+    SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_bssid_type_all_mf', 'day');
 "
 bssidTypeAllPartition=(`hive -e "$bssidTypeAllSql"`)
 
@@ -986,7 +986,7 @@ from
   (
     select bssid, ssid, real_date
     from $bssid_ssid_mapping_par
-    where day=GET_LAST_PARTITION('dm_mobdi_mapping', 'bssid_ssid_mapping_par', 'day')
+    where day=GET_LAST_PARTITION('dim_mobdi_mapping', 'bssid_ssid_mapping_par', 'day')
 
     union all
 
