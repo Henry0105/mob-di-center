@@ -21,8 +21,8 @@ source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #input
-#tag_cat_mapping_dmp_par=dm_sdk_mapping.tag_cat_mapping_dmp_par
-#rp_device_active_label_profile=rp_mobdi_app.rp_device_active_label_profile
+#tag_cat_mapping_dmp_par=dim_sdk_mapping.tag_cat_mapping_dmp_par
+#rp_device_active_label_profile=dm_mobdi_report.rp_device_active_label_profile
 #output
 #dim_online_category_mapping=dim_sdk_mapping.dim_online_category_mapping
 
