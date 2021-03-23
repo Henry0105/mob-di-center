@@ -143,7 +143,7 @@ sms_phoneno as (
       end as phone,
       serdatetime
     from $log_device_phone_dedup
-    where day='$dedup_last_partition'
+    where day='20210301'
     and length(trim(muid)) = 40
   ) t
   where length(phone)=17
