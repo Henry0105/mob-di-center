@@ -13,7 +13,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #源表
-#poi_config_mapping_par=dm_sdk_mapping.poi_config_mapping_par
+#poi_config_mapping_par=dim_sdk_mapping.poi_config_mapping_par
 
 #tmp
 car_4s_poi_info=dw_mobdi_tmp.car_4s_poi_info
@@ -40,10 +40,10 @@ car_4s_poi_and_bssid_info=dw_mobdi_tmp.car_4s_poi_and_bssid_info
 one_bssid_ssid_with_multiple_car_4s_info=dw_mobdi_tmp.one_bssid_ssid_with_multiple_car_4s_info
 
 #mapping表
-#dim_mapping_bssid_location_mf=dm_mobdi_mapping.dim_mapping_bssid_location_mf
+#dim_mapping_bssid_location_mf=dim_mobdi_mapping.dim_mapping_bssid_location_mf
 
 #目标表
-#dim_car_4s_ssid_bssid_match_info_mf=dm_mobdi_mapping.dim_car_4s_ssid_bssid_match_info_mf
+#dim_car_4s_ssid_bssid_match_info_mf=dim_mobdi_mapping.dim_car_4s_ssid_bssid_match_info_mf
 
 
 #解析4s店poi表
