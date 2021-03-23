@@ -23,7 +23,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
 #rp_device_profile_full_view=dm_mobdi_report.rp_device_profile_full_view
 
 #mapping
-#p2p_app_cat=dm_sdk_mapping.p2p_app_cat
+#p2p_app_cat=dim_sdk_mapping.p2p_app_cat
 
 #output
 #ads_device_install_app_cash_p2p_cnt_di=dm_mobdi_report.ads_device_install_app_cash_p2p_cnt_di

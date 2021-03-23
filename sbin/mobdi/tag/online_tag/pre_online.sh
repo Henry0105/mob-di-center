@@ -25,9 +25,9 @@ timewindow_tmp=dm_mobdi_tmp.timewindow_tmp
 #dws_device_install_app_status_40d_di=dm_mobdi_topic.dws_device_install_app_status_40d_di
 
 #mapping
-#app_pkg_mapping_par=dm_sdk_mapping.app_pkg_mapping_par
-#category_mapping_table=dm_sdk_mapping.online_category_mapping_v3
-#profile_mapping_table=dm_sdk_mapping.online_profile_mapping_v3
+#app_pkg_mapping_par=dim_sdk_mapping.app_pkg_mapping_par
+#category_mapping_table=dim_sdk_mapping.online_category_mapping_v3
+#profile_mapping_table=dim_sdk_mapping.online_profile_mapping_v3
 
 #ouput
 

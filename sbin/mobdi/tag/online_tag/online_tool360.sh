@@ -11,15 +11,13 @@ pdays=`date -d "$day -$timewindow days" +%Y%m%d`
 
 source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-
 source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-
 source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
-tmp_table="dw_mobdi_md.timewindow_tmp"
-tmp_table_total="dw_mobdi_md.timewindow_total"
-output_table="dw_mobdi_md.timewindow_online_profile"
+tmp_table="dm_mobdi_tmp.timewindow_tmp"
+tmp_table_total="dm_mobdi_tmp.timewindow_total"
+output_table="dm_mobdi_tmp.timewindow_online_profile"
 device_install_app_master="dm_mobdi_master.device_install_app_master"
 
 : '
