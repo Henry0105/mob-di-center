@@ -13,7 +13,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #源表
-#poi_config_mapping_par=dm_sdk_mapping.poi_config_mapping_par
+#poi_config_mapping_par=dim_sdk_mapping.poi_config_mapping_par
 
 #中间库
 hotel_poi_info=dw_mobdi_tmp.hotel_poi_info
@@ -53,10 +53,10 @@ one_bssid_ssid_with_multiple_hotel_info=dw_mobdi_tmp.one_bssid_ssid_with_multipl
 
 
 #目标表
-#dim_hotel_ssid_bssid_match_info_mf=dm_mobdi_mapping.dim_hotel_ssid_bssid_match_info_mf
+#dim_hotel_ssid_bssid_match_info_mf=dim_mobdi_mapping.dim_hotel_ssid_bssid_match_info_mf
 
 #mapping表
-#dim_mapping_bssid_location_mf=dm_mobdi_mapping.dim_mapping_bssid_location_mf
+#dim_mapping_bssid_location_mf=dim_mobdi_mapping.dim_mapping_bssid_location_mf
 
 #解析酒店poi表
 hive -v -e "
