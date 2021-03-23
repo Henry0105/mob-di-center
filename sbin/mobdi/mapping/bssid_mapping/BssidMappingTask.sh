@@ -49,13 +49,13 @@ bssid_finaltable_addgeohash8_par=dw_mobdi_tmp.bssid_finaltable_addgeohash8_par
 bssid_finaltable_addgeohash8_addlocation_par=dw_mobdi_tmp.bssid_finaltable_addgeohash8_addlocation_par
 
 #mapping
-# geohash8_lbs_info_mapping_par=dm_sdk_mapping.geohash8_lbs_info_mapping_par
-# geohash6_area_mapping_par=dm_sdk_mapping.geohash6_area_mapping_par
-# dim_bssid_type_all_mf=dm_mobdi_mapping.dim_bssid_type_all_mf
+# geohash8_lbs_info_mapping_par=dim_sdk_mapping.geohash8_lbs_info_mapping_par
+# geohash6_area_mapping_par=dim_sdk_mapping.geohash6_area_mapping_par
+# dim_bssid_type_all_mf=dim_mobdi_mapping.dim_bssid_type_all_mf
 
 #output
-# dm_mobdi_mapping.dim_mapping_bssid_location_mf
-# dm_mobdi_mapping.bssid_ssid_mapping_par
+# dim_mapping_bssid_location_mf=dim_mobdi_mapping.dim_mapping_bssid_location_mf
+# bssid_ssid_mapping_par=dim_mobdi_mapping.bssid_ssid_mapping_par
 
 echo "step 1:get gps data from log..."
 
@@ -900,7 +900,7 @@ fi
 bssidTypeAllSql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_bssid_type_all_mf', 'day');
+    SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_bssid_type_all_mf', 'day');
 "
 bssidTypeAllPartition=(`hive -e "$bssidTypeAllSql"`)
 
@@ -986,7 +986,7 @@ from
   (
     select bssid, ssid, real_date
     from $bssid_ssid_mapping_par
-    where day=GET_LAST_PARTITION('dm_mobdi_mapping', 'bssid_ssid_mapping_par', 'day')
+    where day=GET_LAST_PARTITION('dim_mobdi_mapping', 'bssid_ssid_mapping_par', 'day')
 
     union all
 

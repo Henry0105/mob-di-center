@@ -60,11 +60,11 @@ set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.map.aggr=true;
 set hive.auto.convert.join=true;
 set hive.groupby.skewindata=true;
-set mapreduce.map.memory.mb=12288;
-set mapreduce.map.java.opts='-Xmx8192m' -XX:+UseG1GC;
-set mapreduce.child.map.java.opts='-Xmx8192m';
+set mapreduce.map.memory.mb=4096;
+set mapreduce.map.java.opts='-Xmx3860m' -XX:+UseG1GC;
+set mapreduce.child.map.java.opts='-Xmx3860m';
 set mapreduce.reduce.memory.mb=12288;
-set mapreduce.reduce.java.opts='-Xmx8192m';
+set mapreduce.reduce.java.opts='-Xmx10240m';
 set mapreduce.job.queuename=root.yarn_data_compliance2;
 
 

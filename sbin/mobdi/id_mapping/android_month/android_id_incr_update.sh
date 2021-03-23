@@ -39,11 +39,11 @@ dws_id_mapping_android_di=dm_mobdi_topic.dws_id_mapping_android_di
 dws_id_mapping_android_di=dm_mobdi_topic.dws_id_mapping_android_di
 
 HADOOP_USER_NAME=dba hive -e "
-set mapreduce.map.memory.mb=12288;
-set mapreduce.map.java.opts='-Xmx8192m' -XX:+UseG1GC;
-set mapreduce.child.map.java.opts='-Xmx8192m';
+set mapreduce.map.memory.mb=4096;
+set mapreduce.map.java.opts='-Xmx3860m' -XX:+UseG1GC;
+set mapreduce.child.map.java.opts='-Xmx3860m';
 set mapreduce.reduce.memory.mb=12288;
-set mapreduce.reduce.java.opts='-Xmx8192m';
+set mapreduce.reduce.java.opts='-Xmx10240m';
 set hive.groupby.skewindata=true;
 SET hive.map.aggr=true;
 SET hive.auto.convert.join=true;

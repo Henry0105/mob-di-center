@@ -18,8 +18,8 @@ source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 #dwd_dsign_di=dm_mobdi_master.dwd_dsign_di
 
 ## 目标表
-#dim_mapping_apppkg_appkey_par_df=dm_mobdi_mapping.dim_mapping_apppkg_appkey_par_df
-#dim_mapping_apppkg_appkey_par_df_view=dm_mobdi_mapping.dim_mapping_apppkg_appkey_par_df_view
+#dim_mapping_apppkg_appkey_par_df=dim_mobdi_mapping.dim_mapping_apppkg_appkey_par_df
+#dim_mapping_apppkg_appkey_par_df_view=dim_mobdi_mapping.dim_mapping_apppkg_appkey_par_df_view
 
 lastPartStr=`hive -e "show partitions $dim_mapping_apppkg_appkey_par_df" | sort | tail -n 1`
 

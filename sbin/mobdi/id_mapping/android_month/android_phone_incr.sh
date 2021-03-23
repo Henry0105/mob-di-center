@@ -60,17 +60,14 @@ HADOOP_USER_NAME=dba hive -e "
 SET hive.exec.parallel=true;
 SET hive.exec.parallel.thread.number=15;
 SET hive.auto.convert.join=true;
-SET hive.map.aggr=true;
 SET hive.merge.mapfiles=true;
 set hive.merge.size.per.task=256000000;
 set hive.merge.smallfiles.avgsize=256000000;
-
-
-set mapreduce.map.memory.mb=12288;
-set mapreduce.map.java.opts='-Xmx8192m' -XX:+UseG1GC;
-set mapreduce.child.map.java.opts='-Xmx8192m';
+set mapreduce.map.memory.mb=4096;
+set mapreduce.map.java.opts='-Xmx3860m' -XX:+UseG1GC;
+set mapreduce.child.map.java.opts='-Xmx3860m';
 set mapreduce.reduce.memory.mb=12288;
-set mapreduce.reduce.java.opts='-Xmx8192m';
+set mapreduce.reduce.java.opts='-Xmx10240m';
 SET hive.map.aggr=true;
 set hive.groupby.skewindata=true;
 set hive.groupby.mapaggr.checkinterval=100000;
@@ -155,7 +152,7 @@ sms_phoneno as (
       end as phone,
       serdatetime
     from $log_device_phone_dedup
-    where day='$dedup_last_partition'
+    where day='20210301'
     and length(trim(muid)) = 40
   ) t
   where length(phone)=17

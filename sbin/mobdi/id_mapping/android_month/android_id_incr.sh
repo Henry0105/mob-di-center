@@ -51,9 +51,9 @@ create temporary function extract_phone_num2 as 'com.youzu.mob.java.udf.PhoneNum
 create temporary function extract_phone_num3 as 'com.youzu.mob.java.udf.PhoneNumExtract3';
 create temporary function string_sub_str as 'com.youzu.mob.mobdi.StringSubStr';
 set hive.exec.parallel=true;
-set mapreduce.map.memory.mb=12288;
-set mapreduce.map.java.opts='-Xmx10240m' -XX:+UseG1GC;
-set mapreduce.child.map.java.opts='-Xmx10240m';
+set mapreduce.map.memory.mb=4096;
+set mapreduce.map.java.opts='-Xmx3860m' -XX:+UseG1GC;
+set mapreduce.child.map.java.opts='-Xmx3860m';
 set mapreduce.reduce.memory.mb=12288;
 set mapreduce.reduce.java.opts='-Xmx10240m';
 SET hive.map.aggr=true;
@@ -159,7 +159,7 @@ from (
             concat_ws(',', collect_list(imsi_tm)) as imsi_tm,
             combine_unique(imsiarray) as imsiarray,
             concat_ws(',', collect_list(mac_tm)) as mac_tm,
-            concat_ws(',', if(size(collect_list(imei_tm))>0,collect_list(imei_tm),null)) as orig_imei_tm,
+            concat_ws(',', if(size(collect_list(imei_tm))>0,collect_list(imei_tm)[0],null)) as orig_imei_tm,
             concat_ws(',', if(size(collect_list(imei_tm))>0,collect_list(imei_tm),null),if(size(collect_list(imei_arr_tm))>0,collect_list(imei_arr_tm),null)) as imei_tm,
             concat_ws(',', collect_list(adsid_tm)) as adsid_tm,
             concat_ws(',', collect_list(androidid_tm)) as androidid_tm,
@@ -170,12 +170,16 @@ from (
             select
                 device_info_jh_mac.device as device,
                 CASE
-                  WHEN blacklist_mac.value IS NOT NULL THEN null
+                  WHEN jh_blacklist_mac.value IS NOT NULL THEN null
                   WHEN mac is not null and mac <> '' then mac
                   ELSE null
                 END as mac,
                 macmap,
-                imei,
+                CASE
+                  WHEN jh_blacklist_imei.value IS NOT NULL THEN null
+                  WHEN imei is not null and imei <> '' then imei
+                  ELSE null
+                END as imei,
                 imei_arr,
                 imeiarray,
                 serialno,
@@ -186,11 +190,15 @@ from (
                 imsi,
                 imsiarray,
                 CASE
-                  WHEN blacklist_mac.value IS NOT NULL THEN null
+                  WHEN jh_blacklist_mac.value IS NOT NULL THEN null
                   WHEN mac is not null and mac <> '' then mac_tm
                   ELSE null
                 END as mac_tm,
-                imei_tm,
+                CASE
+                  WHEN jh_blacklist_imei.value IS NOT NULL THEN null
+                  WHEN imei is not null and imei <> '' then imei_tm
+                  ELSE null
+                END as imei_tm,
                 imei_arr_tm,
                 imsi_tm,
                 serialno_tm,
@@ -219,7 +227,7 @@ from (
                    `empty2null 'simserialno'` as simserialno,
                    `empty2null 'phoneno'` as phoneno,
                    `empty2null 'imsi'` as imsi,
-                    imsiarray,
+                    imsiarray_clear(imsiarray) as  imsiarray,
                     cast(unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss') as string) as mac_tm,
                     cast(if(length(trim(if(luhn_checker(imei), imei, ''))) = 0 or imei is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as imei_tm,
                     imei_arr_tm,
@@ -302,7 +310,7 @@ from (
                           else ''
                         end as imsi,
 
-                        imsiarray_clear(imsiarray) as  imsiarray,
+                        if(imsiarray is not null and size(imsiarray) > 0,imsiarray, null) as imsiarray,
 
                         case
                           when length(imei_array_union('field',imeiarray_clear(imeiarray),unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')))>0
@@ -311,13 +319,16 @@ from (
                         end as imei_arr_tm,
                         serdatetime
                     from $log_device_info_jh as jh
-                    lateral view explode(coalesce(macarray, array(map()))) tf as m
+                    lateral view explode(coalesce(if(size(macarray) = 0,null,macarray), array(map()))) tf as m
                     where jh.dt >='$startdate' and jh.dt <= '$enddate' and  jh.plat = 1 and muid is not null and length(muid)=40
                 ) device_info_jh
             ) device_info_jh_mac
             left join
-            (SELECT value FROM $blacklist where type='mac' and day=20180702 GROUP BY value) blacklist_mac
-            on (substring(regexp_replace(regexp_replace(trim(lower(device_info_jh_mac.mac)), ' |-|\\\\.|:|\073',''), '(.{2})', '\$1:'), 1, 17)=blacklist_mac.value)
+                (SELECT lower(value) as value FROM $blacklist where type='mac' and day='20180702' GROUP BY lower(value)) jh_blacklist_mac
+            on (substring(regexp_replace(regexp_replace(trim(lower(device_info_jh_mac.mac)), ' |-|\\\\.|:|\073',''), '(.{2})', '\$1:'), 1, 17)=jh_blacklist_mac.value)
+            left join
+                (SELECT lower(value) as value FROM $blacklist where type='imei' and day='20180702' GROUP BY lower(value)) jh_blacklist_imei
+            on device_info_jh_mac.imei=jh_blacklist_imei.value
         ) as a
         group by device
     ) as b
@@ -343,19 +354,41 @@ from (
         '' as imsi_tm,
         array() as imsiarray,
         concat_ws(',', collect_list(mac_tm)) as mac_tm,
-                concat_ws(',', collect_list(imei_tm)) as orig_imei_tm,
-        concat_ws(',', collect_list(imei_tm)) as imei_tm,
+        concat_ws(',', if(size(collect_list(imei_tm))>0,collect_list(imei_tm)[0],null)) as orig_imei_tm,
+        concat_ws(',', if(size(collect_list(imei_tm))>0,collect_list(imei_tm),null)) as imei_tm,
         concat_ws(',', collect_list(adsid_tm)) as adsid_tm,
         concat_ws(',', collect_list(androidid_tm)) as androidid_tm
     from (
         select
           device,
-          if(length(mac)=0, null, mac) as mac,
-          if(length(trim(if(luhn_checker(imei), imei, ''))) = 0 ,null,imei) as imei,
+
+          CASE
+            WHEN log_blacklist_mac.value IS NOT NULL THEN null
+            WHEN mac is not null and mac <> '' then mac
+            ELSE null
+          END as mac,
+
+          CASE
+            WHEN log_blacklist_imei.value IS NOT NULL THEN null
+            WHEN luhn_checker(imei) and length(imei) > 0 then imei
+            ELSE null
+          END as imei,
+
           if (length(adsid)=0, null, adsid) as adsid,
           if (length(androidid)=0, null, androidid) as androidid,
-          cast(if(length(trim(mac)) = 0 or mac is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as mac_tm,
-          cast(if(length(trim(if(luhn_checker(imei), imei, ''))) = 0 or imei is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as imei_tm,
+
+          CASE
+            WHEN log_blacklist_mac.value IS NOT NULL THEN null
+            WHEN mac is not null and mac <> '' then cast(unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss') as string)
+            ELSE null
+          END as mac_tm,
+
+          CASE
+            WHEN log_blacklist_imei.value IS NOT NULL THEN null
+            WHEN luhn_checker(imei) and length(imei) > 0 then cast(unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss') as string)
+            ELSE null
+          END as imei_tm,
+
           cast(if(length(adsid)=0 or adsid is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as adsid_tm,
           cast(if(length(androidid)=0 or androidid is null,null,unix_timestamp(serdatetime,'yyyy-MM-dd HH:mm:ss')) as string) as androidid_tm
         from
@@ -405,6 +438,12 @@ from (
           on a.muid = jh.muid
           where jh.muid is null and a.plat = 1 and a.dt >= '$startdate' and a.dt <='$enddate' and a.muid is not null and length(a.muid)=40
         ) tt
+        left join
+         (SELECT lower(value) as value FROM $blacklist where type='mac' and day='20180702' GROUP BY lower(value)) log_blacklist_mac
+            on (substring(regexp_replace(regexp_replace(trim(lower(tt.mac)), ' |-|\\\\.|:|\073',''), '(.{2})', '\$1:'), 1, 17)=log_blacklist_mac.value)
+        left join
+         (SELECT lower(value) as value FROM $blacklist where type='imei' and day='20180702' GROUP BY lower(value)) log_blacklist_imei
+            on tt.imei=log_blacklist_imei.value
     ) as b
     group by device
 ) as c

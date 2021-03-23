@@ -40,15 +40,15 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 #dwd_log_device_unstall_app_info_sec_di=dm_mobdi_master.dwd_log_device_unstall_app_info_sec_di
 
 #mapping
-#app_pkg_mapping_par=dm_sdk_mapping.app_pkg_mapping_par
+#app_pkg_mapping_par=dim_sdk_mapping.app_pkg_mapping_par
 
 #md
 pkg_name_sort=dw_mobdi_tmp.pkg_name_sort
 apppkg_name_temp=dw_mobdi_tmp.apppkg_name_temp
 
 #out
-#pkg_name_mapping=dm_sdk_mapping.pkg_name_mapping
-#apppkg_name_info_wf=dm_mobdi_mapping.apppkg_name_info_wf
+#pkg_name_mapping=dim_mobdi_mapping.pkg_name_mapping
+#apppkg_name_info_wf=dim_mobdi_mapping.apppkg_name_info_wf
 
 
 

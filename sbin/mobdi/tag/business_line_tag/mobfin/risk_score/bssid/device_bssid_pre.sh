@@ -13,11 +13,15 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
+#导入配置文件
+source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+
+#入参
 day=$1
 p30day=`date -d "$day -30 days" +%Y%m%d`
 
 #源表
-log_wifi_info=$dwd_log_wifi_info_sec_di
+#dwd_log_wifi_info_sec_di=dm_mobdi_master.dwd_log_wifi_info_sec_di
 
 #输出表
 tmp_anticheat_device_bssid_pre=dw_mobdi_tmp.tmp_anticheat_device_bssid_pre
@@ -48,11 +52,11 @@ insert overwrite table $tmp_anticheat_device_bssid_pre partition(day = '$day')
 select device,bssid,day as connect_day,real_date
 from 
 (
-    select device, 
+    select muid as device,
            regexp_replace(lower(trim(bssid)), ':|-|\\\\.|\073', '') as bssid,
            day,
            from_unixtime(cast(substring(datetime, 1, 10) as bigint), 'yyyyMMdd') as real_date
-    from $log_wifi_info
+    from $dwd_log_wifi_info_sec_di
     where day > '$p30day' 
     and day <= '$day'
     and regexp_replace(lower(trim(bssid)), ':|-|\\\\.|\073', '') rlike '^[0-9a-f]{12}$' 

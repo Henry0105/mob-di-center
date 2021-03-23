@@ -26,7 +26,7 @@ level_connect_lag_and_lead_info=dw_mobdi_tmp.level_connect_lag_and_lead_info
 level_connect_probability=dw_mobdi_tmp.level_connect_probability
 bssid_level_connect_probability=dw_mobdi_tmp.bssid_level_connect_probability
 #output
-#dim_bssid_level_connect_probability_all_mf=dm_mobdi_mapping.dim_bssid_level_connect_probability_all_mf
+#dim_bssid_level_connect_probability_all_mf=dim_mobdi_mapping.dim_bssid_level_connect_probability_all_mf
 
 hive -v -e "
 SET hive.merge.mapfiles=true;

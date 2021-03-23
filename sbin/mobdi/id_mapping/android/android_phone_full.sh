@@ -24,43 +24,41 @@ dim_phone_mapping_df=dm_mobdi_mapping.dim_phone_mapping_df
 
 
 
-ADOOP_USER_NAME=dba hive -e"
+HADOOP_USER_NAME=dba hive -e"
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function mobdi_array_udf as 'com.youzu.mob.java.udf.MobdiArrayUtilUDF2';
-
-
-SET hive.vectorized.execution.enabled=true;
-SET hive.vectorized.execution.reduce.enabled=true;
-SET hive.exec.parallel=true;
-SET hive.exec.parallel.thread.number=10;
-set mapreduce.reduce.memory.mb=6144;
+set mapreduce.map.memory.mb=4096;
+set mapreduce.map.java.opts='-Xmx3860m' -XX:+UseG1GC;
+set mapreduce.child.map.java.opts='-Xmx3860m';
+set mapreduce.reduce.memory.mb=8192;
+set mapreduce.reduce.java.opts='-Xmx6144m';
 
 insert overwrite table $dim_phone_mapping_df partition (version='${insert_day}.1000',plat=1)
 select
     coalesce(a.device, b.device) as device,
-    mobdi_array_udf('field', a.phoneno, a.phoneno_tm, b.phoneno, b.phoneno_tm,'min') as phoneno,
-    mobdi_array_udf('date', a.phoneno, a.phoneno_tm, b.phoneno, b.phoneno_tm,'min') as phoneno_tm,
-    mobdi_array_udf('date', a.phoneno, a.phoneno_ltm, b.phoneno, b.phoneno_tm,'max') as phoneno_ltm,
+    mobdi_array_udf('field', a.phoneno, a.phoneno_tm, b.phoneno, b.phoneno_tm,'min', '/hiveDW/dm_mobdi_md/phone2_blacklist/') as phoneno,
+    mobdi_array_udf('date', a.phoneno, a.phoneno_tm, b.phoneno, b.phoneno_tm,'min',  '/hiveDW/dm_mobdi_md/phone2_blacklist/') as phoneno_tm,
+    mobdi_array_udf('date', a.phoneno, a.phoneno_ltm, b.phoneno, b.phoneno_tm,'max', '/hiveDW/dm_mobdi_md/phone2_blacklist/') as phoneno_ltm,
 
-    mobdi_array_udf('field', a.ext_phoneno, a.ext_phoneno_tm, b.ext_phoneno, b.ext_phoneno_tm,'min') as ext_phoneno,
-    mobdi_array_udf('date', a.ext_phoneno, a.ext_phoneno_tm, b.ext_phoneno, b.ext_phoneno_tm,'min') as ext_phoneno_tm,
-    mobdi_array_udf('date', a.ext_phoneno, a.ext_phoneno_ltm, b.ext_phoneno, b.ext_phoneno_tm,'max') as ext_phoneno_ltm,
+    mobdi_array_udf('field', a.ext_phoneno, a.ext_phoneno_tm, b.ext_phoneno, b.ext_phoneno_tm,'min', '/hiveDW/dm_mobdi_md/phone2_blacklist/') as ext_phoneno,
+    mobdi_array_udf('date', a.ext_phoneno, a.ext_phoneno_tm, b.ext_phoneno, b.ext_phoneno_tm,'min',  '/hiveDW/dm_mobdi_md/phone2_blacklist/') as ext_phoneno_tm,
+    mobdi_array_udf('date', a.ext_phoneno, a.ext_phoneno_ltm, b.ext_phoneno, b.ext_phoneno_tm,'max', '/hiveDW/dm_mobdi_md/phone2_blacklist/') as ext_phoneno_ltm,
 
-    mobdi_array_udf('field', a.sms_phoneno, a.sms_phoneno_tm, b.sms_phoneno, b.sms_phoneno_tm,'min') as sms_phoneno,
-    mobdi_array_udf('date', a.sms_phoneno, a.sms_phoneno_tm, b.sms_phoneno, b.sms_phoneno_tm,'min') as sms_phoneno_tm,
-    mobdi_array_udf('date', a.sms_phoneno, a.sms_phoneno_ltm, b.sms_phoneno, b.sms_phoneno_tm,'max') as sms_phoneno_ltm,
+    mobdi_array_udf('field', a.sms_phoneno, a.sms_phoneno_tm, b.sms_phoneno, b.sms_phoneno_tm,'min', '/hiveDW/dm_mobdi_md/phone2_blacklist/') as sms_phoneno,
+    mobdi_array_udf('date', a.sms_phoneno, a.sms_phoneno_tm, b.sms_phoneno, b.sms_phoneno_tm,'min',  '/hiveDW/dm_mobdi_md/phone2_blacklist/') as sms_phoneno_tm,
+    mobdi_array_udf('date', a.sms_phoneno, a.sms_phoneno_ltm, b.sms_phoneno, b.sms_phoneno_tm,'max', '/hiveDW/dm_mobdi_md/phone2_blacklist/') as sms_phoneno_ltm,
 
-    mobdi_array_udf('field', a.imsi, a.imsi_tm, b.imsi, b.imsi_tm,'min') as imsi,
-    mobdi_array_udf('date', a.imsi, a.imsi_tm, b.imsi, b.imsi_tm,'min') as imsi_tm,
-    mobdi_array_udf('date', a.imsi, a.imsi_ltm, b.imsi, b.imsi_tm,'max') as imsi_ltm,
+    mobdi_array_udf('field', a.imsi, a.imsi_tm, b.imsi, b.imsi_tm,'min', '/hiveDW/dm_mobdi_md/imsi_blacklist/') as imsi,
+    mobdi_array_udf('date', a.imsi, a.imsi_tm, b.imsi, b.imsi_tm,'min',  '/hiveDW/dm_mobdi_md/imsi_blacklist/') as imsi_tm,
+    mobdi_array_udf('date', a.imsi, a.imsi_ltm, b.imsi, b.imsi_tm,'max', '/hiveDW/dm_mobdi_md/imsi_blacklist/') as imsi_ltm,
 
-    mobdi_array_udf('field', a.ext_imsi, a.ext_imsi_tm, b.ext_imsi, b.ext_imsi_tm,'min') as ext_imsi,
-    mobdi_array_udf('date', a.ext_imsi, a.ext_imsi_tm, b.ext_imsi, b.ext_imsi_tm,'min') as ext_imsi_tm,
-    mobdi_array_udf('date', a.ext_imsi, a.ext_imsi_ltm, b.ext_imsi, b.ext_imsi_tm,'max') as ext_imsi_ltm,
+    mobdi_array_udf('field', a.ext_imsi, a.ext_imsi_tm, b.ext_imsi, b.ext_imsi_tm,'min', '/hiveDW/dm_mobdi_md/imsi_blacklist/') as ext_imsi,
+    mobdi_array_udf('date', a.ext_imsi, a.ext_imsi_tm, b.ext_imsi, b.ext_imsi_tm,'min',  '/hiveDW/dm_mobdi_md/imsi_blacklist/') as ext_imsi_tm,
+    mobdi_array_udf('date', a.ext_imsi, a.ext_imsi_ltm, b.ext_imsi, b.ext_imsi_tm,'max', '/hiveDW/dm_mobdi_md/imsi_blacklist/') as ext_imsi_ltm,
 
-    mobdi_array_udf('field', 'a.mobauth_phone', 'a.mobauth_phone_tm', b.mobauth_phone, b.mobauth_phone_tm,'min') as mobauth_phone,
-    mobdi_array_udf('date', 'a.mobauth_phone', 'a.mobauth_phone_tm', b.mobauth_phone, b.mobauth_phone_tm,'min') as mobauth_phone_tm,
-    mobdi_array_udf('date', 'a.mobauth_phone', 'a.mobauth_phone_tm', b.mobauth_phone, b.mobauth_phone_tm,'max') as mobauth_phone_ltm
+    mobdi_array_udf('field', 'a.mobauth_phone', 'a.mobauth_phone_tm', b.mobauth_phone, b.mobauth_phone_tm,'min', '/hiveDW/dm_mobdi_md/phone2_blacklist/') as mobauth_phone,
+    mobdi_array_udf('date', 'a.mobauth_phone', 'a.mobauth_phone_tm', b.mobauth_phone, b.mobauth_phone_tm,'min',  '/hiveDW/dm_mobdi_md/phone2_blacklist/') as mobauth_phone_tm,
+    mobdi_array_udf('date', 'a.mobauth_phone', 'a.mobauth_phone_tm', b.mobauth_phone, b.mobauth_phone_tm,'max',  '/hiveDW/dm_mobdi_md/phone2_blacklist/') as mobauth_phone_ltm
 from (
   select *
   from $dim_phone_mapping_df

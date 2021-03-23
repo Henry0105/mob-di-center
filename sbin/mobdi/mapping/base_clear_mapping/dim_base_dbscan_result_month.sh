@@ -31,18 +31,18 @@ mid_dbscan_data_final_month_step3=dw_mobdi_tmp.mid_dbscan_data_final_month_step3
 mid_dbscan_data_result_month=dw_mobdi_tmp.mid_dbscan_data_result_month
 
 # mapping
-#geohash6_area_mapping_par=dm_sdk_mapping.geohash6_area_mapping_par
-#geohash8_lbs_info_mapping_par=dm_sdk_mapping.geohash8_lbs_info_mapping_par
-#mapping_base_station_location=dm_sdk_mapping.mapping_base_station_location
+#geohash6_area_mapping_par=dim_sdk_mapping.geohash6_area_mapping_par
+#geohash8_lbs_info_mapping_par=dim_sdk_mapping.geohash8_lbs_info_mapping_par
+#mapping_base_station_location=dim_sdk_mapping.mapping_base_station_location
 #output
-#dim_base_dbscan_result_month=dm_mobdi_mapping.dim_base_dbscan_result_month
+#dim_base_dbscan_result_month=dim_mobdi_mapping.dim_base_dbscan_result_month
 
 
 ## 最新分区
 dim_base_dbscan_result_month_sql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_base_dbscan_result_month', 'day');
+    SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_base_dbscan_result_month', 'day');
 "
 dim_base_dbscan_result_month_partition=(`hive -e "$dim_base_dbscan_result_month_sql"`)
 
