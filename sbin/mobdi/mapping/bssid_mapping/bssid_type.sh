@@ -26,7 +26,7 @@ bssid_abnormal_type=dw_mobdi_tmp.bssid_abnormal_type
 bssid_mobile_type=dw_mobdi_tmp.bssid_mobile_type
 bssid_stable_type=dw_mobdi_tmp.bssid_stable_type
 #output
-#dim_bssid_type_all_mf=dm_mobdi_mapping.dim_bssid_type_all_mf
+#dim_bssid_type_all_mf=dim_mobdi_mapping.dim_bssid_type_all_mf
 
 hive -v -e "
 insert overwrite table $calculate_bssid_type_base_info partition(day='$day')
