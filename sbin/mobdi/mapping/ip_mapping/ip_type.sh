@@ -19,10 +19,8 @@ source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 #源表
 #dwd_log_wifi_info_sec_di=dm_mobdi_master.dwd_log_wifi_info_sec_di
 #dwd_location_info_sec_di=dm_mobdi_master.dwd_location_info_sec_di
-
 #目标表
-#dim_ip_type_all_mf=dm_mobdi_mapping.dim_ip_type_all_mf
-
+#dim_ip_type_all_mf=dim_mobdi_mapping.dim_ip_type_all_mf
 #中间库
 calculate_ip_type_base_info_by_location_info=dw_mobdi_tmp.calculate_ip_type_base_info_by_location_info
 calculate_ip_type_base_info=dw_mobdi_tmp.calculate_ip_type_base_info
