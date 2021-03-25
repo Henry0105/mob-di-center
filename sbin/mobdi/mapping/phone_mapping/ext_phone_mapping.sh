@@ -13,15 +13,15 @@ source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #input
-dataexchange_idmapping=dw_ext_exchange.dataexchange_idmapping
-total_phone_md5_mapping=dm_dataengine_mapping.total_phone_md5_mapping
-dm_imei_mapping_v2=dm_dataengine_mapping.dm_imei_mapping_v2
+dataexchange_idmapping=${dw_ext_exchange}.dataexchange_idmapping
+total_phone_md5_mapping=${dm_dataengine_mapping}.total_phone_md5_mapping
+dm_imei_mapping_v2=${dm_dataengine_mapping}.dm_imei_mapping_v2
 #mappping
 #blacklist=dim_sdk_mapping.blacklist
 #tmp
-ext_phone_mapping_incr_pre=dw_mobdi_tmp.ext_phone_mapping_incr_pre
-ext_phone_mapping_incr_phone_pre=dw_mobdi_tmp.ext_phone_mapping_incr_phone_pre
-ext_phone_mapping_incr_phonemd5_pre=dw_mobdi_tmp.ext_phone_mapping_incr_phonemd5_pre
+ext_phone_mapping_incr_pre=${dw_mobdi_tmp}.ext_phone_mapping_incr_pre
+ext_phone_mapping_incr_phone_pre=${dw_mobdi_tmp}.ext_phone_mapping_incr_phone_pre
+ext_phone_mapping_incr_phonemd5_pre=${dw_mobdi_tmp}.ext_phone_mapping_incr_phonemd5_pre
 #output
 #ext_phone_mapping_incr=dim_mobdi_mapping.ext_phone_mapping_incr
 
