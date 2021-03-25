@@ -8,7 +8,7 @@ day=$1
 source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
 # input
-ifid_full=archive_id_laws.ifid_full
+ifid_full=${archive_id_laws}.ifid_full
 
 # output
 #dim_ifid_transform_full_par_sec=dim_mobdi_mapping.dim_ifid_transform_full_par_sec
