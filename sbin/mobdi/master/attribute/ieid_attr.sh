@@ -9,7 +9,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 # input
-ieid_full=archive_id_laws.ieid_full
+ieid_full=${archive_id_laws}.ieid_full
 #imei_factory_par=dim_sdk_mapping.imei_factory_par
 
 # output
