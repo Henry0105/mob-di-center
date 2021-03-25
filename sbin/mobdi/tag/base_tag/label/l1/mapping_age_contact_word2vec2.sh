@@ -22,8 +22,8 @@ source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 model_path="/dmgroup/dba/modelpath/20200810/mapping_age_contact_word2vec"
 
 #output
-mapping_contacts_word2vec2=tp_mobdi_model.mapping_contacts_word2vec2
-mapping_contacts_word2vec2_view=tp_mobdi_model.mapping_contacts_word2vec2_view
+mapping_contacts_word2vec2=${tp_mobdi_model}.mapping_contacts_word2vec2
+mapping_contacts_word2vec2_view=${tp_mobdi_model}.mapping_contacts_word2vec2_view
 
 hive -v -e "
 create table if not exists $mapping_contacts_word2vec2
