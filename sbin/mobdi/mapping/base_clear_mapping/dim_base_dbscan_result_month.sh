@@ -31,20 +31,20 @@ mid_dbscan_data_final_month_step3=${dw_mobdi_tmp}.mid_dbscan_data_final_month_st
 mid_dbscan_data_result_month=${dw_mobdi_tmp}.mid_dbscan_data_result_month
 
 # mapping
-#geohash6_area_mapping_par=dim_sdk_mapping.geohash6_area_mapping_par
-#geohash8_lbs_info_mapping_par=dim_sdk_mapping.geohash8_lbs_info_mapping_par
-#mapping_base_station_location=dim_sdk_mapping.mapping_base_station_location
+#dim_geohash6_china_area_mapping_par=dim_sdk_mapping.dim_geohash6_china_area_mapping_par
+#dim_geohash8_china_area_mapping_par=dim_sdk_mapping.dim_geohash8_china_area_mapping_par
+#dim_mapping_base_station_location=dim_sdk_mapping.dim_mapping_base_station_location
 #output
-#dim_base_dbscan_result_month=dim_mobdi_mapping.dim_base_dbscan_result_month
+#dim_base_dbscan_result_mi=dim_mobdi_mapping.dim_base_dbscan_result_mi
 
 
 ## 最新分区
-dim_base_dbscan_result_month_sql="
+dim_base_dbscan_result_mi_sql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_base_dbscan_result_month', 'day');
+    SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_base_dbscan_result_mi', 'day');
 "
-dim_base_dbscan_result_month_partition=(`hive -e "$dim_base_dbscan_result_month_sql"`)
+dim_base_dbscan_result_mi_partition=(`hive -e "$dim_base_dbscan_result_mi_sql"`)
 
 
 HADOOP_USER_NAME=dba hive -v -e"
@@ -201,7 +201,7 @@ from
     left join
     (
     select geohash_6_code, province_code, city_code, area_code
-    from $geohash6_area_mapping_par
+    from $dim_geohash6_china_area_mapping_par
     where version = '1000'
     ) as b
     on a.geohash6 = b.geohash_6_code
@@ -220,7 +220,7 @@ from
     left join
     (
         select geohash_6_code, province_code, city_code, area_code
-        from $geohash6_area_mapping_par
+        from $dim_geohash6_china_area_mapping_par
         where version = '1000'
     ) as d
     on c.geohash6 = d.geohash_6_code
@@ -229,7 +229,7 @@ from
     left join
     (
     select geohash_8_code, province_code, city_code, area_code
-    from $geohash8_lbs_info_mapping_par
+    from $dim_geohash8_china_area_mapping_par
     where version = '1000'
     ) as f
     on e.geohash8 = f.geohash_8_code)t2
@@ -240,11 +240,11 @@ from
 ## 初始生成使用
 :<<!
 HADOOP_USER_NAME=dba hive -v -e "
-insert overwrite table $dim_base_dbscan_result_month partition(day='$day')
+insert overwrite table $dim_base_dbscan_result_mi partition(day='$day')
 select mcc,mnc,lac,cell,lat,lon,acc,geohash8,addr,country,province,city,district,street,validity,carrier,network,'0' as flag_abnormal from
 (select a.* from
 (select *
-from $mapping_base_station_location
+from $dim_mapping_base_station_location
 where day='20190701')a
 left outer join
 (select * from $mid_dbscan_data_final_month_step3
@@ -280,7 +280,7 @@ HADOOP_USER_NAME=dba hive -v -e "
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
 create temporary function get_geohash as 'com.youzu.mob.java.udf.GetGeoHash';
 
-insert overwrite table $dim_base_dbscan_result_month partition(day='$day')
+insert overwrite table $dim_base_dbscan_result_mi partition(day='$day')
 select mcc,mnc,lac,cell,lat,lon,acc,geohash8,addr,country,province,city,district,street,validity,carrier,network,flag_abnormal
 from (
       select mcc,mnc,lac,cell,lat,lon,acc,geohash8,addr,country,province,city,district,street,validity,carrier,network,flag_abnormal,
@@ -288,8 +288,8 @@ from (
       from (
             select mcc,mnc,lac,cell,lat,lon,acc,geohash8,addr,country,province,city,district,street,validity,carrier,network,flag_abnormal, day
             from
-             $dim_base_dbscan_result_month
-             where day='$dim_base_dbscan_result_month_partition'
+             $dim_base_dbscan_result_mi
+             where day='$dim_base_dbscan_result_mi_partition'
              union all
             select 460 as mcc,mnc,lac,cell,centerlat as lat,centerlon as lon,'' as acc,get_geohash(centerlat,centerlon,8) as geohash8,'' as addr,
             country,province_code as province,city_code as city,area_code as district,'' as street,'1' as validity,
