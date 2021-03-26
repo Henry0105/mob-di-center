@@ -20,7 +20,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 #dwd_log_wifi_info_sec_di=dm_mobdi_master.dwd_log_wifi_info_sec_di
 #dwd_location_info_sec_di=dm_mobdi_master.dwd_location_info_sec_di
 #目标表
-#dim_ip_type_all_mf=dim_mobdi_mapping.dim_ip_type_all_mf
+#dim_ip_type_mf=dim_mobdi_mapping.dim_ip_type_mf
 #中间库
 calculate_ip_type_base_info_by_location_info=${dw_mobdi_tmp}.calculate_ip_type_base_info_by_location_info
 calculate_ip_type_base_info=${dw_mobdi_tmp}.calculate_ip_type_base_info
@@ -278,7 +278,7 @@ PARTITIONED BY (
   `day` string COMMENT '日期')
 stored as orc;
 
-CREATE TABLE `dm_mobdi_mapping.dim_ip_type_all_mf`(
+CREATE TABLE `dm_mobdi_mapping.dim_ip_type_mf`(
   `clientip` string COMMENT 'IP地址',
   `type` int COMMENT 'ip类型，1-动态ip，2-静态ip，3-异常ip')
 COMMENT 'ip属性全量表，不在表中的ip属于无法识别'
@@ -400,8 +400,8 @@ where t2.clientip is null;
 全量表中为静态ip，若增量表中为异常ip或者连续三个月为动态ip，更新时以增量表数据为准，否则为静态ip；
 全量表中为异常ip，若连续三个月的增量表中为静态ip或者连续三个月为动态ip，更新时以增量表数据为准，否则为异常ip
 '
-#计算dm_mobdi_mapping.dim_ip_type_all_mf表小于day最近的一个分区
-lastPartition=`hive -e "show partitions $dim_ip_type_all_mf" | awk -v day=${day} -F '=' '$2<day {print $0}'| sort| tail -n 1`
+#计算dm_mobdi_mapping.dim_ip_type_mf表小于day最近的一个分区
+lastPartition=`hive -e "show partitions $dim_ip_type_mf" | awk -v day=${day} -F '=' '$2<day {print $0}'| sort| tail -n 1`
 #计算小于等于day最近的三个分区，并用' or '连接
 newestThreePartitions=`hive -e "show partitions $ip_stable_type" | awk -v day=${day} -F '=' '$2<=day {print $0}'| sort| tail -n 3| xargs echo| sed 's/\s/ or /g'`
 hive -v -e "
@@ -412,7 +412,7 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
-insert overwrite table $dim_ip_type_all_mf partition(day='$day')
+insert overwrite table $dim_ip_type_mf partition(day='$day')
 select ful.clientip,
        case
          when ful.type=2 and dynamic_3month.clientip is not null then 1
@@ -425,7 +425,7 @@ from
   select clientip,max(type) as type
   from
   (
-    select clientip,type from $dim_ip_type_all_mf where $lastPartition
+    select clientip,type from $dim_ip_type_mf where $lastPartition
 
     union all
 
