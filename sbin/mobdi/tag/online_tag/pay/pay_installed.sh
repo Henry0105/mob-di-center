@@ -6,9 +6,9 @@ cd `dirname $0`
 @describe:支付类新安装数量
 @projectName:MobDI
 @BusinessName:pay_installed
-@SourceTable:dm_sdk_mapping.app_tag_system_mapping_par,dm_sdk_mapping.app_pkg_mapping_par,dm_mobdi_master.device_install_app_master_new
+@SourceTable:dm_sdk_mapping.dim_app_tag_system_mapping_par,dm_sdk_mapping.dim_app_pkg_mapping_par,dm_mobdi_master.device_install_app_master_new
 @TargetTable:dm_mobdi_mapping.online_category_mapping,rp_mobdi_app.timewindow_online_profile
-@TableRelation:dm_sdk_mapping.app_tag_system_mapping_par->dm_mobdi_mapping.online_category_mapping|dm_mobdi_mapping.online_category_mapping,dm_sdk_mapping.app_pkg_mapping_par,dm_mobdi_master.device_install_app_master_new->rp_mobdi_app.timewindow_online_profile
+@TableRelation:dm_sdk_mapping.dim_app_tag_system_mapping_par->dm_mobdi_mapping.online_category_mapping|dm_mobdi_mapping.online_category_mapping,dm_sdk_mapping.dim_app_pkg_mapping_par,dm_mobdi_master.device_install_app_master_new->rp_mobdi_app.timewindow_online_profile
 '
 
 day=$1
@@ -20,9 +20,9 @@ windowTime=1
 source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 #input
-#app_tag_system_mapping_par=dim_sdk_mapping.app_tag_system_mapping_par
+#dim_app_tag_system_mapping_par=dim_sdk_mapping.dim_app_tag_system_mapping_par
 #dws_device_install_app_status_40d_di=dm_mobdi_topic.dws_device_install_app_status_40d_di
-#app_pkg_mapping_par=dim_sdk_mapping.app_pkg_mapping_par
+#dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
 #output
 #dim_online_category_mapping=dim_sdk_mapping.dim_online_category_mapping
 
@@ -35,7 +35,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 hive -e"
 insert overwrite table $dim_online_category_mapping partition (type='${mappingtype}')
 select apppkg as relation,tag as category,0 as total,1 as percent
-from $app_tag_system_mapping_par where version='1000'
+from $dim_app_tag_system_mapping_par where version='1000'
 and tag='支付' group by apppkg,tag
 "
 spark2-submit --master yarn --deploy-mode client \
@@ -78,7 +78,7 @@ FROM
   WHERE device.final_flag <> -1
   AND device.day =${day} 
 ) device_filter
-LEFT  JOIN (select apppkg,pkg from $app_pkg_mapping_par where version='1000')app_pkg
+LEFT  JOIN (select apppkg,pkg from $dim_app_pkg_mapping_par where version='1000')app_pkg
 ON app_pkg.pkg = device_filter.pkg
 GROUP BY  NVL(app_pkg.apppkg,device_filter.pkg), device_filter.device, device_filter.day\",
         \"mappingtype\": \"${mappingtype}\",
