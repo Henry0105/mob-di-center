@@ -13,7 +13,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #源表
-#poi_config_mapping_par=dim_sdk_mapping.poi_config_mapping_par
+#dim_poi_config_mapping_par=dim_sdk_mapping.dim_poi_config_mapping_par
 
 #中间库
 hotel_poi_info=${dw_mobdi_tmp}.hotel_poi_info
@@ -69,7 +69,7 @@ from
          lon as poi_lon,
          geohash7,
          city as city_code
-  from $poi_config_mapping_par
+  from $dim_poi_config_mapping_par
   where type=6
   and version='1000'
 ) t1
@@ -958,7 +958,7 @@ left join
            get_json_object(attribute,'$.rank_star') as rank_star,
            get_json_object(attribute,'$.score_type') as score_type,
            get_json_object(attribute,'$.price_level') as price_level
-    from $poi_config_mapping_par
+    from $dim_poi_config_mapping_par
     where type=6
     and version='1000'
   ) t
