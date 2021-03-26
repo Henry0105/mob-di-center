@@ -26,7 +26,7 @@ bssid_abnormal_type=${dw_mobdi_tmp}.bssid_abnormal_type
 bssid_mobile_type=${dw_mobdi_tmp}.bssid_mobile_type
 bssid_stable_type=${dw_mobdi_tmp}.bssid_stable_type
 #output
-#dim_bssid_type_all_mf=dim_mobdi_mapping.dim_bssid_type_all_mf
+#dim_bssid_type_mf=dim_mobdi_mapping.dim_bssid_type_mf
 
 hive -v -e "
 insert overwrite table $calculate_bssid_type_base_info partition(day='$day')
@@ -395,7 +395,7 @@ and t3.bssid is null;
 无法识别型BSSID：全量表中的bssid为无法识别型，更新时以增量表中数据为准。
 '
 #计算dw_mobdi_md.bssid_type_all表小于day最近的一个分区
-lastPartition=`hive -e "show partitions $dim_bssid_type_all_mf" | awk -v day=${day} -F '=' '$2<day {print $0}'| sort| tail -n 1`
+lastPartition=`hive -e "show partitions $dim_bssid_type_mf" | awk -v day=${day} -F '=' '$2<day {print $0}'| sort| tail -n 1`
 #计算小于等于day最近的三个分区，并用' or '连接
 newestThreePartitions=`hive -e "show partitions $bssid_stable_type" | awk -v day=${day} -F '=' '$2<=day {print $0}'| sort| tail -n 3| xargs echo| sed 's/\s/ or /g'`
 echo ${newestThreePartitions}
@@ -409,7 +409,7 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
-insert overwrite table $dim_bssid_type_all_mf partition(day='$day')
+insert overwrite table $dim_bssid_type_mf partition(day='$day')
 select ful.bssid,
        case
          when ful.type=2 and stable_3month.bssid is not null then 1
@@ -423,7 +423,7 @@ from
   select bssid,max(type) as type
   from
   (
-    select bssid,type from $dim_bssid_type_all_mf where $lastPartition
+    select bssid,type from $dim_bssid_type_mf where $lastPartition
 
     union all
 
