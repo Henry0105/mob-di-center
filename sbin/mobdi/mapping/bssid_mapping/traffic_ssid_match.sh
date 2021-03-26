@@ -14,7 +14,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #源表
-#poi_config_mapping_par=dim_sdk_mapping.poi_config_mapping_par
+#dim_poi_config_mapping_par=dim_sdk_mapping.dim_poi_config_mapping_par
 
 #中间库
 traffic_poi_info=${dw_mobdi_tmp}.traffic_poi_info
@@ -58,7 +58,7 @@ from
          geohash7,
          city as city_code,
          get_json_object(attribute,'$.type_name') as type_name
-  from $poi_config_mapping_par
+  from $dim_poi_config_mapping_par
   where type=17
   and version='1000'
 ) t1
