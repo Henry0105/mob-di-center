@@ -10,7 +10,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 # input
 ieid_full=${archive_id_laws}.ieid_full
-#imei_factory_par=dim_sdk_mapping.imei_factory_par
+#dim_imei_factory_par=dim_sdk_mapping.dim_imei_factory_par
 
 # output
 #dim_ieid_attribute_full_par_sec=dim_mobdi_mapping.dim_ieid_attribute_full_par_sec
@@ -43,28 +43,28 @@ set mapred.job.name='ieid属性表生成';
 with imei5_tmp as (
 	select
 		trim(tac) as tac,trim(manufacturer) as manufacturer,trim(model) as model,trim(aka) as aka,trim(os) as os,trim(year) as year,trim(lte) as lte
-	from $imei_factory_par where day='20190220' and length(trim(tac))=5
+	from $dim_imei_factory_par where day='20190220' and length(trim(tac))=5
 	group by trim(tac),trim(manufacturer),trim(model),trim(aka),trim(os),trim(year),trim(lte)
 ),
 
 imei6_tmp as (
 	select
 		trim(tac) as tac,trim(manufacturer) as manufacturer,trim(model) as model,trim(aka) as aka,trim(os) as os,trim(year) as year,trim(lte) as lte
-	from $imei_factory_par where day='20190220' and length(trim(tac))=6
+	from $dim_imei_factory_par where day='20190220' and length(trim(tac))=6
 	group by trim(tac),trim(manufacturer),trim(model),trim(aka),trim(os),trim(year),trim(lte)
 ),
 
 imei7_tmp as (
 	select
 		trim(tac) as tac,trim(manufacturer) as manufacturer,trim(model) as model,trim(aka) as aka,trim(os) as os,trim(year) as year,trim(lte) as lte
-	from $imei_factory_par where day='20190220' and length(trim(tac))=7
+	from $dim_imei_factory_par where day='20190220' and length(trim(tac))=7
 	group by trim(tac),trim(manufacturer),trim(model),trim(aka),trim(os),trim(year),trim(lte)
 ),
 
 imei8_tmp as (
 	select
 		trim(tac) as tac,trim(manufacturer) as manufacturer,trim(model) as model,trim(aka) as aka,trim(os) as os,trim(year) as year,trim(lte) as lte
-	from $imei_factory_par where day='20190220' and length(trim(tac))=8
+	from $dim_imei_factory_par where day='20190220' and length(trim(tac))=8
 	group by trim(tac),trim(manufacturer),trim(model),trim(aka),trim(os),trim(year),trim(lte)
 )
 
