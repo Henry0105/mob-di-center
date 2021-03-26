@@ -6,9 +6,9 @@ cd `dirname $0`
 @describe:时间窗内金融类新安装数量
 @projectName:MobDI
 @BusinessName:financial_install
-@SourceTable:$app_tag_system_mapping_par,$tag_cat_mapping_dmp_par,$dws_device_install_app_re_status_di,$app_pkg_mapping_par
+@SourceTable:$dim_app_tag_system_mapping_par,$dim_tag_cat_mapping_dmp_par,$dws_device_install_app_re_status_di,$dim_app_pkg_mapping_par
 @TargetTable:$dim_online_category_mapping
-@TableRelation:$app_tag_system_mapping_par,$tag_cat_mapping_dmp_par->$dim_online_category_mapping|$dim_online_category_mapping,$app_pkg_mapping_par,$dws_device_install_app_re_status_di->rp_mobdi_app.timewindow_online_profile
+@TableRelation:$dim_app_tag_system_mapping_par,$dim_tag_cat_mapping_dmp_par->$dim_online_category_mapping|$dim_online_category_mapping,$dim_app_pkg_mapping_par,$dws_device_install_app_re_status_di->rp_mobdi_app.timewindow_online_profile
 '
 day=$1
 mappingtype=14
@@ -21,10 +21,10 @@ source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #input
-#app_tag_system_mapping_par=dim_sdk_mapping.app_tag_system_mapping_par
-#tag_cat_mapping_dmp_par=dim_sdk_mapping.tag_cat_mapping_dmp_par
+#dim_app_tag_system_mapping_par=dim_sdk_mapping.dim_app_tag_system_mapping_par
+#dim_tag_cat_mapping_dmp_par=dim_sdk_mapping.dim_tag_cat_mapping_dmp_par
 #dws_device_install_app_re_status_di=dm_mobdi_topic.dws_device_install_app_re_status_di
-#app_pkg_mapping_par=dim_sdk_mapping.app_pkg_mapping_par
+#dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
 
 #output
 #dim_online_category_mapping=dim_sdk_mapping.dim_online_category_mapping
@@ -47,9 +47,9 @@ SELECT a.apppkg AS relation,
               rank.tag as tag,rank.norm_tfidf as norm_tfidf 
 		from (select n.apppkg as apppkg,n.tag as tag ,n.norm_tfidf as norm_tfidf , 
 		      Row_number() over(partition by n.apppkg,n.tag ORDER BY  n.norm_tfidf DESC ) as rank 
-       from $app_tag_system_mapping_par n where version ='1000') rank where rank.rank =1
+       from $dim_app_tag_system_mapping_par n where version ='1000') rank where rank.rank =1
 ) a 
-JOIN  (select cat2,tag from $tag_cat_mapping_dmp_par where version='1000')b
+JOIN  (select cat2,tag from $dim_tag_cat_mapping_dmp_par where version='1000')b
 ON a.tag = b.tag
 GROUP BY  a.apppkg,b.cat2
 HAVING SUM(case when b.cat2='借贷' then a.norm_tfidf else 0 end) > 2.73656580503609 
@@ -65,7 +65,7 @@ SELECT a.apppkg AS relation,
 FROM (select rank.apppkg as apppkg, rank.tag as tag,rank.norm_tfidf as norm_tfidf 
 from (select n.apppkg as apppkg,n.tag as tag ,n.norm_tfidf as norm_tfidf ,
 Row_number() over(partition by n.apppkg,n.tag ORDER BY  n.norm_tfidf DESC ) as rank 
-from $app_tag_system_mapping_par n where version ='1000'  ) rank where rank.rank =1) a
+from $dim_app_tag_system_mapping_par n where version ='1000'  ) rank where rank.rank =1) a
 where a.tag = '信用卡' group by a.apppkg , a.tag having SUM(a.norm_tfidf) >1.33493881518209
 "
 spark2-submit --master yarn --deploy-mode cluster \
@@ -108,7 +108,7 @@ FROM
  WHERE device.refine_final_flag=1
  AND device.day <=${day} AND device.day >${bday} 
 ) device_filter
-LEFT  JOIN (select apppkg,pkg from $app_pkg_mapping_par where version='1000' )app_pkg
+LEFT  JOIN (select apppkg,pkg from $dim_app_pkg_mapping_par where version='1000' )app_pkg
 ON app_pkg.pkg = device_filter.pkg
 GROUP BY  NVL(app_pkg.apppkg,device_filter.pkg), device_filter.device, device_filter.day\",
         \"mappingtype\": \"${mappingtype}\",
