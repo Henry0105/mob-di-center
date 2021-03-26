@@ -6,9 +6,9 @@ export LANG=en_US.UTF-8
 @describe: 生成包和app的映射关系表
 @projectName:MobDI
 @BusinessName:mapping
-@SourceTable:dw_mobdi_etl.log_device_install_app_incr_info,dw_mobdi_md.apppkg_name_temp,dw_mobdi_md.pkg_name_sort,dm_sdk_mapping.app_pkg_mapping_par,dm_sdk_mapping.pkg_name_mapping,dw_mobdi_etl.log_device_install_app_all_info,dw_mobdi_etl.log_device_unstall_app_info,dm_mobdi_mapping.apppkg_name_info_wf
-@TargetTable:dw_mobdi_md.pkg_name_sort,dm_sdk_mapping.pkg_name_mapping,dw_mobdi_md.apppkg_name_temp,dm_mobdi_mapping.apppkg_name_info_wf
-@TableRelation:dw_mobdi_etl.log_device_unstall_app_info,dw_mobdi_etl.log_device_install_app_incr_info,dw_mobdi_etl.log_device_install_app_all_info->dw_mobdi_md.pkg_name_sort|dm_sdk_mapping.pkg_name_mapping,dw_mobdi_md.pkg_name_sort->dm_sdk_mapping.pkg_name_mapping|dm_sdk_mapping.app_pkg_mapping_par,dw_mobdi_md.pkg_name_sort->dw_mobdi_md.apppkg_name_temp|dm_mobdi_mapping.apppkg_name_info_wf,dw_mobdi_md.apppkg_name_temp->dm_mobdi_mapping.apppkg_name_info_wf
+@SourceTable:dw_mobdi_etl.log_device_install_app_incr_info,dw_mobdi_md.apppkg_name_temp,dw_mobdi_md.pkg_name_sort,dm_sdk_mapping.dim_app_pkg_mapping_par,dm_sdk_mapping.dim_app_name_info_orig,dw_mobdi_etl.log_device_install_app_all_info,dw_mobdi_etl.log_device_unstall_app_info,dm_mobdi_mapping.dim_apppkg_name_info_wf
+@TargetTable:dw_mobdi_md.pkg_name_sort,dm_sdk_mapping.dim_app_name_info_orig,dw_mobdi_md.apppkg_name_temp,dm_mobdi_mapping.dim_apppkg_name_info_wf
+@TableRelation:dw_mobdi_etl.log_device_unstall_app_info,dw_mobdi_etl.log_device_install_app_incr_info,dw_mobdi_etl.log_device_install_app_all_info->dw_mobdi_md.pkg_name_sort|dm_sdk_mapping.dim_app_name_info_orig,dw_mobdi_md.pkg_name_sort->dm_sdk_mapping.dim_app_name_info_orig|dm_sdk_mapping.dim_app_pkg_mapping_par,dw_mobdi_md.pkg_name_sort->dw_mobdi_md.apppkg_name_temp|dm_mobdi_mapping.dim_apppkg_name_info_wf,dw_mobdi_md.apppkg_name_temp->dm_mobdi_mapping.dim_apppkg_name_info_wf
 '
 if [ $# -lt 1 ]; then
     echo "ERROR: wrong number of parameters"
@@ -25,10 +25,10 @@ source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 : '
 @part_1:
-实现功能:未经过渠道清理的包名所对应的app_name数据增量更新到pkg_name_mapping表
+实现功能:未经过渠道清理的包名所对应的app_name数据增量更新到dim_app_name_info_orig表
 实现逻辑:先从log_device_install_app_all_info,log_device_install_app_incr_info,log_device_unstall_app_info抽出上周数据,
-			算出安装量后排序并插入tp_sdk_tmp.pkg_name_sort表,之后再增量添加到pkg_name_mapping表
-输出结果:dm_sdk_mapping.pkg_name_mapping :
+			算出安装量后排序并插入tp_sdk_tmp.pkg_name_sort表,之后再增量添加到dim_app_name_info_orig表
+输出结果:dm_sdk_mapping.dim_app_name_info_orig :
 			pkg 包名,
 			name APP名,
 			cnt 安装量,
@@ -40,15 +40,15 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 #dwd_log_device_unstall_app_info_sec_di=dm_mobdi_master.dwd_log_device_unstall_app_info_sec_di
 
 #mapping
-#app_pkg_mapping_par=dim_sdk_mapping.app_pkg_mapping_par
+#dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
 
 #md
 pkg_name_sort=${dw_mobdi_tmp}.pkg_name_sort
 apppkg_name_temp=${dw_mobdi_tmp}.apppkg_name_temp
 
 #out
-#pkg_name_mapping=dim_mobdi_mapping.pkg_name_mapping
-#apppkg_name_info_wf=dim_mobdi_mapping.apppkg_name_info_wf
+#dim_app_name_info_orig=dim_mobdi_mapping.dim_app_name_info_orig
+#dim_apppkg_name_info_wf=dim_mobdi_mapping.dim_apppkg_name_info_wf
 
 
 
@@ -84,23 +84,23 @@ group by pkg,name ) x
 
 #incremental update
 hive -e "
-insert overwrite table $pkg_name_mapping
+insert overwrite table $dim_app_name_info_orig
 select pkg,name,cnt,update_day from
 (select a.*,row_number() over (partition by pkg order by cnt desc) num from
 (select pkg,name,cnt, $date1 as update_day from $pkg_name_sort where rank = 1 and pkg = regexp_extract(pkg,'([a-zA-Z0-9\.\_]+)',0)
 union all
-select pkg,name,cnt,update_day from $pkg_name_mapping where pkg = regexp_extract(pkg,'([a-zA-Z0-9\.\_]+)',0)
+select pkg,name,cnt,update_day from $dim_app_name_info_orig where pkg = regexp_extract(pkg,'([a-zA-Z0-9\.\_]+)',0)
 )a)b
 where num = 1
 ;" 
 
 : '
 @part_2:
-实现功能:渠道清理后的包名所对应的app_name数据增量更新到pkg_name_mapping表
-实现逻辑:先把tp_sdk_tmp.pkg_name_sort表和$app_pkg_mapping_par表join起来,
+实现功能:渠道清理后的包名所对应的app_name数据增量更新到dim_app_name_info_orig表
+实现逻辑:先把tp_sdk_tmp.pkg_name_sort表和$dim_app_pkg_mapping_par表join起来,
 			取app_pkg_mapping的apppkg代替pkg_name_sort的apppkg,然后插入到apppkg_name_temp表
-			之后再增量添加到apppkg_name_info_wf表
-输出结果:$apppkg_name_info_wf :
+			之后再增量添加到dim_apppkg_name_info_wf表
+输出结果:$dim_apppkg_name_info_wf :
 			pkg 包名,
 			name APP名,
 			cnt 安装量,
@@ -115,7 +115,7 @@ select apppkg, name as app_name,cnt from
 (select apppkg,name,sum(cnt) as cnt from
 (select COALESCE(b.apppkg,a.pkg) as apppkg, a.name, a.cnt 
 from $pkg_name_sort a
-left join (select * from $app_pkg_mapping_par where version='1000') b
+left join (select * from $dim_app_pkg_mapping_par where version='1000') b
 on a.pkg=b.pkg
 where a.rank=1) x
 group by apppkg,name) xx) xxx
@@ -123,18 +123,18 @@ where rank = 1 and apppkg is not null and length(apppkg) <> 0 and apppkg = regex
 ;" 
 
 hive -e "
-insert overwrite table $apppkg_name_info_wf partition (day='$date1')
+insert overwrite table $dim_apppkg_name_info_wf partition (day='$date1')
 select apppkg,app_name,cnt,update_day from
 (select *,ROW_NUMBER() OVER(PARTITION BY apppkg ORDER BY cnt desc) as num
 from 
-(select apppkg,app_name,cnt,update_day from $apppkg_name_info_wf where day=$date3
+(select apppkg,app_name,cnt,update_day from $dim_apppkg_name_info_wf where day=$date3
 union all
 select apppkg,app_name,cnt,$date1 as update_day from $apppkg_name_temp) a )b
 where num=1
 ;"
-# hive -e "select pkg from $pkg_name_mapping where update_day=$date1;">>/home/dba/after_mobdi/weeklyRun/crawl_label/pkg_list_incr_$date1.txt
-for old_version in `hive -e "show partitions $apppkg_name_info_wf " | sort | head -n -7`
+# hive -e "select pkg from $dim_app_name_info_orig where update_day=$date1;">>/home/dba/after_mobdi/weeklyRun/crawl_label/pkg_list_incr_$date1.txt
+for old_version in `hive -e "show partitions $dim_apppkg_name_info_wf " | sort | head -n -7`
 do
 	echo "rm $old_version"
-	hive -v -e "alter table $apppkg_name_info_wf drop if exists partition($old_version)"
+	hive -v -e "alter table $dim_apppkg_name_info_wf drop if exists partition($old_version)"
 done
