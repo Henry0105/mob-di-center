@@ -49,13 +49,13 @@ bssid_finaltable_addgeohash8_par=${dw_mobdi_tmp}.bssid_finaltable_addgeohash8_pa
 bssid_finaltable_addgeohash8_addlocation_par=${dw_mobdi_tmp}.bssid_finaltable_addgeohash8_addlocation_par
 
 #mapping
-# geohash8_lbs_info_mapping_par=dim_sdk_mapping.geohash8_lbs_info_mapping_par
-# geohash6_area_mapping_par=dim_sdk_mapping.geohash6_area_mapping_par
-# dim_bssid_type_all_mf=dim_mobdi_mapping.dim_bssid_type_all_mf
+# dim_geohash8_china_area_mapping_par=dim_sdk_mapping.dim_geohash8_china_area_mapping_par
+# dim_geohash6_china_area_mapping_par=dim_sdk_mapping.dim_geohash6_china_area_mapping_par
+# dim_bssid_type_mf=dim_mobdi_mapping.dim_bssid_type_mf
 
 #output
 # dim_mapping_bssid_location_mf=dim_mobdi_mapping.dim_mapping_bssid_location_mf
-# bssid_ssid_mapping_par=dim_mobdi_mapping.bssid_ssid_mapping_par
+# dim_bssid_ssid_mapping_par=dim_mobdi_mapping.dim_bssid_ssid_mapping_par
 
 echo "step 1:get gps data from log..."
 
@@ -826,7 +826,7 @@ from $bssid_finaltable_addgeohash8_par as a
 left join
 (
   select *
-  from $geohash6_area_mapping_par
+  from $dim_geohash6_china_area_mapping_par
   where version='1000'
 ) as b on substring(a.geohash8, 1, 6) = b.geohash_6_code
 where a.dt='$day'
@@ -874,7 +874,7 @@ from
   left join
   (
     select *
-    from $geohash6_area_mapping_par
+    from $dim_geohash6_china_area_mapping_par
     where version='1000'
   ) as d on substring(c.geohash8, 1, 6) = d.geohash_6_code
   where c.dt='$day'
@@ -883,7 +883,7 @@ from
 left join
 (
   select *
-  from $geohash8_lbs_info_mapping_par
+  from $dim_geohash8_china_area_mapping_par
   where version='1000'
 ) as f
 on e.geohash8 = f.geohash_8_code;
@@ -900,7 +900,7 @@ fi
 bssidTypeAllSql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_bssid_type_all_mf', 'day');
+    SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_bssid_type_mf', 'day');
 "
 bssidTypeAllPartition=(`hive -e "$bssidTypeAllSql"`)
 
@@ -954,14 +954,14 @@ from
     ) as un
 ) t1
 left join
-$dim_bssid_type_all_mf t2 on t2.day='$bssidTypeAllPartition' and t1.bssid=t2.bssid
+$dim_bssid_type_mf t2 on t2.day='$bssidTypeAllPartition' and t1.bssid=t2.bssid
 ;
 "
 
-###################################执行生成dm_mobdi_mapping.bssid_ssid_mapping_par的数据，下游data-exchange会使用到#####
+###################################执行生成dm_mobdi_mapping.dim_bssid_ssid_mapping_par的数据，下游data-exchange会使用到#####
 #就第一次跑
 : "
-insert overwrite table dm_mobdi_mapping.bssid_ssid_mapping_par partition (day = '20190131')
+insert overwrite table dm_mobdi_mapping.dim_bssid_ssid_mapping_par partition (day = '20190131')
 select bssid, ssid, real_date
 from test.zhangxy_bssid_ssid_bu2017;
 "
@@ -976,7 +976,7 @@ set mapred.job.reuse.jvm.num.tasks=25;
 
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-insert overwrite table $bssid_ssid_mapping_par partition (day = $day)
+insert overwrite table $dim_bssid_ssid_mapping_par partition (day = $day)
 select bssid, ssid, real_date
 from
 (
@@ -985,8 +985,8 @@ from
   from
   (
     select bssid, ssid, real_date
-    from $bssid_ssid_mapping_par
-    where day=GET_LAST_PARTITION('dim_mobdi_mapping', 'bssid_ssid_mapping_par', 'day')
+    from $dim_bssid_ssid_mapping_par
+    where day=GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_bssid_ssid_mapping_par', 'day')
 
     union all
 
