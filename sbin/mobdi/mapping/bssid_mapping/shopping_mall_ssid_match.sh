@@ -15,7 +15,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #源表
-#poi_config_mapping_par=dim_sdk_mapping.poi_config_mapping_par
+#dim_poi_config_mapping_par=dim_sdk_mapping.dim_poi_config_mapping_par
 
 #中间库
 shopping_mall_poi_info=${dw_mobdi_tmp}.shopping_mall_poi_info
@@ -75,7 +75,7 @@ from
          get_json_object(attribute,'$.cat1') as cat1,
          get_json_object(attribute,'$.opentime') as opentime,
          city as city_code
-  from $poi_config_mapping_par
+  from $dim_poi_config_mapping_par
   where type=2
   and version='1001'
 ) t1;
