@@ -18,10 +18,10 @@ source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 #dwd_dsign_di=dm_mobdi_master.dwd_dsign_di
 
 ## 目标表
-#dim_mapping_apppkg_appkey_par_df=dim_mobdi_mapping.dim_mapping_apppkg_appkey_par_df
-#dim_mapping_apppkg_appkey_par_df_view=dim_mobdi_mapping.dim_mapping_apppkg_appkey_par_df_view
+#dim_mapping_apppkg_appkey_bydsign_par_df=dim_mobdi_mapping.dim_mapping_apppkg_appkey_bydsign_par_df
+#dim_mapping_apppkg_appkey_bydsign_par_df_view=dim_mobdi_mapping.dim_mapping_apppkg_appkey_bydsign_par_df_view
 
-lastPartStr=`hive -e "show partitions $dim_mapping_apppkg_appkey_par_df" | sort | tail -n 1`
+lastPartStr=`hive -e "show partitions $dim_mapping_apppkg_appkey_bydsign_par_df" | sort | tail -n 1`
 
 if [ -z "$lastPartStr" ]; then
     lastPartStrA=$lastPartStr
@@ -44,14 +44,14 @@ SET hive.merge.mapredfiles=true;
 set hive.merge.size.per.task=128000000;
 set hive.merge.smallfiles.avgsize=128000000;
 
-insert overwrite table $dim_mapping_apppkg_appkey_par_df partition(version = '${new_ver}')
+insert overwrite table $dim_mapping_apppkg_appkey_bydsign_par_df partition(version = '${new_ver}')
 select coalesce(t1.apppkg,t2.apppkg) as apppkg,
        coalesce(t1.appkey,t2.appkey) as appkey
 from
 (
     select trim(apppkg) as apppkg,
            trim(appkey) as appkey
-    from $dim_mapping_apppkg_appkey_par_df
+    from $dim_mapping_apppkg_appkey_bydsign_par_df
     where 1=1  ${lastPartStrA}
 ) t1
 full join
@@ -71,15 +71,15 @@ on t1.apppkg = t2.apppkg and t1.appkey=t2.appkey;
 "
 
 hive -v -e "
-create or replace view $dim_mapping_apppkg_appkey_par_df_view as
-select * from $dim_mapping_apppkg_appkey_par_df
+create or replace view $dim_mapping_apppkg_appkey_bydsign_par_df_view as
+select * from $dim_mapping_apppkg_appkey_bydsign_par_df
 where version='${new_ver}'
 ;
 "
 
 #实现删除过期的分区的功能，只保留最近5个分区
-for old_version in `hive -e "show partitions $dim_mapping_apppkg_appkey_par_df " | grep -v '_bak' | sort | head -n -5`
+for old_version in `hive -e "show partitions $dim_mapping_apppkg_appkey_bydsign_par_df " | grep -v '_bak' | sort | head -n -5`
 do
     echo "rm $old_version"
-    hive -v -e "alter table $dim_mapping_apppkg_appkey_par_df drop if exists partition($old_version)"
+    hive -v -e "alter table $dim_mapping_apppkg_appkey_bydsign_par_df drop if exists partition($old_version)"
 done
