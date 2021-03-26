@@ -17,13 +17,13 @@ dataexchange_idmapping=${dw_ext_exchange}.dataexchange_idmapping
 total_phone_md5_mapping=${dm_dataengine_mapping}.total_phone_md5_mapping
 dm_imei_mapping_v2=${dm_dataengine_mapping}.dm_imei_mapping_v2
 #mappping
-#blacklist=dim_sdk_mapping.blacklist
+#dim_blacklist=dim_sdk_mapping.dim_blacklist
 #tmp
 ext_phone_mapping_incr_pre=${dw_mobdi_tmp}.ext_phone_mapping_incr_pre
 ext_phone_mapping_incr_phone_pre=${dw_mobdi_tmp}.ext_phone_mapping_incr_phone_pre
 ext_phone_mapping_incr_phonemd5_pre=${dw_mobdi_tmp}.ext_phone_mapping_incr_phonemd5_pre
 #output
-#ext_phone_mapping_incr=dim_mobdi_mapping.ext_phone_mapping_incr
+#dim_ext_phone_mapping_di=dim_mobdi_mapping.dim_ext_phone_mapping_di
 
 hive -e"
 set mapred.max.split.size=256000000;
@@ -94,7 +94,7 @@ from
 group by owner_data,ext_data,source,plat,processtime,type;
 
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='imei_phone')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='imei_phone')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -110,7 +110,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='imeimd5_phone')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='imeimd5_phone')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -126,7 +126,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='imei14_phone')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='imei14_phone')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -142,7 +142,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='imei14md5_phone')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='imei14md5_phone')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -158,7 +158,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='imei15_phone')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='imei15_phone')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -174,7 +174,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='imei15md5_phone')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='imei15md5_phone')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -190,7 +190,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='imei_phonemd5')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='imei_phonemd5')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -206,7 +206,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='imeimd5_phonemd5')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='imeimd5_phonemd5')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -222,7 +222,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='imei14_phonemd5')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='imei14_phonemd5')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -238,7 +238,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='imei14md5_phonemd5')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='imei14md5_phonemd5')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -254,7 +254,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='imei15_phonemd5')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='imei15_phonemd5')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -270,7 +270,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='imei15md5_phonemd5')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='imei15md5_phonemd5')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -316,7 +316,7 @@ select
   (
     select
        owner_data,
-       CASE WHEN blacklist_imei.value IS NOT NULL THEN ''
+       CASE WHEN dim_blacklist_imei.value IS NOT NULL THEN ''
           WHEN IMEI_VERIFY(info.ext_data) THEN SUBSTRING(regexp_replace(TRIM(LOWER(info.ext_data)), ' |/|-',''),1,15)
        ELSE '' END as ext_data,
        source,
@@ -337,8 +337,8 @@ select
     and vendor is not null
     ) info
     LEFT JOIN
-    (SELECT value FROM $blacklist where type='imei' and day='20180702' GROUP BY value) blacklist_imei
-    on (case when info.ext_data is not null and length(info.ext_data) > 0 and lower(trim(info.ext_data)) != 'null' then regexp_replace(TRIM(LOWER(info.ext_data)), ' |/|-','') else 'llun' end=blacklist_imei.value)
+    (SELECT value FROM $dim_blacklist where type='imei' and day='20180702' GROUP BY value) dim_blacklist_imei
+    on (case when info.ext_data is not null and length(info.ext_data) > 0 and lower(trim(info.ext_data)) != 'null' then regexp_replace(TRIM(LOWER(info.ext_data)), ' |/|-','') else 'llun' end=dim_blacklist_imei.value)
   )tt
   where length(ext_data)>0;
 
@@ -376,7 +376,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime,type;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='phone_imei')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='phone_imei')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -392,7 +392,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='phone_imeimd5')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='phone_imeimd5')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -408,7 +408,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='phone_imei14')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='phone_imei14')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -424,7 +424,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='phone_imei14md5')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='phone_imei14md5')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -440,7 +440,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='phone_imei15')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='phone_imei15')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -456,7 +456,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='phone_imei15md5')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='phone_imei15md5')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -472,7 +472,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='phonemd5_imei')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='phonemd5_imei')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -488,7 +488,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='phonemd5_imeimd5')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='phonemd5_imeimd5')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -504,7 +504,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='phonemd5_imei14')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='phonemd5_imei14')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -520,7 +520,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='phonemd5_imei14md5')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='phonemd5_imei14md5')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -536,7 +536,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='phonemd5_imei15')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='phonemd5_imei15')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -552,7 +552,7 @@ from
 )t
 group by owner_data,ext_data,source,plat,processtime;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='phonemd5_imei15md5')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='phonemd5_imei15md5')
 select owner_data,ext_data,source,plat,processtime
 from
 (
@@ -583,7 +583,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.merge.smallfiles.avgsize=200000000;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='imsi_phone')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='imsi_phone')
 select owner_data,ext_data,source,1 as plat,processtime
 from
   (
@@ -613,13 +613,13 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.merge.smallfiles.avgsize=200000000;
 
-insert overwrite table $ext_phone_mapping_incr partition(day='$day',type='phone_imsi')
+insert overwrite table $dim_ext_phone_mapping_di partition(day='$day',type='phone_imsi')
 select owner_data,ext_data,source,plat,processtime
 from
 (
   select
       owner_data,
-      CASE WHEN blacklist_imsi.value IS NOT NULL THEN ''
+      CASE WHEN dim_blacklist_imsi.value IS NOT NULL THEN ''
       WHEN TRIM(phone_imsi.ext_data) RLIKE '^[0-9]{14,15}$' THEN TRIM(phone_imsi.ext_data)
       ELSE ''
       END as ext_data,
@@ -637,8 +637,8 @@ from
       and type ='phone_imsi'
       and vendor is not null
   ) phone_imsi
-  LEFT JOIN (SELECT value FROM $blacklist where type='imsi' and day=20180702 GROUP BY value) blacklist_imsi
-  on (TRIM(phone_imsi.ext_data)=blacklist_imsi.value)
+  LEFT JOIN (SELECT value FROM $dim_blacklist where type='imsi' and day=20180702 GROUP BY value) dim_blacklist_imsi
+  on (TRIM(phone_imsi.ext_data)=dim_blacklist_imsi.value)
 )t
 where length(ext_data)>0
 "
