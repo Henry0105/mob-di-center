@@ -9,8 +9,8 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 # input
 pid_full=${archive_id_laws}.pid_full
-#caller_loc_china_clean=dim_sdk_mapping.caller_loc_china_clean
-#mapping_phonenum_year=dim_sdk_mapping.mapping_phonenum_year
+#dim_pid_carrier_location_china=dim_sdk_mapping.dim_pid_carrier_location_china
+#dim_pid_release_year_china=dim_sdk_mapping.dim_pid_release_year_china
 
 # output
 #dim_pid_attribute_full_par_sec=dim_mobdi_mapping.dim_pid_attribute_full_par_sec
@@ -99,9 +99,9 @@ from (
         and (trim(pid_cleaned) rlike '^[0-9]{11}$' or trim(pid_cleaned) rlike '^[0-9]{17}$')
         group by pid_cleaned
     ) android_pid
-    left join (select phone_id, areacode, city, company, province, zip, carrier from $caller_loc_china_clean where day='20200525') phone_id_clean
+    left join (select phone_id, areacode, city, company, province, zip, carrier from $dim_pid_carrier_location_china where day='20200525') phone_id_clean
     on substring(trim(android_pid.pid), 1, 7)=trim(phone_id_clean.phone_id)
-    left join (select phone_pre3, year from $mapping_phonenum_year where version='1000') phone_pre_year
+    left join (select phone_pre3, year from $dim_pid_release_year_china where version='1000') phone_pre_year
     on substring(trim(android_pid.pid), 1, 3)=trim(phone_pre_year.phone_pre3)
 ) tmp;
 "
