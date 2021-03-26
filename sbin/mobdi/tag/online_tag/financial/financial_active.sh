@@ -6,9 +6,9 @@ cd `dirname $0`
 @describe:时间窗内金融类活跃天数
 @projectName:MobDI
 @BusinessName:financial_active
-@SourceTable:dm_sdk_mapping.tag_cat_mapping_dmp_par,rp_mobdi_app.rp_device_active_label_profile
+@SourceTable:dm_sdk_mapping.dim_tag_cat_mapping_dmp_par,rp_mobdi_app.rp_device_active_label_profile
 @TargetTable:dm_mobdi_mapping.dim_online_category_mapping
-@TableRelation:dm_sdk_mapping.tag_cat_mapping_dmp_par->dm_mobdi_mapping.dim_online_category_mapping|dm_mobdi_mapping.dim_online_category_mapping,rp_mobdi_app.rp_device_active_label_profile->rp_mobdi_app.timewindow_online_profile
+@TableRelation:dm_sdk_mapping.dim_tag_cat_mapping_dmp_par->dm_mobdi_mapping.dim_online_category_mapping|dm_mobdi_mapping.dim_online_category_mapping,rp_mobdi_app.rp_device_active_label_profile->rp_mobdi_app.timewindow_online_profile
 '
 day=$1
 mappingtype=15
@@ -21,7 +21,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #input
-#tag_cat_mapping_dmp_par=dim_sdk_mapping.tag_cat_mapping_dmp_par
+#dim_tag_cat_mapping_dmp_par=dim_sdk_mapping.dim_tag_cat_mapping_dmp_par
 #rp_device_active_label_profile=dm_mobdi_report.rp_device_active_label_profile
 #output
 #dim_online_category_mapping=dim_sdk_mapping.dim_online_category_mapping
@@ -37,11 +37,11 @@ add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
 insert overwrite table $dim_online_category_mapping partition (type='${mappingtype}')
 select tag_id as relation,tag as category,0 as total,0 as percent
-from $tag_cat_mapping_dmp_par where version='1000'
+from $dim_tag_cat_mapping_dmp_par where version='1000'
 and tag='信用卡'
 union all 
 select tag_id as relation,cat2 as category,0 as total,0 as percent
-from $tag_cat_mapping_dmp_par where version='1000'
+from $dim_tag_cat_mapping_dmp_par where version='1000'
 and cat2 ='借贷' 
 OR cat2 ='银行' 
 OR cat2 ='投资' 
