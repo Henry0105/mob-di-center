@@ -2,7 +2,7 @@
 
 #导入配置文件
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+
 
 # input
 device_unstall_1month=${dm_mobdi_tmp}.device_unstall_1month
