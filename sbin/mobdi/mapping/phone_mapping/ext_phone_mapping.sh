@@ -19,9 +19,9 @@ dm_imei_mapping_v2=${dm_dataengine_mapping}.dm_imei_mapping_v2
 #mappping
 #dim_blacklist=dim_sdk_mapping.dim_blacklist
 #tmp
-ext_phone_mapping_incr_pre=${dw_mobdi_tmp}.ext_phone_mapping_incr_pre
-ext_phone_mapping_incr_phone_pre=${dw_mobdi_tmp}.ext_phone_mapping_incr_phone_pre
-ext_phone_mapping_incr_phonemd5_pre=${dw_mobdi_tmp}.ext_phone_mapping_incr_phonemd5_pre
+ext_phone_mapping_incr_pre=${dm_mobdi_tmp}.ext_phone_mapping_incr_pre
+ext_phone_mapping_incr_phone_pre=${dm_mobdi_tmp}.ext_phone_mapping_incr_phone_pre
+ext_phone_mapping_incr_phonemd5_pre=${dm_mobdi_tmp}.ext_phone_mapping_incr_phonemd5_pre
 #output
 #dim_ext_phone_mapping_di=dim_mobdi_mapping.dim_ext_phone_mapping_di
 
