@@ -21,8 +21,8 @@ source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 #mapping_area_par=dim_sdk_mapping.mapping_area_par
 
 #中间库
-ssid_match_data_prepare=dw_mobdi_tmp.ssid_match_data_prepare
-city_name_combine_area_name=dw_mobdi_tmp.city_name_combine_area_name
+ssid_match_data_prepare=${dm_mobdi_tmp}.ssid_match_data_prepare
+city_name_combine_area_name=${dm_mobdi_tmp}.city_name_combine_area_name
 
 bssidMappingLastParStr=`hive -e "show partitions $dim_mapping_bssid_location_mf" | sort| tail -n 1`
 
