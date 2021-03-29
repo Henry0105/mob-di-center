@@ -35,7 +35,7 @@ with device_bssid_cnt_1month as(
     select device, bssid
     from 
     (
-      select device, regexp_replace(lower(trim(bssid)), ':|-|\\\\.|\073', '') as bssid, from_unixtime(cast(substring(datetime, 1, 10) as bigint), 'yyyyMMdd') as real_date
+      select muid as device, regexp_replace(lower(trim(bssid)), ':|-|\\\\.|\073', '') as bssid, from_unixtime(cast(substring(datetime, 1, 10) as bigint), 'yyyyMMdd') as real_date
       from $dwd_log_wifi_info_sec_di
       where day >= '$p1months' and day <= '$day'
       and regexp_replace(lower(trim(bssid)), ':|-|\\\\.|\073', '') rlike '^[0-9a-f]{12}$' and regexp_replace(lower(trim(bssid)), ':|-|\\\\.|\073', '') not in ('000000000000', '020000000000', 'ffffffffffff') and bssid is not null 
@@ -52,7 +52,7 @@ device_bssid_cnt_2month as(
     select device, bssid
     from 
     (
-      select device, regexp_replace(lower(trim(bssid)), ':|-|\\\\.|\073', '') as bssid, from_unixtime(cast(substring(datetime, 1, 10) as bigint), 'yyyyMMdd') as real_date
+      select muid as device, regexp_replace(lower(trim(bssid)), ':|-|\\\\.|\073', '') as bssid, from_unixtime(cast(substring(datetime, 1, 10) as bigint), 'yyyyMMdd') as real_date
       from $dwd_log_wifi_info_sec_di
       where day >= '$p2months' and day <= '$day'
       and regexp_replace(lower(trim(bssid)), ':|-|\\\\.|\073', '') rlike '^[0-9a-f]{12}$' and regexp_replace(lower(trim(bssid)), ':|-|\\\\.|\073', '') not in ('000000000000', '020000000000', 'ffffffffffff') and bssid is not null 
@@ -69,7 +69,7 @@ device_bssid_cnt_3month as(
     select device, bssid
     from 
     (
-      select device, regexp_replace(lower(trim(bssid)), ':|-|\\\\.|\073', '') as bssid, from_unixtime(cast(substring(datetime, 1, 10) as bigint), 'yyyyMMdd') as real_date
+      select muid as device, regexp_replace(lower(trim(bssid)), ':|-|\\\\.|\073', '') as bssid, from_unixtime(cast(substring(datetime, 1, 10) as bigint), 'yyyyMMdd') as real_date
       from $dwd_log_wifi_info_sec_di
       where day >= '$p3months' and day <= '$day'
       and regexp_replace(lower(trim(bssid)), ':|-|\\\\.|\073', '') rlike '^[0-9a-f]{12}$' and regexp_replace(lower(trim(bssid)), ':|-|\\\\.|\073', '') not in ('000000000000', '020000000000', 'ffffffffffff') and bssid is not null 
