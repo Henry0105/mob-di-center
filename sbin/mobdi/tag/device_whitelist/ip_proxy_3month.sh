@@ -10,9 +10,9 @@ source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 #input
 #dws_device_ip_info_di=dm_mobdi_topic.dws_device_ip_info_di
 #tmp
-ip_location_info=dw_mobdi_md.ip_location_info
+ip_location_info=${dm_mobdi_tmp}.ip_location_info
 #output
-device_ip_proxy_3month=dw_mobdi_md.device_ip_proxy_3month
+device_ip_proxy_3month=${dm_mobdi_tmp}.device_ip_proxy_3month
 
 hive -e"
 
