@@ -38,7 +38,7 @@ stored as orc;
 phone_contact_version=(`hive  -e "
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dw_mobdi_tmp', 'phone_contacts_index_word_split_prepare', 'day');
+SELECT GET_LAST_PARTITION('dm_mobdi_tmp', 'phone_contacts_index_word_split_prepare', 'day');
 "`)
 
 
