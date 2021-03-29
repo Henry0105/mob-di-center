@@ -16,40 +16,40 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 #dim_poi_config_mapping_par=dim_sdk_mapping.dim_poi_config_mapping_par
 
 #中间库
-hotel_poi_info=${dw_mobdi_tmp}.hotel_poi_info
-hotel_poi_and_bssid_connect_info=${dw_mobdi_tmp}.hotel_poi_and_bssid_connect_info
-ssid_match_data_prepare=${dw_mobdi_tmp}.ssid_match_data_prepare
-hotel_poi_and_ssid_connect_count_info=${dw_mobdi_tmp}.hotel_poi_and_ssid_connect_count_info
-hotel_ssid_calculate_base_info=${dw_mobdi_tmp}.hotel_ssid_calculate_base_info
-hotel_name_match_ssid_info=${dw_mobdi_tmp}.hotel_name_match_ssid_info
-hotel_ssid_cn_match=${dw_mobdi_tmp}.hotel_ssid_cn_match
-city_name_combine_area_name=${dw_mobdi_tmp}.city_name_combine_area_name
-hotel_ssid_3number_match=${dw_mobdi_tmp}.hotel_ssid_3number_match
-hotel_ssid_name_en_match=${dw_mobdi_tmp}.hotel_ssid_name_en_match
-hotel_ssid_famous_en_match=${dw_mobdi_tmp}.hotel_ssid_famous_en_match
-hotel_ssid_rude_match=${dw_mobdi_tmp}.hotel_ssid_rude_match
-hotel_ssid_match_merge_all_conditions=${dw_mobdi_tmp}.hotel_ssid_match_merge_all_conditions
-hotel_split_ssid_pinyin_match=${dw_mobdi_tmp}.hotel_split_ssid_pinyin_match
-hotel_split_ssid_pinyin_short_match=${dw_mobdi_tmp}.hotel_split_ssid_pinyin_short_match
-hotel_ssid_pinyin_match=${dw_mobdi_tmp}.hotel_ssid_pinyin_match
-hotel_ssid_pinyin_short_match=${dw_mobdi_tmp}.hotel_ssid_pinyin_short_match
-hotel_ssid_floor_room_split=${dw_mobdi_tmp}.hotel_ssid_floor_room_split
-hotel_ssid_floor_room_info=${dw_mobdi_tmp}.hotel_ssid_floor_room_info
-hotel_ssid_floor_room_info_filter_by_room_block=${dw_mobdi_tmp}.hotel_ssid_floor_room_info_filter_by_room_block
-hotel_ssid_room_block=${dw_mobdi_tmp}.hotel_ssid_room_block
-hotel_ssid_room_block_room_scope=${dw_mobdi_tmp}.hotel_ssid_room_block_room_scope
-hotel_ssid_floor_block=${dw_mobdi_tmp}.hotel_ssid_floor_block
-hotel_ssid_floor_block_count_info=${dw_mobdi_tmp}.hotel_ssid_floor_block_count_info
-hotel_ssid_floor_block_count_rate_info=${dw_mobdi_tmp}.hotel_ssid_floor_block_count_rate_info
-hotel_ssid_floor_block_rate_rank_filter=${dw_mobdi_tmp}.hotel_ssid_floor_block_rate_rank_filter
-hotel_ssid_floor_block_filter=${dw_mobdi_tmp}.hotel_ssid_floor_block_filter
-hotel_ssid_floor_room_match=${dw_mobdi_tmp}.hotel_ssid_floor_room_match
-hotel_bssid_remain_1=${dw_mobdi_tmp}.hotel_bssid_remain_1
-hotel_ssid_match_second_confidence=${dw_mobdi_tmp}.hotel_ssid_match_second_confidence
-hotel_bssid_remain_2=${dw_mobdi_tmp}.hotel_bssid_remain_2
-hotel_ssid_match_third_confidence=${dw_mobdi_tmp}.hotel_ssid_match_third_confidence
-hotel_poi_and_bssid_info=${dw_mobdi_tmp}.hotel_poi_and_bssid_info
-one_bssid_ssid_with_multiple_hotel_info=${dw_mobdi_tmp}.one_bssid_ssid_with_multiple_hotel_info
+hotel_poi_info=${dm_mobdi_tmp}.hotel_poi_info
+hotel_poi_and_bssid_connect_info=${dm_mobdi_tmp}.hotel_poi_and_bssid_connect_info
+ssid_match_data_prepare=${dm_mobdi_tmp}.ssid_match_data_prepare
+hotel_poi_and_ssid_connect_count_info=${dm_mobdi_tmp}.hotel_poi_and_ssid_connect_count_info
+hotel_ssid_calculate_base_info=${dm_mobdi_tmp}.hotel_ssid_calculate_base_info
+hotel_name_match_ssid_info=${dm_mobdi_tmp}.hotel_name_match_ssid_info
+hotel_ssid_cn_match=${dm_mobdi_tmp}.hotel_ssid_cn_match
+city_name_combine_area_name=${dm_mobdi_tmp}.city_name_combine_area_name
+hotel_ssid_3number_match=${dm_mobdi_tmp}.hotel_ssid_3number_match
+hotel_ssid_name_en_match=${dm_mobdi_tmp}.hotel_ssid_name_en_match
+hotel_ssid_famous_en_match=${dm_mobdi_tmp}.hotel_ssid_famous_en_match
+hotel_ssid_rude_match=${dm_mobdi_tmp}.hotel_ssid_rude_match
+hotel_ssid_match_merge_all_conditions=${dm_mobdi_tmp}.hotel_ssid_match_merge_all_conditions
+hotel_split_ssid_pinyin_match=${dm_mobdi_tmp}.hotel_split_ssid_pinyin_match
+hotel_split_ssid_pinyin_short_match=${dm_mobdi_tmp}.hotel_split_ssid_pinyin_short_match
+hotel_ssid_pinyin_match=${dm_mobdi_tmp}.hotel_ssid_pinyin_match
+hotel_ssid_pinyin_short_match=${dm_mobdi_tmp}.hotel_ssid_pinyin_short_match
+hotel_ssid_floor_room_split=${dm_mobdi_tmp}.hotel_ssid_floor_room_split
+hotel_ssid_floor_room_info=${dm_mobdi_tmp}.hotel_ssid_floor_room_info
+hotel_ssid_floor_room_info_filter_by_room_block=${dm_mobdi_tmp}.hotel_ssid_floor_room_info_filter_by_room_block
+hotel_ssid_room_block=${dm_mobdi_tmp}.hotel_ssid_room_block
+hotel_ssid_room_block_room_scope=${dm_mobdi_tmp}.hotel_ssid_room_block_room_scope
+hotel_ssid_floor_block=${dm_mobdi_tmp}.hotel_ssid_floor_block
+hotel_ssid_floor_block_count_info=${dm_mobdi_tmp}.hotel_ssid_floor_block_count_info
+hotel_ssid_floor_block_count_rate_info=${dm_mobdi_tmp}.hotel_ssid_floor_block_count_rate_info
+hotel_ssid_floor_block_rate_rank_filter=${dm_mobdi_tmp}.hotel_ssid_floor_block_rate_rank_filter
+hotel_ssid_floor_block_filter=${dm_mobdi_tmp}.hotel_ssid_floor_block_filter
+hotel_ssid_floor_room_match=${dm_mobdi_tmp}.hotel_ssid_floor_room_match
+hotel_bssid_remain_1=${dm_mobdi_tmp}.hotel_bssid_remain_1
+hotel_ssid_match_second_confidence=${dm_mobdi_tmp}.hotel_ssid_match_second_confidence
+hotel_bssid_remain_2=${dm_mobdi_tmp}.hotel_bssid_remain_2
+hotel_ssid_match_third_confidence=${dm_mobdi_tmp}.hotel_ssid_match_third_confidence
+hotel_poi_and_bssid_info=${dm_mobdi_tmp}.hotel_poi_and_bssid_info
+one_bssid_ssid_with_multiple_hotel_info=${dm_mobdi_tmp}.one_bssid_ssid_with_multiple_hotel_info
 
 
 #目标表
@@ -404,7 +404,7 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.speculation=true \
 --conf spark.driver.maxResultSize=4g \
 --conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
-/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar "$day" "${dw_mobdi_tmp}"
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar "$day" "${dm_mobdi_tmp}"
 
 #考虑所有的组合情况，看是否匹配
 hive -v -e "
