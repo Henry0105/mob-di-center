@@ -1,6 +1,8 @@
 #!/bin/sh
 
 set -e -x
+#导入配置文件
+source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
 # input
 unstall_install_risk_pre=${dm_mobdi_tmp}.unstall_install_risk_pre
