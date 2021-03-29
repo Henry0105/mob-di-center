@@ -22,14 +22,14 @@ source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 #目标表
 #dim_ip_type_mf=dim_mobdi_mapping.dim_ip_type_mf
 #中间库
-calculate_ip_type_base_info_by_location_info=${dw_mobdi_tmp}.calculate_ip_type_base_info_by_location_info
-calculate_ip_type_base_info=${dw_mobdi_tmp}.calculate_ip_type_base_info
-calculate_ip_type_connect_info=${dw_mobdi_tmp}.calculate_ip_type_connect_info
-calculate_ip_type_connect_info_in_ip_bssid_dimension=${dw_mobdi_tmp}.calculate_ip_type_connect_info_in_ip_bssid_dimension
-ip_stable_type=${dw_mobdi_tmp}.ip_stable_type
-calculate_ip_abnormal_type_base_info=${dw_mobdi_tmp}.calculate_ip_abnormal_type_base_info
-ip_abnormal_type=${dw_mobdi_tmp}.ip_abnormal_type
-ip_dynamic_type=${dw_mobdi_tmp}.ip_dynamic_type
+calculate_ip_type_base_info_by_location_info=${dm_mobdi_tmp}.calculate_ip_type_base_info_by_location_info
+calculate_ip_type_base_info=${dm_mobdi_tmp}.calculate_ip_type_base_info
+calculate_ip_type_connect_info=${dm_mobdi_tmp}.calculate_ip_type_connect_info
+calculate_ip_type_connect_info_in_ip_bssid_dimension=${dm_mobdi_tmp}.calculate_ip_type_connect_info_in_ip_bssid_dimension
+ip_stable_type=${dm_mobdi_tmp}.ip_stable_type
+calculate_ip_abnormal_type_base_info=${dm_mobdi_tmp}.calculate_ip_abnormal_type_base_info
+ip_abnormal_type=${dm_mobdi_tmp}.ip_abnormal_type
+ip_dynamic_type=${dm_mobdi_tmp}.ip_dynamic_type
 
 hive -v -e "
 SET hive.merge.mapfiles=true;
