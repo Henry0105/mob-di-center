@@ -12,7 +12,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 #dwd_log_share_new_di="dm_mobdi_master.dwd_log_share_new_di"
 
 ## 目标表
-device_sharecount_risk="dw_mobdi_md.device_sharecount_risk"
+device_sharecount_risk="${dm_mobdi_tmp}.device_sharecount_risk"
 
 
 hive -e"
