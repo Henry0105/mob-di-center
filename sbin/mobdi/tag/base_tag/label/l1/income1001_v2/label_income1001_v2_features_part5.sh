@@ -26,18 +26,19 @@ output_table="${tmpdb}.tmp_income1001_part5"
 device_applist_new=${dim_device_applist_new_di}
 mapping_contacts_words_20000_sec="dm_sdk_mapping.mapping_contacts_words_20000_sec"
 android_id_mapping_sec_df=${dim_id_mapping_android_sec_df}
-dim_pid_attribute_full_par_secview="dm_mobdi_mapping.dim_pid_attribute_full_par_secview"
+dim_pid_attribute_full_par_secview="dim_mobdi_mapping.dim_pid_attribute_full_par_secview"
 
 full_partition_sql="
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_id_mapping_android_sec_df', 'version');
+SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_id_mapping_android_sec_df', 'version');
 drop temporary function GET_LAST_PARTITION;
 "
 full_last_version=(`hive -e "$full_partition_sql"`)
 
 ##取的年龄标签part5 v3版本
 HADOOP_USER_NAME=dba hive -e"
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 drop table if exists ${output_table};
 create table if not exists ${output_table} as
 with seed as

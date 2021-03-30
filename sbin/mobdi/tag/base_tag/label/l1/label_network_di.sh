@@ -27,6 +27,7 @@ label_l1_network_di=${label_l1_network_label_di}
 
 # step 1 : 计算device的网络标签 近一个月最喜欢使用的网络
 hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 set hive.optimize.index.filter=true;
 set hive.exec.orc.zerocopy=true;
 set hive.vectorized.execution.enabled=true;

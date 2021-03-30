@@ -16,6 +16,7 @@ label_ios_hospital_active_day_cnt=${label_ios_hospital_active_day_cnt}
 p3monthDay=`date -d "$day -3 months" "+%Y%m%d"`
 
 HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 insert overwrite table ${label_ios_hospital_active_day_cnt} partition(day="$day")
 select idfa, count(1) as cnt
 from (

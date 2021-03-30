@@ -13,15 +13,16 @@ set -x -e
 day=$1
 
 #input
-device_applist_new="dm_mobdi_mapping.device_applist_new"
+device_applist_new="dim_mobdi_mapping.device_applist_new"
 #mapping
-apppkg_name_info_wf="dm_mobdi_mapping.apppkg_name_info_wf"
+apppkg_name_info_wf="dim_mobdi_mapping.apppkg_name_info_wf"
 mapping_life_stage_applist="tp_sdk_model.mapping_life_stage_applist"
 
 #output
 outputTable="${label_l2_result_scoring_di}"
 
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 insert overwrite table $outputTable partition (day=$day, kind='life_stage')
 select device,life_stage as prediction, 1.0 as probability
 from

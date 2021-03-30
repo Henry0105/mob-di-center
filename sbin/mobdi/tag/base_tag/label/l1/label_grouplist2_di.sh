@@ -23,7 +23,7 @@ day=$1
 device_applist_new=${dim_device_applist_new_di}
 
 ##mapping
-grouplist2_mapping="dm_sdk_mapping.app_grouplist2_mapping"
+grouplist2_mapping="dim_sdk_mapping.app_grouplist2_mapping"
 
 ##output
 label_grouplist2_di=${label_l1_grouplist2_di}
@@ -39,6 +39,7 @@ stored as orc
 
 ##主逻辑
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 set hive.exec.parallel=true;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;

@@ -21,17 +21,17 @@ appdb="rp_mobdi_report"
 device_applist_new=${dim_device_applist_new_di}
 
 #mapping
-mapping_app_cate_index1="dm_sdk_mapping.mapping_age_cate_index1"
-mapping_app_cate_index2="dm_sdk_mapping.mapping_age_cate_index2"
-mapping_app_index="dm_sdk_mapping.mapping_age_app_index"
-mapping_phonenum_year="dm_sdk_mapping.mapping_phonenum_year"
-gdpoi_explode_big="dm_sdk_mapping.mapping_gdpoi_explode_big"
-mapping_contacts_words_20000="dm_sdk_mapping.mapping_contacts_words_20000"
-mapping_word_index="dm_sdk_mapping.mapping_age_word_index"
-mapping_contacts_word2vec2="dm_sdk_mapping.mapping_contacts_word2vec2_view"
+mapping_app_cate_index1="dim_sdk_mapping.mapping_age_cate_index1"
+mapping_app_cate_index2="dim_sdk_mapping.mapping_age_cate_index2"
+mapping_app_index="dim_sdk_mapping.mapping_age_app_index"
+mapping_phonenum_year="dim_sdk_mapping.mapping_phonenum_year"
+gdpoi_explode_big="dim_sdk_mapping.mapping_gdpoi_explode_big"
+mapping_contacts_words_20000="dim_sdk_mapping.mapping_contacts_words_20000"
+mapping_word_index="dim_sdk_mapping.mapping_age_word_index"
+mapping_contacts_word2vec2="dim_sdk_mapping.mapping_contacts_word2vec2_view"
 
-app_pkg_mapping="dm_sdk_mapping.app_pkg_mapping_par"
-age_app_index0_mapping="dm_sdk_mapping.mapping_age_app_index0"
+app_pkg_mapping="dim_sdk_mapping.app_pkg_mapping_par"
+age_app_index0_mapping="dim_sdk_mapping.mapping_age_app_index0"
 
 #tmp
 label_phone_year="${appdb}.label_phone_year"
@@ -54,7 +54,7 @@ label_merge_all="${tmpdb}.model_merge_all_features"
 label_apppkg_feature_index="${appdb}.label_l1_apppkg_feature_index"
 label_apppkg_category_index="${appdb}.label_l1_apppkg_category_index"
 
-android_id_mapping_sec_df="dm_mobdi_mapping.android_id_mapping_sec_df"
+android_id_mapping_sec_df="dim_mobdi_mapping.android_id_mapping_sec_df"
 #output
 tmp_score_part1="${tmpdb}.tmp_score_part1"
 tmp_score_part3="${tmpdb}.tmp_score_part3"
@@ -77,6 +77,7 @@ output_table_8=${tmpdb}.tmp_score_part8
 
 ##-----part_age_unstall_feature-part7
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 with seed as (
   select device,pkg from $device_applist_new where day='$day'
 ),
@@ -102,7 +103,7 @@ from
     ) t2
     on t1.index=t2.index
 )t3
-join dm_sdk_mapping.mapping_age_app_tgi_level t4
+join dim_sdk_mapping.mapping_age_app_tgi_level t4
 on t3.apppkg=t4.apppkg
 where t4.apppkg not in ('com.xwtec.sd.mobileclient','com.hanweb.android.sdzwfw.activity','com.inspur.vista.labor','com.android.clock.sd','com.qdccb.bank','com.sdhs.easy.high.road')
 group by t3.device, t4.tag, tgi_level
@@ -118,7 +119,7 @@ age_pre_app_tgi_feature_final as
          if(size(collect_list(t2.rk))=0,collect_set(0),collect_list(t2.rk)) as index,
          if(size(collect_list(t1.cnt))=0,collect_set(0.0),collect_list(cast (t1.cnt as double))) as cnt
   from age_pre_app_tgi_feature_union t1
-  join dm_sdk_mapping.mapping_age_app_tgi_feature_index0 t2 -- 固定表
+  join dim_sdk_mapping.mapping_age_app_tgi_feature_index0 t2 -- 固定表
   on t1.index=t2.index
   group by t1.device
   )t

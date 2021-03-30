@@ -80,6 +80,7 @@ output_table_8="${tmpdb}.tmp_income1001_part8"
 ##-----part_age_unstall_feature-part7
 {
 HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
 set hive.optimize.skewjoin = true;
@@ -155,6 +156,7 @@ on a.device=b.device
 ##-----part_age_pre_app_tgi_feature-part8
 {
 HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 with seed as (
   select device,pkg from $device_applist_new where day='$day'
 ),

@@ -54,9 +54,10 @@ modelPath2="/dmgroup/dba/modelpath/20201222/linear_regression_model/age1001model
 threshold="0.9,1.2,1,0.85,0.3"
 out_put_table="${appdb}.label_l2_result_scoring_di"
 test_flag="0"
-whitelist="dm_sdk_mapping.whitelist_dpiage_shandong_used"
+whitelist="dim_sdk_mapping.whitelist_dpiage_shandong_used"
 
 spark2-submit --master yarn --deploy-mode cluster \
+--queue root.yarn_data_compliance2 \
 --class com.youzu.mob.newscore.AgeScoreV3 \
 --driver-memory 8G \
 --executor-memory 15G \

@@ -63,6 +63,7 @@ group by device
 !
 ## 添加无此特征数据
 HADOOP_USER_NAME=dba hive -e"
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 with seed as
 (
   select device

@@ -24,6 +24,7 @@ kids_pkg712="tp_mobdi_model.kids_pkg712"
 label_kids_score_di=${label_l1_kids_score_di}
 
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;

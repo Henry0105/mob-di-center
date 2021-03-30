@@ -33,7 +33,7 @@ mapping_contacts_word2vec2="dm_sdk_mapping.mapping_contacts_word2vec2_view"
 app_pkg_mapping="dm_sdk_mapping.app_pkg_mapping_par"
 age_app_index0_mapping="dm_sdk_mapping.mapping_age_app_index0"
 
-android_id_mapping_sec_df="dm_mobdi_mapping.android_id_mapping_sec_df"
+android_id_mapping_sec_df="dim_mobdi_mapping.android_id_mapping_sec_df"
 
 #tmp
 label_phone_year="${appdb}.label_phone_year"
@@ -136,7 +136,7 @@ stored as orc ;
 full_partition_sql="
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'android_id_mapping_sec_df', 'version');
+SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'android_id_mapping_sec_df', 'version');
 drop temporary function GET_LAST_PARTITION;
 "
 full_last_version=(`hive -e "$full_partition_sql"`)
@@ -144,6 +144,7 @@ full_last_version=(`hive -e "$full_partition_sql"`)
 ##-----part3
 
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 drop table if exists ${tmp_label_phone_year};
 create table ${tmp_label_phone_year} stored as orc as
 with seed as
@@ -195,6 +196,7 @@ where rn = 1;
 "
 
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
 create temporary function get_distance as 'com.youzu.mob.java.udf.GetDistance';
@@ -297,6 +299,7 @@ from
 
 
 spark2-submit \
+--queue root.yarn_data_compliance2 \
 --class com.youzu.mob.poi.PoiExport \
 --master yarn \
 --conf spark.dynamicAllocation.enabled=true \
@@ -322,6 +325,7 @@ spark2-submit \
 }"
 
 spark2-submit \
+--queue root.yarn_data_compliance2 \
 --class com.youzu.mob.poi.PoiExport \
 --master yarn \
 --conf spark.dynamicAllocation.enabled=true \
@@ -348,6 +352,7 @@ spark2-submit \
 
 
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 drop table if exists ${tmp_label_home_poiaround};
 create table ${tmp_label_home_poiaround} stored as orc as
 select device,poi_type
@@ -363,6 +368,7 @@ group by device,poi_type
 "
 
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;

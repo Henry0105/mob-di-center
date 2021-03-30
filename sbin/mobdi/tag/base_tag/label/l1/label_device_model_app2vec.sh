@@ -13,12 +13,13 @@ day=$1
 ##input
 device_applist_new=${dim_device_applist_new_di}
 ##mapping
-app2vec_mapping_par="dm_sdk_mapping.app2vec_mapping_par"
+app2vec_mapping_par="dim_sdk_mapping.app2vec_mapping_par"
 ##output
 label_l1_device_model_app2vec=${label_l1_device_model_app2vec}
 
 #生成每日模型运行需要的app2vec
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;

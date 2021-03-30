@@ -30,6 +30,7 @@ label_grouplist_di=${label_l1_grouplist_di}
 
 ##主逻辑
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET mapreduce.job.queuename=dba;
 set hive.exec.parallel=true;
 set hive.hadoop.supports.splittable.combineinputformat=true;
@@ -149,20 +150,20 @@ from
           from
           (
             select apppkg,cate_l1 as cate
-            from dm_sdk_mapping.app_category_mapping_par
+            from dim_sdk_mapping.app_category_mapping_par
             where version='1000'
             and cate_l1 in ('游戏服务','智能设备','教育培训','亲子服务')
 
             union all
 
             select apppkg,cate_l2 as cate
-            from dm_sdk_mapping.app_category_mapping_par
+            from dim_sdk_mapping.app_category_mapping_par
             where version='1000'
 
             union all
 
             select apppkg,cate
-            from dm_sdk_mapping.app_category_add_mapping
+            from dim_sdk_mapping.app_category_add_mapping
 
             union all
 
@@ -172,12 +173,12 @@ from
 
             union all
             select apppkg,'电子竞技'  as cate
-            from dm_sdk_mapping.app_category_esport
+            from dim_sdk_mapping.app_category_esport
             where version='1000'
 
             union all
             select apppkg,type as cate
-            from dm_sdk_mapping.app_category_energy
+            from dim_sdk_mapping.app_category_energy
             where version='1000'
 
           )t group by apppkg,cate

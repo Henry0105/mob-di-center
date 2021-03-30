@@ -26,12 +26,12 @@ source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
 #input
-#device_applist_new=dm_mobdi_mapping.device_applist_new
+#device_applist_new=dim_mobdi_mapping.device_applist_new
 #dwd_log_wifi_info_sec_di=dm_mobdi_master.dwd_log_wifi_info_sec_di
 
 #mapping
-#dim_id_mapping_android_df_view=dm_mobdi_mapping.dim_id_mapping_android_df_view
-#dim_shopping_mall_ssid_bssid_match_info_mf=dm_mobdi_mapping.dim_shopping_mall_ssid_bssid_match_info_mf
+#dim_id_mapping_android_df_view=dim_mobdi_mapping.dim_id_mapping_android_df_view
+#dim_shopping_mall_ssid_bssid_match_info_mf=dim_mobdi_mapping.dim_shopping_mall_ssid_bssid_match_info_mf
 
 #tmp
 calculate_model_device=dm_mobdi_tmp.calculate_model_device
@@ -68,6 +68,7 @@ group by device;
 
 #每日跑一天的dws聚合表数据
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;
@@ -92,6 +93,7 @@ p1month=`date -d "$day -1 months" +%Y%m%d`
 #聚合一个月活跃的bssid
 #与需要计算的设备数据inner join
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;
@@ -122,6 +124,7 @@ where a.day='$day';
 #对每个device保留过去一个月连接最频繁的学校对应的连接天数
 #根据连接天数计算index
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 set hive.auto.convert.join=false;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
@@ -166,14 +169,15 @@ from
 shoppingMallBssidMappingLastPar=(`hive -e "
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_shopping_mall_ssid_bssid_match_info_mf', 'day');
+SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_shopping_mall_ssid_bssid_match_info_mf', 'day');
 "`)
 
 #计算商场bssid特征
-#通过dm_mobdi_mapping.dim_shopping_mall_ssid_bssid_match_info_mf表，先计算device连接商场的日期
+#通过dim_mobdi_mapping.dim_shopping_mall_ssid_bssid_match_info_mf表，先计算device连接商场的日期
 #然后计算device在商场的连接天数
 #根据连接天数计算index
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;
@@ -219,6 +223,7 @@ where t1.day='$day';
 #然后计算device是否连接过长途汽车站、地铁站、机场、火车站
 #根据连接结果计算index
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;
@@ -274,6 +279,7 @@ from
 #计算设备是否去过各个价格等级、星级、评分等级的酒店
 #根据上一步结果计算index
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;
@@ -410,6 +416,7 @@ SELECT GET_LAST_PARTITION('dw_mobdi_md', 'pid_contacts_word2vec_index_sec', 'day
 #然后和通讯录特征结果dw_mobdi_md.pid_contacts_index表join，得到设备的微商水军标志位、通讯录号码得分分段、是否有公司名、公司手机数量分段、职级排行分段、分词index
 #最后处理50个词向量四分位数特征dw_mobdi_md.income_1001_pid_contacts_index
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function explode_tags as 'com.youzu.mob.java.udtf.ExplodeTags';
 SET hive.merge.mapfiles=true;

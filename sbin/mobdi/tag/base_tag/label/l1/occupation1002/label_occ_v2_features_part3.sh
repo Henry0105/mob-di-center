@@ -56,7 +56,7 @@ select x.device,y.phone_pre3,y.year from
       (
         select a.device,concat(phone,'=',phone_ltm) phone_list
         from seed a
-        join dm_mobdi_mapping.android_id_mapping_full_view b
+        join dim_mobdi_mapping.android_id_mapping_full_view b
         on a.device=b.device
       )c lateral view explode_tags(phone_list) n as phone,pn_tm
     )d       where length(phone) = 11
@@ -232,6 +232,7 @@ group by device,poi_type
 !
 ###############添加tmp_work_poi_2####################
 HADOOP_USER_NAME=dba /opt/mobdata/sbin/spark-submit \
+--queue root.yarn_data_compliance2 \
 --class com.youzu.mob.poi.PoiExport \
 --master yarn \
 --conf spark.dynamicAllocation.enabled=true \
@@ -257,6 +258,7 @@ HADOOP_USER_NAME=dba /opt/mobdata/sbin/spark-submit \
 }"
 
 HADOOP_USER_NAME=dba hive -e"
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 drop table if exists ${tmp_label_occ1002_predict_workpoi_mid};
 create table ${tmp_label_occ1002_predict_workpoi_mid} as
 with seed as
@@ -297,6 +299,7 @@ from (select a.device,b.poi_type
 "
 
 HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;

@@ -31,6 +31,7 @@ mapping_phonenum_year="dm_sdk_mapping.mapping_phonenum_year"
 ## part3完全复用年龄part3
 
 HADOOP_USER_NAME=dba hive -e"
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 drop table if exists ${appdb}.label_income1001_v2_phone_year;
 create table ${appdb}.label_income1001_v2_phone_year stored as orc as
 with seed as
@@ -53,7 +54,7 @@ select x.device,y.phone_pre3,y.year from
       (
         select a.device,concat(phone,'=',phone_ltm) phone_list
         from seed a
-        join dm_mobdi_mapping.android_id_mapping_full_view b
+        join dim_mobdi_mapping.android_id_mapping_full_view b
         on a.device=b.device
       )c lateral view explode_tags(phone_list) n as phone,pn_tm
     )d       where length(phone) = 11

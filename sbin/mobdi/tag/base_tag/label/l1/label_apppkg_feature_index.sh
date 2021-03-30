@@ -30,6 +30,7 @@ label_apppkg_feature_index=${label_l1_apppkg_feature_index}
 
 #得到设备的apppkg特征索引
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;
@@ -52,6 +53,7 @@ group by t1.device, t2.index
 
 #得到设备的apppkg特征索引（income模型专用）
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;
@@ -74,6 +76,7 @@ group by t1.device, t2.index
 
 #得到设备的apppkg特征索引（income_1001模型专用）
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;
@@ -95,6 +98,7 @@ $apppkg_index b on a.pkg=b.apppkg and b.model='income_1001' and b.version='1003'
 
 #得到设备的apppkg特征索引（occupation_1001模型专用）
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;
@@ -116,6 +120,7 @@ $apppkg_index b on a.pkg=b.apppkg and b.model='occupation_1001' and b.version='1
 
 #得到设备的apppkg特征索引（gender模型专用）
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;

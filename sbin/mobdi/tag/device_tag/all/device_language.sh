@@ -65,7 +65,7 @@ plat string
 partitioned by (day string)
 stored as orc;    
 
-
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.exec.dynamic.partition=true;  
 SET hive.exec.dynamic.partition.mode=nonstrict; 
 SET hive.exec.max.dynamic.partitions.pernode=10000;
@@ -116,6 +116,7 @@ $map_country_sdk e ON split(a.language,'_')[2]=trim(lower(e.zone));
 
 #生成结果数据，保留近365天数据 
 HADOOP_USER_NAME=dba hive -e"
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 CREATE TABLE  IF NOT EXISTS $device_language(
 device string,
 language_code string,
@@ -143,7 +144,7 @@ if [ -n "$lastPartStr" ]; then
 fi
 
 HADOOP_USER_NAME=dba hive -e"
-
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 INSERT OVERWRITE TABLE $device_language PARTITION (day=$day)
 SELECT device,language_code,language_cn,language_name,country_cn,country_en, plat,update_date,update_date as processtime
 FROM

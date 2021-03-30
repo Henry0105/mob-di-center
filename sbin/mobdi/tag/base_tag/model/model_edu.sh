@@ -74,6 +74,7 @@ left join
 "
 
 spark2-submit --master yarn --deploy-mode cluster \
+--queue root.yarn_data_compliance2 \
 --class com.youzu.mob.newscore.EduScore \
 --driver-memory 8G \
 --executor-memory 15G \

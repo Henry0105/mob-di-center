@@ -19,6 +19,7 @@ dwd_device_info_df="dm_mobdi_master.dwd_device_info_df"
 label_diff_month_df=${label_l1_diff_month_df}
 
 hive -v -e  "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 INSERT overwrite table $label_diff_month_df partition(day='$day')
 select device,
        case

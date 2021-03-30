@@ -26,7 +26,7 @@ appdb="rp_mobdi_report"
 
 #seed="select device,applist from test.zhangxy_consume_device_sample2"
 seed="select device,applist from ${label_l1_applist_refine_cnt_di} where day='$day'"
-mapping="dm_sdk_mapping.mapping_consume_pkg"
+mapping="dim_sdk_mapping.mapping_consume_pkg"
 output_table=${label_l1_consume_1001_di}
 model_path="/dmgroup/dba/modelpath/20200721/consume_1001/cluster_6"
 model_path2="/dmgroup/dba/modelpath/20200721/consume_1001/cluster_9"
@@ -60,6 +60,7 @@ stored as orc;
 
 
 spark2-submit --master yarn --deploy-mode cluster \
+--queue root.yarn_data_compliance2 \
 --class com.youzu.mob.newscore.ConsumeV2 \
 --driver-memory 8G \
 --executor-memory 15G \
@@ -79,6 +80,7 @@ spark2-submit --master yarn --deploy-mode cluster \
 /home/dba/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$day" "$seed" "$mapping" "$output_table" "$model_path" "$model_path2" $tran_flag
 
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;

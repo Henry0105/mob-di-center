@@ -46,6 +46,7 @@ threshold="1.8,1,0.6,0.65,0.9"
 out_put_table="${appdb}.label_l2_result_scoring_di"
 
 spark2-submit --master yarn --deploy-mode cluster \
+--queue root.yarn_data_compliance2 \
 --class com.youzu.mob.newscore.Income1001ScoreV2 \
 --driver-memory 8G \
 --executor-memory 15G \

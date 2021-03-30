@@ -24,7 +24,7 @@ appdb="rp_mobdi_report"
 device_applist_new=${dim_device_applist_new_di}
 
 #mapping
-mapping_edu_app_index0=dm_sdk_mapping.mapping_edu_app_index0
+mapping_edu_app_index0=dim_sdk_mapping.mapping_edu_app_index0
 
 #ouput
 tmp_edu_score_part2=${tmpdb}.tmp_edu_score_part2
@@ -49,6 +49,7 @@ stored as orc;
 !
 
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 set mapreduce.map.memory.mb=4096;
 set mapreduce.map.java.opts='-Xmx3680m';
 set mapreduce.child.map.java.opts='-Xmx3680m';

@@ -40,6 +40,7 @@ occupation_1001_all_index=${tmpdb}.occupation_1001_all_index
 outputTable=${label_l2_result_scoring_di}
 
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;
@@ -194,6 +195,7 @@ where day='$day'
 "
 
 spark2-submit --master yarn --deploy-mode cluster \
+--queue root.yarn_data_compliance2 \
 --class com.youzu.mob.newscore.Occupation1001Score \
 --driver-memory 8G \
 --executor-memory 15G \

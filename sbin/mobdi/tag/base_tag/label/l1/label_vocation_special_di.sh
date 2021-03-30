@@ -25,6 +25,7 @@ mapping_special_identity="tp_mobdi_model.mapping_special_identity"
 label_l1_vocation_special=${label_l1_vocation_special}
 
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 set hive.exec.parallel=true;
 set hive.auto.convert.join=true;
 set hive.map.aggr=true;

@@ -53,6 +53,7 @@ par_9month=`date -d "${lastPartition} -9 months" "+%Y%m%d"`
 check_data ${par_9month}
 
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
 create temporary function get_geohash as 'com.youzu.mob.java.udf.GetGeoHash';
 insert overwrite table $label_house_price_mf partition (day='$firstday_month')

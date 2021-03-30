@@ -11,11 +11,11 @@ set -e -x
 day=$1
 
 #input
-device_applist_new=dm_mobdi_mapping.device_applist_new
+device_applist_new=dim_mobdi_mapping.device_applist_new
 
 #mapping
-mapping_edu_app_tgi_level=dm_sdk_mapping.mapping_edu_app_tgi_level
-mapping_edu_app_tgi_feature_index0=dm_sdk_mapping.mapping_edu_app_tgi_feature_index0
+mapping_edu_app_tgi_level=dim_sdk_mapping.mapping_edu_app_tgi_level
+mapping_edu_app_tgi_feature_index0=dim_sdk_mapping.mapping_edu_app_tgi_feature_index0
 
 #ouput
 tmp_edu_score_part8=dw_mobdi_md.tmp_edu_score_part8
@@ -37,6 +37,7 @@ stored as orc;
 !
 
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
 set mapreduce.map.memory.mb=4096;

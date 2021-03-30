@@ -25,6 +25,7 @@ device_applist_new=${dim_device_applist_new_di}
 label_taglist_di=${label_l1_taglist_di}
 
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 set hive.optimize.index.filter=true;
 set hive.exec.orc.zerocopy=true;
 set hive.vectorized.execution.enabled=true;
@@ -55,13 +56,13 @@ with mobdi_tfidf_tmp AS
       from
       (
         select *
-        from dm_sdk_mapping.app_tag_system_mapping_par
+        from dim_sdk_mapping.app_tag_system_mapping_par
         where version='1000'
       ) a
       inner join
       (
         select *
-        from dm_sdk_mapping.tag_id_mapping_par
+        from dim_sdk_mapping.tag_id_mapping_par
         where version='1000'
       ) b on a.tag = b.tag
     ) t

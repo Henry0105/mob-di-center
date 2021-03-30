@@ -40,6 +40,7 @@ threshold="1.0,1.1,1.0,1.0"
 #加上头部app安装数量特征索引
 #加上头部app分类特征索引
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;
@@ -97,7 +98,7 @@ from
   from
   (
     select device, pkg
-    from dm_mobdi_mapping.device_applist_new
+    from dim_mobdi_mapping.device_applist_new
     where day = '$day'
   ) t1
   inner join

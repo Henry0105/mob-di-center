@@ -21,17 +21,17 @@ appdb="rp_mobdi_report"
 device_applist_new=${dim_device_applist_new_di}
 
 #mapping
-mapping_app_cate_index1="dm_sdk_mapping.mapping_age_cate_index1"
-mapping_app_cate_index2="dm_sdk_mapping.mapping_age_cate_index2"
-mapping_app_index="dm_sdk_mapping.mapping_age_app_index"
-mapping_phonenum_year="dm_sdk_mapping.mapping_phonenum_year"
-gdpoi_explode_big="dm_sdk_mapping.mapping_gdpoi_explode_big"
-mapping_contacts_words_20000="dm_sdk_mapping.mapping_contacts_words_20000"
-mapping_word_index="dm_sdk_mapping.mapping_age_word_index"
-mapping_contacts_word2vec2="dm_sdk_mapping.mapping_contacts_word2vec2_view"
+mapping_app_cate_index1="dim_sdk_mapping.mapping_age_cate_index1"
+mapping_app_cate_index2="dim_sdk_mapping.mapping_age_cate_index2"
+mapping_app_index="dim_sdk_mapping.mapping_age_app_index"
+mapping_phonenum_year="dim_sdk_mapping.mapping_phonenum_year"
+gdpoi_explode_big="dim_sdk_mapping.mapping_gdpoi_explode_big"
+mapping_contacts_words_20000="dim_sdk_mapping.mapping_contacts_words_20000"
+mapping_word_index="dim_sdk_mapping.mapping_age_word_index"
+mapping_contacts_word2vec2="dim_sdk_mapping.mapping_contacts_word2vec2_view"
 
-app_pkg_mapping="dm_sdk_mapping.app_pkg_mapping_par"
-age_app_index0_mapping="dm_sdk_mapping.mapping_age_app_index0"
+app_pkg_mapping="dim_sdk_mapping.app_pkg_mapping_par"
+age_app_index0_mapping="dim_sdk_mapping.mapping_age_app_index0"
 android_id_mapping_sec_df="dm_mobdi_mapping.android_id_mapping_sec_df"
 #tmp
 label_phone_year="${appdb}.label_phone_year"
@@ -95,6 +95,7 @@ full_last_version=(`hive -e "$full_partition_sql"`)
 ##-----part5
 {
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function explode_tags as 'com.youzu.mob.java.udtf.ExplodeTags';
 
@@ -148,6 +149,7 @@ lateral view explode(word_index) n as index
 ;
 "
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 drop table if exists ${tmp_label_contact_words_chi};
 create table ${tmp_label_contact_words_chi} stored as orc as
 select device,
@@ -176,6 +178,7 @@ from ${tmp_label_contact_words_chi}
 ##v3版的part5通讯录特征
 {
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 with seed as
 (
   select device

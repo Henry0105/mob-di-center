@@ -21,17 +21,17 @@ appdb="rp_mobdi_report"
 device_applist_new=${dim_device_applist_new_di}
 
 #mapping
-mapping_app_cate_index1="dm_sdk_mapping.mapping_age_cate_index1"
-mapping_app_cate_index2="dm_sdk_mapping.mapping_age_cate_index2"
-mapping_app_index="dm_sdk_mapping.mapping_age_app_index"
-mapping_phonenum_year="dm_sdk_mapping.mapping_phonenum_year"
-gdpoi_explode_big="dm_sdk_mapping.mapping_gdpoi_explode_big"
-mapping_contacts_words_20000="dm_sdk_mapping.mapping_contacts_words_20000"
-mapping_word_index="dm_sdk_mapping.mapping_age_word_index"
-mapping_contacts_word2vec2="dm_sdk_mapping.mapping_contacts_word2vec2_view"
+mapping_app_cate_index1="dim_sdk_mapping.mapping_age_cate_index1"
+mapping_app_cate_index2="dim_sdk_mapping.mapping_age_cate_index2"
+mapping_app_index="dim_sdk_mapping.mapping_age_app_index"
+mapping_phonenum_year="dim_sdk_mapping.mapping_phonenum_year"
+gdpoi_explode_big="dim_sdk_mapping.mapping_gdpoi_explode_big"
+mapping_contacts_words_20000="dim_sdk_mapping.mapping_contacts_words_20000"
+mapping_word_index="dim_sdk_mapping.mapping_age_word_index"
+mapping_contacts_word2vec2="dim_sdk_mapping.mapping_contacts_word2vec2_view"
 
-app_pkg_mapping="dm_sdk_mapping.app_pkg_mapping_par"
-age_app_index0_mapping="dm_sdk_mapping.mapping_age_app_index0"
+app_pkg_mapping="dim_sdk_mapping.app_pkg_mapping_par"
+age_app_index0_mapping="dim_sdk_mapping.mapping_age_app_index0"
 
 #tmp
 label_phone_year="${appdb}.label_phone_year"
@@ -54,7 +54,7 @@ label_merge_all="${tmpdb}.model_merge_all_features"
 label_apppkg_feature_index="${appdb}.label_l1_apppkg_feature_index"
 label_apppkg_category_index="${appdb}.label_l1_apppkg_category_index"
 
-android_id_mapping_sec_df="dm_mobdi_mapping.android_id_mapping_sec_df"
+android_id_mapping_sec_df="dim_mobdi_mapping.android_id_mapping_sec_df"
 
 #view
 dim_pid_attribute_full_par_secview="dm_mobdi_mapping.dim_pid_attribute_full_par_secview"
@@ -100,6 +100,7 @@ hive -v -e "
 ##-----part6
 {
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 with seed as
 (
   select device
@@ -153,6 +154,7 @@ lateral view posexplode(w2v_100) n as index,cnt
 ##-----part6_v3
 {
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET mapreduce.map.memory.mb=8192;
 SET mapreduce.map.java.opts='-Xmx6g';
 SET mapreduce.child.map.java.opts='-Xmx6g';

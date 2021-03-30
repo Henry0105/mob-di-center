@@ -25,6 +25,7 @@ label_merge_all="${tmpdb}.model_merge_all_features"
 label_apppkg_category_index="${appdb}.label_l1_apppkg_category_index"
 
 HADOOP_USER_NAME=dba hive -e"
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 drop table if exists ${tmpdb}.tmp_occ1002_predict_part1;
 create table ${tmpdb}.tmp_occ1002_predict_part1 as
 select device,

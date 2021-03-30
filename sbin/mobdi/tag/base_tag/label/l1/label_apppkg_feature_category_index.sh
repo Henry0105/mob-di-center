@@ -21,7 +21,7 @@ source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
 
 day=$1
 
-mapdb="dm_sdk_mapping"
+mapdb="dim_sdk_mapping"
 tmpdb="dw_mobdi_tmp"
 middb="dw_mobdi_tmp"
 appdb="rp_mobdi_report"
@@ -30,7 +30,7 @@ device_applist_new=${dim_device_applist_new_di}
 
 ##mapping
 app_category_index_mapping="tp_mobdi_model.mapping_app_category_index_new"
-app_category_mapping="dm_sdk_mapping.app_category_mapping_par"
+app_category_mapping="dim_sdk_mapping.app_category_mapping_par"
 
 mapping_app_cate_index1="${mapdb}.mapping_age_cate_index1"
 mapping_app_cate_index2="${mapdb}.mapping_age_cate_index2"
@@ -39,6 +39,7 @@ apppkg_category_index=${label_l1_apppkg_category_index}
 
 #得到设备的app分类特征索引
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;

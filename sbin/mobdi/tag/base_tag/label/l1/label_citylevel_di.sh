@@ -26,15 +26,16 @@ day=$1
 #dws_device_ip_info="dm_mobdi_master.device_ip_info"
 dws_device_ip_info=${dws_device_ip_info_di}
 #mapping
-area_mapping="dm_sdk_mapping.mapping_area_par"
-city_level_mapping="dm_sdk_mapping.mapping_city_level_par"
+area_mapping="dim_sdk_mapping.mapping_area_par"
+city_level_mapping="dim_sdk_mapping.mapping_city_level_par"
 #output
 label_hometown_di=${label_l1_citylevel_di}
 
-last_area_par=`hive -e "show partitions dm_sdk_mapping.mapping_area_par" | sort | tail -n 1`
+last_area_par=`hive -e "show partitions dim_sdk_mapping.mapping_area_par" | sort | tail -n 1`
 
 #根据device_ip_info的表，计算国家省份城市,如果非3g/4g的，则取最新的一个非3g/4g所对应的记录,否则取3g/4g最新对应的
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 with device_countrys_label_incr as (
   select device,country,province,city
   from

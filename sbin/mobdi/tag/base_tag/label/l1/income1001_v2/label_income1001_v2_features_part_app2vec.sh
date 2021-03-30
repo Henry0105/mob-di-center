@@ -27,6 +27,7 @@ device_applist_new=${dim_device_applist_new_di}
 
 ## app2vec 完全可以复用年龄标签v2版本app2vec
 HADOOP_USER_NAME=dba hive -e"
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
 set hive.optimize.skewjoin = true;

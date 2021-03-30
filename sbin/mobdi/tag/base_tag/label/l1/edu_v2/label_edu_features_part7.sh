@@ -19,8 +19,8 @@ device_applist_new=${dim_device_applist_new_di}
 label_device_pkg_install_uninstall_year_info_mf=${label_device_pkg_install_uninstall_year_info_mf}
 
 #mapping
-app_pkg_mapping_par=dm_sdk_mapping.app_pkg_mapping_par 
-mapping_edu_app_index0=dm_sdk_mapping.mapping_edu_app_index0
+app_pkg_mapping_par=dim_sdk_mapping.app_pkg_mapping_par
+mapping_edu_app_index0=dim_sdk_mapping.mapping_edu_app_index0
 
 #ouput
 tmp_edu_score_part7=dw_mobdi_md.tmp_edu_score_part7
@@ -42,6 +42,7 @@ stored as orc;
 !
 
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
 set mapreduce.map.memory.mb=4096;

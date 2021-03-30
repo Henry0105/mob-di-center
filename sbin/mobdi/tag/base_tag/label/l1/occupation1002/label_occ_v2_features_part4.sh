@@ -24,6 +24,7 @@ device_applist_new=${dim_device_applist_new_di}
 mapping_app_index="dm_sdk_mapping.mapping_app_income_index"
 
 HADOOP_USER_NAME=dba hive -e"
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 drop table if exists ${tmpdb}.tmp_occ1002_predict_part4;
 create table ${tmpdb}.tmp_occ1002_predict_part4 stored as orc as
 select device,

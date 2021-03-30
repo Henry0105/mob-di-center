@@ -24,7 +24,7 @@ from
 left join
 (
   select *
-  from dm_sdk_mapping.app_pkg_mapping_par
+  from dim_sdk_mapping.app_pkg_mapping_par
   where version='1000'
   and apppkg <> ''
   and apppkg is not null

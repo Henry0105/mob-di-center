@@ -26,6 +26,7 @@ label_merge_all="dw_mobdi_md.model_merge_all_features"
 outputTable="${label_l2_result_scoring_di}"
 
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 insert overwrite table $outputTable partition(day=${day}, kind='city_level')
 select device, city_level_1001 as city_level, 1.0 as probability
 from $label_merge_all

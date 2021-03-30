@@ -236,6 +236,7 @@ where day='$day'
 model_app2vec=${label_l1_device_model_app2vec}
 
 spark2-submit --master yarn --deploy-mode cluster \
+--queue root.yarn_data_compliance2 \
 --class com.youzu.mob.newscore.GenderScore \
 --driver-memory 8G \
 --executor-memory 15G \

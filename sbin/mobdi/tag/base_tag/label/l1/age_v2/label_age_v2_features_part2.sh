@@ -117,6 +117,7 @@ stored as orc ;
 ##-----part2
 {
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 with seed as
 (
   select *
@@ -153,6 +154,7 @@ on x.device=y.device;
 ##-----part_age_applist_part2_v3
 {
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 with seed as (
   select device,pkg from $device_applist_new where day='$day'
 )

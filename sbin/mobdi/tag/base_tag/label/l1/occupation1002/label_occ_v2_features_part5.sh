@@ -26,6 +26,7 @@ mapping_contacts_words_20000="dm_sdk_mapping.mapping_contacts_words_20000"
 
 ##取的v3版本
 HADOOP_USER_NAME=dba hive -e"
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 drop table if exists ${tmpdb}.tmp_occ1002_predict_part5;
 create table ${tmpdb}.tmp_occ1002_predict_part5 stored as orc as
 with seed as
@@ -58,7 +59,7 @@ from
       (
         select a.device,concat(phone,'=',phone_ltm) phone_list
         from seed a
-        join dm_mobdi_mapping.android_id_mapping_full_view b
+        join dim_mobdi_mapping.android_id_mapping_full_view b
         on a.device=b.device
       )c lateral view explode_tags(phone_list) n as phone,pn_tm
     )d       where length(phone) = 11

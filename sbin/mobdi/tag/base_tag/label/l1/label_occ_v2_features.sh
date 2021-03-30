@@ -22,12 +22,12 @@ appdb="rp_mobdi_report"
 device_applist_new=${dim_device_applist_new_di}
 
 #mapping
-mapping_app_cate_index1="dm_sdk_mapping.mapping_age_cate_index1"
-mapping_app_cate_index2="dm_sdk_mapping.mapping_age_cate_index2"
-mapping_app_index="dm_sdk_mapping.mapping_occ_app_index"
-mapping_phonenum_year="dm_sdk_mapping.mapping_phonenum_year"
-gdpoi_explode_big="dm_sdk_mapping.mapping_gdpoi_explode_big"
-gdpoi_explode_mid="dm_sdk_mapping.dim_gdpoi_explode_mid"
+mapping_app_cate_index1="dim_sdk_mapping.mapping_age_cate_index1"
+mapping_app_cate_index2="dim_sdk_mapping.mapping_age_cate_index2"
+mapping_app_index="dim_sdk_mapping.mapping_occ_app_index"
+mapping_phonenum_year="dim_sdk_mapping.mapping_phonenum_year"
+gdpoi_explode_big="dim_sdk_mapping.mapping_gdpoi_explode_big"
+gdpoi_explode_mid="dim_sdk_mapping.dim_gdpoi_explode_mid"
 #output
 
 #logic
@@ -42,6 +42,7 @@ hive -v -e "
 
 {
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
 set hive.optimize.skewjoin = true;
@@ -82,6 +83,7 @@ group by device;
 
 {
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 drop table if exists ${appdb}.label_occ_score_applist;
 create  table ${appdb}.label_occ_score_applist stored as orc as
 with seed as
@@ -140,7 +142,7 @@ select x.device,y.phone_pre3,y.year from
       (
         select a.device,concat(phone,'=',phone_ltm) phone_list
         from seed a
-        join dm_mobdi_mapping.dim_id_mapping_android_df_view b
+        join dim_mobdi_mapping.dim_id_mapping_android_df_view b
         on a.device=b.device
       )c lateral view explode_tags(phone_list) n as phone,pn_tm
     )d       where length(phone) = 11
@@ -154,6 +156,7 @@ on substr(x.phone,1,3)=y.phone_pre3
 
 {
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
 create temporary function get_distance as 'com.youzu.mob.java.udf.GetDistance';
@@ -256,6 +259,7 @@ from
 
 
 spark2-submit \
+--queue root.yarn_data_compliance2 \
 --class com.youzu.mob.poi.PoiExport \
 --master yarn \
 --conf spark.dynamicAllocation.enabled=true \
@@ -279,6 +283,7 @@ spark2-submit \
 }"
 
 spark2-submit \
+--queue root.yarn_data_compliance2 \
 --class com.youzu.mob.poi.PoiExport \
 --master yarn \
 --conf spark.dynamicAllocation.enabled=true \
@@ -308,7 +313,7 @@ spark2-submit \
 /opt/mobdata/sbin/spark-submit \
 --class com.youzu.mob.poi.PoiExport \
 --master yarn \
---queue yarn_analyst.analyst5 \
+--queue root.yarn_data_compliance2 \
 --conf spark.dynamicAllocation.enabled=true \
 --conf spark.dynamicAllocation.minExecutors=10 \
 --conf spark.dynamicAllocation.maxExecutors=200 \
@@ -367,6 +372,7 @@ from (select a.device,b.poi_type
 
 
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 drop table if exists ${appdb}.label_home_poiaround;
 create table ${appdb}.label_home_poiaround stored as orc as
 select device,poi_type

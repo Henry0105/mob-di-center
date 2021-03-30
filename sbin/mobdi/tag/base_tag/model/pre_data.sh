@@ -41,6 +41,7 @@ label_merge_all=$model_merge_all_features
 transfered_feature_table=$model_transfered_features
 
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 set hive.exec.parallel=true;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
@@ -98,6 +99,7 @@ left join
 "
 
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 set hive.vectorized.execution.enabled=true;
 set hive.vectorized.execution.reduce.enabled=true;
 set hive.exec.parallel=true;

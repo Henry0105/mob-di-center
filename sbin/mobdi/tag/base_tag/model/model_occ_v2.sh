@@ -34,6 +34,7 @@ tmp_occ_predict=dw_mobdi_md.tmp_occ_predict
 sh /home/dba/mobdi/tag/base_tag/label/l1/label_occ_v2_features.sh $day
 
 HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 drop table if exists  ${tmpdb}.tmp_occ_score_part1;
 create table  ${tmpdb}.tmp_occ_score_part1 stored as orc as
 select device,
@@ -163,6 +164,7 @@ from
 "
 
 HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;
@@ -245,6 +247,7 @@ group by device
 
 
 HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 drop table if exists  ${tmpdb}.tmp_occ_score_part4;
 create  table ${tmpdb}.tmp_occ_score_part4 stored as orc as
 select device,
@@ -303,6 +306,7 @@ modelPath="/dmgroup/dba/modelpath/20200811/linear_regression_model/occ_lr"
 outputTable="dw_mobdi_md.tmp_occ_predict"
 
 HADOOP_USER_NAME=dba  /opt/mobdata/sbin/spark-submit \
+--queue root.yarn_data_compliance2 \
 --master yarn \
 --deploy-mode cluster \
 --class com.youzu.mob.score.OccupationNewScoring2 \
@@ -325,6 +329,7 @@ HADOOP_USER_NAME=dba  /opt/mobdata/sbin/spark-submit \
 
 
 hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 insert overwrite table rp_mobdi_app.label_l2_result_scoring_di partition(day='$day',kind='occupation')
 select device,prediction,probability
 from

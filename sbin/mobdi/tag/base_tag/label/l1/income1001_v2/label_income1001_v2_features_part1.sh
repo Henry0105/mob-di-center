@@ -30,6 +30,7 @@ label_apppkg_category_index=${label_l1_apppkg_category_index}
 
 ## part1 完全可以复用年龄标签part1
 HADOOP_USER_NAME=dba hive -e"
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 drop table if exists ${output_table};
 create table if not exists ${output_table} as
 select device,
