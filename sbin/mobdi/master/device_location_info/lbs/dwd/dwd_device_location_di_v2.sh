@@ -32,13 +32,13 @@ dwd_device_location_info_di_v2=dm_mobdi_master.dwd_device_location_info_di_v2
 #set mapreduce.job.queuename=${queue};
 hive -S -v -e "
 set mapred.job.name='insert ${dwd_device_location_info_di_v2} day=${day}';
-set mapred.min.split.size.per.node=128000000;
-set mapred.min.split.size.per.rack=128000000;
+set mapred.min.split.size.per.node=32000000;
+set mapred.min.split.size.per.rack=32000000;
 
 set hive.merge.mapfiles=true;
 set hive.merge.mapredfiles=true;
-set hive.merge.size.per.task=128000000;
-set hive.merge.smallfiles.avgsize=128000000;
+set hive.merge.size.per.task=256000000;
+set hive.merge.smallfiles.avgsize=32000000;
 set hive.exec.compress.intermediate=true;
 set hive.intermediate.compression.type=block;
 set hive.exec.compress.output= true;

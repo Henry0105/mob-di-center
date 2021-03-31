@@ -73,8 +73,8 @@ SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=32000000;
 set mapred.min.split.size.per.rack=32000000;
-set hive.merge.size.per.task = 256000000 ;
-set hive.merge.smallfiles.avgsize=32000000；
+set hive.merge.size.per.task=256000000;
+set hive.merge.smallfiles.avgsize=32000000;
 
 --wifi_scan_list已连接的数据
 insert overwrite table $wifi_scan_list_collected partition(day='$day')
@@ -179,8 +179,8 @@ SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=32000000;
 set mapred.min.split.size.per.rack=32000000;
-set hive.merge.size.per.task = 256000000 ;
-set hive.merge.smallfiles.avgsize=32000000；
+set hive.merge.size.per.task=256000000;
+set hive.merge.smallfiles.avgsize=32000000;
 
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function get_geohash as 'com.youzu.mob.java.udf.GetGeoHash';
@@ -241,8 +241,8 @@ SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.min.split.size.per.node=32000000;
 set mapred.min.split.size.per.rack=32000000;
-set hive.merge.size.per.task = 256000000 ;
-set hive.merge.smallfiles.avgsize=32000000；
+set hive.merge.size.per.task=256000000;
+set hive.merge.smallfiles.avgsize=32000000;
 
 insert overwrite table $dwd_device_location_info_di partition (day='$day', source_table='wifi_scan_list')
 select

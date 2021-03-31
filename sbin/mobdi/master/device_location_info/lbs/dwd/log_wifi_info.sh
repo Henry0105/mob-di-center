@@ -106,8 +106,8 @@ SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.min.split.size.per.node=32000000;
 set mapred.min.split.size.per.rack=32000000;
-set hive.merge.size.per.task = 256000000 ;
-set hive.merge.smallfiles.avgsize=32000000；
+set hive.merge.size.per.task=256000000;
+set hive.merge.smallfiles.avgsize=32000000;
 
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function get_ip_attribute as 'com.youzu.mob.java.udf.GetIpAttribute';
