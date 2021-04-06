@@ -4,10 +4,10 @@
 @describe:
 @projectName:
 @BusinessName:
-@SourceTable:dm_mobdi_master.dwd_device_location_di
-@TargetTable:dm_mobdi_master.dwd_device_location_di_v2
+@SourceTable:dm_mobdi_master.dwd_device_location_info_di
+@TargetTable:dm_mobdi_master.dwd_device_location_info_di_v2
 '
-## dwd_device_location_di_v2表对dwd_device_location_di数据做了重分布，去掉data_source分区，添加国内的按照省份做分区，国外在一个分区abord
+## dwd_device_location_info_di_v2表对dwd_device_location_info_di数据做了重分布，去掉data_source分区，添加国内的按照省份做分区，国外在一个分区abord
 
 
 set -x -e
