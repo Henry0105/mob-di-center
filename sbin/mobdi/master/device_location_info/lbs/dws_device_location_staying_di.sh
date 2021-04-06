@@ -18,6 +18,11 @@ fi
 source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 
+#input
+#dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
+#out
+#dws_device_location_staying_di=dm_mobdi_topic.dws_device_location_staying_di
+
 day=$1
 insert_day=`date -d "$day +2 days" +%Y-%m-%d`
 
