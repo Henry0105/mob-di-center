@@ -6,7 +6,6 @@ set -x -e
 source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 
 # input
-#dws_device_location_staying_di=dm_mobdi_topic.dws_device_location_staying_di
 device_distance_day_pre=${dm_mobdi_tmp}.device_distance_day_pre
 # output
 device_distance_risk_1month=${dm_mobdi_tmp}.device_distance_risk_1month
