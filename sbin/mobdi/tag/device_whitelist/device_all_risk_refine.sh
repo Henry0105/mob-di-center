@@ -6,9 +6,9 @@ day=$1
 pday=`date -d "$day -30 day" +%Y%m`16
 
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-
+source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
 #input
-dim_model_blacklist=dim_sdk_mapping.dim_model_blacklist
+#dim_model_blacklist=dim_sdk_mapping.dim_model_blacklist
 
 #tmp
 device_info_risk=${dm_mobdi_tmp}.device_info_risk
@@ -29,7 +29,7 @@ device_strange_app_type_install_3month=${dm_mobdi_tmp}.device_strange_app_type_i
 device_ip_proxy_p_risk=${dm_mobdi_tmp}.device_ip_proxy_p_risk
 device_simulator_full=${dm_mobdi_tmp}.device_simulator_full
 #out
-device_all_risk_refine=dm_mobdi_report.device_all_risk_refine
+#device_all_risk_refine=dm_mobdi_report.device_all_risk_refine
 
 hive -e"
 SET mapreduce.map.memory.mb=4096;
