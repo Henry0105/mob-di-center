@@ -26,11 +26,11 @@ with oauthcount_1month as(
 select deviceid as device, count(*) as cnt 
 from 
 (
-  select deviceid, snsplat, clienttime, apppkg, appver
+  select muid as deviceid, snsplat, clienttime, apppkg, appver
   from $dwd_log_oauth_new_di
   where day >= '$p1months' and day <= '$day'
   and plat = 1 and snsplat <= 59 and snsplat is not null
-  group by deviceid, snsplat, clienttime, apppkg, appver
+  group by muid, snsplat, clienttime, apppkg, appver
   having count(*) = 1
 ) as a 
 group by deviceid
@@ -39,11 +39,11 @@ oauthcount_2month as(
 select deviceid as device, count(*) as cnt 
 from 
 (
-  select deviceid, snsplat, clienttime, apppkg, appver
+  select muid as deviceid, snsplat, clienttime, apppkg, appver
   from $dwd_log_oauth_new_di
   where day >= '$p2months' and day <= '$day'
   and plat = 1 and snsplat <= 59 and snsplat is not null
-  group by deviceid, snsplat, clienttime, apppkg, appver
+  group by muid, snsplat, clienttime, apppkg, appver
   having count(*) = 1
 ) as a 
 group by deviceid
@@ -52,11 +52,11 @@ oauthcount_3month as(
 select deviceid as device, count(*) as cnt 
 from 
 (
-  select deviceid, snsplat, clienttime, apppkg, appver
+  select muid as deviceid, snsplat, clienttime, apppkg, appver
   from $dwd_log_oauth_new_di
   where day >= '$p3months' and day <= '$day'
   and plat = 1 and snsplat <= 59 and snsplat is not null
-  group by deviceid, snsplat, clienttime, apppkg, appver
+  group by muid, snsplat, clienttime, apppkg, appver
   having count(*) = 1
 ) as a 
 group by deviceid
