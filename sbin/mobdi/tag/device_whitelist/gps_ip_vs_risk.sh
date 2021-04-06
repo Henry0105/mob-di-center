@@ -12,7 +12,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 
 #input
-#location_info=dm_mobdi_master.dwd_location_info_sec_di
+#dwd_location_info_sec_di=dm_mobdi_master.dwd_location_info_sec_di
 
 #mapping
 #dim_geohash6_china_area_mapping_par=dim_sdk_mapping.dim_geohash6_china_area_mapping_par
@@ -38,7 +38,7 @@ create temporary function coord_convertor as 'com.youzu.mob.java.udf.CoordConver
 insert overwrite table $gps_ip_info_incr_pre
 select a.deviceid as device, split(coord_convertor(latitude,longitude,'wsg84','bd09'), ',')[0] as lat, split(coord_convertor(latitude,longitude,'wsg84','bd09'), ',')[1] as lon, clientip,day
     from 
-    (select * from $location_info
+    (select * from $dwd_location_info_sec_di
      where day >= '$p3months' and day <= '$day'
     and abs(latitude) <= 90 and abs(longitude) <= 180 and (latitude <> 0 or longitude <> 0) and clientip is not null and clientip <> ''
     and latitude is not null and longitude is not null
@@ -48,7 +48,7 @@ select a.deviceid as device, split(coord_convertor(latitude,longitude,'wsg84','b
      )a
     left semi join
     ( 
-     select deviceid from $location_info
+     select deviceid from $dwd_location_info_sec_di
      where day between '$p1months' and '$day' 
      and abs(latitude) <= 90 and abs(longitude) <= 180 and (latitude <> 0 or longitude <> 0) 
      and clientip is not null and clientip <> '' and latitude is not null and longitude is not null
