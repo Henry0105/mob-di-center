@@ -108,5 +108,5 @@ select device,
              else 'abroad'
         end as province_cn
 from ${dwd_device_location_info_di} where day='${day}'
-distribute by device sort by city asc
+distribute by device sort by city asc;
 exit;"
