@@ -36,7 +36,7 @@ add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT
 create temporary function coord_convertor as 'com.youzu.mob.java.udf.CoordConvertor';
 
 insert overwrite table $gps_ip_info_incr_pre
-select a.deviceid as device, split(coord_convertor(latitude,longitude,'wsg84','bd09'), ',')[0] as lat, split(coord_convertor(latitude,longitude,'wsg84','bd09'), ',')[1] as lon, clientip,day
+select a.muid as device, split(coord_convertor(latitude,longitude,'wsg84','bd09'), ',')[0] as lat, split(coord_convertor(latitude,longitude,'wsg84','bd09'), ',')[1] as lon, clientip,day
     from 
     (select * from $dwd_location_info_sec_di
      where day >= '$p3months' and day <= '$day'
@@ -48,16 +48,16 @@ select a.deviceid as device, split(coord_convertor(latitude,longitude,'wsg84','b
      )a
     left semi join
     ( 
-     select deviceid from $dwd_location_info_sec_di
+     select muid from $dwd_location_info_sec_di
      where day between '$p1months' and '$day' 
      and abs(latitude) <= 90 and abs(longitude) <= 180 and (latitude <> 0 or longitude <> 0) 
      and clientip is not null and clientip <> '' and latitude is not null and longitude is not null
      and serdatetime is not null and clienttime is not null
      and (serdatetime - clienttime) <= 60000
      and ((latitude - round(latitude, 1))*10 <> 0.0 and (longitude - round(longitude, 1))*10 <> 0.0)
-    group by deviceid 
+    group by muid
     ) b
- on a.deviceid=b.deviceid
+ on a.muid=b.muid
 "
 
 
