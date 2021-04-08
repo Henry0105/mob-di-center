@@ -189,8 +189,6 @@ from
 ) cnt2
 group by bssid"
 
-data_2_normal_table=$bssid_finaltable_gps_cnt2_par
-data_2_abnormal_table=$bssid_strangetable_gps_cnt2_par
 
 spark2-submit --master yarn --deploy-mode cluster \
 --class com.youzu.mob.bssidmapping.bssidGpsCnt2 \
@@ -214,7 +212,7 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.akka.timeout=600 \
 --conf spark.network.timeout=600 \
 --driver-java-options "-XX:MaxPermSize=1g" \
-/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar "$data_2_pre_sql" $data_2_normal_table $data_2_abnormal_table $day
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar "$data_2_pre_sql" $bssid_finaltable_gps_cnt2_par $bssid_strangetable_gps_cnt2_par $day
 
 # 合并小文件
 hive -v -e"
