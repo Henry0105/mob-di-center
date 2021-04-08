@@ -269,7 +269,7 @@ select bssid, lat, lon
 from $bssid_finaltable_gps_cnt3_pre_par
 where dt='$day'
 "
-cnt3_out_put_table=$bssid_finaltable_gps_cnt3_dbscan_par
+
 
 spark2-submit --master yarn --deploy-mode cluster \
 --class com.youzu.mob.mydbscan.DBSCAN_gps_cnt3 \
@@ -293,7 +293,7 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.akka.timeout=600 \
 --conf spark.network.timeout=600 \
 --driver-java-options "-XX:MaxPermSize=1g" \
-/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar "$cnt3_pre_sql" $cnt3_out_put_table $day
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar "$cnt3_pre_sql" $bssid_finaltable_gps_cnt3_dbscan_par $day
 
 hive -v -e"
 set mapred.max.split.size=256000000;
@@ -325,7 +325,7 @@ from
   from
   (
     select bssid, lat, lon, cluster
-    from $cnt3_out_put_table
+    from $bssid_finaltable_gps_cnt3_dbscan_par
     where dt='$day'
     group by bssid, lat, lon, cluster
   ) as a
@@ -347,7 +347,7 @@ select bssid, lat, lon, cluster, centerlon, centerlat
 from
 (
   select a.bssid, a.lat, a.lon, a.cluster, a.centerlon, a.centerlat
-  from $cnt3_out_put_table as a
+  from $bssid_finaltable_gps_cnt3_dbscan_par as a
   left join
   $bssid_finaltable_gps_cnt3_dbscan_result_par as b
   on b.dt='$day' and a.bssid = b.bssid and a.lat = b.lat and a.lon = b.lon
@@ -488,10 +488,6 @@ cnt3_notsure_trans_pre_sql="
 select bssid, latlist, lonlist, cluster
 from $bssid_finaltable_gps_cnt3_notsure_trans_par
 where dt='$day'"
-gps_cnt3_notsure_table=$bssid_finaltable_gps_cnt3_notsure_par
-strangetable_gps_cnt3_output_table=$bssid_strangetable_gps_cnt3_sure_par
-gps_cnt3_sure_pre_output_table=$bssid_finaltable_gps_cnt3_sure_pre_par
-gps_cnt3_pre_allinfo=$bssid_finaltable_gps_cnt3_pre_allinfo_par
 
 spark2-submit --master yarn --deploy-mode cluster \
 --class com.youzu.mob.bssidmapping.bssidGpsCnt3NotsureMindistance \
@@ -515,7 +511,7 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.akka.timeout=600 \
 --conf spark.network.timeout=600 \
 --driver-java-options "-XX:MaxPermSize=1g" \
-/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar "$cnt3_notsure_trans_pre_sql" $gps_cnt3_notsure_table $strangetable_gps_cnt3_output_table $gps_cnt3_sure_pre_output_table $gps_cnt3_pre_allinfo $day
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar "$cnt3_notsure_trans_pre_sql" $bssid_finaltable_gps_cnt3_notsure_par $bssid_strangetable_gps_cnt3_sure_par $bssid_finaltable_gps_cnt3_sure_pre_par $bssid_finaltable_gps_cnt3_pre_allinfo_par $day
 
 hive -v -e"
 set mapred.max.split.size=256000000;
