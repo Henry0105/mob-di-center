@@ -123,7 +123,31 @@ with base_station_info1 as ( --移动,联通
   where day between '$day' and '$plus_2day'
   and from_unixtime(CAST(datetime/1000 as BIGINT), 'yyyyMMdd') = '$day'
   and trim(lower(muid)) rlike '^[a-f0-9]{40}$' and trim(muid)!='0000000000000000000000000000000000000000'
-  and plat in (1,2)
+  and plat = '1'
+  and ((lac is not null or  cell is not null) and (bid is  null and sid is  null and nid is  null))
+  union all
+  select
+      nvl(device, '') as device,
+      duid,
+      from_unixtime(CAST(datetime/1000 as BIGINT), 'HH:mm:ss') as time,
+      day as processtime,
+      plat,
+      networktype as network,
+      'base' as type,
+      'base' as data_source,
+      0 as accuracy,
+      lac,
+      cell,
+      case when carrier in ('46000', '46002', '46004', '46007', '46008') then 0         --移动
+           when carrier in ('46001', '46006', '46009', '46010') then 1
+           else 3 end as flag,
+      ipaddr,
+       apppkg,case when serdatetime='-1' or length(trim(serdatetime))<2 then '' else CONCAT(unix_timestamp(serdatetime),'000') end as serdatetime,language
+  from $dwd_base_station_info_sec_di
+  where day between '$day' and '$plus_2day'
+  and from_unixtime(CAST(datetime/1000 as BIGINT), 'yyyyMMdd') = '$day'
+  and trim(lower(device)) rlike '^[a-f0-9]{40}$' and trim(device)!='0000000000000000000000000000000000000000'
+  and plat = '2'
   and ((lac is not null or  cell is not null) and (bid is  null and sid is  null and nid is  null))
 ),
 base_station_info2 as ( --电信
@@ -147,7 +171,30 @@ base_station_info2 as ( --电信
   where day between '$day' and '$plus_2day'
   and from_unixtime(CAST(datetime/1000 as BIGINT), 'yyyyMMdd') = '$day'
   and trim(lower(muid)) rlike '^[a-f0-9]{40}$' and trim(muid)!='0000000000000000000000000000000000000000'
-  and plat in (1,2)
+  and plat = '1'
+  and ((bid is not null or  sid is not null or  nid is not null) and (lac is  null and cell is  null ))
+  union all
+  select
+      nvl(device, '') as device,
+      duid,
+      from_unixtime(CAST(datetime/1000 as BIGINT), 'HH:mm:ss') as time,
+      day as processtime,
+      plat,
+      networktype as network,
+      'base' as type,
+      'base' as data_source,
+      0 as accuracy,
+      case when carrier in ('46003', '46005', '46011', '46012') then 2 else 3 end as flag,
+      ipaddr,
+       apppkg,
+       nid,
+       bid,
+       sid,CONCAT(unix_timestamp(serdatetime),'000') as serdatetime,language
+  from $dwd_base_station_info_sec_di
+  where day between '$day' and '$plus_2day'
+  and from_unixtime(CAST(datetime/1000 as BIGINT), 'yyyyMMdd') = '$day'
+  and trim(lower(device)) rlike '^[a-f0-9]{40}$' and trim(device)!='0000000000000000000000000000000000000000'
+  and plat = '2'
   and ((bid is not null or  sid is not null or  nid is not null) and (lac is  null and cell is  null ))
 ),
 base_station_mapping as(

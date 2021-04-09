@@ -105,9 +105,28 @@ with auto_location_info as (
   where day between '$day' and '$plus_2day'  --取开始日期起3天范围
   and from_unixtime(CAST(clienttime/1000 as BIGINT), 'yyyyMMdd') = '$day' --取clienttime转换为当日的数据
   and trim(lower(muid)) rlike '^[a-f0-9]{40}$' and trim(muid)!='0000000000000000000000000000000000000000'
-  and plat in (1,2)
+  and plat = '1'
+  union all
+  select
+  nvl(deviceid, '') as device,
+  duid,
+  case when latitude is not null and longitude is not null and (latitude-round(latitude,1))*10<>0.0 and (longitude-round(longitude,1))*10<>0.0 then round(cast(split(coordConvert(latitude, longitude, 'wsg84', 'bd09'), ',')[0] as double), 6) else '' end as lat,  --wgs84转换为bd09
+  case when latitude is not null and longitude is not null and (latitude-round(latitude,1))*10<>0.0 and (longitude-round(longitude,1))*10<>0.0 then round(cast(split(coordConvert(latitude, longitude, 'wsg84', 'bd09'), ',')[1] as double), 6) else '' end as lon,
+  from_unixtime(CAST(clienttime/1000 as BIGINT), 'HH:mm:ss') as time,
+  day as processtime,
+  plat,
+  networktype as network,
+  'gps' as type,
+  case when location_type = 1 then 'gps_auto' when location_type = 2 then 'network_auto' else 'unknown_auto' end as data_source,
+  '' as orig_note1,
+  '' as orig_note2,
+  accuracy,apppkg,clientip as ipaddr,serdatetime,language
+  from $dwd_auto_location_info_sec_di
+  where day between '$day' and '$plus_2day'  --取开始日期起3天范围
+  and from_unixtime(CAST(clienttime/1000 as BIGINT), 'yyyyMMdd') = '$day' --取clienttime转换为当日的数据
+  and trim(lower(deviceid)) rlike '^[a-f0-9]{40}$' and trim(deviceid)!='0000000000000000000000000000000000000000'
+  and plat = '2'
 )
-
 insert overwrite table $dwd_device_location_info_di partition (day='$day', source_table='auto_location_info')
 select
     nvl(device,'') as device,

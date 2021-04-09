@@ -107,7 +107,27 @@ with log_run_new as (
   where day = '$day'
   and from_unixtime(CAST(clienttime/1000 as BIGINT), 'yyyyMMdd') = '$day'
   and trim(lower(muid)) rlike '^[a-f0-9]{40}$' and trim(muid)!='0000000000000000000000000000000000000000'
-  and plat in (1,2)
+  and plat = '1'
+  union all
+  select
+      nvl(deviceid, '') as device,
+      '' as duid,
+      from_unixtime(CAST(clienttime/1000 as BIGINT), 'HH:mm:ss') as time,
+      day as processtime,
+      plat,
+      networktype as network,
+      'ip' as type,
+      'run' as data_source,
+      concat('ip=', clientip) as orig_note1,
+      '' as orig_note2,
+      0 as accuracy,
+      clientip as ipaddr,
+      apppkg,CONCAT(unix_timestamp(servertime),'000') as servertime,'' as language
+  from $dwd_log_run_new_di
+  where day = '$day'
+  and from_unixtime(CAST(clienttime/1000 as BIGINT), 'yyyyMMdd') = '$day'
+  and trim(lower(deviceid)) rlike '^[a-f0-9]{40}$' and trim(deviceid)!='0000000000000000000000000000000000000000'
+  and plat = '2'
 )
 
 insert overwrite table $dwd_device_location_info_di partition (day='$day', source_table='log_run_new')

@@ -131,7 +131,27 @@ with log_wifi_info as (
   where day between '$day' and '$plus_2day'
   and from_unixtime(CAST(datetime/1000 as BIGINT), 'yyyyMMdd') = '$day'
   and trim(lower(muid)) rlike '^[a-f0-9]{40}$' and trim(muid)!='0000000000000000000000000000000000000000'
-  and plat in (1,2)
+  and plat = '1'
+  union all
+  select
+      nvl(device, '') as device,
+      duid,
+      from_unixtime(CAST(datetime/1000 as BIGINT), 'HH:mm:ss') as time,
+      day as processtime,
+      plat,
+      networktype as network,
+      'wifi' as type,
+      'wifi' as data_source,
+      concat('bssid=', bssid) as orig_note1,
+      concat('ssid=', ssid) as orig_note2,
+      bssid,
+      ipaddr,
+      apppkg,CONCAT(unix_timestamp(serdatetime),'000') as serdatetime,language
+  from $dwd_log_wifi_info_sec_di
+  where day between '$day' and '$plus_2day'
+  and from_unixtime(CAST(datetime/1000 as BIGINT), 'yyyyMMdd') = '$day'
+  and trim(lower(device)) rlike '^[a-f0-9]{40}$' and trim(device)!='0000000000000000000000000000000000000000'
+  and plat = '2'
 )
 
 insert overwrite table $dwd_device_location_info_di partition (day='$day', source_table='log_wifi_info')

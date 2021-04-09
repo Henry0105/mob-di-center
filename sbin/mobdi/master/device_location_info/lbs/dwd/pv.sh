@@ -110,7 +110,26 @@ with t_pv as (
   where day between '$day' and '$plus_2day'
   and from_unixtime(unix_timestamp(clienttime), 'yyyyMMdd') = '$day'  --yyyy-MM-dd hh:mm:ss 时间转换为时间戳再根据格式转换为日期yyyyMMdd
   and trim(lower(muid)) rlike '^[a-f0-9]{40}$' and trim(muid)!='0000000000000000000000000000000000000000'
-  and plat in (1,2)
+  and plat = '1'
+  union all
+  select
+      nvl(deviceid, '') as device,
+      duid,
+      case when clienttime is not null then substring(clienttime, 12) else '' end as time,
+      day as processtime,
+      plat,
+      networktype as network,
+      'ip' as type,
+      'pv' as data_source,
+      concat('ip=', clientip) as orig_note1,
+      '' as orig_note2,
+      0 as accuracy,
+      clientip as ipaddr,apppkg,case when length(unix_timestamp(serdatetime))<>10 then '' else CONCAT(unix_timestamp(serdatetime),'000') end as serdatetime,language
+  from $dwd_pv_sec_di
+  where day between '$day' and '$plus_2day'
+  and from_unixtime(unix_timestamp(clienttime), 'yyyyMMdd') = '$day'  --yyyy-MM-dd hh:mm:ss 时间转换为时间戳再根据格式转换为日期yyyyMMdd
+  and trim(lower(deviceid)) rlike '^[a-f0-9]{40}$' and trim(deviceid)!='0000000000000000000000000000000000000000'
+  and plat = '2'
 )
 
 insert overwrite table $dwd_device_location_info_di partition (day='$day', source_table='pv')

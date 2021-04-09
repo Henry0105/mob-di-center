@@ -101,7 +101,28 @@ with location_info as (
   where day = '$day'
   and from_unixtime(CAST(clienttime/1000 as BIGINT), 'yyyyMMdd') = '$day'
   and trim(lower(muid)) rlike '^[a-f0-9]{40}$' and trim(muid)!='0000000000000000000000000000000000000000'
-  and plat in (1,2)
+  and plat = '1'
+  union all
+  select
+      nvl(deviceid, '') as device,
+      duid,
+      case when latitude is not null and longitude is not null and (latitude-round(latitude,1))*10<>0.0 and (longitude-round(longitude,1))*10<>0.0 then round(cast(split(coordConvert(latitude, longitude, 'wsg84', 'bd09'), ',')[0] as double), 6) else '' end as lat,  --wgs84转换为bd09
+      case when latitude is not null and longitude is not null and (latitude-round(latitude,1))*10<>0.0 and (longitude-round(longitude,1))*10<>0.0 then round(cast(split(coordConvert(latitude, longitude, 'wsg84', 'bd09'), ',')[1] as double), 6) else '' end as lon,
+      from_unixtime(CAST(clienttime/1000 as BIGINT), 'HH:mm:ss') as time,
+      day as processtime,
+      plat,
+      networktype as network,
+      'gps' as type,
+      case when location_type = 1 then 'gps' when location_type = 2 then 'network' else 'unknown_gps' end as data_source,
+      '' as orig_note1,
+      '' as orig_note2,
+      accuracy,
+      apppkg,clientip as ipaddr,serdatetime,language
+  from $dwd_location_info_sec_di
+  where day = '$day'
+  and from_unixtime(CAST(clienttime/1000 as BIGINT), 'yyyyMMdd') = '$day'
+  and trim(lower(deviceid)) rlike '^[a-f0-9]{40}$' and trim(deviceid)!='0000000000000000000000000000000000000000'
+  and plat = '2'
 )
 
 insert overwrite table $dwd_device_location_info_di partition (day='$day', source_table='location_info')

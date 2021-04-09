@@ -111,7 +111,34 @@ with t_location as (
   where day between '$day' and '$plus_2day'  --取开始日期起3天范围
   and from_unixtime(CAST(clienttime/1000 as BIGINT), 'yyyyMMdd') = '$day' --取clienttime转换为当日的数据
   and trim(lower(muid)) rlike '^[a-f0-9]{40}$' and trim(muid)!='0000000000000000000000000000000000000000'
-  and plat in (1,2)
+  and plat = '1'
+  union all
+  select
+      nvl(deviceid, '') as device,
+      duid,
+      case when latitude is not null and longitude is not null and (latitude-round(latitude,1))*10<>0.0 and (longitude-round(longitude,1))*10<>0.0 then round(cast(split(coordConvert(latitude, longitude, 'wsg84', 'bd09'), ',')[0] as double), 6) else '' end as lat,  --wgs84转换为bd09
+      case when latitude is not null and longitude is not null and (latitude-round(latitude,1))*10<>0.0 and (longitude-round(longitude,1))*10<>0.0 then round(cast(split(coordConvert(latitude, longitude, 'wsg84', 'bd09'), ',')[1] as double), 6) else '' end as lon,
+      from_unixtime(CAST(clienttime/1000 as BIGINT), 'HH:mm:ss') as time,
+      day as processtime,
+      plat,
+      networktype as network,
+      'tlocation' as type,
+      'tlocation' as data_source,
+      case when plat = 1 then concat('number:', coalesce(tag['number'], ''), ',street:', coalesce(tag['street'], ''))
+           when plat = 2 and tag['reGeocodeKey'] is not null then concat('number:', coalesce(str_to_map(regexp_replace(tag['reGeocodeKey'], '[\\{|\\}|\\\\|\\"|\n|\r| ]*', ''), ',',':')['number'], ''), ',street:', coalesce(str_to_map(regexp_replace(tag['reGeocodeKey'], '[\\{|\\}|\\\\|\\"|\n|\r| ]*', ''), ',',':')['street'], ''))
+           when plat = 2 and tag['regeocodekey'] is not null then concat('number:', coalesce(str_to_map(regexp_replace(tag['regeocodekey'], '[\\{|\\}|\\\\|\\"|\n|\r| ]*', ''), ',',':')['number'], ''), ',street:', coalesce(str_to_map(regexp_replace(tag['regeocodekey'], '[\\{|\\}|\\\\|\\"|\n|\r| ]*', ''), ',',':')['street'], ''))
+           else '' end as orig_note1,
+      case when plat = 1 then concat('poiName:', coalesce(tag['poiName'], tag['poiname'], ''), ',aoiName:', coalesce(tag['aoiName'], tag['aoiname'], ''))
+           when plat = 2 and tag['reGeocodeKey'] is not null then concat('poiName:', coalesce(str_to_map(regexp_replace(tag['reGeocodeKey'], '[\\{|\\}|\\\\|\\"|\n|\r| ]*', ''), ',',':')['POIName'], ''), ',aoiName:', coalesce(str_to_map(regexp_replace(tag['reGeocodeKey'], '[\\{|\\}|\\\\|\\"|\n|\r| ]*', ''), ',',':')['AOIName'], ''))
+           when plat = 2 and tag['regeocodekey'] is not null then concat('poiName:', coalesce(str_to_map(regexp_replace(tag['regeocodekey'], '[\\{|\\}|\\\\|\\"|\n|\r| ]*', ''), ',',':')['POIName'], ''), ',aoiName:', coalesce(str_to_map(regexp_replace(tag['regeocodekey'], '[\\{|\\}|\\\\|\\"|\n|\r| ]*', ''), ',',':')['AOIName'], ''))
+           else '' end as orig_note2,
+      accuracy,
+      apppkg, clientip as ipaddr,serdatetime,'' as language
+  from $dwd_t_location_sec_di
+  where day between '$day' and '$plus_2day'  --取开始日期起3天范围
+  and from_unixtime(CAST(clienttime/1000 as BIGINT), 'yyyyMMdd') = '$day' --取clienttime转换为当日的数据
+  and trim(lower(deviceid rlike '^[a-f0-9]{40}$' and trim(deviceid)!='0000000000000000000000000000000000000000'
+  and plat = '2'
 )
 
 insert overwrite table $dwd_device_location_info_di partition (day='$day', source_table='t_location')

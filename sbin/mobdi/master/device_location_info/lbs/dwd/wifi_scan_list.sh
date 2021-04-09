@@ -89,13 +89,42 @@ and level<0
 and trim(bssid) not in ('','00:00:00:00:00:00', '02:00:00:00:00:00', 'ff:ff:ff:ff:ff:ff')
 and regexp_replace(trim(lower(bssid)), '-|:|\\\\.|\073', '') rlike '^[0-9a-f]{12}$'
 and trim(lower(muid)) rlike '^[a-f0-9]{40}$' and trim(muid)!='0000000000000000000000000000000000000000'
-and plat in (1,2);
+and plat = '1'
+union all
+select deviceid as deviceid,duid,bssid,ssid,clienttime,clientip,networktype,plat,day as processday,
+       bd_lat,bd_lon,country_code,province_code,city_code,area_code,accuracy,apppkg,timestamp
+from $dwd_wifilist_explore_sec_di
+where day between '$day' and '$plus_2day'
+and from_unixtime(CAST(clienttime/1000 as BIGINT), 'yyyyMMdd') = '$day'
+and connected='true'
+and level>=-99
+and level<0
+and trim(bssid) not in ('','00:00:00:00:00:00', '02:00:00:00:00:00', 'ff:ff:ff:ff:ff:ff')
+and regexp_replace(trim(lower(bssid)), '-|:|\\\\.|\073', '') rlike '^[0-9a-f]{12}$'
+and trim(lower(deviceid)) rlike '^[a-f0-9]{40}$' and trim(deviceid)!='0000000000000000000000000000000000000000'
+and plat = '2'
+;
 
 --如果wifi_scan_list的list中找到一个已连接wifi，那么整条数据都要剔除，最后得到wifi_scan_list未连接数据
 insert overwrite table $wifi_scan_list_not_collected partition(day='$day')
 select t1.muid as deviceid,duid,bssid,ssid,t1.clienttime,clientip,networktype,plat,day as processday,
        bd_lat,bd_lon,country_code,province_code,city_code,area_code,accuracy,apppkg,timestamp,level
-from $dwd_wifilist_explore_sec_di t1
+from (
+    select case when plat = '1' then muid
+                else deviceid
+           end as muid,
+           duid,bssid,ssid,clienttime,clientip,networktype,plat,day,
+           bd_lat,bd_lon,country_code,province_code,city_code,area_code,
+           accuracy,apppkg,timestamp,level
+    from $dwd_wifilist_explore_sec_di
+    where day between '$day' and '$plus_2day'
+      and plat in ('1','2')
+      and from_unixtime(CAST(clienttime/1000 as BIGINT), 'yyyyMMdd') = '$day'
+      and level>=-99
+      and level<0
+      and trim(bssid) not in ('','00:00:00:00:00:00', '02:00:00:00:00:00', 'ff:ff:ff:ff:ff:ff')
+      and regexp_replace(trim(lower(bssid)), '-|:|\\\\.|\073', '') rlike '^[0-9a-f]{12}$'
+)t1
 left join
 (
   select deviceid,clienttime
@@ -103,15 +132,9 @@ left join
   where day='$day'
   group by deviceid,clienttime
 ) t2 on t1.muid=t2.deviceid and t1.clienttime=t2.clienttime
-where day between '$day' and '$plus_2day'
-and from_unixtime(CAST(t1.clienttime/1000 as BIGINT), 'yyyyMMdd') = '$day'
-and level>=-99
-and level<0
-and trim(bssid) not in ('','00:00:00:00:00:00', '02:00:00:00:00:00', 'ff:ff:ff:ff:ff:ff')
-and regexp_replace(trim(lower(bssid)), '-|:|\\\\.|\073', '') rlike '^[0-9a-f]{12}$'
-and trim(lower(t1.muid)) rlike '^[a-f0-9]{40}$' and trim(t1.muid)!='0000000000000000000000000000000000000000'
-and plat in (1,2)
-and t2.deviceid is null;
+where trim(lower(t1.muid)) rlike '^[a-f0-9]{40}$'
+  and trim(t1.muid)!='0000000000000000000000000000000000000000'
+  and t2.deviceid is null;
 
 --未连接数据与dim_bssid_level_connect_probability_all_mf表进行join，得到各个嗅探wifi的连接概率，以及bssid经纬度、bssid国家省市取信息，并且只保留稳定型bssid
 --最后对设备的每次嗅探列表的连接概率进行排序
