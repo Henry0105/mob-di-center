@@ -28,7 +28,6 @@ source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
 hive -e"
 set hive.optimize.index.filter=true;
 set hive.exec.orc.zerocopy=true;
-set hive.vectorized.execution.enabled=true;
 set hive.optimize.ppd=true;
 
 set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;

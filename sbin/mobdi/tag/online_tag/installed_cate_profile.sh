@@ -58,8 +58,6 @@ set hive.merge.size.per.task = 256000000;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.map.aggr=true;
 set hive.auto.convert.join=true;
-set hive.vectorized.execution.enabled=true;
-set hive.vectorized.execution.reduce.enabled=true;
 set hive.exec.parallel=true;
 
 insert overwrite table $cleaned_app_category_mapping

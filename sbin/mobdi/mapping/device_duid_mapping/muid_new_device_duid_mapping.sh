@@ -37,8 +37,6 @@ dws_device_duid_mapping_new=dm_mobdi_topic.dws_device_duid_mapping_new
 
 
 hive -v -e "
-set hive.vectorized.execution.enabled=true;
-set hive.vectorized.execution.reduce.enabled=true;
 set hive.exec.parallel=true;
 set hive.exec.dynamic.partition.mode=nonstrict;
 set mapred.max.split.size=256000000;

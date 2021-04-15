@@ -38,9 +38,7 @@ value=`hive -e "show partitions $apppkg_name_info_wf"|tail -n 1`
 hive -v -e "
 set hive.auto.convert.join=true;   
 set hive.exec.dynamic.partition=true; 
-set hive.exec.max.dynamic.partitions.pernode=10000; 
-set hive.vectorized.execution.enabled=true;
-set hive.vectorized.execution.reduce.enabled=true;
+set hive.exec.max.dynamic.partitions.pernode=10000;
 set hive.exec.parallel=true;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;

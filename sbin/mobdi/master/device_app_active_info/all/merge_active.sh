@@ -36,8 +36,6 @@ hive -v -e "
 SET mapreduce.map.memory.mb=8192;
 set mapreduce.map.java.opts='-Xmx8192M';
 set mapreduce.child.map.java.opts='-Xmx8192M';
-set hive.vectorized.execution.enabled=true;
-set hive.vectorized.execution.reduce.enabled=true;
 set hive.exec.parallel=true;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;

@@ -46,8 +46,7 @@ dws_device_snsuid_mf=dm_mobdi_topic.dws_device_snsuid_mf      # 只用到一次 
 
 
 hive -v -e "
-set hive.vectorized.execution.enabled=true;
-set hive.vectorized.execution.reduce.enabled=true;
+
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;

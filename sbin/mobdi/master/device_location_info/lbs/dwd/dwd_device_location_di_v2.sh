@@ -62,9 +62,6 @@ set mapred.job.reuse.jvm.num.tasks=10;
 set mapred.tasktracker.map.tasks.maximum=24;
 set mapred.tasktracker.reduce.tasks.maximum=24;
 
-set hive.vectorized.execution.enabled=true;
-set hive.vectorized.execution.reduce.enabled=true;
-
 set hive.groupby.skewindata=true;
 set hive.exec.parallel=true;
 set hive.exec.parallel.thread.number=16;
