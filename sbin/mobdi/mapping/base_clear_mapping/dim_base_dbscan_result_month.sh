@@ -19,7 +19,6 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 #mid
 mid_dbscan_data_pre_month_part1=${dm_mobdi_tmp}.mid_dbscan_data_pre_month_part1
 mid_dbscan_data_pre_month_part2=${dm_mobdi_tmp}.mid_dbscan_data_pre_month_part2
-mid_dbscan_data_process_month_step3=${dm_mobdi_tmp}.mid_dbscan_data_process_month_step3
 mid_dbscan_data_pre_month=${dm_mobdi_tmp}.mid_dbscan_data_pre_month
 mid_dbscan_data_process_month_step1=${dm_mobdi_tmp}.mid_dbscan_data_process_month_step1
 mid_dbscan_data_process_month_step2=${dm_mobdi_tmp}.mid_dbscan_data_process_month_step2
