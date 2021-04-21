@@ -13,7 +13,6 @@ if [ -z "$1" ]; then
   exit 1
 fi
 source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-
 source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
@@ -24,9 +23,9 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 #dwd_log_device_info_jh_sec_di=dm_mobdi_master.dwd_log_device_info_jh_sec_di
 
 #mapping
-#sysver_mapping_par=dm_sdk_mapping.sysver_mapping_par
-#brand_model_mapping_par=dm_sdk_mapping.brand_model_mapping_par
-#mapping_carrier_par=dm_mobdi_mapping.mapping_carrier_par
+#sysver_mapping_par=dim_sdk_mapping.sim_sysver_mapping_par
+#brand_model_mapping_par=dim_sdk_mapping.dim_brand_model_mapping_par
+#mapping_carrier_par=dim_sdk_mapping.dim_mapping_carrier_par
 
 #out
 #dwd_device_info_di=dm_mobdi_master.dwd_device_info_di
@@ -35,6 +34,14 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 day=$1
 prev_1day=`date +%Y%m%d -d "${day} -1 day"`
+
+if [[ $day -ge 20200909 ]]; then
+version=1004
+    condition="concat(split(regexp_replace(lower(info.sysver), 'android| ', ''), '\\\\.')[0], '.', split(regexp_replace(lower(info.sysver), 'android| ', ''), '\\\\.')[1]) in ('1.0', '1.1', '1.5', '1.6', '2.0', '2.1', '2.2', '2.3', '3.0', '3.1', '3.2', '4.0', '4.1', '4.2', '4.3', '4.4', '4.4w', '5.0', '5.1', '6.0', '7.0', '7.1', '8.0', '8.1', '9.0', '10.0', '11.0') then concat(split(regexp_replace(lower(info.sysver), 'android| ', ''), '\\\\.')[0], '.', split(regexp_replace(lower(info.sysver), 'android| |w', ''), '\\\\.')[1])"
+elif [[ $day -ge 20190904 && $day -lt 20200909 ]]; then
+version=1002
+    condition="concat(split(regexp_replace(lower(info.sysver), 'android| ', ''), '\\\\.')[0], '.', split(regexp_replace(lower(info.sysver), 'android| ', ''), '\\\\.')[1]) in ('1.0', '1.1', '1.5', '1.6', '2.0', '2.1', '2.2', '2.3', '3.0', '3.1', '3.2', '4.0', '4.1', '4.2', '4.3', '4.4', '4.4w', '5.0', '5.1', '6.0', '7.0', '7.1', '8.0', '8.1', '9.0', '10.0') then concat(split(regexp_replace(lower(info.sysver), 'android| ', ''), '\\\\.')[0], '.', split(regexp_replace(lower(info.sysver), 'android| |w', ''), '\\\\.')[1])"
+fi
 
 hive -v -e "
 SET hive.exec.parallel=true;
@@ -59,6 +66,17 @@ with unioned_device_info as (
   FROM $dwd_log_device_info_jh_sec_di
   where day = '$day'
   and plat = '1'
+
+  select muid as device,factory, model,
+  CASE WHEN regexp_extract(screensize,'([0-9]{2,4}x[0-9]{2,4})',0)=='' THEN '' ELSE CASE WHEN cast(split(regexp_replace(screensize, 'x', 'x'),'x')[0] AS INT) < cast(split(regexp_replace(screensize, 'x', 'x'),'x')[1] AS INT) THEN concat(split(regexp_replace(screensize, 'x', 'x'),'x')[0],'x',split(regexp_replace(screensize, 'x', 'x'),'x')[1]) ELSE concat(split(regexp_replace(screensize, 'x', 'x'),'x')[1],'x',split(regexp_replace(screensize, 'x', 'x'),'x')[0]) END END as screensize,
+   '' as devicetype, sysver,
+  CASE WHEN lower(trim(log_device_info.breaked))='true' OR lower(trim(log_device_info.breaked)) ='false' THEN lower(trim(log_device_info.breaked)) ELSE '' END as breaked,
+   carrier, serdatetime, 0 as flag
+  FROM dw_sdk_log.log_device_info
+  where dt = '$day'
+  and plat = '1'
+  and trim(lower(muid)) rlike '^[a-f0-9]{40}$'
+  and trim(lower(id)) rlike '^[a-f0-9]{40}$'
 ),
 
 ranked_device_info as (
@@ -107,10 +125,10 @@ select info.device,
          ELSE upper(trim(info.devicetype))
        END AS devicetype_clean,
        CASE
-         WHEN lower(trim(info.sysver)) = 'null' OR info.sysver IS NULL OR trim(info.sysver) = '' OR trim(info.sysver) = '未知' THEN 'unknown'
-         WHEN info.sysver = sysver_mapping.vernum THEN substr(sysver_mapping.sysver, 1, 3)
-         WHEN substring(regexp_replace(info.sysver, 'Android|[.]|[ ]', ''), 1, 2) in ('11','15','16','20','21','22','23','24','30','31','32','40','41','42','43','44','50','51','60','70','71','80','81','90')
-           THEN CONCAT (substring(regexp_replace(info.sysver, 'Android|[.]|[ ]', ''), 1, 1), '.', substring(regexp_replace(info.sysver, 'Android|[.]|[ ]', ''), 2, 1))
+         WHEN lower(trim(info.sysver)) in ('', '-1', 'unknown', 'null', 'none', 'na', 'other', '未知') or info.sysver is null THEN 'unknown'
+         WHEN lower(info.sysver) not rlike '^([0-9a-z]|\\\\.|-| )+$' THEN 'unknown'
+         WHEN info.sysver = sysver_mapping.vernum THEN sysver_mapping.sysver
+         WHEN $condition
          ELSE 'unknown'
        END AS sysver_clean,
        CASE
@@ -176,7 +194,7 @@ FROM
   and upper(trim(brand_mapping.model)) = upper(trim(ranked_device_info.model))
 ) info
 LEFT JOIN
-(select * from  $sysver_mapping_par  where version='1003')sysver_mapping
+(select * from  $sim_sysver_mapping_par  where version='$version')sysver_mapping
 ON info.sysver = sysver_mapping.vernum
 LEFT JOIN
 (select mcc_mnc,brand from $mapping_carrier_par where version='1000') carrier_mapping
@@ -186,17 +204,17 @@ ON info.carrier = carrier_mapping.mcc_mnc
 --插入全量表
 insert overwrite table $dwd_device_info_df partition(version='${day}.1000', plat='1')
 select device, factory, model, screensize, public_date, model_type, sysver, breaked, carrier, price, devicetype, processtime,model_origin,
-factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu
+factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu,sysver_origin,carrier_origin
 from
 (
   select device, factory, model, screensize, public_date, model_type, sysver, breaked, carrier, price, devicetype, processtime,model_origin,
-  factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu,
+  factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu,sysver_origin,carrier_origin,
   row_number() over(partition by device order by processtime desc) as rank
   from
   (
     select device, factory, model_clean as model, screensize_clean as screensize, public_date, model_type, sysver_clean as sysver,
            breaked_clean as breaked, carrier_clean as carrier, price, devicetype_clean as devicetype, day as processtime,model as model_origin,
-           factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu
+           factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu,sysver as sysver_origin,carrier as carrier_origin
     from $dwd_device_info_di
     where day='$day'
     and plat='1'
@@ -204,7 +222,7 @@ from
     union all
 
     select device, factory, model, screensize, public_date, model_type, sysver, breaked, carrier, price, devicetype, processtime,model_origin,
-    factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu
+    factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu,sysver_origin,carrier_origin
     from $dwd_device_info_df
     where version='${prev_1day}.1000'
     and plat='1'

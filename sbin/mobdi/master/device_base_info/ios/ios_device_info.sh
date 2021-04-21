@@ -161,22 +161,22 @@ ON info.carrier = carrier_mapping.mcc_mnc
 --插入全量表
 insert overwrite table $dwd_device_info_df partition(version='${day}.1000', plat='2')
 select device, factory, model, screensize, public_date, model_type, sysver, breaked, carrier, price, devicetype, processtime,model_origin,
-'','','','','','',''
+'','','','','','','',sysver_origin,carrier_origin
 from 
 (
-  select device, factory, model, screensize, public_date, model_type, sysver, breaked, carrier, price, devicetype, processtime,model_origin,
+  select device, factory, model, screensize, public_date, model_type, sysver, breaked, carrier, price, devicetype, processtime,model_origin,sysver_origin,carrier_origin,
          row_number() over(partition by device order by processtime desc) as rank
   from 
   (
     select device, factory, model_clean as model, screensize_clean as screensize, public_date, model_type, sysver_clean as sysver,
-           breaked_clean as breaked, carrier_clean as carrier, price, devicetype_clean as devicetype, day as processtime, model as model_origin
+           breaked_clean as breaked, carrier_clean as carrier, price, devicetype_clean as devicetype, day as processtime, model as model_origin,sysver as sysver_origin,carrier as carrier_origin
     from $dwd_device_info_di
     where day ='$day'
     and plat='2'
 
     union all
 
-    select device, factory, model, screensize, public_date, model_type, sysver, breaked, carrier, price, devicetype, processtime ,model_origin
+    select device, factory, model, screensize, public_date, model_type, sysver, breaked, carrier, price, devicetype, processtime ,model_origin,sysver_origin,carrier_origin
     from $dwd_device_info_df
     where version = '${prev_1day}.1000'
     and plat='2'
