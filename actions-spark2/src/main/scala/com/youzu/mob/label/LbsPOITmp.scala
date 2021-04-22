@@ -82,7 +82,7 @@ object LbsPOITmp {
     }
 
     hiveContext.sql(unionM).repartition(partitons).registerTempTable("unionM_tmp")
-    hiveContext.uncacheTable("lbs_poi_tmp")[小程序]【美团外卖】第4个领取的人红包最大！
+    hiveContext.uncacheTable("lbs_poi_tmp")
     hiveContext.cacheTable("unionM_tmp")
 
     for (i <- 0 to beforeNum) {
