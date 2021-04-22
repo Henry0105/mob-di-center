@@ -73,8 +73,8 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #input
 #dws_device_location_staying_di=dm_mobdi_topic.dws_device_location_staying_di
-#lat_lon_poi_mapping=dm_mobdi_mapping.lat_lon_poi_mapping
-#catering_cate_mappingdm_sdk_mapping.catering_cate_mapping
+#lat_lon_poi_mapping=dim_mobdi_mapping.dim_lat_lon_poi_mapping
+#catering_cate_mapping=dim_sdk_mapping.dim_catering_cate_mapping
 #需要将dw_mobdi_md.dw_base_poi_l1_geohash复制到dm_mobdi_tmp.dw_base_poi_l1_geohash
 dw_base_poi_l1_geohash=dm_mobdi_tmp.dw_base_poi_l1_geohash
 
