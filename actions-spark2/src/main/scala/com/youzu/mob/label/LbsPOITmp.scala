@@ -1,4 +1,4 @@
-package youzu.mob.label
+package com.youzu.mob.label
 
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
