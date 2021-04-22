@@ -239,6 +239,20 @@ from
 ## 初始生成使用
 :<<!
 HADOOP_USER_NAME=dba hive -v -e "
+create table $mid_dbscan_data_final_month_step3 as
+select *,case when distance>=2000 then 1 else 0 end flag_abnormal from
+    (select *,case when lat_new is not null then get_distance(lat,lon,lat_new,lon_new) end as distance from
+        (select a.*,b.centerlat as lat_new,b.centerlon as lon_new from
+            (select *
+            from $dim_mapping_base_station_location
+            where day='20190701')a
+        inner join
+            $mid_dbscan_data_final_month_step2 b
+        on a.lac=b.lac
+        and a.cell=b.cell
+        and a.mnc=b.mnc
+        and b.country='cn')c
+    )d;
 insert overwrite table $dim_base_dbscan_result_mi partition(day='$day')
 select mcc,mnc,lac,cell,lat,lon,acc,geohash8,addr,country,province,city,district,street,validity,carrier,network,'0' as flag_abnormal from
 (select a.* from
