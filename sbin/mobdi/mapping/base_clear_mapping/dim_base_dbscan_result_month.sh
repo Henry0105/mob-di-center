@@ -239,6 +239,7 @@ from
 ## 初始生成使用
 :<<!
 HADOOP_USER_NAME=dba hive -v -e "
+drop table if exists $mid_dbscan_data_final_month_step3;
 create table $mid_dbscan_data_final_month_step3 as
 select *,case when distance>=2000 then 1 else 0 end flag_abnormal from
     (select *,case when lat_new is not null then get_distance(lat,lon,lat_new,lon_new) end as distance from
