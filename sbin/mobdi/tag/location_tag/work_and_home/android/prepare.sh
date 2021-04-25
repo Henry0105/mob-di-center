@@ -17,7 +17,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 #dm_mobdi_master.dwd_device_location_info_di_v2
 ##mapping
 #dm_sdk_mapping.mapping_base_station_location
-#dm_sdk_mapping.vacation_flag
+#dm_sdk_mapping.vacation_flag_par
 #dm_sdk_mapping.mapping_ip_attribute_code
 
 #out
@@ -102,7 +102,7 @@ where a.day >='${p30day}' and a.day<'${days}'
 and data_source ='base'
 and plat=1 and type ='base'
 and not EXISTS(
-    select day from $vacation_flag tt where a.day=tt.day
+    select day from $vacation_flag_par tt where tt.version='1000' and tt.flag != 3 and a.day=tt.day
 )
 )a
 left join
@@ -148,7 +148,7 @@ where a.day >='${p30day}' and a.day<'${days}'
 and plat=1 and data_source ='wifi' and type='wifi'
 and lon not in('','0.0','0.0065') and lat not in('','0.0','0.006')
 and not EXISTS(
-    select day from $vacation_flag tt where a.day=tt.day
+    select day from $vacation_flag_par tt where tt.version='1000' and tt.flag != 3 and a.day=tt.day
 )
 ;
 "
@@ -197,7 +197,7 @@ FROM
 where a.day >='${p30day}' and a.day<'${days}'
 and plat=1 and type ='ip'
 and not EXISTS(
-    select day from $vacation_flag tt where a.day=tt.day
+    select day from $vacation_flag_par tt where tt.version='1000' and tt.flag != 3 and a.day=tt.day
 )
 )a
 left join
