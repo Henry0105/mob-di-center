@@ -29,7 +29,8 @@ select device,gender,gender_cl,agebin,agebin_cl,edu,edu_cl,income,income_cl,kids
          when kids = 6 then '7'
          else ''
        end as life_stage,
-       income_1001,income_1001_cl,occupation_1001,occupation_1001_cl,consume_level,consume_level_cl,agebin_1002,agebin_1002_cl,agebin_1003,agebin_1003_cl
+       income_1001,income_1001_cl,occupation_1001,occupation_1001_cl,consume_level,consume_level_cl,agebin_1002,agebin_1002_cl,agebin_1003,agebin_1003_cl,
+       income_1001_v2,income_1001_v2_cl,occupation_1002,occupation_1002_cl
 from $confidence_logic
 where day='$day'
 "
