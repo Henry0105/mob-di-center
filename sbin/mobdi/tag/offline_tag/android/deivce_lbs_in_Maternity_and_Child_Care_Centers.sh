@@ -19,7 +19,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #input
 #dm_sdk_mapping.poi_config_mapping_par
-#dm_mobdi_topic.dws_device_lbs_poi_android_sec_di
+#dm_mobdi_topic.dws_device_location_staying_di
 #tmp
 offline_chile_mom=dm_mobdi_tmp.offline_chile_mom
 #out
@@ -50,7 +50,7 @@ spark2-submit \
 /home/dba/lib/mobdi-poi-tool-v0.1.0.jar \
  "{
      \"dataType\": \"1\",
-     \"lbsSql\": \"select device,lat,lon from $dws_device_lbs_poi_android_sec_di where day='$day' and type in ('gps','wifi','tlocation','base') and accuracy != '0'\",
+     \"lbsSql\": \"select device,lat,lon from $dws_device_location_staying_di where day='$day' and type in ('gps','wifi','tlocation','base') and accuracy != '0'\",
      \"poiTable\": \"(select name,lat,lon,attribute,baidu_lat_lon_boundary,type from $poi_config_mapping_par where version = '1001' and type = 26 and get_json_object(attribute,'$.cate2') = '妇幼保健')\",
      \"poiFields\": \"name,lat,lon,attribute,baidu_lat_lon_boundary,type\",
      \"poiCalFields\": {
