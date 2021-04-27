@@ -137,7 +137,7 @@ with t_location as (
   from $dwd_t_location_sec_di
   where day between '$day' and '$plus_2day'  --取开始日期起3天范围
   and from_unixtime(CAST(clienttime/1000 as BIGINT), 'yyyyMMdd') = '$day' --取clienttime转换为当日的数据
-  and trim(lower(deviceid rlike '^[a-f0-9]{40}$' and trim(deviceid)!='0000000000000000000000000000000000000000'
+  and trim(lower(deviceid)) rlike '^[a-f0-9]{40}$' and trim(deviceid)!='0000000000000000000000000000000000000000'
   and plat = '2'
 )
 
