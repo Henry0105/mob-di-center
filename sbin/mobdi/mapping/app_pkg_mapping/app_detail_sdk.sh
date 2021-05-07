@@ -5,9 +5,9 @@
 @describe: APP详情--来自豌豆荚和应用宝爬虫,每天跑
 @projectName: MobDI
 @BusinessName: 
-@SourceTable: dw_appgo_crawl.app_wdj_info,dw_appgo_crawl.app_yyb_info,dw_mobdi_md.sdkdetail,dm_sdk_mapping.app_pkg_mapping_par,dm_sdk_mapping.app_category_mapping_par,dm_sdk_mapping.app_info_sdk,rp_mobdi_app.app_details_sdk
-@TargetTable: dw_mobdi_md.sdkdetail,dm_sdk_mapping.app_info_sdk,rp_mobdi_app.app_details_sdk
-@TableRelation:dw_appgo_crawl.app_wdj_info,dw_appgo_crawl.app_yyb_info,dm_sdk_mapping.app_pkg_mapping_par,dm_sdk_mapping.app_category_mapping_par->dw_mobdi_md.sdkdetail|dw_mobdi_md.sdkdetail->rp_mobdi_app.app_details_sdk|rp_mobdi_app.app_details_sdk->dm_sdk_mapping.app_info_sdk
+@SourceTable: dw_appgo_crawl.app_wdj_info,dw_appgo_crawl.app_yyb_info,dw_mobdi_md.sdkdetail,dm_sdk_mapping.dim_app_pkg_mapping_par,dm_sdk_mapping.dim_app_category_mapping_par,dm_sdk_mapping.dim_app_info_sdk,rp_mobdi_app.app_details_sdk
+@TargetTable: dw_mobdi_md.sdkdetail,dm_sdk_mapping.dim_app_info_sdk,rp_mobdi_app.app_details_sdk
+@TableRelation:dw_appgo_crawl.app_wdj_info,dw_appgo_crawl.app_yyb_info,dm_sdk_mapping.dim_app_pkg_mapping_par,dm_sdk_mapping.dim_app_category_mapping_par->dw_mobdi_md.sdkdetail|dw_mobdi_md.sdkdetail->rp_mobdi_app.app_details_sdk|rp_mobdi_app.app_details_sdk->dm_sdk_mapping.dim_app_info_sdk
 '
 
 set -x -e
@@ -31,13 +31,13 @@ app_wdj_info=dw_appgo_crawl.app_wdj_info
 app_yyb_info=dw_appgo_crawl.app_yyb_info
 
 #mapping
-#app_pkg_mapping_par=dm_sdk_mapping.app_pkg_mapping_par
-#app_category_mapping_par=dm_sdk_mapping.app_category_mapping_par
+#dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
+#dim_app_category_mapping_par=dim_sdk_mapping.dim_app_category_mapping_par
 
 #output
 #app_details_sdk=dm_mobdi_report.app_details_sdk
-#app_info_sdk=dm_sdk_mapping.app_info_sdk
-sdkdetail=dw_mobdi_tmp.sdkdetail
+#dim_app_info_sdk=dim_sdk_mapping.dim_app_info_sdk
+sdkdetail=dm_mobdi_tmp.sdkdetail
 
 
 # 检查爬虫表上一个日期分区的数据是否生成
@@ -190,13 +190,13 @@ CHECK_DATA "hdfs://ShareSdkHadoop/hiveDW/dw_appgo_crawl/app_yyb_info/day=${yyb_l
                       ,channel_id
                       ,createat
             FROM $sdkdetail a
-            LEFT JOIN (SELECT pkg,apppkg FROM $app_pkg_mapping_par WHERE version = '1000') b ON a.app_id = b.pkg
+            LEFT JOIN (SELECT pkg,apppkg FROM $dim_app_pkg_mapping_par WHERE version = '1000') b ON a.app_id = b.pkg
             ) x
    LEFT OUTER JOIN (
             SELECT apppkg
                       ,max(cate_l1_id) AS cate_l1_id
                       ,max(cate_l2_id) AS cate_l2_id
-            FROM $app_category_mapping_par
+            FROM $dim_app_category_mapping_par
             WHERE version = '1000'
             GROUP BY apppkg
             ) y ON x.app_id = y.apppkg;
@@ -297,7 +297,7 @@ CHECK_DATA "hdfs://ShareSdkHadoop/hiveDW/dw_appgo_crawl/app_yyb_info/day=${yyb_l
 
    #加入新爬到的app，并对老的app信息更新
    sql="
-   insert overwrite table $app_info_sdk
+   insert overwrite table $dim_app_info_sdk
    select app_id,ios_id,zone,lang,icon,name,app_category_id,publisher,channel_id,family,day
    from
    (
@@ -329,7 +329,7 @@ CHECK_DATA "hdfs://ShareSdkHadoop/hiveDW/dw_appgo_crawl/app_yyb_info/day=${yyb_l
        union all
 
        select app_id,ios_id,zone,lang,icon,name,app_category_id,publisher,channel_id,family,day
-       from $app_info_sdk
+       from $dim_app_info_sdk
      )x
    )y
    where rk = 1
