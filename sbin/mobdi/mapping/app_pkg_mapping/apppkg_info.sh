@@ -4,10 +4,10 @@
 @describe: 渠道分析
 @projectName: appPkgInfo
 @BusinessName: appPkgInfo
-@SourceTable: dm_mobdi_mapping.apppkg_name_info_wf,dm_sdk_mapping.app_info_sdk,dm_sdk_mapping.app_category_mapping_par
-@TargetTable: dm_sdk_mapping.apppkg_info
+@SourceTable: dim_mobdi_mapping.dim_apppkg_name_info_wf,dim_sdk_mapping.dim_app_info_sdk,dim_sdk_mapping.dim_app_category_mapping_par
+@TargetTable: dim_sdk_mapping.dim_apppkg_info
 
-@TableRelation:dm_mobdi_mapping.apppkg_name_info_wf,dm_sdk_mapping.app_info_sdk,dm_sdk_mapping.app_category_mapping_par->dm_sdk_mapping.apppkg_info
+@TableRelation:dim_mobdi_mapping.dim_apppkg_name_info_wf,dim_sdk_mapping.dim_app_info_sdk,dim_sdk_mapping.dim_app_category_mapping_par->dim_sdk_mapping.dim_apppkg_info
 '
 
 set -x -e
@@ -26,14 +26,14 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
 #mapping
-#apppkg_name_info_wf=dm_mobdi_mapping.apppkg_name_info_wf
-#app_info_sdk=dm_sdk_mapping.app_info_sdk
-#app_category_mapping_par=dm_sdk_mapping.app_category_mapping_par
+#dim_apppkg_name_info_wf=dim_mobdi_mapping.dim_apppkg_name_info_wf
+#dim_app_info_sdk=dim_sdk_mapping.dim_app_info_sdk
+#dim_app_category_mapping_par=dim_sdk_mapping.dim_app_category_mapping_par
 
 #out
-#apppkg_info=dm_sdk_mapping.apppkg_info
+#dim_apppkg_info=dim_sdk_mapping.dim_apppkg_info
 
-value=`hive -e "show partitions $apppkg_name_info_wf"|tail -n 1`
+value=`hive -e "show partitions $dim_apppkg_name_info_wf"|tail -n 1`
 
 hive -v -e "
 set hive.auto.convert.join=true;   
@@ -56,7 +56,7 @@ set hive.exec.storagehandler.local=false;
 set dfs.socket.timeout=3600000;
 set dfs.datanode.socket.write.timeout=3600000; 
 
-insert overwrite table $apppkg_info
+insert overwrite table $dim_apppkg_info
 select xxx.apppkg as apppkg, 
        coalesce(hh.icon,'') as icon,
        regexp_replace(
@@ -71,10 +71,10 @@ select xxx.apppkg as apppkg,
 from
 (
     select *
-    from $apppkg_name_info_wf
+    from $dim_apppkg_name_info_wf
     where $value
 ) xxx
-left outer join $app_info_sdk hh
+left outer join $dim_app_info_sdk hh
 on xxx.apppkg=hh.app_id
 left outer join
 (
@@ -84,7 +84,7 @@ left outer join
            max(cate_l1) cate_name,
            max(cate_l2) cate_l2,
            max(cate_l2_id) cate_l2_id
-    from $app_category_mapping_par
+    from $dim_app_category_mapping_par
     where version='1000'
     group by apppkg
 )mm
