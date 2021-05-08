@@ -632,7 +632,7 @@ set hive.merge.size.per.task = 125000000;
 set hive.merge.smallfiles.avgsize=16000000;
 set hive.exec.parallel=true;
 insert overwrite table $bssid_strangetable_gps_par partition(dt=$day)
-select bssiatlist, lonlist, acc_set, day, ssid_set, confidence
+select bssid,latlist, lonlist, acc_set, day, ssid_set, confidence
 from
 (
   select bssid, latlist, lonlist, acc_set, ssid_set, day, confidence,
