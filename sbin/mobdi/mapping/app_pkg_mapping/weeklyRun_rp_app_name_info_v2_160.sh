@@ -133,8 +133,8 @@ select apppkg,app_name,cnt,$date1 as update_day from $apppkg_name_temp) a )b
 where num=1
 ;"
 # hive -e "select pkg from $dim_app_name_info_orig where update_day=$date1;">>/home/dba/after_mobdi/weeklyRun/crawl_label/pkg_list_incr_$date1.txt
-for old_version in `hive -e "show partitions $dim_apppkg_name_info_wf " | sort | head -n -7`
-do
-	echo "rm $old_version"
-	hive -v -e "alter table $dim_apppkg_name_info_wf drop if exists partition($old_version)"
-done
+#for old_version in `hive -e "show partitions $dim_apppkg_name_info_wf " | sort | head -n -7`
+#do
+#	echo "rm $old_version"
+#	hive -v -e "alter table $dim_apppkg_name_info_wf drop if exists partition($old_version)"
+#done
