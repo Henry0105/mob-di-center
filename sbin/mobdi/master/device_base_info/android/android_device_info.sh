@@ -62,16 +62,18 @@ set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.exec.reducers.max=4000;
 
 with unioned_device_info as (
-  select muid as device, factory, model, screensize, devicetype as devicetype, sysver, cast(breaked as string) as breaked, carrier, serdatetime, 1 as flag
+  select muid as device, factory, model, screensize, devicetype as devicetype, sysver, cast(breaked as string) as breaked, carrier, serdatetime, 1 as flag,sdcardStorage,ram,romimg
   FROM $dwd_log_device_info_jh_sec_di
   where day = '$day'
   and plat = '1'
+
+  union all
 
   select muid as device,factory, model,
   CASE WHEN regexp_extract(screensize,'([0-9]{2,4}x[0-9]{2,4})',0)=='' THEN '' ELSE CASE WHEN cast(split(regexp_replace(screensize, 'x', 'x'),'x')[0] AS INT) < cast(split(regexp_replace(screensize, 'x', 'x'),'x')[1] AS INT) THEN concat(split(regexp_replace(screensize, 'x', 'x'),'x')[0],'x',split(regexp_replace(screensize, 'x', 'x'),'x')[1]) ELSE concat(split(regexp_replace(screensize, 'x', 'x'),'x')[1],'x',split(regexp_replace(screensize, 'x', 'x'),'x')[0]) END END as screensize,
    '' as devicetype, sysver,
   CASE WHEN lower(trim(log_device_info.breaked))='true' OR lower(trim(log_device_info.breaked)) ='false' THEN lower(trim(log_device_info.breaked)) ELSE '' END as breaked,
-   carrier, serdatetime, 0 as flag
+   carrier, serdatetime, 0 as flag,'','',''
   FROM dw_sdk_log.log_device_info
   where dt = '$day'
   and plat = '1'
@@ -80,12 +82,32 @@ with unioned_device_info as (
 ),
 
 ranked_device_info as (
-  select device, factory, model, screensize, devicetype, sysver, breaked, carrier
+  select device, factory, model, screensize, devicetype, sysver, breaked, carrier,sdcardStorage,ram,romimg
   from
   (
-    select device, factory, model, screensize, devicetype, sysver, breaked, carrier,
+    select device, factory, model, screensize, devicetype, sysver, breaked, carrier,sdcardStorage,ram,romimg,
            row_number() over(partition by device order by flag desc, serdatetime desc) as rank
     FROM unioned_device_info
+    where device is not null
+    and length(device)= 40
+    and device = regexp_extract(device,'([a-f0-9]{40})', 0)
+  ) ranked
+  where rank = 1
+),
+unioned_ext_info as(
+  select device, displayid,serdatetime
+  FROM $dwd_device_ext_info_sec_di
+  where day = '$insert_day'
+  and plat = '1'
+),
+
+ranked_ext_info as (
+  select device, displayid
+  from
+  (
+    select device, displayid,
+    row_number() over(partition by device order by serdatetime desc) as rank
+    FROM unioned_ext_info
     where device is not null
     and length(device)= 40
     and device = regexp_extract(device,'([a-f0-9]{40})', 0)
@@ -155,7 +177,23 @@ select info.device,
        end AS factory_cn_subcompany,
        coalesce(info.sim_type, '') as sim_type,
        coalesce(info.screen_size, '') as screen_size,
-       coalesce(info.cpu, '') as cpu
+       coalesce(info.cpu, '') as cpu,
+       info.sdcardStorage,
+       info.ram,
+       info.romimg,
+       info.displayid,
+       coalesce(cast(round(info.sdcardStorage/1024/1024,2) as string), 'unknown') as sdcardStorage_clean,
+       coalesce(cast(round(info.ram/1024/1024,2) as string), 'unknown') as ram_clean,
+       CASE
+        WHEN
+        lower(trim(info.romimg)) in ('null','none','na','other') OR info.romimg IS NULL OR trim(info.romimg)='' OR trim(info.romimg) = '未知' OR trim(upper(info.romimg))='UNKNOWN' THEN 'unknown'
+        ELSE upper(trim(info.romimg))
+        END AS romimg_clean,
+        CASE
+        WHEN
+        lower(trim(info.displayid)) in ('null','none','na','other') OR info.displayid IS NULL OR trim(info.displayid)='' OR trim(info.displayid) = '未知' OR trim(upper(info.displayid))='UNKNOWN' THEN 'unknown'
+        ELSE upper(trim(info.displayid))
+        END AS displayid_clean
 FROM
 (
   select ranked_device_info.device,
@@ -176,7 +214,11 @@ FROM
          brand_mapping.brand_cn_origin as brand_cn_origin,
          brand_mapping.sim_type as sim_type,
          brand_mapping.screen_size as screen_size,
-         brand_mapping.cpu as cpu
+         brand_mapping.cpu as cpu,
+         ranked_device_info.sdcardStorage as sdcardStorage,
+         ranked_device_info.ram as ram ,
+         ranked_device_info.romimg as romimg,
+         ranked_ext.displayid as displayid
   FROM ranked_device_info
   LEFT JOIN
   (
@@ -192,6 +234,9 @@ FROM
   ) brand_mapping
   on upper(trim(brand_mapping.brand)) = upper(trim(ranked_device_info.factory))
   and upper(trim(brand_mapping.model)) = upper(trim(ranked_device_info.model))
+   LEFT JOIN
+  (select device, displayid from ranked_ext_info) ranked_ext
+  on ranked_device_info.device = ranked_ext.device
 ) info
 LEFT JOIN
 (select * from  $sim_sysver_mapping_par  where version='$version')sysver_mapping
@@ -204,17 +249,17 @@ ON info.carrier = carrier_mapping.mcc_mnc
 --插入全量表
 insert overwrite table $dwd_device_info_df partition(version='${day}.1000', plat='1')
 select device, factory, model, screensize, public_date, model_type, sysver, breaked, carrier, price, devicetype, processtime,model_origin,
-factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu,sysver_origin,carrier_origin
+factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu,sysver_origin,carrier_origin,ram,romimg,displayid,sdcardStorage_clean,ram_clean,romimg_clean,displayid_clean
 from
 (
   select device, factory, model, screensize, public_date, model_type, sysver, breaked, carrier, price, devicetype, processtime,model_origin,
-  factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu,sysver_origin,carrier_origin,
+  factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu,sysver_origin,carrier_origin,,ram,romimg,displayid,sdcardStorage_clean,ram_clean,romimg_clean,displayid_clean,
   row_number() over(partition by device order by processtime desc) as rank
   from
   (
     select device, factory, model_clean as model, screensize_clean as screensize, public_date, model_type, sysver_clean as sysver,
            breaked_clean as breaked, carrier_clean as carrier, price, devicetype_clean as devicetype, day as processtime,model as model_origin,
-           factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu,sysver as sysver_origin,carrier as carrier_origin
+           factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu,sysver as sysver_origin,carrier as carrier_origin,ram,romimg,displayid,sdcardStorage_clean,ram_clean,romimg_clean,displayid_clean
     from $dwd_device_info_di
     where day='$day'
     and plat='1'
@@ -222,7 +267,7 @@ from
     union all
 
     select device, factory, model, screensize, public_date, model_type, sysver, breaked, carrier, price, devicetype, processtime,model_origin,
-    factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu,sysver_origin,carrier_origin
+    factory_clean, factory_cn, factory_clean_subcompany, factory_cn_subcompany, sim_type, screen_size, cpu,sysver_origin,carrier_origin,ram,romimg,displayid,sdcardStorage_clean,ram_clean,romimg_clean,displayid_clean
     from $dwd_device_info_df
     where version='${prev_1day}.1000'
     and plat='1'
