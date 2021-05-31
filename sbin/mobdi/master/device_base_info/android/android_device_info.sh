@@ -73,7 +73,7 @@ with unioned_device_info as (
   CASE WHEN regexp_extract(screensize,'([0-9]{2,4}x[0-9]{2,4})',0)=='' THEN '' ELSE CASE WHEN cast(split(regexp_replace(screensize, 'x', 'x'),'x')[0] AS INT) < cast(split(regexp_replace(screensize, 'x', 'x'),'x')[1] AS INT) THEN concat(split(regexp_replace(screensize, 'x', 'x'),'x')[0],'x',split(regexp_replace(screensize, 'x', 'x'),'x')[1]) ELSE concat(split(regexp_replace(screensize, 'x', 'x'),'x')[1],'x',split(regexp_replace(screensize, 'x', 'x'),'x')[0]) END END as screensize,
    '' as devicetype, sysver,
   CASE WHEN lower(trim(log_device_info.breaked))='true' OR lower(trim(log_device_info.breaked)) ='false' THEN lower(trim(log_device_info.breaked)) ELSE '' END as breaked,
-   carrier, serdatetime, 0 as flag,'','',''
+   carrier, serdatetime, 0 as flag,'' as sdcardStorage,'' as ram,'' as romimg
   FROM dw_sdk_log.log_device_info
   where dt = '$day'
   and plat = '1'
