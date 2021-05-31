@@ -21,7 +21,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #input
 #dwd_log_device_info_jh_sec_di=dm_mobdi_master.dwd_log_device_info_jh_sec_di
-
+#dwd_device_ext_info_sec_di=dm_mobdi_master.dwd_device_ext_info_sec_di
 #mapping
 #sysver_mapping_par=dim_sdk_mapping.sim_sysver_mapping_par
 #brand_model_mapping_par=dim_sdk_mapping.dim_brand_model_mapping_par
