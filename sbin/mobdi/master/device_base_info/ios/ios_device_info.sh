@@ -38,7 +38,7 @@ prev_1day=`date +%Y%m%d -d "${day} -1 day"`
 ios_factory_mapping_sql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_mapping_ios_factory_par', 'version');
+    SELECT GET_LAST_PARTITION('dim_sdk_mapping', 'dim_mapping_ios_factory_par', 'version');
 "
 ios_factory_mapping_partition=(`hive -e "$ios_factory_mapping_sql"`)
 
