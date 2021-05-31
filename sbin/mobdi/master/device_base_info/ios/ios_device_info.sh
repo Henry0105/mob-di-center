@@ -130,7 +130,7 @@ select info.device,
          when trim(upper(coalesce(carrier_mapping.brand, info.carrier)))=-1 OR trim(upper(coalesce(carrier_mapping.brand, info.carrier)))='' THEN 'unknown'
          ELSE trim(upper(coalesce(carrier_mapping.brand, info.carrier)))
        END AS carrier_clean,
-       '','','','','',''
+       '','','','','','','','','','','','','',''
 from
 (
   select ranked_device_info.device,
@@ -161,7 +161,7 @@ ON info.carrier = carrier_mapping.mcc_mnc
 --插入全量表
 insert overwrite table $dwd_device_info_df partition(version='${day}.1000', plat='2')
 select device, factory, model, screensize, public_date, model_type, sysver, breaked, carrier, price, devicetype, processtime,model_origin,
-'','','','','','','',sysver_origin,carrier_origin
+'','','','','','','',sysver_origin,carrier_origin,'','','','','','','',''
 from 
 (
   select device, factory, model, screensize, public_date, model_type, sysver, breaked, carrier, price, devicetype, processtime,model_origin,sysver_origin,carrier_origin,
