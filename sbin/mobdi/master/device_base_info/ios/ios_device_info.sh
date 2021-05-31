@@ -26,8 +26,8 @@ prev_1day=`date +%Y%m%d -d "${day} -1 day"`
 #dwd_log_device_info_jh_sec_di=dm_mobdi_master.dwd_log_device_info_jh_sec_di
 
 #mapping
-#mapping_ios_factory_par=dm_mobdi_mapping.mapping_ios_factory_par
-#mapping_carrier_par=dm_mobdi_mapping.mapping_carrier_par
+#dim_mapping_ios_factory_par=dim_sdk_mapping.dim_mapping_ios_factory_par
+#dim_mapping_carrier_par=dim_sdk_mapping.dim_mapping_carrier_par
 
 
 #out
@@ -38,7 +38,7 @@ prev_1day=`date +%Y%m%d -d "${day} -1 day"`
 ios_factory_mapping_sql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'mapping_ios_factory_par', 'version');
+    SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_mapping_ios_factory_par', 'version');
 "
 ios_factory_mapping_partition=(`hive -e "$ios_factory_mapping_sql"`)
 
@@ -149,12 +149,12 @@ from
   left join
   (
     select *
-    from $mapping_ios_factory_par
+    from $dim_mapping_ios_factory_par
     where version = '$ios_factory_mapping_partition'
   ) iosm on upper(iosm.model_code) = upper(ranked_device_info.model)
 ) info
 LEFT JOIN
-(select mcc_mnc,brand from $mapping_carrier_par where version='1000') carrier_mapping
+(select mcc_mnc,brand from $dim_mapping_carrier_par where version='1000') carrier_mapping
 ON info.carrier = carrier_mapping.mcc_mnc
 ;
 
