@@ -61,7 +61,7 @@ set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.exec.reducers.max=4000;
 
 with unioned_device_info as (
-  select muid as device, factory, model, screensize, devicetype as devicetype, sysver, cast(breaked as string) as breaked, carrier, serdatetime, 1 as flag
+  select device, factory, model, screensize, devicetype as devicetype, sysver, cast(breaked as string) as breaked, carrier, serdatetime, 1 as flag
   FROM $dwd_log_device_info_jh_sec_di
   where day = '$day'
   and plat = '2'
