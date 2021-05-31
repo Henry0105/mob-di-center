@@ -23,9 +23,9 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 #dwd_log_device_info_jh_sec_di=dm_mobdi_master.dwd_log_device_info_jh_sec_di
 #dwd_device_ext_info_sec_di=dm_mobdi_master.dwd_device_ext_info_sec_di
 #mapping
-#sysver_mapping_par=dim_sdk_mapping.sim_sysver_mapping_par
-#brand_model_mapping_par=dim_sdk_mapping.dim_brand_model_mapping_par
-#mapping_carrier_par=dim_sdk_mapping.dim_mapping_carrier_par
+#sim_sysver_mapping_par=dim_sdk_mapping.sim_sysver_mapping_par
+#dim_brand_model_mapping_par=dim_sdk_mapping.dim_brand_model_mapping_par
+#dim_mapping_carrier_par=dim_sdk_mapping.dim_mapping_carrier_par
 
 #out
 #dwd_device_info_di=dm_mobdi_master.dwd_device_info_di
@@ -229,7 +229,7 @@ FROM
       when price >= 1000 and price<=2500 then '中端'
       when price > 2500 then '高端'
     end as type
-    from $brand_model_mapping_par
+    from $dim_brand_model_mapping_par
     where version='1000'
   ) brand_mapping
   on upper(trim(brand_mapping.brand)) = upper(trim(ranked_device_info.factory))
@@ -242,7 +242,7 @@ LEFT JOIN
 (select * from  $sim_sysver_mapping_par  where version='$version')sysver_mapping
 ON info.sysver = sysver_mapping.vernum
 LEFT JOIN
-(select mcc_mnc,brand from $mapping_carrier_par where version='1000') carrier_mapping
+(select mcc_mnc,brand from $dim_mapping_carrier_par where version='1000') carrier_mapping
 ON info.carrier = carrier_mapping.mcc_mnc
 ;
 
