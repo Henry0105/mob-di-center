@@ -60,18 +60,52 @@ bssid_finaltable_addgeohash8_addlocation_par=${dm_mobdi_tmp}.bssid_finaltable_ad
 echo "step 1:get gps data from log..."
 
 hive -v -e "
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
+create temporary function coord_convertor as 'com.youzu.mob.java.udf.CoordConvertor';
 insert overwrite table $calculate_bssid_mapping_base_info partition(day='$day')
-select muid as deviceid, trim(lower(cur_bssid)) as bssid, cur_ssid as ssid, latitude, longitude, clienttime, accuracy, day as log_day
-from $dwd_location_info_sec_di
-where day >$pday and day <=$day
-and regexp_replace(trim(lower(cur_bssid)), '-|:|\\\\.|\073', '') rlike '^[0-9a-f]{12}$'
-and cur_bssid is not null
-and latitude is not null
-and longitude is not null
-and trim(lower(cur_bssid)) not in ('00:00:00:00:00:00','02:00:00:00:00:00','01:80:c2:00:00:03','ff:ff:ff:ff:ff:ff','00:02:00:00:00:00')
-and abs(latitude) <= 90 and abs(longitude) <= 180 and (latitude <> 0 or longitude <> 0)
-and ((latitude - round(latitude, 1))*10 <> 0.0 and (longitude - round(longitude, 1))*10 <> 0.0)
-group by muid, trim(lower(cur_bssid)), cur_ssid, latitude, longitude, clienttime, accuracy, day;
+select deviceid, bssid, ssid, latitude, longitude, clienttime, accuracy, log_day
+from
+(
+    select muid as deviceid, trim(lower(cur_bssid)) as bssid, cur_ssid as ssid, latitude, longitude, clienttime, accuracy, day as log_day
+    from $dwd_location_info_sec_di
+    where day >$pday and day <=$day
+    and regexp_replace(trim(lower(cur_bssid)), '-|:|\\\\.|\073', '') rlike '^[0-9a-f]{12}$'
+    and cur_bssid is not null
+    and latitude is not null
+    and longitude is not null
+    and trim(lower(cur_bssid)) not in ('00:00:00:00:00:00','02:00:00:00:00:00','01:80:c2:00:00:03','ff:ff:ff:ff:ff:ff','00:02:00:00:00:00')
+    and abs(latitude) <= 90 and abs(longitude) <= 180 and (latitude <> 0 or longitude <> 0)
+    and ((latitude - round(latitude, 1))*10 <> 0.0 and (longitude - round(longitude, 1))*10 <> 0.0)
+    group by muid, trim(lower(cur_bssid)), cur_ssid, latitude, longitude, clienttime, accuracy, day
+
+    union all
+
+    select device as deviceid, bssid, ssid, latitude, longitude, datetime as clienttime, accuracy, day as log_day
+    from
+    (
+      select muid as device, trim(lower(bssid)) as bssid, ssid, datetime,day,
+            split(coord_convertor(cl['latitude'],cl['longitude'],'wsg84','bd09'),',')[0] latitude,
+            split(coord_convertor(cl['latitude'],cl['longitude'],'wsg84','bd09'),',')[1] longitude,
+            cl['accuracy'] accuracy,
+            cl['ltime'] ltime
+      from $dwd_log_wifi_info_sec_di
+      where day >$pday and day <=$day
+	and cl['latitude'] is not null
+      and cl['longitude'] is not null
+      and abs(cl['latitude']) <= 90 and abs(cl['longitude']) <= 180 and (cl['latitude'] <> 0 or cl['longitude'] <> 0)
+      and ((cl['latitude'] - round(cl['latitude'], 1))*10 <> 0.0 and (cl['longitude'] - round(cl['longitude'], 1))*10 <> 0.0)
+      and regexp_replace(trim(lower(bssid)), '-|:|\\\\.|\073', '') rlike '^[0-9a-f]{12}$'
+      and bssid is not null
+      and trim(lower(bssid)) not in ('00:00:00:00:00:00','02:00:00:00:00:00','01:80:c2:00:00:03','ff:ff:ff:ff:ff:ff','00:02:00:00:00:00')
+      and datetime-cl['ltime']<=300000
+    ) a
+    where latitude is not null
+    and longitude is not null
+    and abs(latitude) <= 90 and abs(longitude) <= 180 and (latitude <> 0 or longitude <> 0)
+    and ((latitude - round(latitude, 1))*10 <> 0.0 and (longitude - round(longitude, 1))*10 <> 0.0)
+    group by device, bssid, ssid, latitude, longitude, datetime, accuracy, day
+
+) b group by deviceid, bssid, ssid, latitude, longitude, clienttime, accuracy, log_day
 "
 
 #12小时内的移动距离>=100m且平均速度>=30m/s，认为是异常数据
