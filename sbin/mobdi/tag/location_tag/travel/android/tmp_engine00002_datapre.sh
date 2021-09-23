@@ -100,7 +100,7 @@ as (
                 from (
                     select lat, lon, day,count(1) as cnt
                     from $dws_device_location_staying_di
-                    where lat is not null and lon is not null and day = '${day_run}'
+                    where lat is not null and lon is not null   -- 去除 这个条件，应该是写错了： and day = '${day_run}'
                     and day >= '$p30' and day < '$day_run' and abnormal_flag = 0 and type = 'gps'
                     group by lat, lon,day
                     ) tt
