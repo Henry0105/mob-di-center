@@ -96,7 +96,7 @@ ranked_device_info as (
 unioned_ext_info as(
   select muid as device, displayid,serdatetime
   FROM $dwd_device_ext_info_sec_di
-  where day = '$insert_day'
+  where day = '$day'
   and plat = '1'
 ),
 
