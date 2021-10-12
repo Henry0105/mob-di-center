@@ -9,6 +9,7 @@ import com.mob.dm.lldistance.enu.OutputOperationTypeEnu
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Date}
 import com.mob.dm.lldistance.handler.LbsTypedBasedOnHBasePOIHandler
+import com.youzu.mob.utils.Constants._
 
 /**
  * @author xdzhang
@@ -100,11 +101,11 @@ object LbsPOITmp {
       hiveContext.sql("select * from insert_daily_cache ")
         .coalesce(filesnum).registerTempTable("insert_daily_repartition")
       hiveContext.sql(
-        s"""insert overwrite table dm_mobdi_topic.dws_device_catering_dinein_di partition(day=${partition})
+        s"""insert overwrite table $DWS_DEVICE_CATERING_DINEIN_DI partition(day=${partition})
            |select * from insert_dinein_repartition
          """.stripMargin)
       hiveContext.sql(
-        s"""insert overwrite table dm_mobdi_topic.dws_device_lbs_poi_10type_di partition(day=${partition})
+        s"""insert overwrite table $DWS_DEVICE_LBS_POI_10TYPE_DI partition(day=${partition})
            |select * from insert_daily_repartition
          """.stripMargin)
     }

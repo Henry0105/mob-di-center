@@ -50,13 +50,13 @@ class StallDataMarket {
          |from
          |(
          |  select device,applist,process_time,update_time
-         |  from dm_mobdi_master.dm_device_applist_full
+         |  from $DM_DEVICE_APPLIST_FULL
          |  where day = '${fulltime}'
          |) a
          |full join
          |(
          |  select device,applist,upload_time
-         |  from dm_mobdi_master.dm_device_applist_incr
+         |  from $DM_DEVICE_APPLIST_INCR
          |  where day='${datetime}'
          |)b on a.device=b.device
       """.stripMargin)

@@ -56,4 +56,10 @@ object Constants {
 
   val DWS_DEVICE_APP_INFO_DF = prop("dws_device_app_info_df")
   val DIM_ID_MAPPING_ANDROID_DF_VIEW = prop("dim_id_mapping_android_df_view")
+
+  val DWS_DEVICE_CATERING_DINEIN_DI = prop("dws_device_catering_dinein_di")
+  val DWS_DEVICE_LBS_POI_10TYPE_DI = prop("dws_device_lbs_poi_10type_di")
+  val DM_DEVICE_APPLIST_FULL = prop("dm_device_applist_full")
+  val DM_DEVICE_APPLIST_INCR = prop("dm_device_applist_incr")
+
 }
