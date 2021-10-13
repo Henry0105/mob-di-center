@@ -39,7 +39,7 @@ partitioned by (day string comment '日期')
 stored as orc;
 !
 
-area_lastpar=`hive -S -e "show partitions dm_sdk_mapping.mapping_area_par" |tail -n 1 `
+area_lastpar=`hive -S -e "show partitions $dim_mapping_area_par" |tail -n 1 `
 
 hive -v -e "
 set mapreduce.job.queuename=root.yarn_mobdashboard.mobdashboard;
@@ -65,7 +65,7 @@ from
                city_code,    
                province,
                city
-        from $mapping_area_par
+        from $dim_mapping_area_par
         where $area_lastpar
         and country = '中国'
         group by province_code,city_code,province,city

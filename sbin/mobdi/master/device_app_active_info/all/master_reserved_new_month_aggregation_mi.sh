@@ -21,7 +21,7 @@ source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
 master_reserved_new=${dws_device_install_app_re_status_di}
 
 ## 输出
-master_reserved_new_month_aggregation_mi=dw_mobdi_tmp.md_master_reserved_new_month_aggregation_mi
+master_reserved_new_month_aggregation_mi=$dw_mobdi_tmp.md_master_reserved_new_month_aggregation_mi
 
 #聚合一个月的master_reserved_new数据，存储起来
 hive -v -e "

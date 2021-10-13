@@ -30,7 +30,9 @@ source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 #dwd_t_location_sec_di=dm_mobdi_master.dwd_t_location_sec_di
 
 #mapping
-#mapping_ip_attribute_code=dm_sdk_mapping.mapping_ip_attribute_code
+#dim_mapping_ip_attribute_code=dim_sdk_mapping.dim_mapping_ip_attribute_code
+dim_mapping_ip_attribute_code_db=$(echo $dim_mapping_ip_attribute_code|awk -F '.' '{print $1}')
+dim_mapping_ip_attribute_code_tb=$(echo $dim_mapping_ip_attribute_code|awk -F '.' '{print $2}')
 
 #out
 #device_ip_info=dm_mobdi_topic.dws_device_ip_info_di
@@ -40,7 +42,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 ip_mapping_sql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dm_sdk_mapping', 'mapping_ip_attribute_code', 'day');
+    SELECT GET_LAST_PARTITION('$dim_mapping_ip_attribute_code_db', '$dim_mapping_ip_attribute_code_tb', 'day');
 "
 last_ip_mapping_partition=(`hive -e "$ip_mapping_sql"`)
 
@@ -179,7 +181,7 @@ left join
          province_code,
          city_code,
          area_code
-  from $mapping_ip_attribute_code
+  from $dim_mapping_ip_attribute_code
   where day='$last_ip_mapping_partition'
 ) ip_mapping
 on (get_ip_attribute(grouped.ipaddr) = ip_mapping.minip)

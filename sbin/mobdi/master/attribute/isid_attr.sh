@@ -14,7 +14,7 @@ day=$1
 source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
 # input
-isid_full=${archive_id_laws}.isid_full
+#isid_full=${archive_id_laws}.isid_full
 
 # output
 #dim_isid_attribute_full_par_sec=dim_mobdi_mapping.dim_isid_attribute_full_par_sec

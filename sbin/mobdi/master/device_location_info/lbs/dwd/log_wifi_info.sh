@@ -6,20 +6,26 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-#source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-#source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-#source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
 ###源表
-dwd_log_wifi_info_sec_di=dm_mobdi_master.dwd_log_wifi_info_sec_di
+#dwd_log_wifi_info_sec_di=dm_mobdi_master.dwd_log_wifi_info_sec_di
+wifi_info_db=$(echo $dwd_log_wifi_info_sec_di|awk -F '.' '{print $1}')
+wifi_info_tb=$(echo $dwd_log_wifi_info_sec_di|awk -F '.' '{print $2}')
 
 ###映射表
-dim_latlon_blacklist_mf=dm_mobdi_mapping.dim_latlon_blacklist_mf
-mapping_ip_attribute_code=dm_sdk_mapping.mapping_ip_attribute_code
-dim_mapping_bssid_location_clear_mf=dm_mobdi_mapping.dim_mapping_bssid_location_clear_mf
+#dim_latlon_blacklist_mf=dim_mobdi_mapping.dim_latlon_blacklist_mf
+#dim_mapping_ip_attribute_code=dim_sdk_mapping.dim_mapping_ip_attribute_code
+#mapping_ip_attribute_code=dm_sdk_mapping.mapping_ip_attribute_code
+ip_attribute_code_db=$(echo $dim_mapping_ip_attribute_code|awk -F '.' '{print $1}')
+ip_attribute_code_tb=$(echo $dim_mapping_ip_attribute_code|awk -F '.' '{print $2}')
+#dim_mapping_bssid_location_clear_mf=dim_mobdi_mapping.dim_mapping_bssid_location_clear_mf
+#dim_mapping_bssid_location_clear_mf=dm_mobdi_mapping.dim_mapping_bssid_location_clear_mf
 
 ###目标表
-dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
+#dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
 
 day=$1
 plus_1day=`date +%Y%m%d -d "${day} +1 day"`
@@ -45,9 +51,9 @@ CHECK_DATA()
       return 1
   fi
 }
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_log_wifi_info_sec_di/day=${day}"
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_log_wifi_info_sec_di/day=${plus_1day}"
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_log_wifi_info_sec_di/day=${plus_2day}"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$wifi_info_db.db/$wifi_info_tb/day=${day}"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$wifi_info_db.db/$wifi_info_tb/day=${plus_1day}"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$wifi_info_db.db/$wifi_info_tb/day=${plus_2day}"
 # ##########################################
 
 #bssid_mapping_sql="
@@ -57,7 +63,7 @@ CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_log
 #"
 #last_bssid_mapping_mapping_partition=(`hive -e "$bssid_mapping_sql"`)
 #获取小于当前日期的最大分区
-par_arr=(`hive -e "show partitions dm_mobdi_mapping.dim_mapping_bssid_location_clear_mf" |awk -F '=' '{print $2}'|xargs`)
+par_arr=(`hive -e "show partitions $dim_mapping_bssid_location_clear_mf" |awk -F '=' '{print $2}'|xargs`)
 for par in ${par_arr[@]}
 do
   if [ $par -le $day ]
@@ -71,7 +77,7 @@ done
 ip_mapping_sql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dm_sdk_mapping', 'mapping_ip_attribute_code', 'day');
+    SELECT GET_LAST_PARTITION('$ip_attribute_code_db', '$ip_attribute_code_tb', 'day');
 "
 last_ip_mapping_partition=(`hive -e "$ip_mapping_sql"`)
 
@@ -82,7 +88,7 @@ last_ip_mapping_partition=(`hive -e "$ip_mapping_sql"`)
 #"
 #last_ip_mapping_partition_latlon=(`hive -e "$ip_mapping_sql"`)
 #获取小于当前日期的最大分区
-par_arr=(`hive -e "show partitions dm_mobdi_mapping.dim_latlon_blacklist_mf" |awk -F '=' '{print $2}'|xargs`)
+par_arr=(`hive -e "show partitions $dim_latlon_blacklist_mf" |awk -F '=' '{print $2}'|xargs`)
 for par in ${par_arr[@]}
 do
   if [ $par -le $day ]
@@ -246,7 +252,7 @@ from (
                       left join (select * from $dim_mapping_bssid_location_clear_mf where day = '$last_bssid_mapping_mapping_partition') bssid_mapping
                       on (bssid_mapping.bssid = log_wifi_info.bssid)  --根据bssid信息关联
                 ) bssid_location
-                left join (select * from $mapping_ip_attribute_code where day='$last_ip_mapping_partition') ip_mapping
+                left join (select * from $dim_mapping_ip_attribute_code where day='$last_ip_mapping_partition') ip_mapping
                 on (case when bssid_location.lat is not null and bssid_location.lon is not null then concat('', rand()) else get_ip_attribute(bssid_location.ipaddr) end = ip_mapping.minip)  --未关联上的再根据ip信息关联
           )tt
     ) a

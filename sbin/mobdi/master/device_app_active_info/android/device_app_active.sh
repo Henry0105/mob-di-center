@@ -27,6 +27,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 
 #mapping
 #app_pkg_mapping_par=dm_sdk_mapping.app_pkg_mapping_par
+#dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
 
 #output
 #dws_device_app_runtimes_di=dm_mobdi_topic.dws_device_app_runtimes_di
@@ -97,7 +98,7 @@ from
   left outer join
   (
     select *
-    from $app_pkg_mapping_par
+    from $dim_app_pkg_mapping_par
     where version='1000'
   ) b on (a.pkg=b.pkg)
   where COALESCE(b.apppkg,a.pkg) is not null

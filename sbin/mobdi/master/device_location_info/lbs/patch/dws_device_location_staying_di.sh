@@ -17,6 +17,8 @@ fi
 
 source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+device_location_info_db=$(echo $dwd_device_location_info_di|awk -F '.' '{print $1}')
+device_location_info_tb=$(echo $dwd_device_location_info_di|awk -F '.' '{print $2}')
 
 day=$1
 
@@ -40,13 +42,13 @@ CHECK_DATA()
 }
 
 #判断分区数据，后面可删
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_info_di/day=${day}/source_table=pv"
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_info_di/day=${day}/source_table=auto_location_info"
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_info_di/day=${day}/source_table=base_station_info"
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_info_di/day=${day}/source_table=location_info"
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_info_di/day=${day}/source_table=log_run_new"
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_info_di/day=${day}/source_table=log_wifi_info"
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_device_location_info_di/day=${day}/source_table=t_location"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$device_location_info_db.db/$device_location_info_tb/day=${day}/source_table=pv"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$device_location_info_db.db/$device_location_info_tb/day=${day}/source_table=auto_location_info"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$device_location_info_db.db/$device_location_info_tb/day=${day}/source_table=base_station_info"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$device_location_info_db.db/$device_location_info_tb/day=${day}/source_table=location_info"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$device_location_info_db.db/$device_location_info_tb/day=${day}/source_table=log_run_new"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$device_location_info_db.db/$device_location_info_tb/day=${day}/source_table=log_wifi_info"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$device_location_info_db.db/$device_location_info_tb/day=${day}/source_table=t_location"
 
 
 hive -v -e"

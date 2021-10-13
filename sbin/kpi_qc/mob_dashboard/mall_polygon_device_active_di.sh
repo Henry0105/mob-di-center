@@ -27,7 +27,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_dashboard.properties
 
 #input
 #dwd_device_location_di_v2=dm_mobdi_master.dwd_device_location_di_v2
-mobeye_mall_polygon_final=dm_mobeye_master.mobeye_mall_polygon_final
+#mobeye_mall_polygon_final=dm_mobeye_master.mobeye_mall_polygon_final
 
 #md
 #mall_polygon_device_active_di=mob_dashboard.mall_polygon_device_active_di

@@ -6,19 +6,24 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-#source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-#source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-#source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
 ###源表
-dwd_log_run_new_di=dm_mobdi_master.dwd_log_run_new_di
+#dwd_log_run_new_di=dm_mobdi_master.dwd_log_run_new_di
+run_db=$(echo $dwd_log_run_new_di|awk -F '.' '{print $1}')
+run_tb=$(echo $dwd_log_run_new_di|awk -F '.' '{print $2}')
 
 ###映射表
-dim_latlon_blacklist_mf=dm_mobdi_mapping.dim_latlon_blacklist_mf
-mapping_ip_attribute_code=dm_sdk_mapping.mapping_ip_attribute_code
+#dim_latlon_blacklist_mf=dim_mobdi_mapping.dim_latlon_blacklist_mf
+#dim_mapping_ip_attribute_code=dim_sdk_mapping.dim_mapping_ip_attribute_code
+#mapping_ip_attribute_code=dm_sdk_mapping.mapping_ip_attribute_code
+ip_attribute_code_db=$(echo $dim_mapping_ip_attribute_code|awk -F '.' '{print $1}')
+ip_attribute_code_tb=$(echo $dim_mapping_ip_attribute_code|awk -F '.' '{print $2}')
 
 ###目标表
-dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
+#dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
 
 day=$1
 echo "startday: "$day
@@ -41,13 +46,13 @@ CHECK_DATA()
       return 1
   fi
 }
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_log_run_new_di/day=${day}"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$run_db.db/$run_tb/day=${day}"
 # ##########################################
 
 ip_mapping_sql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dm_sdk_mapping', 'mapping_ip_attribute_code', 'day');
+    SELECT GET_LAST_PARTITION('$ip_attribute_code_db', '$ip_attribute_code_tb', 'day');
 "
 last_ip_mapping_partition=(`hive -e "$ip_mapping_sql"`)
 
@@ -198,7 +203,7 @@ from (
                     log_run_new.accuracy,
                     apppkg, '' as orig_note3,ipaddr,servertime,language
                 from log_run_new
-                left join (select * from $mapping_ip_attribute_code where day='$last_ip_mapping_partition') ip_mapping
+                left join (select * from $dim_mapping_ip_attribute_code where day='$last_ip_mapping_partition') ip_mapping
                 on (get_ip_attribute(log_run_new.ipaddr) = ip_mapping.minip)  --根据ip信息关联
           ) aa
     ) a

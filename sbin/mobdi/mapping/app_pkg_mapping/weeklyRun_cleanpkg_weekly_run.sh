@@ -15,19 +15,21 @@ export LANG=en_US.UTF-8
 date1=$1
 #导入配置文件
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_other.properties
 
 #input
-rp_app_rank_category_insatll_daily=rp_mobeye_app360.rp_app_rank_category_insatll_daily
+#rp_app_rank_category_insatll_daily=rp_mobeye_app360.rp_app_rank_category_insatll_daily
 #mapping
-dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
+#dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
 #tmp
-cleanpkg_pkg_cnt_temp=dm_mobdi_tmp.cleanpkg_pkg_cnt_temp
-cleanpkg_apppkg_temp=dm_mobdi_tmp.cleanpkg_apppkg_temp
-cleanpkg_apppkg_name_temp=dm_mobdi_tmp.cleanpkg_apppkg_name_temp
-cleanpkg_result_temp=dm_mobdi_tmp.cleanpkg_result_temp
-pkg_name_sort=dm_mobdi_tmp.pkg_name_sort
+tmpdb="$dm_mobdi_tmp"
+cleanpkg_pkg_cnt_temp=$tmpdb.cleanpkg_pkg_cnt_temp
+cleanpkg_apppkg_temp=$tmpdb.cleanpkg_apppkg_temp
+cleanpkg_apppkg_name_temp=$tmpdb.cleanpkg_apppkg_name_temp
+cleanpkg_result_temp=$tmpdb.cleanpkg_result_temp
+pkg_name_sort=$tmpdb.pkg_name_sort
 #out
-dim_apppkg_pkg_name=dim_sdk_mapping.dim_apppkg_pkg_name
+#dim_apppkg_pkg_name=dim_sdk_mapping.dim_apppkg_pkg_name
 
 if [ $(date -d "$date1" +%w) -eq 2 ] ;then
 

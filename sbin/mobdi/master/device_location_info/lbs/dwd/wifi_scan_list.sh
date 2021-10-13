@@ -6,27 +6,32 @@ if [[ -z "$1" ]]; then
   exit 1
 fi
 
-#source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-#source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-#source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
 ###源表
-dwd_wifilist_explore_sec_di=dm_mobdi_master.dwd_wifilist_explore_sec_di
+#dwd_wifilist_explore_sec_di=dm_mobdi_master.dwd_wifilist_explore_sec_di
+wifilist_explore_db=$(echo $dwd_wifilist_explore_sec_di|awk -F '.' '{print $1}')
+wifilist_explore_tb=$(echo $dwd_wifilist_explore_sec_di|awk -F '.' '{print $2}')
 
 ###映射表
-dim_mapping_bssid_location_mf=dm_mobdi_mapping.dim_mapping_bssid_location_mf
-dim_bssid_level_connect_probability_all_mf=dm_mobdi_mapping.dim_bssid_level_connect_probability_all_mf
+#dim_mapping_bssid_location_mf=dim_mobdi_mapping.dim_mapping_bssid_location_mf
+#dim_mapping_bssid_location_mf=dm_mobdi_mapping.dim_mapping_bssid_location_mf
+#dim_bssid_level_connect_probability_all_mf=dim_mobdi_mapping.dim_bssid_level_connect_probability_all_mf
+#dim_bssid_level_connect_probability_all_mf=dm_mobdi_mapping.dim_bssid_level_connect_probability_all_mf
 
+tmpdb="$dm_mobdi_tmp"
 ###中间库
-wifi_scan_list_collected=dm_mobdi_tmp.wifi_scan_list_collected
-wifi_scan_list_not_collected=dm_mobdi_tmp.wifi_scan_list_not_collected
-wifi_scan_list_not_collected_probability=dm_mobdi_tmp.wifi_scan_list_not_collected_probability
-wifi_scan_list_not_collected_high_probability=dm_mobdi_tmp.wifi_scan_list_not_collected_high_probability
-wifi_scan_list_not_collected_low_probability=dm_mobdi_tmp.wifi_scan_list_not_collected_low_probability
-wifi_scan_list_not_collected_low_probability_final=dm_mobdi_tmp.wifi_scan_list_not_collected_low_probability_final
+wifi_scan_list_collected=$tmpdb.wifi_scan_list_collected
+wifi_scan_list_not_collected=$tmpdb.wifi_scan_list_not_collected
+wifi_scan_list_not_collected_probability=$tmpdb.wifi_scan_list_not_collected_probability
+wifi_scan_list_not_collected_high_probability=$tmpdb.wifi_scan_list_not_collected_high_probability
+wifi_scan_list_not_collected_low_probability=$tmpdb.wifi_scan_list_not_collected_low_probability
+wifi_scan_list_not_collected_low_probability_final=$tmpdb.wifi_scan_list_not_collected_low_probability_final
 
 ###目标表
-dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
+#dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
 
 
 day=$1
@@ -53,15 +58,15 @@ CHECK_DATA()
       return 1
   fi
 }
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_wifilist_explore_sec_di/day=${day}"
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_wifilist_explore_sec_di/day=${plus_1day}"
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_wifilist_explore_sec_di/day=${plus_2day}"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$wifilist_explore_db.db/$wifilist_explore_tb/day=${day}"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$wifilist_explore_db.db/$wifilist_explore_tb/day=${plus_1day}"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$wifilist_explore_db.db/$wifilist_explore_tb/day=${plus_2day}"
 # ##########################################
 
 #计算dim_mapping_bssid_location_mf表小于day最近的一个分区
-last_bssid_mapping_mapping_partition=`hive -e "show partitions dm_mobdi_mapping.dim_mapping_bssid_location_mf" | awk -v day=${day} -F '=' '$2<day {print $0}'| sort| tail -n 1`
+last_bssid_mapping_mapping_partition=`hive -e "show partitions $dim_mapping_bssid_location_mf" | awk -v day=${day} -F '=' '$2<day {print $0}'| sort| tail -n 1`
 #计算dim_bssid_level_connect_probability_all_mf表小于day最近的一个分区
-last_bssid_level_connect_probability_partition=`hive -e "show partitions dm_mobdi_mapping.dim_bssid_level_connect_probability_all_mf" | awk -v day=${day} -F '=' '$2<day {print $0}'| sort| tail -n 1`
+last_bssid_level_connect_probability_partition=`hive -e "show partitions $dim_bssid_level_connect_probability_all_mf" | awk -v day=${day} -F '=' '$2<day {print $0}'| sort| tail -n 1`
 
 
 hive -v -e "

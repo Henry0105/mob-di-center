@@ -14,30 +14,30 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #源表
 #dim_poi_config_mapping_par=dim_sdk_mapping.dim_poi_config_mapping_par
-
+tmpdb=$dm_mobdi_tmp
 #tmp
-car_4s_poi_info=${dm_mobdi_tmp}.car_4s_poi_info
-car_4s_poi_and_bssid_connect_info=${dm_mobdi_tmp}.car_4s_poi_and_bssid_connect_info
-ssid_match_data_prepare=${dm_mobdi_tmp}.ssid_match_data_prepare
-car_4s_poi_and_ssid_connect_count_info=${dm_mobdi_tmp}.car_4s_poi_and_ssid_connect_count_info
-car_4s_ssid_calculate_base_info=${dm_mobdi_tmp}.car_4s_ssid_calculate_base_info
-car_4s_name_match_ssid_info=${dm_mobdi_tmp}.car_4s_name_match_ssid_info
-car_4s_ssid_cn_match=${dm_mobdi_tmp}.car_4s_ssid_cn_match
-city_name_combine_area_name=${dm_mobdi_tmp}.city_name_combine_area_name
-car_4s_ssid_name_en_match=${dm_mobdi_tmp}.car_4s_ssid_name_en_match
-car_4s_ssid_famous_en_match=${dm_mobdi_tmp}.car_4s_ssid_famous_en_match
-car_4s_ssid_rude_match=${dm_mobdi_tmp}.car_4s_ssid_rude_match
-car_4s_ssid_match_merge_all_conditions=${dm_mobdi_tmp}.car_4s_ssid_match_merge_all_conditions
-car_4s_split_ssid_pinyin_match=${dm_mobdi_tmp}.car_4s_split_ssid_pinyin_match
-car_4s_split_ssid_pinyin_short_match=${dm_mobdi_tmp}.car_4s_split_ssid_pinyin_short_match
-car_4s_ssid_pinyin_match=${dm_mobdi_tmp}.car_4s_ssid_pinyin_match
-car_4s_ssid_pinyin_short_match=${dm_mobdi_tmp}.car_4s_ssid_pinyin_short_match
-car_4s_bssid_remain_1=${dm_mobdi_tmp}.car_4s_bssid_remain_1
-car_4s_ssid_match_second_confidence=${dm_mobdi_tmp}.car_4s_ssid_match_second_confidence
-car_4s_bssid_remain_2=${dm_mobdi_tmp}.car_4s_bssid_remain_2
-car_4s_ssid_match_third_confidence=${dm_mobdi_tmp}.car_4s_ssid_match_third_confidence
-car_4s_poi_and_bssid_info=${dm_mobdi_tmp}.car_4s_poi_and_bssid_info
-one_bssid_ssid_with_multiple_car_4s_info=${dm_mobdi_tmp}.one_bssid_ssid_with_multiple_car_4s_info
+car_4s_poi_info=$tmpdb.car_4s_poi_info
+car_4s_poi_and_bssid_connect_info=$tmpdb.car_4s_poi_and_bssid_connect_info
+ssid_match_data_prepare=$tmpdb.ssid_match_data_prepare
+car_4s_poi_and_ssid_connect_count_info=$tmpdb.car_4s_poi_and_ssid_connect_count_info
+car_4s_ssid_calculate_base_info=$tmpdb.car_4s_ssid_calculate_base_info
+car_4s_name_match_ssid_info=$tmpdb.car_4s_name_match_ssid_info
+car_4s_ssid_cn_match=$tmpdb.car_4s_ssid_cn_match
+city_name_combine_area_name=$tmpdb.city_name_combine_area_name
+car_4s_ssid_name_en_match=$tmpdb.car_4s_ssid_name_en_match
+car_4s_ssid_famous_en_match=$tmpdb.car_4s_ssid_famous_en_match
+car_4s_ssid_rude_match=$tmpdb.car_4s_ssid_rude_match
+car_4s_ssid_match_merge_all_conditions=$tmpdb.car_4s_ssid_match_merge_all_conditions
+car_4s_split_ssid_pinyin_match=$tmpdb.car_4s_split_ssid_pinyin_match
+car_4s_split_ssid_pinyin_short_match=$tmpdb.car_4s_split_ssid_pinyin_short_match
+car_4s_ssid_pinyin_match=$tmpdb.car_4s_ssid_pinyin_match
+car_4s_ssid_pinyin_short_match=$tmpdb.car_4s_ssid_pinyin_short_match
+car_4s_bssid_remain_1=$tmpdb.car_4s_bssid_remain_1
+car_4s_ssid_match_second_confidence=$tmpdb.car_4s_ssid_match_second_confidence
+car_4s_bssid_remain_2=$tmpdb.car_4s_bssid_remain_2
+car_4s_ssid_match_third_confidence=$tmpdb.car_4s_ssid_match_third_confidence
+car_4s_poi_and_bssid_info=$tmpdb.car_4s_poi_and_bssid_info
+one_bssid_ssid_with_multiple_car_4s_info=$tmpdb.one_bssid_ssid_with_multiple_car_4s_info
 
 #mapping表
 #dim_mapping_bssid_location_mf=dim_mobdi_mapping.dim_mapping_bssid_location_mf
@@ -434,7 +434,7 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.speculation=true \
 --conf spark.driver.maxResultSize=4g \
 --conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
-/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar "$day" "${dm_mobdi_tmp}"
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar "$day" "$tmpdb"
 
 #考虑所有的组合情况，看是否匹配
 hive -v -e "

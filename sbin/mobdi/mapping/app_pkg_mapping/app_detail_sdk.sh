@@ -25,10 +25,13 @@ yyb_last_par=${day}
 #导入配置文件
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_ods.properties
+
+tmpdb="$dm_mobdi_tmp"
 
 #input
-app_wdj_info=dw_appgo_crawl.app_wdj_info
-app_yyb_info=dw_appgo_crawl.app_yyb_info
+#app_wdj_info=dw_appgo_crawl.app_wdj_info
+#app_yyb_info=dw_appgo_crawl.app_yyb_info
 
 #mapping
 #dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
@@ -37,7 +40,7 @@ app_yyb_info=dw_appgo_crawl.app_yyb_info
 #output
 #app_details_sdk=dm_mobdi_report.app_details_sdk
 #dim_app_info_sdk=dim_sdk_mapping.dim_app_info_sdk
-sdkdetail=dm_mobdi_tmp.sdkdetail
+sdkdetail=$tmpdb.sdkdetail
 
 
 # 检查爬虫表上一个日期分区的数据是否生成
@@ -58,8 +61,17 @@ CHECK_DATA()
       return 1
   fi
 }
-CHECK_DATA "hdfs://ShareSdkHadoop/hiveDW/dw_appgo_crawl/app_wdj_info/day=${wdj_last_par}"
-CHECK_DATA "hdfs://ShareSdkHadoop/hiveDW/dw_appgo_crawl/app_yyb_info/day=${yyb_last_par}"
+
+app_wdj_info_db=$(echo $app_wdj_info|awk -F '.' '{print $1}')
+app_wdj_info_tb=$(echo $app_wdj_info|awk -F '.' '{print $2}')
+
+app_yyb_info_db=$(echo $app_yyb_info|awk -F '.' '{print $1}')
+app_yyb_info_tb=$(echo $app_yyb_info|awk -F '.' '{print $2}')
+
+
+
+CHECK_DATA "hdfs://ShareSdkHadoop/hiveDW/$app_wdj_info_db/$app_wdj_info_tb/day=${wdj_last_par}"
+CHECK_DATA "hdfs://ShareSdkHadoop/hiveDW/$app_yyb_info_db/$app_yyb_info_tb/day=${yyb_last_par}"
 
    #整合wdj和yyb两张源表，将app包名为空或者是乱码的去除
    #在app_id(app包名),zone(地区),lang(语言) 对时间去重，优先取wdj，因为wdj有suport_os字段

@@ -42,9 +42,10 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 #mapping
 #dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
 
+tmpdb=$dm_mobdi_tmp
 #md
-pkg_name_sort=${dm_mobdi_tmp}.pkg_name_sort
-apppkg_name_temp=${dm_mobdi_tmp}.apppkg_name_temp
+pkg_name_sort=$tmpdb.pkg_name_sort
+apppkg_name_temp=$tmpdb.apppkg_name_temp
 
 #out
 #dim_app_name_info_orig=dim_mobdi_mapping.dim_app_name_info_orig

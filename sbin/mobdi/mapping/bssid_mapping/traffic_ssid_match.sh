@@ -15,30 +15,30 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #源表
 #dim_poi_config_mapping_par=dim_sdk_mapping.dim_poi_config_mapping_par
-
+tmpdb=$dm_mobdi_tmp
 #中间库
-traffic_poi_info=${dm_mobdi_tmp}.traffic_poi_info
-traffic_poi_and_bssid_connect_info=${dm_mobdi_tmp}.traffic_poi_and_bssid_connect_info
-ssid_match_data_prepare=${dm_mobdi_tmp}.ssid_match_data_prepare
-traffic_poi_and_ssid_connect_count_info=${dm_mobdi_tmp}.traffic_poi_and_ssid_connect_count_info
-traffic_ssid_calculate_base_info=${dm_mobdi_tmp}.traffic_ssid_calculate_base_info
-traffic_name_match_ssid_info=${dm_mobdi_tmp}.traffic_name_match_ssid_info
-traffic_ssid_cn_match=${dm_mobdi_tmp}.traffic_ssid_cn_match
-city_name_combine_area_name=${dm_mobdi_tmp}.city_name_combine_area_name
-traffic_ssid_cn_keyword_match=${dm_mobdi_tmp}.traffic_ssid_cn_keyword_match
-traffic_ssid_famous_en_match=${dm_mobdi_tmp}.traffic_ssid_famous_en_match
-traffic_ssid_rude_match=${dm_mobdi_tmp}.traffic_ssid_rude_match
-traffic_ssid_match_merge_all_conditions=${dm_mobdi_tmp}.traffic_ssid_match_merge_all_conditions
-traffic_split_ssid_pinyin_match=${dm_mobdi_tmp}.traffic_split_ssid_pinyin_match
-traffic_split_ssid_pinyin_short_match=${dm_mobdi_tmp}.traffic_split_ssid_pinyin_short_match
-traffic_ssid_pinyin_match=${dm_mobdi_tmp}.traffic_ssid_pinyin_match
-traffic_ssid_pinyin_short_match=${dm_mobdi_tmp}.traffic_ssid_pinyin_short_match
-traffic_bssid_remain_1=${dm_mobdi_tmp}.traffic_bssid_remain_1
-traffic_ssid_match_second_confidence=${dm_mobdi_tmp}.traffic_ssid_match_second_confidence
-traffic_bssid_remain_2=${dm_mobdi_tmp}.traffic_bssid_remain_2
-traffic_ssid_match_third_confidence=${dm_mobdi_tmp}.traffic_ssid_match_third_confidence
-traffic_poi_and_bssid_info=${dm_mobdi_tmp}.traffic_poi_and_bssid_info
-one_bssid_ssid_with_multiple_traffic_info=${dm_mobdi_tmp}.one_bssid_ssid_with_multiple_traffic_info
+traffic_poi_info=$tmpdb.traffic_poi_info
+traffic_poi_and_bssid_connect_info=$tmpdb.traffic_poi_and_bssid_connect_info
+ssid_match_data_prepare=$tmpdb.ssid_match_data_prepare
+traffic_poi_and_ssid_connect_count_info=$tmpdb.traffic_poi_and_ssid_connect_count_info
+traffic_ssid_calculate_base_info=$tmpdb.traffic_ssid_calculate_base_info
+traffic_name_match_ssid_info=$tmpdb.traffic_name_match_ssid_info
+traffic_ssid_cn_match=$tmpdb.traffic_ssid_cn_match
+city_name_combine_area_name=$tmpdb.city_name_combine_area_name
+traffic_ssid_cn_keyword_match=$tmpdb.traffic_ssid_cn_keyword_match
+traffic_ssid_famous_en_match=$tmpdb.traffic_ssid_famous_en_match
+traffic_ssid_rude_match=$tmpdb.traffic_ssid_rude_match
+traffic_ssid_match_merge_all_conditions=$tmpdb.traffic_ssid_match_merge_all_conditions
+traffic_split_ssid_pinyin_match=$tmpdb.traffic_split_ssid_pinyin_match
+traffic_split_ssid_pinyin_short_match=$tmpdb.traffic_split_ssid_pinyin_short_match
+traffic_ssid_pinyin_match=$tmpdb.traffic_ssid_pinyin_match
+traffic_ssid_pinyin_short_match=$tmpdb.traffic_ssid_pinyin_short_match
+traffic_bssid_remain_1=$tmpdb.traffic_bssid_remain_1
+traffic_ssid_match_second_confidence=$tmpdb.traffic_ssid_match_second_confidence
+traffic_bssid_remain_2=$tmpdb.traffic_bssid_remain_2
+traffic_ssid_match_third_confidence=$tmpdb.traffic_ssid_match_third_confidence
+traffic_poi_and_bssid_info=$tmpdb.traffic_poi_and_bssid_info
+one_bssid_ssid_with_multiple_traffic_info=$tmpdb.one_bssid_ssid_with_multiple_traffic_info
 
 #目标表
 #dim_traffic_ssid_bssid_match_info_mf=dim_mobdi_mapping.dim_traffic_ssid_bssid_match_info_mf
@@ -337,7 +337,7 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.speculation=true \
 --conf spark.driver.maxResultSize=4g \
 --conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
-/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar "$day" "${dm_mobdi_tmp}"
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar "$day" "$tmpdb"
 
 #考虑所有的组合情况，看是否匹配
 hive -v -e "

@@ -39,16 +39,18 @@ indate=$1
 输出结果：表名(dw_mobdi_md.sns_tmp_share)
 
 '
+source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 #input
-dwd_log_share_new_di=dm_mobdi_master.dwd_log_share_new_di
-dwd_log_oauth_new_di=dm_mobdi_master.dwd_log_oauth_new_di
-
+#dwd_log_share_new_di=dm_mobdi_master.dwd_log_share_new_di
+#dwd_log_oauth_new_di=dm_mobdi_master.dwd_log_oauth_new_di
+tmpdb=$dw_mobdi_tmp
 #md
-sns_tmp_share=dm_mobdi_tmp.sns_tmp_share
-sns_tmp_oauth=dm_mobdi_tmp.sns_tmp_oauth
+sns_tmp_share=$tmpdb.sns_tmp_share
+sns_tmp_oauth=$tmpdb.sns_tmp_oauth
 
 #out
-rp_device_sns_full=dm_mobdi_report.rp_device_sns_full
+#rp_device_sns_full=dm_mobdi_report.rp_device_sns_full
 lastpartition=`hive -e "show partitions $rp_device_sns_full"|sort|tail -n1`
 
 hive -e "

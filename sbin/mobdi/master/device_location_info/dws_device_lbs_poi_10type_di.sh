@@ -73,13 +73,13 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #input
 #dws_device_location_staying_di=dm_mobdi_topic.dws_device_location_staying_di
-#lat_lon_poi_mapping=dim_mobdi_mapping.dim_lat_lon_poi_mapping
-#catering_cate_mapping=dim_sdk_mapping.dim_catering_cate_mapping
+#dim_lat_lon_poi_mapping=dim_mobdi_mapping.dim_lat_lon_poi_mapping
+#dim_catering_cate_mapping=dim_sdk_mapping.dim_catering_cate_mapping
 #需要将dw_mobdi_md.dw_base_poi_l1_geohash复制到dm_mobdi_tmp.dw_base_poi_l1_geohash
-dw_base_poi_l1_geohash=dm_mobdi_tmp.dw_base_poi_l1_geohash
+dw_base_poi_l1_geohash=$dm_mobdi_tmp.dw_base_poi_l1_geohash
 
 #out spark生成
-udf_tmp=dm_mobdi_tmp.udf_tmp
+udf_tmp=$dm_mobdi_tmp.udf_tmp
 #dm_mobdi_topic.dws_device_catering_dinein_di
 #dm_mobdi_topic.dws_device_lbs_poi_10type_di
 
@@ -98,7 +98,7 @@ and ga_abnormal_flag = 0
 poi_tmp="
 select geohash_center5,geohash_center6,geohash_center7,geohash_center8,lat,lon,
        type_1,type_2,type_3,type_4,type_5,type_6,type_7,type_8,type_9,type_10
-from $lat_lon_poi_mapping
+from $dim_lat_lon_poi_mapping
 "
 tmp_sql="
 select s.device as device,s.lat,s.lon,s.start_time as time_start, s.end_time as time_end,
@@ -163,7 +163,7 @@ from
   cluster by dd.device
 ) tmp
 left join
-$catering_cate_mapping mapping on tmp.name = mapping.name
+$dim_catering_cate_mapping mapping on tmp.name = mapping.name
 "
 add_poi="
 insert overwrite table $udf_tmp
@@ -245,7 +245,7 @@ select * from $udf_tmp
     set hive.merge.size.per.task = 130023424;
     set hive.merge.smallfiles.avgsize=16000000;
 
-    insert overwrite table $lat_lon_poi_mapping
+    insert overwrite table $dim_lat_lon_poi_mapping
     select geohash_center5,geohash_center6,geohash_center7,geohash_center8,
            lat,lon,type_1,type_2,type_3,type_4,type_5,type_6,type_7,type_8,type_9,type_10
     from
@@ -258,7 +258,7 @@ select * from $udf_tmp
 
       select geohash_center5,geohash_center6,geohash_center7,geohash_center8,
              lat,lon,type_1,type_2,type_3,type_4,type_5,type_6,type_7,type_8,type_9,type_10
-      from $lat_lon_poi_mapping
+      from $dim_lat_lon_poi_mapping
     ) ranks
 "
 

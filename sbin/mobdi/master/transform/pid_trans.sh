@@ -5,8 +5,9 @@ set -e -x
 day=$1
 #导入配置文件
 source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_ods.properties
 # input
-pid_full=${archive_id_laws}.pid_full
+#pid_full=${archive_id_laws}.pid_full
 
 # output
 #dim_pid_transform_full_par_sec=dim_mobdi_mapping.dim_pid_transform_full_par_sec

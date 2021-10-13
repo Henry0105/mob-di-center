@@ -19,12 +19,13 @@ before365Day=`date +%Y%m%d -d "${day} -365 days"`
 source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
 
 ## 源表
-master_reserved_new=${dws_device_install_app_re_status_di}
-master_reserved_new_month_aggregation_mi=dw_mobdi_tmp.md_master_reserved_new_month_aggregation_mi
-device_pkg_name_master_resrved_min_day_mi=dw_mobdi_tmp.md_device_pkg_name_master_resrved_min_day_mi
+master_reserved_new=$dws_device_install_app_re_status_di
+tmpdb=$dw_mobdi_tmp
+master_reserved_new_month_aggregation_mi=$tmpdb.md_master_reserved_new_month_aggregation_mi
+device_pkg_name_master_resrved_min_day_mi=$tmpdb.md_device_pkg_name_master_resrved_min_day_mi
 
 ## 目标表
-device_pkg_install_uninstall_year_info_mf=${label_device_pkg_install_uninstall_year_info_mf}
+device_pkg_install_uninstall_year_info_mf=$label_device_pkg_install_uninstall_year_info_mf
 
 #取master_reserved_new_month_aggregation_mi表12个分区数据，作为1年数据
 hive -v -e "

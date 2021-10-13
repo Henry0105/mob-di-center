@@ -28,19 +28,23 @@ nextMonth=`date -d "${firstDay} 1 month" "+%Y%m%d"`
 lastDay=`date -d "${nextMonth} -1 days" "+%Y%m%d"`
 prev18Month=`date -d "$currentDay 18 month ago" +%Y%m`
 
-# input
-dwd_log_share_new_di=dm_mobdi_master.dwd_log_share_new_di
-dwd_log_oauth_new_di=dm_mobdi_master.dwd_log_oauth_new_di
+source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 
+# input
+#dwd_log_share_new_di=dm_mobdi_master.dwd_log_share_new_di
+#dwd_log_oauth_new_di=dm_mobdi_master.dwd_log_oauth_new_di
+
+tmpdb=$dw_mobdi_tmp
 # md
-tmp_device_snsuid_android=dw_mobdi_tmp.tmp_device_snsuid_android    # 只用到一次    dw_mobdi_tmp.tmp_device_snsuid_android
-tmp_device_snsuid_ios=dw_mobdi_tmp.tmp_device_snsuid_ios            # 只用到一次    dw_mobdi_tmp.tmp_device_snsuid_ios
-dws_device_snsuid_list_android=dm_mobdi_topic.dws_device_snsuid_list_android    # 放入topic   dm_mobdi_topic.dws_device_snsuid_list_android
-dws_device_snsuid_list_ios=dm_mobdi_topic.dws_device_snsuid_list_ios            # 放入topic   dm_mobdi_topic.dws_device_snsuid_list_ios
+tmp_device_snsuid_android=$tmpdb.tmp_device_snsuid_android    # 只用到一次    dw_mobdi_tmp.tmp_device_snsuid_android
+tmp_device_snsuid_ios=$tmpdb.tmp_device_snsuid_ios            # 只用到一次    dw_mobdi_tmp.tmp_device_snsuid_ios
+#dws_device_snsuid_list_android=dm_mobdi_topic.dws_device_snsuid_list_android    # 放入topic   dm_mobdi_topic.dws_device_snsuid_list_android
+#dws_device_snsuid_list_ios=dm_mobdi_topic.dws_device_snsuid_list_ios            # 放入topic   dm_mobdi_topic.dws_device_snsuid_list_ios
 
 # output
-dws_device_snsuid_mi=dm_mobdi_topic.dws_device_snsuid_mi      # 只用到一次    dm_mobdi_topic.dws_device_snsuid_mi
-dws_device_snsuid_mf=dm_mobdi_topic.dws_device_snsuid_mf      # 只用到一次    dm_mobdi_topic.dws_device_snsuid_mf
+#dws_device_snsuid_mi=dm_mobdi_topic.dws_device_snsuid_mi      # 只用到一次    dm_mobdi_topic.dws_device_snsuid_mi
+#dws_device_snsuid_mf=dm_mobdi_topic.dws_device_snsuid_mf      # 只用到一次    dm_mobdi_topic.dws_device_snsuid_mf
 
 
 

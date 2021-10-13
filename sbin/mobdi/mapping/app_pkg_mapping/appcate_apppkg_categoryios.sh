@@ -15,6 +15,7 @@ formatDate=`date -d "${day}" +%Y-%m-%d`
 #导入配置文件
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 
 #input
 #dws_device_sdk_run_master_di=dm_mobdi_topic.dws_device_sdk_run_master_di
@@ -57,7 +58,7 @@ join
            cate_l1_id,
            cate_l2,
            cate_l2_id
-    from $apppkg_cate_categoryios_mapping
+    from $dim_apppkg_cate_categoryios_mapping
     where version='1000'
     and apppkg<>''
     group by apppkg,appname,cate_l1,cate_l1_id,cate_l2,cate_l2_id

@@ -28,6 +28,10 @@ source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 
 #mapping表
 #mapping_ip_attribute_code=dim_sdk_mapping.mapping_ip_attribute_code
+#dim_mapping_ip_attribute_code=dim_sdk_mapping.dim_mapping_ip_attribute_code
+
+dim_mapping_ip_attribute_code_db=$(echo $dim_mapping_ip_attribute_code|awk -F '.' '{print $1}')
+dim_mapping_ip_attribute_code_tb=$(echo $dim_mapping_ip_attribute_code|awk -F '.' '{print $2}')
 
 #目标表
 #dws_device_sdk_run_master_di=dm_mobdi_topic.dws_device_sdk_run_master_di
@@ -106,8 +110,8 @@ left join
          country,
          province,
          city
-  from $mapping_ip_attribute_code
-  where day=GET_LAST_PARTITION ('dm_sdk_mapping','mapping_ip_attribute_code')
+  from $dim_mapping_ip_attribute_code
+  where day=GET_LAST_PARTITION ('$dim_mapping_ip_attribute_code_db','$dim_mapping_ip_attribute_code_tb')
 ) ip_info on b.minip=ip_info.minip
 cluster by device;
 "

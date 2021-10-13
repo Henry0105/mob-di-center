@@ -8,7 +8,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 # input
-pid_full=${archive_id_laws}.pid_full
+#pid_full=${archive_id_laws}.pid_full
 #dim_pid_carrier_location_china=dim_sdk_mapping.dim_pid_carrier_location_china
 #dim_pid_release_year_china=dim_sdk_mapping.dim_pid_release_year_china
 

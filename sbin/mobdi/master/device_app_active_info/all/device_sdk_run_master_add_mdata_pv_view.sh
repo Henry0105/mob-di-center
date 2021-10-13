@@ -32,7 +32,7 @@ from dm_mobdi_master.dwd_app_runtimes_stats_sec_di;
 @describe: 波纹项目中修改库表名，下面代码手动执行一次即可
 '
 
-:"
+: "
 create or replace view dm_mobdi_topic.dws_device_sdk_run_master_add_mdata_pv_view
 partitioned on (day)
 as

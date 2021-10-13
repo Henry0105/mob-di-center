@@ -21,11 +21,12 @@ source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
 ## 源表
 master_reserved_new=${dws_device_install_app_re_status_di}
 
+tmpdb=$dw_mobdi_tmp
 ## 临时表
-calculate_tmp=dw_mobdi_tmp.tmp_calculate
+calculate_tmp=$tmpdb.tmp_calculate
 
 ## 目标表
-device_pkg_name_master_resrved_min_day_mi=dw_mobdi_tmp.md_device_pkg_name_master_resrved_min_day_mi
+device_pkg_name_master_resrved_min_day_mi=$tmpdb.md_device_pkg_name_master_resrved_min_day_mi
 
 #如果下列不拆成两句sql，会出现严重的数据倾斜现象
 hive -v -e "

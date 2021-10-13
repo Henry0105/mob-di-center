@@ -15,9 +15,6 @@ fi
 source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
-
-
-
 #input
 #dwd_log_device_info_jh_sec_di=dm_mobdi_master.dwd_log_device_info_jh_sec_di
 #dwd_device_ext_info_sec_di=dm_mobdi_master.dwd_device_ext_info_sec_di

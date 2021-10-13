@@ -18,11 +18,11 @@ source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 
 #mapping表
 #dim_mapping_bssid_location_mf=dim_mobdi_mapping.dim_mapping_bssid_location_mf
-#mapping_area_par=dim_sdk_mapping.mapping_area_par
-
+#dim_mapping_area_par=dim_sdk_mapping.dim_mapping_area_par
+tmpdb=$dm_mobdi_tmp
 #中间库
-ssid_match_data_prepare=${dm_mobdi_tmp}.ssid_match_data_prepare
-city_name_combine_area_name=${dm_mobdi_tmp}.city_name_combine_area_name
+ssid_match_data_prepare=$tmpdb.ssid_match_data_prepare
+city_name_combine_area_name=$tmpdb.city_name_combine_area_name
 
 bssidMappingLastParStr=`hive -e "show partitions $dim_mapping_bssid_location_mf" | sort| tail -n 1`
 
@@ -60,7 +60,7 @@ inner join
 ) t2 on t1.bssid=t2.bssid;
 "
 
-areaMappingLastParStr=`hive -e "show partitions $mapping_area_par" | sort| tail -n 1`
+areaMappingLastParStr=`hive -e "show partitions $dim_mapping_area_par" | sort| tail -n 1`
 #将城市名与地区名连接起来，为了后续判断匹配的字符串不能是城市或者区域的名字
 hive -v -e "
 insert overwrite table $city_name_combine_area_name partition(day='$day')
@@ -68,7 +68,7 @@ select city_code,concat(city_poi,'|',area_list) as area_list
 from
 (
   select city_code,max(city_poi) as city_poi,concat_ws(',',collect_set(area_poi)) as area_list
-  from $mapping_area_par
+  from $dim_mapping_area_par
   where $areaMappingLastParStr
   and country='中国'
   group by city_code

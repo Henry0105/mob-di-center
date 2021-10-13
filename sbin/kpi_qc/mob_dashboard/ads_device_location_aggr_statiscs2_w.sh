@@ -7,7 +7,7 @@ day=$1
 source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_dashboard.properties
 
-:'
+: '
 input:dm_mobdi_master.dwd_device_location_di_v2
 out:mob_dashboard.ads_device_location_aggr_statiscs2_w
 '

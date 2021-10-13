@@ -19,14 +19,14 @@ fi
 day=$1
 
 
-#source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 
 
 ###源表
-dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
+#dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
 
 ###目标表
-dwd_device_location_info_di_v2=dm_mobdi_master.dwd_device_location_info_di_v2
+#dwd_device_location_info_di_v2=dm_mobdi_master.dwd_device_location_info_di_v2
 
 #set dfs.replication=3;
 #set mapreduce.job.queuename=${queue};

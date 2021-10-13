@@ -17,14 +17,14 @@ source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 
 #input
 #dwd_wifilist_explore_sec_di=dm_mobdi_master.dwd_wifilist_explore_sec_di
-
+tmpdb="$dm_mobdi_tmp"
 #tmp
-bssid_level_connect_lag_and_lead_info=${dm_mobdi_tmp}.bssid_level_connect_lag_and_lead_info
-bssid_level_connect_info=${dm_mobdi_tmp}.bssid_level_connect_info
-bssid_level_connect_smooth_info=${dm_mobdi_tmp}.bssid_level_connect_smooth_info
-level_connect_lag_and_lead_info=${dm_mobdi_tmp}.level_connect_lag_and_lead_info
-level_connect_probability=${dm_mobdi_tmp}.level_connect_probability
-bssid_level_connect_probability=${dm_mobdi_tmp}.bssid_level_connect_probability
+bssid_level_connect_lag_and_lead_info=$tmpdb.bssid_level_connect_lag_and_lead_info
+bssid_level_connect_info=$tmpdb.bssid_level_connect_info
+bssid_level_connect_smooth_info=$tmpdb.bssid_level_connect_smooth_info
+level_connect_lag_and_lead_info=$tmpdb.level_connect_lag_and_lead_info
+level_connect_probability=$tmpdb.level_connect_probability
+bssid_level_connect_probability=$tmpdb.bssid_level_connect_probability
 #output
 #dim_bssid_level_connect_probability_all_mf=dim_mobdi_mapping.dim_bssid_level_connect_probability_all_mf
 

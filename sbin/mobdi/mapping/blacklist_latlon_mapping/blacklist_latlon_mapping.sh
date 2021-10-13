@@ -1,4 +1,4 @@
-# !/bin/bash
+#!/bin/bash
 
 day=$1
 
@@ -8,11 +8,12 @@ pmonth=`date -d "$day -1 month" +%Y%m%d`
 
 source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
+tmpdb=$dm_mobdi_tmp
 ### 源表
-tmp_device_location_stage_pre=dm_mobdi_tmp.tmp_device_location_stage_pre
+tmp_device_location_stage_pre=$tmpdb.tmp_device_location_stage_pre
 
 ### 目标表
-#dim_latlon_blacklist_mf=dm_mobdi_mapping.dim_latlon_blacklist_mf
+#dim_latlon_blacklist_mf=dim_mobdi_mapping.dim_latlon_blacklist_mf
 
 
 

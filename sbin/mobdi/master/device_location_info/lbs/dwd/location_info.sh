@@ -6,20 +6,24 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-#source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-#source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-#source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
 ###源表
-dwd_location_info_sec_di=dm_mobdi_master.dwd_location_info_sec_di
+#dwd_location_info_sec_di=dm_mobdi_master.dwd_location_info_sec_di
+location_info_db=$(echo $dwd_location_info_sec_di|awk -F '.' '{print $1}')
+location_info_tb=$(echo $dwd_location_info_sec_di|awk -F '.' '{print $2}')
 
 ###映射表
-dim_latlon_blacklist_mf=dm_mobdi_mapping.dim_latlon_blacklist_mf
-geohash6_area_mapping_par=dm_sdk_mapping.geohash6_area_mapping_par
-geohash8_lbs_info_mapping_par=dm_sdk_mapping.geohash8_lbs_info_mapping_par
+#dim_latlon_blacklist_mf=dim_mobdi_mapping.dim_latlon_blacklist_mf
+#dim_geohash6_china_area_mapping_par
+#geohash6_area_mapping_par=dm_sdk_mapping.geohash6_area_mapping_par
+#dim_geohash8_china_area_mapping_par
+#geohash8_lbs_info_mapping_par=dm_sdk_mapping.geohash8_lbs_info_mapping_par
 
 ###目标表
-dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
+#dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
 
 day=$1
 plus_1day=`date +%Y%m%d -d "${day} +1 day"`
@@ -34,7 +38,7 @@ echo "endday:   "$plus_2day
 #"
 #last_ip_mapping_partition=(`hive -e "$ip_mapping_sql"`)
 #获取小于当前日期的最大分区
-par_arr=(`hive -e "show partitions dm_mobdi_mapping.dim_latlon_blacklist_mf" |awk -F '=' '{print $2}'|xargs`)
+par_arr=(`hive -e "show partitions $dim_latlon_blacklist_mf" |awk -F '=' '{print $2}'|xargs`)
 for par in ${par_arr[@]}
 do
   if [ $par -le $day ]
@@ -64,9 +68,9 @@ CHECK_DATA()
       return 1
   fi
 }
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_location_info_sec_di/day=${day}"
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_location_info_sec_di/day=${plus_1day}"
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dm_mobdi_master.db/dwd_location_info_sec_di/day=${plus_2day}"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$location_info_db.db/$location_info_tb/day=${day}"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$location_info_db.db/$location_info_tb/day=${plus_1day}"
+CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$location_info_db.db/$location_info_tb/day=${plus_2day}"
 # ##########################################
 
 hive -v -e "
@@ -197,10 +201,10 @@ from (
                     geohash6_mapping.geohash_6_code,
                     plat, network, type, data_source, orig_note1, orig_note2, accuracy,apppkg,ipaddr,serdatetime,language
                 from location_info log
-                left join (select * from $geohash6_area_mapping_par where version='1000') geohash6_mapping
+                left join (select * from $dim_geohash6_china_area_mapping_par where version='1000') geohash6_mapping
                 on (get_geohash(lat, lon, 6) = geohash6_mapping.geohash_6_code) --根据geohash6关联
           ) geo6
-          left join (select * from $geohash8_lbs_info_mapping_par where version='1000') geohash8_mapping
+          left join (select * from $dim_geohash8_china_area_mapping_par where version='1000') geohash8_mapping
           on (case when geo6.geohash_6_code is null then get_geohash(lat, lon, 8) else concat('', rand()) end = geohash8_mapping.geohash_8_code)  --未关联上的再根据geohash8关联
     )a
     left join (select lat,lon from $dim_latlon_blacklist_mf where day='$last_ip_mapping_partition' and stage='A') b
