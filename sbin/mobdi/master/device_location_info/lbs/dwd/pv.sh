@@ -12,15 +12,15 @@ source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
 ###源表
 #dwd_pv_sec_di=dm_mobdi_master.dwd_pv_sec_di
-pv_db=$(echo $dwd_base_station_info_sec_di|awk -F '.' '{print $1}')
-pv_tb=$(echo $dwd_base_station_info_sec_di|awk -F '.' '{print $2}')
+pv_db=${dwd_base_station_info_sec_di%.*}
+pv_tb=${dwd_base_station_info_sec_di#*.}
 
 ###映射表
 #dim_latlon_blacklist_mf=dm_mobdi_mapping.dim_latlon_blacklist_mf
 #dim_mapping_ip_attribute_code=dim_sdk_mapping.dim_mapping_ip_attribute_code
 #mapping_ip_attribute_code=dm_sdk_mapping.mapping_ip_attribute_code
-ip_attribute_code_db=$(echo $dim_mapping_ip_attribute_code|awk -F '.' '{print $1}')
-ip_attribute_code_tb=$(echo $dim_mapping_ip_attribute_code|awk -F '.' '{print $2}')
+ip_attribute_code_db=${dim_mapping_ip_attribute_code%.*}
+ip_attribute_code_tb=${dim_mapping_ip_attribute_code#*.}
 
 ###目标表
 #dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di

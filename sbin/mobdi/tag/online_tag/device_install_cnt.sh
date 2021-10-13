@@ -15,14 +15,13 @@ fi
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #rp_device_profile_full_view=dm_mobdi_report.rp_device_profile_full_view
 
 #mapping
+#dim_p2p_app_cat=dim_sdk_mapping.dim_p2p_app_cat
 #p2p_app_cat=dim_sdk_mapping.p2p_app_cat
 
 #output
@@ -60,7 +59,7 @@ from
 inner join
 (
   select pkg ,cate_id
-  from $p2p_app_cat
+  from $dim_p2p_app_cat
   where cat in ('P2P借贷','现金贷')
 )app_mapping
 on profile_full.app=app_mapping.pkg
@@ -100,14 +99,14 @@ set hive.exec.dynamic.partition.mode=nonstrict;
 
 insert overwrite table $timewindow_online_profile_v3 partition(day=${day},feature)
 select device,cnt,'5353_1000' as feature
-from dm_mobdi_report.ads_device_install_app_cash_p2p_cnt_di
+from $ads_device_install_app_cash_p2p_cnt_di
 where day=${day}
 and type=5
 
 union all
 
 select device,cnt,'5354_1000' as feature
-from dm_mobdi_report.ads_device_install_app_cash_p2p_cnt_di
+from $ads_device_install_app_cash_p2p_cnt_di
 where day=${day}
 and type=1;
 "

@@ -27,12 +27,10 @@ fi
 day="$1"
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #databases
-tmp=dm_mobdi_tmp
+tmp=$dm_mobdi_tmp
 
 #input
 #dim_device_applist_new_di=dim_mobdi_mapping.dim_device_applist_new_di
@@ -62,7 +60,7 @@ set hive.exec.parallel=true;
 
 insert overwrite table $cleaned_app_category_mapping
 select apppkg,cate_l1_id,cate_l2_id
-from $app_category_mapping_par
+from $dim_app_category_mapping_par
 where version='1000'
 group by apppkg,cate_l1_id,cate_l2_id;
 

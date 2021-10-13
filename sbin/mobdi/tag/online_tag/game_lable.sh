@@ -28,14 +28,15 @@ fi
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #game_app_detail_par=dm_sdk_mapping.game_app_detail_par
 
+tmpdb=$dm_mobdi_tmp
 #tmp
-game_app_mapping_tmp=dm_mobdi_tmp.game_app_mapping_tmp
-timewindow_game_finance=dm_mobdi_tmp.timewindow_game_finance
+game_app_mapping_tmp=$tmpdb.game_app_mapping_tmp
+timewindow_game_finance=$tmpdb.timewindow_game_finance
 
 #output
 #timewindow_online_profile=dm_mobdi_report.timewindow_online_profile
@@ -46,49 +47,49 @@ create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPa
 
 insert overwrite table $game_app_mapping_tmp
 select apppkg as pkg,cate_l2 as cat ,regexp_replace(cate_l2_id,'_','') as cat_id
-from $game_app_detail_par
+from $dim_game_app_detail_par
 where version ='1000'
 group by apppkg,cate_l2_id,cate_l2
 
 union all
 
 select apppkg as pkg,network as cat ,network_id  as cat_id
-from $game_app_detail_par
+from $dim_game_app_detail_par
 where version ='1000'
 group by apppkg,network_id,network
 
 union all
 
 select apppkg as pkg,ip_style as cat ,ip_style_id as cat_id
-from $game_app_detail_par
+from $dim_game_app_detail_par
 where version ='1000'
 group by apppkg,ip_style_id,ip_style
 
 union all
 
 select apppkg as pkg,art_style as cat ,art_style_id as cat_id
-from $game_app_detail_par
+from $dim_game_app_detail_par
 where version ='1000'
 group by apppkg,art_style_id,art_style
 
 union all
 
 select apppkg as pkg,frame as cat ,frame_id as cat_id
-from $game_app_detail_par
+from $dim_game_app_detail_par
 where version ='1000'
 group by apppkg,frame_id,frame
 
 union all
 
 select apppkg as pkg,theme_l2 as cat ,theme_l2_id as cat_id
-from $game_app_detail_par
+from $dim_game_app_detail_par
 where version ='1000'
 group by apppkg,theme_l2_id,theme_l2
 
 union all
 
 select apppkg as pkg,theme_l1 as cat ,theme_l1_id as cat_id
-from $game_app_detail_par
+from $dim_game_app_detail_par
 where version ='1000'
 group by apppkg,theme_l1_id,theme_l1;
 "

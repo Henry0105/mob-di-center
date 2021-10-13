@@ -14,12 +14,13 @@
 2. $app_detail_yyb中找到appname
 3. $app_detail_wdj中找到url
 '
-dm_mobdi_tmp=dm_mobdi_tmp
-rp_app_rank_category_insatll_monthly=rp_mobeye_app360.rp_app_rank_category_insatll_monthly
-dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
-sorted_pkg=dm_mobdi_tmp.sorted_pkg
-app_detail_wdj=dw_ext_crawl.app_detail_wdj
-app_detail_yyb=dw_ext_crawl.app_detail_yyb
+source /home/dba/mobdi_center/conf/hive-env.sh
+tmpdb=$dm_mobdi_tmp
+#rp_app_rank_category_insatll_monthly=rp_mobeye_app360.rp_app_rank_category_insatll_monthly
+#dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
+sorted_pkg=$tmpdb.sorted_pkg
+#app_detail_wdj=dw_ext_crawl.app_detail_wdj
+#app_detail_yyb=dw_ext_crawl.app_detail_yyb
 
 cd `dirname $0`
 libpath=/home/dba/lib

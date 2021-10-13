@@ -13,8 +13,7 @@ set -x -e
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
 #dws_device_install_app_re_status_di=dm_mobdi_topic.dws_device_install_app_re_status_di
@@ -78,7 +77,7 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
-insert overwrite table $outputtable partition (flag=23, day='$day', timewindow='180')
+insert overwrite table $timewindow_online_profile_install_list partition (flag=23, day='$day', timewindow='180')
 select device,concat_ws(',', collect_set(pkg)) as applist
 from $dws_device_install_app_re_status_di
 where day>'$half_year_days' and day<='$day'
@@ -93,7 +92,7 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
-insert overwrite table $outputtable partition (flag=23, day='$day', timewindow='365')
+insert overwrite table $timewindow_online_profile_install_list partition (flag=23, day='$day', timewindow='365')
 select device,concat_ws(',', collect_set(pkg)) as applist
 from $dws_device_install_app_re_status_di
 where day>'$year_days'

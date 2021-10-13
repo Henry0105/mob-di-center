@@ -23,7 +23,9 @@ source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
 #dws_device_install_app_status_40d_di=dm_mobdi_topic.dws_device_install_app_status_40d_di
 
 #mapping表
+#dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
 #app_pkg_mapping_par=dim_sdk_mapping.app_pkg_mapping_par
+#dim_app_category_shuce=dim_sdk_mapping.dim_app_category_shuce
 #app_category_shuce=dim_sdk_mapping.app_category_shuce
 
 #输出表
@@ -58,13 +60,13 @@ from
   )reserved
   left join
   (
-    select pkg,apppkg from $app_pkg_mapping_par where version='1000'
+    select pkg,apppkg from $dim_app_pkg_mapping_par where version='1000'
   )clean
   on reserved.pkg=clean.pkg
 )cleaned
 join
 (
-  select apppkg,cate from $app_category_shuce where version='1000'
+  select apppkg,cate from $dim_app_category_shuce where version='1000'
 )b
 on cleaned.apppkg=b.apppkg
 group by device,cate
@@ -104,13 +106,13 @@ from
     and final_flag in (0,1)
   )reserved left join
   (
-    select pkg,apppkg from $app_pkg_mapping_par where version='1000'
+    select pkg,apppkg from $dim_app_pkg_mapping_par where version='1000'
   )clean
   on reserved.pkg=clean.pkg
 )cleaned
 join
 (
-  select apppkg,cate from $app_category_shuce where version='1000'
+  select apppkg,cate from $dim_app_category_shuce where version='1000'
 )b
 on cleaned.apppkg=b.apppkg
 group by device,cate,cleaned.apppkg
@@ -135,7 +137,7 @@ from
 )cleaned
 join
 (
-  select apppkg,cate from $app_category_shuce where version='1000'
+  select apppkg,cate from $dim_app_category_shuce where version='1000'
 )b
 on cleaned.apppkg=b.apppkg
 group by device,cate

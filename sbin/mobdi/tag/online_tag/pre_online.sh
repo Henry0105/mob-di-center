@@ -15,8 +15,7 @@ day=$1
 source_type=$2
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 timewindow_tmp=dm_mobdi_tmp.timewindow_tmp
@@ -25,9 +24,9 @@ timewindow_tmp=dm_mobdi_tmp.timewindow_tmp
 #dws_device_install_app_status_40d_di=dm_mobdi_topic.dws_device_install_app_status_40d_di
 
 #mapping
-#app_pkg_mapping_par=dim_sdk_mapping.app_pkg_mapping_par
-#category_mapping_table=dim_sdk_mapping.online_category_mapping_v3
-#profile_mapping_table=dim_sdk_mapping.online_profile_mapping_v3
+#dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
+#dim_online_category_mapping_v3=dim_sdk_mapping.online_category_mapping_v3
+#dim_online_profile_mapping_v3=dim_sdk_mapping.online_profile_mapping_v3
 
 #ouput
 
@@ -89,12 +88,12 @@ function gen_tmp_table(){
     category_mapping="
       select a.relation,a.cate_id,a.total,a.percent from
       (select relation,cate_id,total,percent
-      from ${category_mapping_table}
+      from ${dim_online_category_mapping_v3}
       where version=${mapping_version}
       )a
       left semi join
       (
-      select cate_id_1 as cate_id from ${profile_mapping_table}
+      select cate_id_1 as cate_id from ${dim_online_profile_mapping_v3}
       lateral view explode(split(cate_id,',')) t_cate as cate_id_1
       where version=${profile_version} and source_type=${source_type}
       ) b
@@ -104,12 +103,12 @@ function gen_tmp_table(){
 
       select a.relation,a.cate_id,a.total,a.percent from
       (select relation,cate_id,total,percent
-      from ${category_mapping_table}
+      from ${dim_online_category_mapping_v3}
       where version=${mapping_version}
       )a
       left semi join
       (
-      select percent as cate_id from ${profile_mapping_table}
+      select percent as cate_id from ${dim_online_profile_mapping_v3}
       where version=${profile_version} and source_type=${source_type}
       ) b
       on a.cate_id=b.cate_id
@@ -117,7 +116,7 @@ function gen_tmp_table(){
 
     apppkg_mapping="
       select apppkg,pkg
-      from $app_pkg_mapping_par
+      from $dim_app_pkg_mapping_par
       where version='1000'
     "
 
@@ -195,7 +194,7 @@ function gen_tmp_table(){
     elif [ $source_type -eq 6 ];then
       echo "计算居住时间apppkg安装"
       #todo
-      inputTable='dm_mobdi_topic.dws_device_install_app_status_40d_di'
+      inputTable=$dws_device_install_app_status_40d_di
       deviceSql="
 	       select device,coalesce(mapping.apppkg, device.pkg) as relation,${theday} as day,count(1) as num
            from
@@ -230,7 +229,7 @@ function gen_tmp_table(){
     elif [ $source_type -eq 7 ];then
       echo "计算居住时间apppkg卸载"
       #todo
-      inputTable='dm_mobdi_topic.dws_device_install_app_status_40d_di'
+      inputTable=$dws_device_install_app_status_40d_di
       deviceSql="
 	       select device,coalesce(mapping.apppkg, device.pkg) as relation,${theday} as day,count(1) as num
            from
@@ -264,7 +263,7 @@ function gen_tmp_table(){
       "
     elif [ $source_type -eq 10 ];then
 		echo "计算装过，final_flag 0,1,装过为8和10结合"
-      inputTable='dm_mobdi_topic.dws_device_install_app_status_40d_di'
+      inputTable=$dws_device_install_app_status_40d_di
       deviceSql="
 	       select device,coalesce(mapping.apppkg, device.pkg) as relation,${theday} as day,count(1) as num
            from
@@ -280,7 +279,7 @@ function gen_tmp_table(){
 			"
     elif [ $source_type -eq 9 ];then
 		echo "计算在装，final_flag <> -1"
-      inputTable='dm_mobdi_topic.dws_device_install_app_status_40d_di'
+      inputTable=$dws_device_install_app_status_40d_di
       deviceSql="
 	       select device,coalesce(mapping.apppkg, device.pkg) as relation,${theday} as day,count(1) as num
            from
@@ -316,7 +315,7 @@ function gen_tmp_table(){
     if [ $? -eq 0 ];then
       echo "..."
     elif [ $source_type -eq 2 ];then
-      inputTable='rp_mobdi_app.app_active_daily'
+      inputTable=$app_active_daily
       varMonth=`date -d "${theday}" "+%Y%m"`
       deviceSql="
            select device,relation,${theday} as day,count(1) as num
@@ -325,7 +324,7 @@ function gen_tmp_table(){
            select device, relation
            from
            (
-           select device,apppkg as relation,day from rp_mobdi_app.app_active_monthly
+           select device,apppkg as relation,day from $app_active_monthly
                            LATERAL VIEW explode(split(day_list,',')) t AS day where month=${varMonth}
            )m where day=${theday}
            )t
@@ -374,7 +373,7 @@ function gen_tmp_table(){
 gen_flag_condition
 echo "flag"$flagCondition
 #mapping_version=`hive -e "select max(version)
-#                 from ${category_mapping_table}
+#                 from ${dim_online_category_mapping_v3}
 #                 where type = ${source_type}"`
 #目前指定mapping表的分区，表为配置表，暂不更新
 mapping_version=20190507

@@ -8,8 +8,11 @@ set -e -x
 @projectName:SortingSystem
 '
 
-dim_sdk_mapping=dim_sdk_mapping
-dim_app_category_mapping_par=dim_app_category_mapping_par
+source /home/dba/mobdi_center/conf/hive-env.sh
+
+#dim_app_category_mapping_par=dim_sdk_mapping.dim_app_category_mapping_par
+mapping_db=${dim_app_category_mapping_par%.*}
+mapping_tb=${dim_app_category_mapping_par#*.}
 
 result=`mysql -h10.21.33.28 -uroot -p'mobtech2019java' -P3306 -e "select max(time) from sorting_system.app_category" -sN`
 targetPar=1000.$result
@@ -17,7 +20,7 @@ targetPar=1000.$result
 parSql="
 add jar hdfs://ShareSdkHadoop/user/haom/udf/original-hive_udf-1.0.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('$dim_sdk_mapping','$dim_app_category_mapping_par', 'version');
+SELECT GET_LAST_PARTITION('$mapping_db','$mapping_tb', 'version');
 drop temporary function GET_LAST_PARTITION;
 "
 lastPartition=$(hive -e "$parSql" -SN)
@@ -96,7 +99,7 @@ where cate_l1_id != substr(cate_l2_id,1,4)
 "
 
 bakAndInsertSql="
-insert overwrite table $dim_sdk_mapping.$dim_app_category_mapping_par partition(version=$targetPar)
+insert overwrite table $dim_app_category_mapping_par partition(version=$targetPar)
 select trim(regexp_replace(pkg, '\\n|\\r', '')) as pkg,
        trim(regexp_replace(apppkg, '\\n|\\r', '')) as apppkg,
        trim(regexp_replace(appname, '\\n|\\r', '')) as appname,
@@ -110,7 +113,7 @@ from
   from test_info_tmp a
 ) d;
 
-insert overwrite table $dim_sdk_mapping.$dim_app_category_mapping_par partition(version=1000)
+insert overwrite table $dim_app_category_mapping_par partition(version=1000)
 select trim(regexp_replace(pkg, '\\n|\\r', '')) as pkg,
        trim(regexp_replace(apppkg, '\\n|\\r', '')) as apppkg,
        trim(regexp_replace(appname, '\\n|\\r', '')) as appname,
@@ -125,7 +128,7 @@ from
 ) d;
 "
 
-doubleCheckSql="select * from $dim_sdk_mapping.$dim_app_category_mapping_par where version='1000' and (cate_l1_id is null or cate_l2_id is null)"
+doubleCheckSql="select * from $dim_app_category_mapping_par where version='1000' and (cate_l1_id is null or cate_l2_id is null)"
 
 spark2-submit --master yarn --deploy-mode cluster \
 --class com.mob.mobdi.utils.sortsystem.SortingDbUtils \

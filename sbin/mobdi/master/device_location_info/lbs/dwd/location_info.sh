@@ -12,8 +12,8 @@ source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
 ###源表
 #dwd_location_info_sec_di=dm_mobdi_master.dwd_location_info_sec_di
-location_info_db=$(echo $dwd_location_info_sec_di|awk -F '.' '{print $1}')
-location_info_tb=$(echo $dwd_location_info_sec_di|awk -F '.' '{print $2}')
+location_info_db=${dwd_location_info_sec_di%.*}
+location_info_tb=${dwd_location_info_sec_di#*.}
 
 ###映射表
 #dim_latlon_blacklist_mf=dim_mobdi_mapping.dim_latlon_blacklist_mf

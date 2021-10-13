@@ -12,19 +12,19 @@ source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
 ###源表
 #dwd_base_station_info_sec_di=dm_mobdi_master.dwd_base_station_info_sec_di
-base_location_db=$(echo $dwd_base_station_info_sec_di|awk -F '.' '{print $1}')
-base_location_tb=$(echo $dwd_base_station_info_sec_di|awk -F '.' '{print $2}')
+base_location_db=${dwd_base_station_info_sec_di%.*}
+base_location_tb=${dwd_base_station_info_sec_di#*.}
 
 ###映射表
 #dim_latlon_blacklist_mf=dim_mobdi_mapping.dim_latlon_blacklist_mf
 #dim_mapping_ip_attribute_code=dim_sdk_mapping.dim_mapping_ip_attribute_code
 #mapping_ip_attribute_code=dm_sdk_mapping.mapping_ip_attribute_code
-ip_attribute_code_db=$(echo $dim_mapping_ip_attribute_code|awk -F '.' '{print $1}')
-ip_attribute_code_tb=$(echo $dim_mapping_ip_attribute_code|awk -F '.' '{print $2}')
+ip_attribute_code_db=${dim_mapping_ip_attribute_code%.*}
+ip_attribute_code_tb=${dim_mapping_ip_attribute_code#*.}
 #dim_base_dbscan_result_mi=dim_mobdi_mapping.dim_base_dbscan_result_mi
 #dim_base_dbscan_result_month=dm_mobdi_mapping.dim_base_dbscan_result_month
-base_dbscan_result_db=$(echo $dim_base_dbscan_result_mi|awk -F '.' '{print $1}')
-base_dbscan_result_tb=$(echo $dim_base_dbscan_result_mi|awk -F '.' '{print $2}')
+base_dbscan_result_db=${dim_base_dbscan_result_mi%.*}
+base_dbscan_result_tb=${dim_base_dbscan_result_mi#*.}
 
 ###目标表
 #dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di

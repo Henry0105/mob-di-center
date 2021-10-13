@@ -10,10 +10,14 @@ set -e -x
 
 #一定要等dm_sdk_mapping.app_category_mapping_par运行完成
 
+source /home/dba/mobdi_center/conf/hive-env.sh
 
-dim_app_category_mapping_par=dim_sdk_mapping.dim_app_category_mapping_par
-dim_sdk_mapping=dim_sdk_mapping
-dim_app_category_mapping_app360_par=dim_app_category_mapping_app360_par
+#dim_app_category_mapping_par=dim_sdk_mapping.dim_app_category_mapping_par
+#dim_app_category_mapping_app360_par=dim_sdk_mapping.dim_app_category_mapping_app360_par
+mapping_db=${dim_app_category_mapping_par%.*}
+mapping_tb=${dim_app_category_mapping_par#*.}
+mapping_app360_db=${dim_app_category_mapping_app360_par%.*}
+mapping_app360_tb=${dim_app_category_mapping_app360_par#*.}
 
 result=`mysql -h10.21.33.28 -uroot -p'mobtech2019java' -P3306 -e "select max(time) from sorting_system.edu_app_category" -sN`
 targetPar1=1000.$result
@@ -22,7 +26,7 @@ targetPar1=1000.$result
 parSql="
 add jar hdfs://ShareSdkHadoop/user/haom/udf/original-hive_udf-1.0.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('$dim_sdk_mapping','$dim_app_category_mapping_app360_par', 'version');
+SELECT GET_LAST_PARTITION('$mapping_app360_db','$mapping_app360_tb', 'version');
 drop temporary function GET_LAST_PARTITION;
 "
 lastPartition=$(hive -e "$parSql" -SN)
@@ -30,7 +34,7 @@ lastPartition=$(hive -e "$parSql" -SN)
 parSqlSouce="
 add jar hdfs://ShareSdkHadoop/user/haom/udf/original-hive_udf-1.0.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('$dim_sdk_mapping','app_category_mapping_par', 'version');
+SELECT GET_LAST_PARTITION('$mapping_db','$mapping_tb', 'version');
 drop temporary function GET_LAST_PARTITION;
 "
 lastPartitionSource=$(hive -e "$parSqlSouce" -SN)
@@ -113,16 +117,16 @@ where cate_l1_id != substr(cate_l2_id,1,4)
 "
 
 bakAndInsertSql="
-insert overwrite table $dim_sdk_mapping.$dim_app_category_mapping_app360_par partition(version=$targetPar)
+insert overwrite table $dim_app_category_mapping_app360_par partition(version=$targetPar)
 select pkg,apppkg,appname,cate_l1,cate_l2,cate_l3,cate_l4,cate_l1_id,cate_l2_id,cate_l3_id,cate_l4_id
 from test_info_tmp;
 
-insert overwrite table $dim_sdk_mapping.$dim_app_category_mapping_app360_par partition(version=1000)
+insert overwrite table $dim_app_category_mapping_app360_par partition(version=1000)
 select pkg,apppkg,appname,cate_l1,cate_l2,cate_l3,cate_l4,cate_l1_id,cate_l2_id,cate_l3_id,cate_l4_id
 from test_info_tmp a
 "
 
-doubleCheckSql="select * from $dim_sdk_mapping.$dim_app_category_mapping_app360_par where version='1000' and (cate_l1_id is null or cate_l2_id is null)"
+doubleCheckSql="select * from $dim_app_category_mapping_app360_par where version='1000' and (cate_l1_id is null or cate_l2_id is null)"
 
 spark2-submit --master yarn --deploy-mode cluster \
 --class com.mob.mobdi.utils.sortsystem.SortingDbUtils \

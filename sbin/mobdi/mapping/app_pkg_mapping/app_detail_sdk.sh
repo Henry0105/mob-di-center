@@ -62,11 +62,11 @@ CHECK_DATA()
   fi
 }
 
-app_wdj_info_db=$(echo $app_wdj_info|awk -F '.' '{print $1}')
-app_wdj_info_tb=$(echo $app_wdj_info|awk -F '.' '{print $2}')
+app_wdj_info_db=${app_wdj_info%.*}
+app_wdj_info_tb=${app_wdj_info#*.}
 
-app_yyb_info_db=$(echo $app_yyb_info|awk -F '.' '{print $1}')
-app_yyb_info_tb=$(echo $app_yyb_info|awk -F '.' '{print $2}')
+app_yyb_info_db=${app_yyb_info%.*}
+app_yyb_info_tb=${app_yyb_info#*.}
 
 
 

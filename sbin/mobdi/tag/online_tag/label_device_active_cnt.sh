@@ -18,12 +18,10 @@ timewindow=$2
 pday=$(date -d "$day -$timewindow day" +%Y%m%d)
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
+#dim_device_applist_new_di=dim_mobdi_mapping.dim_device_applist_new_di
 #device_applist_new=dm_mobdi_mapping.device_applist_new
 #dws_device_ip_info_di=dm_mobdi_topic.dws_device_ip_info_di
 #dws_device_app_runtimes_di=dm_mobdi_topic.dws_device_app_runtimes_di
@@ -51,7 +49,7 @@ from
     from
     (
         select device,day
-        from $device_applist_new
+        from $dim_device_applist_new_di
         where day > '$pday' and day <= '$day'
         group by device,day
     

@@ -11,10 +11,12 @@ set -e -x
 @TargetTable:test.chenfq_app_category_mapping_new,test.app_category_mapping_new_test,
 @TableRelation:sorting_system.app_category->test.chenfq_app_category_mapping_new|dm_sdk_mapping.cate_id_mapping_par,test.chenfq_app_category_mapping_new->test.app_category_mapping_new_test|dm_sdk_mapping.app_category_mapping_new->dm_sdk_mapping.app_category_mapping_new_bak|test.app_category_mapping_new_test->dm_sdk_mapping.app_category_mapping_new
 '
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #固定参数参数管理区
 #cate_id和cate_name 映射表
-cate_id_mapping_par=dm_sdk_mapping.cate_id_mapping_par
+#dim_cate_id_mapping_par=dim_sdk_mapping.dim_cate_id_mapping_par
+#cate_id_mapping_par=dm_sdk_mapping.cate_id_mapping_par
 #任务类型
 type=$1
 #脚本启动日期
@@ -82,7 +84,7 @@ insert overwrite table $category_app_category_mapping_new_test
           ) a
         where rn = 1
       ) pkg_catename_mapping
-      left join $cate_id_mapping_par cateid_mapping on cateid_mapping.version = '1000'
+      left join $dim_cate_id_mapping_par cateid_mapping on cateid_mapping.version = '1000'
       and pkg_catename_mapping.cate_l1 = trim(cateid_mapping.cate_l1)
       and pkg_catename_mapping.cate_l2 = trim(cateid_mapping.cate_l2)
 "
@@ -91,7 +93,7 @@ categoryCheckDataSqls="
 --判断pkg唯一性
 select pkg,count(1) cnt from $category_app_category_mapping_new_test group by pkg having cnt>1;
 --判断cate_l2_id 是由对应 cate_l1_id 延续生成的
-select cate_l1_id,cate_l2_id from $cate_id_mapping_par where cate_l1_id != substr(cate_l2_id,1,4);
+select cate_l1_id,cate_l2_id from $dim_cate_id_mapping_par where cate_l1_id != substr(cate_l2_id,1,4);
 --判断apppkg与cate_l1 和 cate_l2 的一对一关系
 select apppkg,cate_l1,cate_l2 from $category_app_category_mapping_new_test c
 where c.apppkg in ( select apppkg from ( select apppkg, count(cate_l1) as cnt_cate1, count(cate_l2) as cnt_cate2 from
@@ -193,7 +195,7 @@ select
          theme_l2,developer_long,developer_short,publisher_long,publisher_short
 ) pkg_cate_name
 left join
-$cate_id_mapping_par cate_mapping on  cate_mapping.version = '1000' and pkg_cate_name.cate_l1 = cate_mapping.cate_l1 and pkg_cate_name.cate_l2 = cate_mapping.cate_l2
+$dim_cate_id_mapping_par cate_mapping on  cate_mapping.version = '1000' and pkg_cate_name.cate_l1 = cate_mapping.cate_l1 and pkg_cate_name.cate_l2 = cate_mapping.cate_l2
 left join
 $game_theme_id_mapping theme_id_mapping_1 on  trim(theme_id_mapping_1.id) = pkg_cate_name.theme_l1
 left join

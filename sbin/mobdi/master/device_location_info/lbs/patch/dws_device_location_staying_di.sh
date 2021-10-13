@@ -17,8 +17,8 @@ fi
 
 source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-device_location_info_db=$(echo $dwd_device_location_info_di|awk -F '.' '{print $1}')
-device_location_info_tb=$(echo $dwd_device_location_info_di|awk -F '.' '{print $2}')
+device_location_info_db=${dwd_device_location_info_di%.*}
+device_location_info_tb=${dwd_device_location_info_di#*.}
 
 day=$1
 

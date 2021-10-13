@@ -7,9 +7,11 @@ set -e -x
 @describe: 实现分拣系统中，将app标签分类从MySQL导入hive中去，并check数据，如果数据无效，则发邮件
 @projectName:SortingSystem
 '
+source /home/dba/mobdi_center/conf/hive-env.sh
 
-dim_sdk_mapping=dim_sdk_mapping
-dim_p2p_app_cat_par=dim_p2p_app_cat_par
+#dim_p2p_app_cat_par=dim_sdk_mapping.dim_p2p_app_cat_par
+p2p_app_cat_db=${dim_p2p_app_cat_par%.*}
+p2p_app_cat_tb=${dim_p2p_app_cat_par#*.}
 
 
 result=`mysql -h10.21.33.28 -u root -p'mobtech2019java' -P3306  -e "select max(time) from sorting_system.multiloan" -sN`
@@ -18,7 +20,7 @@ targetPar=1000.$result
 parSql="
     add jar hdfs://ShareSdkHadoop/user/haom/udf/original-hive_udf-1.0.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('$dim_sdk_mapping','$dim_p2p_app_cat_par', 'version');
+    SELECT GET_LAST_PARTITION('$p2p_app_cat_db','$p2p_app_cat_tb', 'version');
     drop temporary function GET_LAST_PARTITION;
 "
 lastPartition=$(hive -e "$parSql" -SN)
@@ -43,7 +45,7 @@ from
   left join
   (
     select cate_id,trim(cat) as cat
-    from $dim_sdk_mapping.$dim_p2p_app_cat_par
+    from $dim_p2p_app_cat_par
     where version='1000'
     group by cate_id,trim(cat)
   ) b on trim(a.cate_l3)=trim(b.cat)
@@ -74,7 +76,7 @@ where c.apppkg in (
 "
 
 bakAndInsertSql="
-insert overwrite table $dim_sdk_mapping.$dim_p2p_app_cat_par partition(version=$targetPar)
+insert overwrite table $dim_p2p_app_cat_par partition(version=$targetPar)
 select a.apppkg, a.cat, a.cate_id 
 from test_info_tmp a
 where length(a.pkg)>0
@@ -89,15 +91,15 @@ and a.pkg not in (
   group by pkg
 );
 
-insert overwrite table $dim_sdk_mapping.$dim_p2p_app_cat_par partition(version=1000)
+insert overwrite table $dim_p2p_app_cat_par partition(version=1000)
 select pkg, cat, cate_id
-from $dim_sdk_mapping.$dim_p2p_app_cat_par
+from $dim_p2p_app_cat_par
 where version='$targetPar'
 "
 
 doubleCheckSql="
 select *
-from $dim_sdk_mapping.$dim_p2p_app_cat_par
+from $dim_p2p_app_cat_par
 where version='1000'
 and (cat is null or cate_id is null) 
 "

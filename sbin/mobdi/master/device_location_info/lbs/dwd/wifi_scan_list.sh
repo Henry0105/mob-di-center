@@ -12,8 +12,8 @@ source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
 ###源表
 #dwd_wifilist_explore_sec_di=dm_mobdi_master.dwd_wifilist_explore_sec_di
-wifilist_explore_db=$(echo $dwd_wifilist_explore_sec_di|awk -F '.' '{print $1}')
-wifilist_explore_tb=$(echo $dwd_wifilist_explore_sec_di|awk -F '.' '{print $2}')
+wifilist_explore_db=${dwd_wifilist_explore_sec_di%.*}
+wifilist_explore_tb=${dwd_wifilist_explore_sec_di#*.}
 
 ###映射表
 #dim_mapping_bssid_location_mf=dim_mobdi_mapping.dim_mapping_bssid_location_mf

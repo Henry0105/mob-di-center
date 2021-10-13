@@ -12,15 +12,15 @@ source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
 ###源表
 #dwd_log_wifi_info_sec_di=dm_mobdi_master.dwd_log_wifi_info_sec_di
-wifi_info_db=$(echo $dwd_log_wifi_info_sec_di|awk -F '.' '{print $1}')
-wifi_info_tb=$(echo $dwd_log_wifi_info_sec_di|awk -F '.' '{print $2}')
+wifi_info_db=${dwd_log_wifi_info_sec_di%.*}
+wifi_info_tb=${dwd_log_wifi_info_sec_di#*.}
 
 ###映射表
 #dim_latlon_blacklist_mf=dim_mobdi_mapping.dim_latlon_blacklist_mf
 #dim_mapping_ip_attribute_code=dim_sdk_mapping.dim_mapping_ip_attribute_code
 #mapping_ip_attribute_code=dm_sdk_mapping.mapping_ip_attribute_code
-ip_attribute_code_db=$(echo $dim_mapping_ip_attribute_code|awk -F '.' '{print $1}')
-ip_attribute_code_tb=$(echo $dim_mapping_ip_attribute_code|awk -F '.' '{print $2}')
+ip_attribute_code_db=${dim_mapping_ip_attribute_code%.*}
+ip_attribute_code_tb=${dim_mapping_ip_attribute_code#*.}
 #dim_mapping_bssid_location_clear_mf=dim_mobdi_mapping.dim_mapping_bssid_location_clear_mf
 #dim_mapping_bssid_location_clear_mf=dm_mobdi_mapping.dim_mapping_bssid_location_clear_mf
 

@@ -22,7 +22,7 @@ object Constants {
   val PHONE_ONEDEGREE_REL = prop("phone_onedegree_rel")
   val TIMEWINDOW_OFFLINE_PROFILE_IOS_SEC = prop("timewindow_offline_profile_ios_sec")
   val TIMEWINDOW_OFFLINE_PROFILE_IOS = prop("timewindow_offline_profile_ios")
-  val APP_PKG_MAPPING_PAR = prop("app_pkg_mapping_par")
+  val APP_PKG_MAPPING_PAR = prop("dim_app_pkg_mapping_par")
   val RP_DEVICE_PROFILE_FULL_VIEW = prop("rp_device_profile_full_view")
   val APP_ACTIVE_DAILY = prop("app_active_daily")
   val DWS_DEVICE_LBS_POI_ANDROID_SEC_DI = prop("dws_device_lbs_poi_android_sec_di")

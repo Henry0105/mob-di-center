@@ -30,8 +30,8 @@ source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 #mapping_ip_attribute_code=dim_sdk_mapping.mapping_ip_attribute_code
 #dim_mapping_ip_attribute_code=dim_sdk_mapping.dim_mapping_ip_attribute_code
 
-dim_mapping_ip_attribute_code_db=$(echo $dim_mapping_ip_attribute_code|awk -F '.' '{print $1}')
-dim_mapping_ip_attribute_code_tb=$(echo $dim_mapping_ip_attribute_code|awk -F '.' '{print $2}')
+dim_mapping_ip_attribute_code_db=${dim_mapping_ip_attribute_code%.*}
+dim_mapping_ip_attribute_code_tb=${dim_mapping_ip_attribute_code#*.}
 
 #目标表
 #dws_device_sdk_run_master_di=dm_mobdi_topic.dws_device_sdk_run_master_di

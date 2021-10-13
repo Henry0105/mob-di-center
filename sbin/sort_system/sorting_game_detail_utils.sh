@@ -7,11 +7,13 @@ set -e -x
 @describe: 实现分拣系统中，将app标签分类从MySQL导入hive中去，并check数据，如果数据无效，则发邮件
 @projectName:SortingSystem
 '
+source /home/dba/mobdi_center/conf/hive-env.sh
 
-dim_sdk_mapping=dim_sdk_mapping
-dim_game_app_detail_par=dim_game_app_detail_par
+#dim_game_app_detail_par=dim_sdk_mapping.dim_game_app_detail_par
+game_app_detail_db=${dim_game_app_detail_par%.*}
+game_app_detail_tb=${dim_game_app_detail_par#*.}
 #mapping
-dim_cate_id_mapping_par=dim_sdk_mapping.dim_cate_id_mapping_par
+#dim_cate_id_mapping_par=dim_sdk_mapping.dim_cate_id_mapping_par
 
 result=`mysql -h10.21.33.28 -u root -p'mobtech2019java' -P3306  -e "select max(time) from sorting_system.game_detail" -sN`
 targetPar=1000.$result
@@ -19,7 +21,7 @@ targetPar=1000.$result
 parSql="
     add jar hdfs://ShareSdkHadoop/user/haom/udf/original-hive_udf-1.0.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('$dim_sdk_mapping','$dim_game_app_detail_par', 'version');
+    SELECT GET_LAST_PARTITION('$game_app_detail_db','$game_app_detail_tb', 'version');
     drop temporary function GET_LAST_PARTITION;
 "
 lastPartition=$(hive -e "$parSql" -SN)
@@ -167,7 +169,7 @@ where c.appname in (
 "
 
 bakAndInsertSql="
-insert overwrite table $dim_sdk_mapping.$dim_game_app_detail_par partition(version=$targetPar)
+insert overwrite table $dim_game_app_detail_par partition(version=$targetPar)
 select a.pkg, a.apppkg, a.url, a.description,trim(regexp_replace(a.appname, '\\n|\\r\\n', '')) as appname, a.cate_l1, a.cate_l2, a.network, a.is_ip, a.frame,
        a.ip_name, a.ip_style, a.art_style, a.theme_l1, a.theme_l2, a.developer_long, a.developer_short, a.publisher_long, a.publisher_short, a.theme_l1_id, a.theme_l2_id,
        a.cate_l2_id, a.art_style_id, a.ip_style_id, a.network_id, a.frame_id
@@ -176,17 +178,17 @@ where length(a.pkg)>0
 and cate_l2_id is not null and theme_l1_id is not null and theme_l2_id is not null and art_style_id is not null and ip_style_id is not null
 and cate_l1 like '%游戏%';
 
-insert overwrite table $dim_sdk_mapping.$dim_game_app_detail_par partition(version=1000)
+insert overwrite table $dim_game_app_detail_par partition(version=1000)
 select pkg,apppkg,url,description,appname,cate_l1,cate_l2,network,is_ip,frame,ip_name,ip_style,art_style,theme_l1,theme_l2,
        developer_long,developer_short,publisher_long,publisher_short,theme_l1_id,theme_l2_id,cate_l2_id,art_style_id,ip_style_id,
        network_id,frame_id
-from $dim_sdk_mapping.$dim_game_app_detail_par
+from $dim_game_app_detail_par
 where version='$targetPar'
 "
 
 doubleCheckSql="
 select *
-from $dim_sdk_mapping.$dim_game_app_detail_par
+from $dim_game_app_detail_par
 where version='1000'
 and (theme_l1_id is null or theme_l2_id is null or cate_l2_id is null or art_style_id is null or ip_style_id is null or network_id is null or frame_id is null) 
 "

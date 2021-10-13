@@ -21,7 +21,9 @@ source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 #dws_device_install_app_status_40d_di=dm_mobdi_topic.dws_device_install_app_status_40d_di
 
 #mapping表
+#dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
 #app_pkg_mapping_par=dim_sdk_mapping.app_pkg_mapping_par
+#dim_app_category_shuce_car=dim_sdk_mapping.dim_app_category_shuce_car
 #app_category_shuce_car=dim_sdk_mapping.app_category_shuce_car
 
 #输出表
@@ -67,7 +69,7 @@ from
         left join
         (
           select pkg,apppkg
-          from $app_pkg_mapping_par
+          from $dim_app_pkg_mapping_par
           where version='$app_pkg_mapping_partion'
         )clean
         on reserved.pkg=clean.pkg
@@ -75,7 +77,7 @@ from
     join
     (
         select apppkg,cate
-        from $app_category_shuce_car
+        from $dim_app_category_shuce_car
         where version='1000'
     ) shuce
     on cleaned.apppkg=shuce.apppkg
@@ -114,7 +116,7 @@ from
         left join
         (
             select pkg,apppkg
-            from $app_pkg_mapping_par
+            from $dim_app_pkg_mapping_par
             where version='$app_pkg_mapping_partion'
         )clean
         on reserved.pkg=clean.pkg
@@ -123,7 +125,7 @@ from
     (
       select apppkg,
              cate
-      from $app_category_shuce_car
+      from $dim_app_category_shuce_car
       where version='1000'
     ) shuce
     on cleaned.apppkg = shuce.apppkg
@@ -162,7 +164,7 @@ from
         left join
         (
           select pkg,apppkg
-          from $app_pkg_mapping_par
+          from $dim_app_pkg_mapping_par
           where version='$app_pkg_mapping_partion'
         )clean
         on reserved.pkg=clean.pkg
@@ -171,7 +173,7 @@ from
     (
         select apppkg,
                cate
-        from $app_category_shuce_car
+        from $dim_app_category_shuce_car
         where version='1000'
     ) shuce
     on cleaned.apppkg=shuce.apppkg
