@@ -5,7 +5,7 @@ set -e -x
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 # input
 #mcid_full=${archive_id_laws}.mcid_full

@@ -7,9 +7,10 @@ if [ -z "$1" ]; then
 fi
 
 day=$1
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ## 源表
-dm_mcid_mapping_v3_sec=dm_dataengine_mapping.dm_mcid_mapping
+#dm_mcid_mapping_v3_sec=dm_dataengine_mapping.dm_mcid_mapping
 #dwd_device_info_df=dm_mobdi_master.dwd_device_info_df
 
 ## 目标表

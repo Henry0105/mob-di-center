@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 ###参数详解
 # -p, --partition <value>   必须参数,结果表分区字段day的值和读取源数据分区范围的上界 示例: -p 20180928或者-partition 20180928
@@ -14,8 +14,7 @@
 
 set -x -e
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #dm_mobdi_topic.dws_device_lbs_poi_android_sec_di

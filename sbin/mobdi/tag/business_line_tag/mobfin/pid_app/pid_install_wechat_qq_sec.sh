@@ -16,21 +16,21 @@ fi
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
-tmp_anticheat_pid_device_pre_sec=dw_mobdi_tmp.tmp_anticheat_pid_device_pre_sec
+tmp_anticheat_pid_device_pre_sec=$dw_mobdi_tmp.tmp_anticheat_pid_device_pre_sec
 #device_profile_label_full_par=dm_mobdi_report.device_profile_label_full_par
 
 #mapping表
+#dim_app_category_mapping_par=dim_sdk_mapping.dim_app_category_mapping_par
 #app_category_mapping_par=dim_sdk_mapping.app_category_mapping_par
 
 #输出表
 #label_l1_anticheat_pid_install_wechat_qq_sec_df=dm_mobdi_report.label_l1_anticheat_pid_install_wechat_qq_sec_df
 
 fullPartition=`hive -S -e "show partitions $device_profile_label_full_par" | sort | grep -v 'monthly_bak'|tail -n 1 `
-appPartition=`hive -S -e "show partitions $app_category_mapping_par" | sort |tail -n 1 `
+appPartition=`hive -S -e "show partitions $dim_app_category_mapping_par" | sort |tail -n 1 `
 pidPartition=`hive -S -e "show partitions $tmp_anticheat_pid_device_pre_sec" | sort |tail -n 1 `
 
 hive -v -e "
@@ -64,7 +64,7 @@ set mapred.job.name=pid_install_wechat_qq_sec;
 
 with apppkg_table as (
     select apppkg 
-    from $app_category_mapping_par 
+    from $dim_app_category_mapping_par
     where $appPartition 
     and appname in ('QQ','微信')
 ),

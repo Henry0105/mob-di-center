@@ -12,7 +12,7 @@ set -x -e
 @day:传入日期参数,为脚本运行日期(重跑不同)
 !
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 date=$1
 

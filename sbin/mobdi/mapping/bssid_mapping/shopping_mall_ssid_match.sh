@@ -11,8 +11,7 @@ day=$1
 dayMonth=`date -d "$day" +%Y-%m`
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
 #dim_poi_config_mapping_par=dim_sdk_mapping.dim_poi_config_mapping_par

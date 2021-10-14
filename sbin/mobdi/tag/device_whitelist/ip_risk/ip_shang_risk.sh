@@ -10,11 +10,12 @@ p1months=`date -d "$day -30 days" +%Y%m`16
 p2months=`date -d "$day -60 days" +%Y%m`16
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
+tmpdb=$dm_mobdi_tmp
 # input
-ip_risk_pre=${dm_mobdi_tmp}.ip_risk_pre
+ip_risk_pre=$tmpdb.ip_risk_pre
 # output
-device_ip_entropy_risk=${dm_mobdi_tmp}.device_ip_entropy_risk
+device_ip_entropy_risk=$tmpdb.device_ip_entropy_risk
 
 hive -e"
 SET mapreduce.map.memory.mb=4096;

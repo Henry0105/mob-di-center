@@ -15,12 +15,14 @@ fi
 
 day=$1
 
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
+#device_relatives_friends_relation_info_mi=dm_mobdi_report.device_relatives_friends_relation_info_mi
 #device_relatives_friends_relation_info_mi=rp_mobdi_app.device_relatives_friends_relation_info_mi
 
 #输出表
+#device_relatives_friends_indirect_relation_info=dm_mobdi_report.device_relatives_friends_indirect_relation_info
 #device_relatives_friends_indirect_relation_info=rp_mobdi_app.device_relatives_friends_indirect_relation_info
 
 hive -v -e "

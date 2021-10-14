@@ -6,7 +6,7 @@ p1months=`date -d "$day -30 day" +%Y%m%d`
 p2months=`date -d "$day -60 day" +%Y%m%d`
 p3months=`date -d "$day -90 day" +%Y%m%d`
 
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #dwd_log_wifi_info_sec_di=dm_mobdi_master.dwd_log_wifi_info_sec_di

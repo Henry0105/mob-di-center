@@ -9,9 +9,7 @@ imei-phone imeimd5-phone交换数据入库
 md5加密的会去撞库
 !
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_other.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #dataexchange_idmapping=${dw_ext_exchange}.dataexchange_idmapping

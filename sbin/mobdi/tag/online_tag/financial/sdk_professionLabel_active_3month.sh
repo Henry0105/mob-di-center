@@ -1,4 +1,4 @@
-#! /bin/sh 
+#!/bin/sh
 
 : '
 @owner:xdzhang
@@ -31,7 +31,7 @@ outtable=$3
 #re_run=$4
 
 #databases
-appdb=dm_mobdi_report
+appdb=$dm_mobdi_report
 
 : '
 @part_1:读config.conf配置文件，拼接所输出表的列名

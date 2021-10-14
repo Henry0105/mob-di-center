@@ -13,8 +13,7 @@ p3month=`date -d "$day -3 months" "+%Y%m%d"`
 p1month=`date -d "$day -1 months" "+%Y%m%d"`
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
 #dwd_log_wifi_info_sec_di=dm_mobdi_master.dwd_log_wifi_info_sec_di

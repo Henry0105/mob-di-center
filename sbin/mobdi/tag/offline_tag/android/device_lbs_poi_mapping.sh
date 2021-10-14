@@ -16,12 +16,13 @@ if [ $# -lt 2 ]; then
     exit 1
 fi
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #tmp
-lbs_poi_mapping_tmp=dm_mobdi_tmp.lbs_poi_mapping_tmp
-
+lbs_poi_mapping_tmp=$dm_mobdi_tmp.lbs_poi_mapping_tmp
+#dim_poi_config_mapping_par=dim_sdk_mapping.dim_poi_config_mapping_par
+poi_config_db=${dim_poi_config_mapping_par%.*}
+poi_config_tb=${dim_poi_config_mapping_par#*.}
 
 cd `dirname $0`
 type=$2
@@ -30,7 +31,7 @@ day=$1
 sql="
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dm_sdk_mapping', 'poi_config_mapping_par', 'version');
+SELECT GET_LAST_PARTITION('$poi_config_db', '$poi_config_tb', 'version');
 drop temporary function GET_LAST_PARTITION;
 "
 lastpar=(`hive -e "$sql"`)
@@ -51,7 +52,7 @@ spark2-submit  --master yarn --deploy-mode cluster \
             \"distanceRange\": \"200\"
         }
     },
-    \"poiTable\": \"(select poi_id,name,lat,lon,bssid,geohash6,geohash7,attribute,type from $poi_config_mapping_par where version='1000')\",
+    \"poiTable\": \"(select poi_id,name,lat,lon,bssid,geohash6,geohash7,attribute,type from $dim_poi_config_mapping_par where version='1000')\",
     \"lbsSql\": \"select device,start_time as begintime,end_time as endtime,
 lat ,
 lon,

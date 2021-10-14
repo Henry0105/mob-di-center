@@ -6,7 +6,7 @@ p1months=`date -d "$day -1 months" +%Y%m%d`
 p2months=`date -d "$day -2 months" +%Y%m%d`
 p3months=`date -d "$day -3 months" +%Y%m%d`
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 #input
 #dws_device_ip_info_di=dm_mobdi_topic.dws_device_ip_info_di
 #out

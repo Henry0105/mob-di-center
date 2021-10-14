@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 set -e -x
 : '
 @owner:xdzhang
@@ -6,11 +6,7 @@ set -e -x
 @projectName:
 @BusinessName:
 '
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 : '
 inPutTable:

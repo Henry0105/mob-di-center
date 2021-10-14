@@ -12,16 +12,13 @@ set -x -e
 !
 day=$1
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
-
-tmpdb="dw_mobdi_tmp"
-appdb="rp_mobdi_report"
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ##input
-label_l1_vocation_special=$label_l1_vocation_special
-device_info_master_incr=$device_info_master_incr
-label_l1_network_label_di=$label_l1_network_label_di
-label_l1_citylevel_di=$label_l1_citylevel_di
+#label_l1_vocation_special=$label_l1_vocation_special
+#device_info_master_incr=$dwd_device_info_di
+#label_l1_network_label_di=$label_l1_network_label_di
+#label_l1_citylevel_di=$label_l1_citylevel_di
 
 ##output
 device_mapping_label=$label_mapping_type_all_di
@@ -156,7 +153,7 @@ from
      union all
 
      select device
-     from $device_info_master_incr
+     from $dwd_device_info_di
      where day='$day'
      and plat=1
   )un
@@ -165,7 +162,7 @@ from
 left join
 (
   select *
-  from $device_info_master_incr
+  from $dwd_device_info_di
   where day='$day'
   and plat=1
 ) info on driver.device=info.device

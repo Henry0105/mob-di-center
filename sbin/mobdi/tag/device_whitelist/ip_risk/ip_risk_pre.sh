@@ -3,7 +3,7 @@
 set -e -x
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 # input
 #dws_device_ip_info_di=dm_mobdi_topic.dws_device_ip_info_di

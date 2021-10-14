@@ -5,17 +5,19 @@ pday=`date -d "$day -30 days" +%Y%m%d`
 p180day=`date -d "$day -180 days" +%Y%m%d`
 day2=`date -d "$day" +%Y-%m-%d`
 
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #dwd_pv_sec_di=dm_mobdi_master.dwd_pv_sec_di
 #dwd_log_run_new_di=dm_mobdi_master.dwd_log_run_new_di
 
+tmpdb=$dm_mobdi_tmp
+
 #md
-device_active_day_info=${dm_mobdi_tmp}.device_active_day_info
+device_active_day_info=$tmpdb.device_active_day_info
 
 #out
-device_active_risk=${dm_mobdi_tmp}.device_active_risk
+device_active_risk=$tmpdb.device_active_risk
 
 
 hive -e"

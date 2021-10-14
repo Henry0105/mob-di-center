@@ -2,14 +2,16 @@
 
 set -e -x
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
+
+tmpdb=$dm_mobdi_tmp
 
 # input
-device_unstall_1month=${dm_mobdi_tmp}.device_unstall_1month
-device_unstall_2month=${dm_mobdi_tmp}.device_unstall_2month
-device_unstall_3month=${dm_mobdi_tmp}.device_unstall_3month
+device_unstall_1month=$tmpdb.device_unstall_1month
+device_unstall_2month=$tmpdb.device_unstall_2month
+device_unstall_3month=$tmpdb.device_unstall_3month
 # output
-device_unstall_freq_risk=${dm_mobdi_tmp}.device_unstall_freq_risk
+device_unstall_freq_risk=$tmpdb.device_unstall_freq_risk
 
 hive -e"
 insert overwrite  table $device_unstall_freq_risk

@@ -25,9 +25,10 @@ fi
 day=$1
 update_part=$day
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
-tmpdb="dw_mobdi_tmp"
-appdb="rp_mobdi_report"
+source /home/dba/mobdi_center/conf/hive-env.sh
+
+#rp_device_demo_update=dm_mobdi_report.rp_device_demo_update
+#rp_device_profile_full_view=dm_mobdi_report.rp_device_profile_full_view
 
 :<<!
 @part_1
@@ -49,7 +50,7 @@ else
 fi
 
 hive -e"
-CREATE TABLE IF NOT EXISTS $appdb.rp_device_demo_update(
+CREATE TABLE IF NOT EXISTS $rp_device_demo_update(
   deviceid string, 
   country string, 
   province string, 
@@ -81,11 +82,11 @@ PARTITIONED BY (
   
 hive -v -e "
 set mapreduce.job.queuename=root.yarn_data_compliance2;
-insert overwrite table $appdb.rp_device_demo_update PARTITION(day='$update_part')
+insert overwrite table $rp_device_demo_update PARTITION(day='$update_part')
 select device as deviceid,country,province,city,gender,agebin,segment,edu,kids,income,cell_factory,model,model_level,
        carrier,network,screensize,sysver,tot_install_apps,country_cn,province_cn,city_cn,city_level,occupation,car,
        -1 as identity,price
-from $appdb.rp_device_profile_full_view
+from $rp_device_profile_full_view
 where processtime_all>='$day40'
 and processtime_all<='$day'
 "

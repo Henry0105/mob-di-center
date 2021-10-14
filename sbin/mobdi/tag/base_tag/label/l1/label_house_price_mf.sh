@@ -3,7 +3,7 @@ set -x -e
 
 # 作为pre_data的输入
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 appdb="rp_mobdi_report"
 

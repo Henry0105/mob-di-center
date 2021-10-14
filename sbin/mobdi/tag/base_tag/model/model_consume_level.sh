@@ -18,10 +18,9 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 day=$1
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb="dw_mobdi_tmp"
-appdb="rp_mobdi_report"
+tmpdb=$dw_mobdi_tmp
 
 #input
 transfered_feature_table="${tmpdb}.model_transfered_features"
@@ -30,8 +29,14 @@ label_apppkg_feature_index=${label_l1_apppkg_feature_index}
 label_apppkg_category_index=${label_l1_apppkg_category_index}
 
 model="/dmgroup/dba/modelpath/20200413/consume_level"
-out_put_table=${appdb}.label_l2_result_scoring_di
+out_put_table=$label_l2_result_scoring_di
 threshold="1.0,1.1,1.0,1.0"
+
+md_db=$dw_mobdi_md
+consume_level_device_index=$md_db.consume_level_device_index
+consume_level_device_index_onehot_prepare=$md_db.consume_level_device_index_onehot_prepare
+
+#dim_device_applist_new_di=dim_mobdi_mapping.dim_device_applist_new_di
 
 #先复用已经生成的dw_mobdi_md.device_info_level_par_new表的设备特征
 #其中cell_factory特征(8-15)、sysver特征(16-22)、price特征(33-37)与device_info_level_par_new一样，直接复用
@@ -48,7 +53,7 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
-insert overwrite table dw_mobdi_md.consume_level_device_index partition(day='$day')
+insert overwrite table $consume_level_device_index partition(day='$day')
 select device,index,1.0 as cnt
 from $transfered_feature_table
 where day='$day'
@@ -98,7 +103,7 @@ from
   from
   (
     select device, pkg
-    from dim_mobdi_mapping.device_applist_new
+    from $dim_device_applist_new_di
     where day = '$day'
   ) t1
   inner join
@@ -123,7 +128,7 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
-insert overwrite table dw_mobdi_md.consume_level_device_index_onehot_prepare partition(day='$day')
+insert overwrite table $consume_level_device_index_onehot_prepare partition(day='$day')
 select device,
        cast(sum(if(index>=0 and index<=7,index,0)) as int) as city_level_1001,
        cast(sum(if(index>=8 and index<=15,index,0)) as int) as factory,
@@ -142,14 +147,14 @@ select device,
        if(size(collect_list(if(index>=1001,index,null)))=0,
          collect_set(0),
          collect_list(if(index>=1001,index,null))) as apppkg_index_list
-from dw_mobdi_md.consume_level_device_index
+from $consume_level_device_index
 where day = '$day'
 group by device;
 "
 
 pre_sql="
 select device,city_level_1001,factory,sysver,app_cnt,price,cate_index_list,cate_cnt_list,apppkg_index_list
-from dw_mobdi_md.consume_level_device_index_onehot_prepare
+from $consume_level_device_index_onehot_prepare
 where day='$day'
 "
 

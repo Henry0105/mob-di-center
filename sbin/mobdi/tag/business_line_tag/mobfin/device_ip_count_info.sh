@@ -11,8 +11,7 @@ p1week=`date -d "$day -7 day" +%Y%m%d`
 p1month=`date -d "$day -30 day" +%Y%m%d`
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #输入表
 #dws_device_ip_info_di=dm_mobdi_master.dws_device_ip_info_di

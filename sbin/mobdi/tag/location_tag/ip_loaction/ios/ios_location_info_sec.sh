@@ -13,14 +13,13 @@ set -x -e
 day=$1
 
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ##input:
 #dws_device_ip_info_di=dm_mobdi_topic.dws_device_ip_info_di
 
 ##mapping:
+#dim_id_mapping_ios_sec_df_view=dim_mobdi_mapping.dim_id_mapping_ios_sec_df_view
 #ios_id_mapping_sec_df_view=dm_mobdi_mapping.ios_id_mapping_full_sec_view
 
 ##output:
@@ -83,7 +82,7 @@ from(
 )a
 inner join
 (select device,ifids as ifid
-        from $ios_id_mapping_sec_df_view lateral view explode(split(ifid,',')) t as ifids
+        from $dim_id_mapping_ios_sec_df_view lateral view explode(split(ifid,',')) t as ifids
         where ifids<>''        --删除了ifid过滤脏数据条件
 )b
 on a.device=b.device

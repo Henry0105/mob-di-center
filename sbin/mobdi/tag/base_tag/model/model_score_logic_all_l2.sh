@@ -12,24 +12,27 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb="dw_mobdi_tmp"
-appdb="rp_mobdi_report"
+tmpdb=$dw_mobdi_tmp
+md_db=$dw_mobdi_md
+models_with_confidence_pre=$tmpdb.models_with_confidence_pre
 
-full_version=`hive -e "show partitions ${appdb}.device_profile_label_full_par"| grep -v 'monthly_bak'|awk -F '=' '{print $2}'|tail -n 1`
+#device_profile_label_full_par=dm_mobdi_report.device_profile_label_full_par
+
+full_version=`hive -e "show partitions $device_profile_label_full_par"| grep -v 'monthly_bak'|awk -F '=' '{print $2}'|tail -n 1`
 
 ## input
-result_scoring_par="${appdb}.label_l2_result_scoring_di"
+result_scoring_par=$label_l2_result_scoring_di
 
 ##中间落地表
-models_with_confidence_pre_par=dw_mobdi_md.models_with_confidence_pre_par
+models_with_confidence_pre_par=$md_db.models_with_confidence_pre_par
 
 ## mapping
-model_confidence_config_maping="tp_mobdi_model.model_confidence_config_maping"
+#model_confidence_config_maping=tp_mobdi_model.model_confidence_config_maping
 
 ##output 添加了置信度并做了逻辑自洽的表
-confidence_logic="${appdb}.label_l2_model_with_confidence_union_logic_di"
+confidence_logic=$label_l2_model_with_confidence_union_logic_di
 
 day=$1
 echo ${day}
@@ -39,7 +42,7 @@ last_conf_par=`hive -e "show partitions tp_mobdi_model.model_confidence_config_m
 
 hive -v -e "
 set mapreduce.job.queuename=root.yarn_data_compliance2;
-insert overwrite table ${tmpdb}.models_with_confidence_pre
+insert overwrite table $models_with_confidence_pre
 select device,prediction,probability,day,kind,
        case
          when normal_probability = 1 then 0.9
@@ -171,14 +174,14 @@ spark2-submit --class com.youzu.mob.newscore.ModelProfileTableMerge \
 #全字段去重
 hive -v -e "
 set mapreduce.job.queuename=root.yarn_data_compliance2;
-insert overwrite table ${appdb}.label_l2_model_with_confidence_union_logic_di partition(day=$day)
+insert overwrite table $label_l2_model_with_confidence_union_logic_di partition(day=$day)
 select device,gender,gender_cl,agebin,agebin_cl,edu,edu_cl,income,income_cl,kids,kids_cl,
        car,car_cl,house,house_cl,married,married_cl,occupation,occupation_cl,industry,
        industry_cl,agebin_1001,agebin_1001_cl,city_level,special_time,consum_level,
        life_stage,income_1001,income_1001_cl,occupation_1001,occupation_1001_cl,consume_level,
        consume_level_cl,agebin_1002,agebin_1002_cl,agebin_1003,agebin_1003_cl,income_1001_v2,
        income_1001_v2_cl,occupation_1002,occupation_1002_cl
-from ${appdb}.label_l2_model_with_confidence_union_logic_di
+from $label_l2_model_with_confidence_union_logic_di
 where day = '$day'
 group by device,gender,gender_cl,agebin,agebin_cl,edu,edu_cl,income,income_cl,kids,kids_cl,
        car,car_cl,house,house_cl,married,married_cl,occupation,occupation_cl,industry,

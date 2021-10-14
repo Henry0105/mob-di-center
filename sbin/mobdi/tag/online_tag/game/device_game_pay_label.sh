@@ -17,15 +17,15 @@ day=$1
 p30day=$(date -d "$day -30 day" +%Y%m%d)
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
 #dws_device_install_app_re_status_di=dm_mobdi_topic.dws_device_install_app_re_status_di
 
 #mapping表
+#dim_game_services_category=dim_sdk_mapping.dim_game_services_category
 #game_services_category=dim_sdk_mapping.game_services_category
+#dim_game_plat_model_seed_g=dim_sdk_mapping.dim_game_plat_model_seed_g
 #game_plat_model_seed_g=dim_sdk_mapping.game_plat_model_seed_g
 
 #目标表
@@ -59,7 +59,7 @@ from
     inner join
     (
         select apppkg
-        from $game_services_category
+        from $dim_game_services_category
         where flag = '游戏交易'
     ) game
     on install_table.pkg = game.apppkg
@@ -72,7 +72,7 @@ from
     inner join
     (
         select apppkg
-        from $game_services_category
+        from $dim_game_services_category
         where flag = '游戏折扣平台'
     ) game
     on install_table.pkg = game.apppkg
@@ -85,7 +85,7 @@ from
     inner join
     (
         select id
-        from $game_plat_model_seed_g 
+        from $dim_game_plat_model_seed_g
         where id_type = 'device' 
         and is_pay = 1
     ) game

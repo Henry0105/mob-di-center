@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 set -e -x
 export LANG=en_US.UTF-8
 : '
@@ -20,9 +20,7 @@ date1=$1
 date2=$(date -d "$date1 -7 day" +%Y%m%d)
 date3=$(date -d "$date1 -1 day" +%Y%m%d)
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 : '
 @part_1:
 实现功能:未经过渠道清理的包名所对应的app_name数据增量更新到dim_app_name_info_orig表

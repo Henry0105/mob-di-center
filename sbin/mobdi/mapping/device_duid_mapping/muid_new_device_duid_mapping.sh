@@ -25,8 +25,7 @@ ios: 从dw_mobdi_etl.log_device_info_jh (plat=2),dw_mobdi_etl.pv (plat=2)中取d
 '
 
 currentDay=$1
-source /home/dba/mobdi_center/conf/hive_db_tb_ods.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 # input
 #log_device_info_jh=dw_sdk_log.log_device_info_jh

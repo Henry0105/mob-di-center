@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 set -e -x
 : '
 @owner:zhtli
@@ -23,14 +23,14 @@ fi
           3.把rp_mobdi_app.device_mintime_incr_mapping中的数据并入到全量表rp_mobdi_app.device_mintime_mapping中
 '
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
-log_device_info_jh=dm_mobdi_master.dwd_log_device_info_jh_sec_di
+#dwd_log_device_info_jh_sec_di=dm_mobdi_master.dwd_log_device_info_jh_sec_di
 
 #out
-device_mintime_incr_mapping=$device_mintime_incr_mapping
-device_mintime_mapping=$device_mintime_mapping
+#device_mintime_incr_mapping=$device_mintime_incr_mapping
+#device_mintime_mapping=$device_mintime_mapping
 
 
 
@@ -55,7 +55,7 @@ select incr.device, incr.plat
 from 
 (
   select muid as device,plat
-    from $log_device_info_jh
+    from $dwd_log_device_info_jh_sec_di
     where day = '${day}'
     and plat in ('1','2')
     group by muid,plat

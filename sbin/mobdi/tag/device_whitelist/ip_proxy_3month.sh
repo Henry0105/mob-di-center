@@ -5,14 +5,15 @@ set -e -x
 day=$1
 p3months=`date -d "$day -90 days" +%Y%m%d`
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #dws_device_ip_info_di=dm_mobdi_topic.dws_device_ip_info_di
+tmpdb=$dm_mobdi_tmp
 #tmp
-ip_location_info=${dm_mobdi_tmp}.ip_location_info
+ip_location_info=$tmpdb.ip_location_info
 #output
-device_ip_proxy_3month=${dm_mobdi_tmp}.device_ip_proxy_3month
+device_ip_proxy_3month=$tmpdb.device_ip_proxy_3month
 
 hive -e"
 

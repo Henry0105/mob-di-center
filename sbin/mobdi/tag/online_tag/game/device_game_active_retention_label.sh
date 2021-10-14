@@ -16,17 +16,18 @@ fi
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
 #dws_device_active_applist_di=dm_mobdi_topic.dws_device_active_applist_di
 #dws_device_install_app_re_status_di=dm_mobdi_topic.dws_device_install_app_re_status_di
 
 #mapping表
+#dim_game_app_tags_pkg=dim_sdk_mapping.dim_game_app_tags_pkg
 #game_app_tags_pkg=dim_sdk_mapping.game_app_tags_pkg
+#dim_game_tag_mapping=dim_sdk_mapping.dim_game_tag_mapping
 #game_tag_mapping=dim_sdk_mapping.game_tag_mapping
+#dim_game_type_threshhold=dim_sdk_mapping.dim_game_type_threshhold
 #game_type_threshhold=dim_sdk_mapping.game_type_threshhold
 
 #目标表
@@ -44,9 +45,9 @@ source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
 输出结果:表名:rp_mobdi_app.label_device_game_active_label_wi
 '
 
-tags_pkg_partition=`hive -S -e "show partitions $game_app_tags_pkg" | sort |tail -n 1`
-game_tag_partition=`hive -S -e "show partitions $game_tag_mapping" | sort |tail -n 1`
-threshholdPatition=`hive -S -e "show partitions $game_type_threshhold" | sort |tail -n 1`
+tags_pkg_partition=`hive -S -e "show partitions $dim_game_app_tags_pkg" | sort |tail -n 1`
+game_tag_partition=`hive -S -e "show partitions $dim_game_tag_mapping" | sort |tail -n 1`
+threshholdPatition=`hive -S -e "show partitions $dim_game_type_threshhold" | sort |tail -n 1`
 
 #生成活跃标签表数据
 function active_label(){
@@ -71,7 +72,7 @@ with cate_theme_table as (
     from 
     (
         select $id,apppkg,$level
-        from $game_app_tags_pkg
+        from $dim_game_app_tags_pkg
         where $tags_pkg_partition
         and $id is not null 
         and $level is not null
@@ -85,14 +86,14 @@ with cate_theme_table as (
         from 
         (
             select tag_id,tag_type
-            from $game_tag_mapping
+            from $dim_game_tag_mapping
             where $game_tag_partition
             and tag_type = '$tag_type'
         )t1
         inner join
         (
             select tag_type,threshhold
-            from $game_type_threshhold
+            from $dim_game_type_threshhold
             where $threshholdPatition
             and tag_type = '$tag_type'
         )t2
@@ -161,7 +162,7 @@ with cate_theme_table as (
     from 
     (
         select $id,apppkg,$level
-        from $game_app_tags_pkg
+        from $dim_game_app_tags_pkg
         where $tags_pkg_partition
         and $id is not null 
         and $level is not null
@@ -175,14 +176,14 @@ with cate_theme_table as (
         from 
         (
             select tag_id,tag_type
-            from $game_tag_mapping
+            from $dim_game_tag_mapping
             where $game_tag_partition
             and tag_type = '$tag_type'
         )t1
         inner join
         (
             select tag_type,threshhold
-            from $game_type_threshhold
+            from $dim_game_type_threshhold
             where $threshholdPatition
             and tag_type = '$tag_type'
         )t2

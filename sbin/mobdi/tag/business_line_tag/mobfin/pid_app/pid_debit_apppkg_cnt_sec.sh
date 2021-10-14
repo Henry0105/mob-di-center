@@ -18,25 +18,23 @@ timewindow=$2
 pday=`date -d "$day -$timewindow days" +%Y%m%d`
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
-tmp_anticheat_pid_device_pre_sec=dw_mobdi_tmp.tmp_anticheat_pid_device_pre_sec
+tmp_anticheat_pid_device_pre_sec=$dw_mobdi_tmp.tmp_anticheat_pid_device_pre_sec
 #dws_device_install_app_re_status_di=dm_mobdi_topic.dws_device_install_app_re_status_di
 #dws_device_active_applist_di=dm_mobdi_topic.dws_device_active_applist_di
-#dim_device_applist_new_di=dm_mobdi_mapping.dim_device_applist_new_di
+#dim_device_applist_new_di=dim_mobdi_mapping.dim_device_applist_new_di
 
 #mapping表
+#dim_online_category_mapping_v3=dim_sdk_mapping.dim_online_category_mapping_v3
 #online_category_mapping_v3=dim_sdk_mapping.online_category_mapping_v3
 
 #输出表
 #label_l1_anticheat_pid_cnt_sec=dm_mobdi_report.label_l1_anticheat_pid_cnt_sec
 
 
-categoryPartition=`hive -S -e "show partitions $online_category_mapping_v3" | sort |tail -n 1 `
+categoryPartition=`hive -S -e "show partitions $dim_online_category_mapping_v3" | sort |tail -n 1 `
 pidPartition=`hive -S -e "show partitions $tmp_anticheat_pid_device_pre_sec" | sort |tail -n 1 `
 
 #安装过借贷类应用数
@@ -60,7 +58,7 @@ set mapred.job.name=pid_debit_apppkg_cnt_sec;
 
 with apppkg_table as (
     select relation
-    from $online_category_mapping_v3
+    from $dim_online_category_mapping_v3
     where $categoryPartition
     and cate in ('P2P借贷','借贷','小额借贷','优质借贷','现金贷','综合借贷','劣质借贷')
 ),
@@ -118,7 +116,7 @@ set mapred.job.name=pid_debit_apppkg_cnt_sec;
 
 with apppkg_table as (
     select relation
-    from $online_category_mapping_v3
+    from $dim_online_category_mapping_v3
     where $categoryPartition
     and cate in ('P2P借贷','借贷','小额借贷','优质借贷','现金贷','综合借贷','劣质借贷')
 ),
@@ -177,7 +175,7 @@ set mapred.job.name=pid_debit_apppkg_cnt_sec;
 
 with apppkg_table as (
     select relation
-    from $online_category_mapping_v3
+    from $dim_online_category_mapping_v3
     where $categoryPartition
     and cate in ('P2P借贷','借贷','小额借贷','优质借贷','现金贷','综合借贷','劣质借贷')
 ),

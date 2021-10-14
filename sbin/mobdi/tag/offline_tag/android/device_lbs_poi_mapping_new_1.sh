@@ -15,11 +15,10 @@ if [ $# -lt 2 ]; then
     exit 1
 fi
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #tmp
-lbs_poi_mapping_catering=dm_mobdi_tmp.lbs_poi_mapping_catering
+lbs_poi_mapping_catering=$dm_mobdi_tmp.lbs_poi_mapping_catering
 
 cd `dirname $0`
 day=$1

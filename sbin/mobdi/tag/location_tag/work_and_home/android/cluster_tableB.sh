@@ -8,15 +8,16 @@ days=${day:0:6}01
 p3month=`date -d "$days -3 month" +%Y%m`
 
 p1month=`date -d "$days -1 month" +%Y%m`
-
+source /home/dba/mobdi_center/conf/hive-env.sh
+tmpdb=$dm_mobdi_tmp
 #input
-tmp_device_location_stage_pre=dm_mobdi_tmp.tmp_device_location_stage_pre
-tmp_device_location_summary_monthly=dm_mobdi_tmp.tmp_device_location_summary_monthly
-tmp_device_live_place=dm_mobdi_tmp.tmp_device_live_place
-tmp_device_work_place=dm_mobdi_tmp.tmp_device_work_place
+tmp_device_location_stage_pre=$tmpdb.tmp_device_location_stage_pre
+tmp_device_location_summary_monthly=$tmpdb.tmp_device_location_summary_monthly
+tmp_device_live_place=$tmpdb.tmp_device_live_place
+tmp_device_work_place=$tmpdb.tmp_device_work_place
 
 #out
-tmp_device_location_stage_pre=dm_mobdi_tmp.tmp_device_location_stage_pre
+tmp_device_location_stage_pre=$tmpdb.tmp_device_location_stage_pre
 
 
 hive -e"

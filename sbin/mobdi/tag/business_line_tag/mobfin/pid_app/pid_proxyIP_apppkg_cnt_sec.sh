@@ -16,17 +16,15 @@ fi
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
-tmp_anticheat_pid_device_pre_sec=dw_mobdi_tmp.tmp_anticheat_pid_device_pre_sec
+tmp_anticheat_pid_device_pre_sec=$dw_mobdi_tmp.tmp_anticheat_pid_device_pre_sec
 #dws_device_install_app_re_status_di=dm_mobdi_topic.dws_device_install_app_re_status_di
 #dws_device_active_applist_di=dm_mobdi_topic.dws_device_active_applist_di
 
 #mapping
-#dim_device_applist_new_di=dm_mobdi_mapping.dim_device_applist_new_di
+#dim_device_applist_new_di=dim_mobdi_mapping.dim_device_applist_new_di
 
 #输出表
 #label_l1_anticheat_pid_cnt_sec=dm_mobdi_report.label_l1_anticheat_pid_cnt_sec

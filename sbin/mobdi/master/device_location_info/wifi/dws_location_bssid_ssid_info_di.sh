@@ -13,8 +13,7 @@ if [ $# -lt 1 ]; then
      exit 1
 fi
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 

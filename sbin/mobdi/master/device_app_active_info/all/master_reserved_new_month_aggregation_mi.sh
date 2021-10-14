@@ -15,7 +15,7 @@ day=`date +%Y%m%d -d "${pre_day2} -1 day"`
 
 monthFirstDay=`date -d $day +%Y%m01`
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ## 源表
 master_reserved_new=${dws_device_install_app_re_status_di}

@@ -13,7 +13,7 @@ set -x -e
 day=$1
 pday=`date -d "$day -1 days" +%Y%m%d`
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 tmpdb="dw_mobdi_tmp"
 appdb="rp_mobdi_report"

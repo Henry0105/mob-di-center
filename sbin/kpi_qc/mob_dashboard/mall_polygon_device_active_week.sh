@@ -19,7 +19,7 @@ whichday=`date -d $day +%w`
 #本周四
 thuday=`date -d "$day -$[${whichday}-4] days" +%Y%m%d`
 
-source /home/dba/mobdi_center/conf/hive_db_tb_dashboard.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #mall_polygon_click_dau_di=mob_dashboard.mall_polygon_click_dau_di

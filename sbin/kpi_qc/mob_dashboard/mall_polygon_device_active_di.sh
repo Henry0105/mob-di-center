@@ -21,8 +21,7 @@ city="'cn0_01', 'cn1_01', 'cn2_04', 'cn2_09', 'cn4_07', 'cn9_18', 'cn3_13', 'cn3
 
 day=$1
 
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_dashboard.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 
 #input

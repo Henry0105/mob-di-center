@@ -19,10 +19,9 @@ if [ $# -ne 1 ]; then
 fi
 day=$1
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb="dw_mobdi_tmp"
-appdb="rp_mobdi_report"
+tmpdb=$dw_mobdi_tmp
 ## input
 tmp_score_part1="${tmpdb}.tmp_score_part1"
 tmp_score_part3="${tmpdb}.tmp_score_part3"
@@ -40,7 +39,7 @@ modelPath1="/dmgroup/dba/modelpath/20200811/linear_regression_model/age1001model
 modelPath2="/dmgroup/dba/modelpath/20200811/linear_regression_model/age1001model_2"
 
 threshold="1.0, 0.9, 2.0, 1.7, 0.9"
-out_put_table="${appdb}.label_l2_result_scoring_di"
+out_put_table=$label_l2_result_scoring_di
 test_flag="0"
 
 spark2-submit --master yarn --deploy-mode cluster \

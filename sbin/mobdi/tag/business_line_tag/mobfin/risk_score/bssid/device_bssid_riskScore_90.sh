@@ -18,14 +18,13 @@ day=$1
 p90day=`date -d "$day -90 days" +%Y%m%d`
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
 #dwd_log_wifi_info_sec_di=dm_mobdi_master.dwd_log_wifi_info_sec_di
 
 #md
-tmp_anticheat_device_bssid_cnt_90days=dw_mobdi_tmp.tmp_anticheat_device_bssid_cnt_90days
+tmp_anticheat_device_bssid_cnt_90days=$dw_mobdi_tmp.tmp_anticheat_device_bssid_cnt_90days
 
 #out
 #label_l1_anticheat_device_riskscore=dm_mobdi_report.label_l1_anticheat_device_riskscore

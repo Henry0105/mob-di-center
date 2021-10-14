@@ -19,10 +19,9 @@ if [ $# -ne 1 ]; then
 fi
 day=$1
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb="dw_mobdi_tmp"
-appdb="rp_mobdi_report"
+tmpdb=$dw_mobdi_tmp
 
 ##input
 transfered_feature_table="${tmpdb}.model_transfered_features"
@@ -32,7 +31,7 @@ modelPath="/dmgroup/dba/modelpath/20190815/linear_regression_model/marriedmodel"
 #threshold=0.6
 length=330000
 
-model_index="tp_mobdi_model.model_index"
+#model_index="tp_mobdi_model.model_index"
 
 ##output
 outputTable=${label_l2_result_scoring_di}

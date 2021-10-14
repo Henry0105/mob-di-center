@@ -5,15 +5,16 @@ set -e -x
 day=$1
 days=${day:0:6}01
 
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 tmp_device_frequency_place=dm_mobdi_tmp.tmp_device_frequency_place
 
 #mapping
+#dim_geohash6_china_area_mapping_par=dim_sdk_mapping.dim_geohash6_china_area_mapping_par
 #dm_sdk_mapping.geohash6_area_mapping_par
-#dm_sdk_mapping.geohash8_lbs_info_mapping_par
+#dim_geohash8_china_area_mapping_par=dim_sdk_mapping.dim_geohash8_china_area_mapping_par
+#dm_sdk_mapping.dim_geohash8_china_area_mapping_par
 
 #out
 #dm_mobdi_report.rp_device_frequency_3monthly
@@ -68,10 +69,10 @@ insert overwrite table $rp_device_frequency_3monthly partition(day='${days}')
       from $tmp_device_frequency_place
       where stage in('A','B','C','D')
     ) frequency
-    left join (select * from $geohash6_area_mapping_par where version='1000') geohash6_mapping
+    left join (select * from $dim_geohash6_china_area_mapping_par where version='1000') geohash6_mapping
     on (get_geohash(centerlat, centerlon, 6) = geohash6_mapping.geohash_6_code)
     where frequency.rk <= 10
     )geo6
-    left join (select * from $geohash8_lbs_info_mapping_par where version='1000') geohash8_mapping
+    left join (select * from $dim_geohash8_china_area_mapping_par where version='1000') geohash8_mapping
     on (case when geo6.geohash_6_code is null then get_geohash(lat, lon, 8) else concat('', rand()) end = geohash8_mapping.geohash_8_code)
 "

@@ -14,19 +14,21 @@ fi
 day=$1
 insert_day=${day:0:6}01
 
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
+
+tmpdb=$dm_mobdi_tmp
 
 ## 源表
-tmp_engine00002_datapre=dm_mobdi_tmp.tmp_engine00002_datapre
+tmp_engine00002_datapre=$tmpdb.tmp_engine00002_datapre
 #rp_device_location_permanent=rp_mobdi_app.rp_device_location_permanent
 
 
 ## mapping 表
 #map_province_loc=dm_sdk_mapping.map_province_loc
+#dim_map_province_loc=dim_sdk_mapping.dim_map_province_loc
 
 ## 目标表
-engine00009_data_collect=dm_mobdi_tmp.engine00009_data_collect
+engine00009_data_collect=$tmpdb.engine00009_data_collect
 
 sql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
@@ -60,7 +62,7 @@ from (
             ) t1
         left join (
             select province1_code, province2_code
-            from $map_province_loc
+            from $dim_map_province_loc
             where flag = 1
             ) t2 on t1.base_province = t2.province1_code
         ) tt

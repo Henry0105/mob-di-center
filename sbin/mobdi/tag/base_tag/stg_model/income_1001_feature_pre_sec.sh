@@ -21,35 +21,61 @@ fi
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
-#device_applist_new=dim_mobdi_mapping.device_applist_new
 #dwd_log_wifi_info_sec_di=dm_mobdi_master.dwd_log_wifi_info_sec_di
+#dim_device_applist_new_di=dim_mobdi_mapping.dim_device_applist_new_di
+#device_applist_new=dim_mobdi_mapping.dim_device_applist_new
 
 #mapping
-#dim_id_mapping_android_df_view=dim_mobdi_mapping.dim_id_mapping_android_df_view
+#id_mapping_android_df_view=dim_mobdi_mapping.id_mapping_android_df_view
+#dim_id_mapping_android_df_view=dm_mobdi_mapping.dim_id_mapping_android_df_view
 #dim_shopping_mall_ssid_bssid_match_info_mf=dim_mobdi_mapping.dim_shopping_mall_ssid_bssid_match_info_mf
-
+tmpdb=$dm_mobdi_tmp
 #tmp
-calculate_model_device=dm_mobdi_tmp.calculate_model_device
-income_1001_bssid_index_calculate_base_info=dm_mobdi_tmp.income_1001_bssid_index_calculate_base_info
-income_1001_university_bssid_index=dm_mobdi_tmp.income_1001_university_bssid_index
-income_1001_shopping_mall_bssid_index=dm_mobdi_tmp.income_1001_shopping_mall_bssid_index
-income_1001_traffic_bssid_index=dm_mobdi_tmp.income_1001_traffic_bssid_index
-income_1001_hotel_bssid_index=dm_mobdi_tmp.income_1001_hotel_bssid_index
-traffic_bssid=dm_mobdi_tmp.traffic_bssid
-hotel_bssid=dm_mobdi_tmp.hotel_bssid
-poi_school=dm_mobdi_tmp.poi_school
-pid_contacts_index=dm_mobdi_tmp.pid_contacts_index_sec
-pid_contacts_word2vec_index=dm_mobdi_tmp.pid_contacts_word2vec_index_sec
-income_1001_pid_contacts_index=dm_mobdi_tmp.income_1001_pid_contacts_index_sec
-income_1001_pid_contacts_word2vec_index=dm_mobdi_tmp.income_1001_phone_contacts_word2vec_index
+calculate_model_device=$tmpdb.calculate_model_device
+income_1001_bssid_index_calculate_base_info=$tmpdb.income_1001_bssid_index_calculate_base_info
+income_1001_university_bssid_index=$tmpdb.income_1001_university_bssid_index
+income_1001_shopping_mall_bssid_index=$tmpdb.income_1001_shopping_mall_bssid_index
+income_1001_traffic_bssid_index=$tmpdb.income_1001_traffic_bssid_index
+income_1001_hotel_bssid_index=$tmpdb.income_1001_hotel_bssid_index
+traffic_bssid=$tmpdb.traffic_bssid
+hotel_bssid=$tmpdb.hotel_bssid
+poi_school=$tmpdb.poi_school
+income_1001_pid_contacts_index=$tmpdb.income_1001_pid_contacts_index_sec
+income_1001_pid_contacts_word2vec_index=$tmpdb.income_1001_phone_contacts_word2vec_index
+
+pid_contacts_index=$tmpdb.pid_contacts_index_sec
+pid_contacts_word2vec_index=$tmpdb.pid_contacts_word2vec_index_sec
 
 #out
 #dws_location_bssid_info_di=dm_mobdi_topic.dws_location_bssid_info_di
+
+ssid_bssid_match_db=${dim_shopping_mall_ssid_bssid_match_info_mf%.*}
+ssid_bssid_match_tb=${dim_shopping_mall_ssid_bssid_match_info_mf#*.}
+
+phone_contacts_index_db=${pid_contacts_index%.*}
+phone_contacts_index_tb=${pid_contacts_word2vec_index#*.}
+
+phone_contacts_word2vec_index_db=${phone_contacts_word2vec_index%.*}
+phone_contacts_word2vec_index_tb=${phone_contacts_word2vec_index#*.}
+
+shoppingMallBssidMappingLastPar=(`hive -e "
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
+create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
+SELECT GET_LAST_PARTITION('$ssid_bssid_match_db', '$ssid_bssid_match_tb', 'day');
+"`)
+pidContactsIndexLastPar=(`hive -e "
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
+create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
+SELECT GET_LAST_PARTITION('$phone_contacts_index_db', '$phone_contacts_index_tb ', 'day');
+"`)
+pidContactsWord2vecIndexLastPar=(`hive -e "
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
+create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
+SELECT GET_LAST_PARTITION('$phone_contacts_word2vec_index_db', '$phone_contacts_word2vec_index_tb', 'day');
+"`)
 
 hive -v -e "
 SET hive.merge.mapfiles=true;
@@ -61,7 +87,7 @@ set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
 insert overwrite table $calculate_model_device partition(day='$day')
 select device
-from $device_applist_new
+from $dim_device_applist_new_di
 where day = '$day'
 group by device;
 "
@@ -107,7 +133,7 @@ from $calculate_model_device a
 inner join
 (
   select device,bssid,day
-  from dm_mobdi_master.dws_location_bssid_info_di
+  from $dws_location_bssid_info_di
   where day >= '$p1month'
   and day <= '$day'
   and plat = 1
@@ -166,11 +192,6 @@ from
 ) t;
 "
 
-shoppingMallBssidMappingLastPar=(`hive -e "
-add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
-create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_shopping_mall_ssid_bssid_match_info_mf', 'day');
-"`)
 
 #计算商场bssid特征
 #通过dim_mobdi_mapping.dim_shopping_mall_ssid_bssid_match_info_mf表，先计算device连接商场的日期
@@ -400,16 +421,6 @@ from
 ) t1;
 "
 
-pidContactsIndexLastPar=(`hive -e "
-add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
-create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dw_mobdi_md', 'pid_contacts_index_sec ', 'day');
-"`)
-pidContactsWord2vecIndexLastPar=(`hive -e "
-add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
-create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dw_mobdi_md', 'pid_contacts_word2vec_index_sec', 'day');
-"`)
 
 #通讯录特征计算
 #先通过android_id_mapping_full表找出设备的最新手机号
@@ -470,7 +481,7 @@ from
       from
       (
         select device,concat(pid,'=',pid_ltm) pid_list
-        from $dim_id_mapping_android_df_view
+        from $id_mapping_android_df_view
         where length(pid)>0
         and length(pid)<87000   --涉密后pid长度变长，同比例增加长度限制
       ) pid_info

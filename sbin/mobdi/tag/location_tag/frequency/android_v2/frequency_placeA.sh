@@ -2,12 +2,14 @@
 
 set -e -x
 
+source /home/dba/mobdi_center/conf/hive-env.sh
+tmp_device_frequency_place=$dm_mobdi_tmp.tmp_device_frequency_place
 # 删除临时分区
 hive -e"
-alter table dm_mobdi_tmp.tmp_device_frequency_place drop partition(stage='A');
-alter table dm_mobdi_tmp.tmp_device_frequency_place drop partition(stage='B');
-alter table dm_mobdi_tmp.tmp_device_frequency_place drop partition(stage='C');
-alter table dm_mobdi_tmp.tmp_device_frequency_place drop partition(stage='D');
+alter table $tmp_device_frequency_place drop partition(stage='A');
+alter table $tmp_device_frequency_place drop partition(stage='B');
+alter table $tmp_device_frequency_place drop partition(stage='C');
+alter table $tmp_device_frequency_place drop partition(stage='D');
 "
 
 spark2-submit --master yarn \

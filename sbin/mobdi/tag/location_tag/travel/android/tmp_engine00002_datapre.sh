@@ -20,10 +20,7 @@ day_run=`date +%Y%m%d -d "${location_day} -1 month"`
 p30=`date +%Y%m%d -d "${day_run} -1 month"`
 
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 
 ## 源表
@@ -31,21 +28,26 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 #rp_device_location_3monthly=rp_mobdi_app.rp_device_location_3monthly
 
 ## mapping表
+#dim_bssid_type_mf=dim_mobdi_mapping.dim_bssid_type_mf
 #dim_bssid_type_all_mf=dm_mobdi_mapping.dim_bssid_type_all_mf
-#geohash6_area_mapping_par=dm_sdk_mapping.geohash6_area_mapping_par
-#geohash8_lbs_info_mapping_par=dm_sdk_mapping.geohash8_lbs_info_mapping_par
-#geohash6_foreign_mapping_par=dm_sdk_mapping.geohash6_foreign_mapping_par
+#dim_geohash6_china_area_mapping_par=dim_sdk_mapping.dim_geohash6_china_area_mapping_par
+#dim_geohash8_china_area_mapping_par=dim_sdk_mapping.dim_geohash8_china_area_mapping_par
+#dim_geohash6_foreign_mapping_par=dm_sdk_mapping.dim_geohash6_foreign_mapping_par
 
+dim_bssid_type_mf_db=${dim_bssid_type_mf%.*}
+dim_bssid_type_mf_tb=${dim_bssid_type_mf#*.}
+rp_device_location_3monthly_db=${rp_device_location_3monthly%.*}
+rp_device_location_3monthly_tb=${rp_device_location_3monthly#*.}
 
 ## 目标表
-tmp_engine00002_datapre=dm_mobdi_tmp.tmp_engine00002_datapre
+tmp_engine00002_datapre=$dm_mobdi_tmp.tmp_engine00002_datapre
 
 ## 获取最新分区
 
 sql1="
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_bssid_type_all_mf', 'day');
+SELECT GET_LAST_PARTITION('$dim_bssid_type_mf_db', '$dim_bssid_type_mf_tb', 'day');
 drop temporary function GET_LAST_PARTITION;
 "
 dim_bssid_type_all_mf_lastday=(`hive  -e "$sql1"`)
@@ -53,7 +55,7 @@ dim_bssid_type_all_mf_lastday=(`hive  -e "$sql1"`)
 sql2="
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dm_mobdi_report', 'rp_device_location_3monthly', 'day');
+SELECT GET_LAST_PARTITION('$rp_device_location_3monthly_db', '$rp_device_location_3monthly_tb', 'day');
 drop temporary function GET_LAST_PARTITION;
 "
 
@@ -180,7 +182,7 @@ from (
     inner join
        (
         select bssid
-        from $dim_bssid_type_all_mf
+        from $dim_bssid_type_mf
         where day = '$dim_bssid_type_all_mf_lastday' and type = 1
         ) t2
     on regexp_replace(t1.orig_note1, 'bssid=', '') = t2.bssid
@@ -217,13 +219,13 @@ left join (
     where day = '$location_day' and (confidence_home >= 0.7 or confidence_work >= 0.7)
     ) t2 on t1.device = t2.device
 left join (
-     select * from $geohash6_area_mapping_par where version='1000') geohash6_mapping
+     select * from $dim_geohash6_china_area_mapping_par where version='1000') geohash6_mapping
      on (get_geohash(lat, lon, 6) = geohash6_mapping.geohash_6_code) --根据geohash6关联
 left join (
-     select * from $geohash8_lbs_info_mapping_par where version='1000') geohash8_mapping
+     select * from $dim_geohash8_china_area_mapping_par where version='1000') geohash8_mapping
      on (get_geohash(lat, lon, 8) = geohash8_mapping.geohash_8_code)  --未关联上的再根据geohash8关联
 left join (
-     select * from $geohash6_foreign_mapping_par where version='1000') foreign_mapping
+     select * from $dim_geohash6_foreign_mapping_par where version='1000') foreign_mapping
      on (get_geohash(lat,lon,6)=foreign_mapping.geohash_6_code);
 "
 hive_setting "$sql_final"

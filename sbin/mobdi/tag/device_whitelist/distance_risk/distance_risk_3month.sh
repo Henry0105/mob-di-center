@@ -5,12 +5,13 @@ set -x -e
 day=$1
 p3months=`date -d "$day -90 day" +%Y%m%d`
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
+tmpdb=$dm_mobdi_tmp
 
 # input
-device_distance_day_pre=${dm_mobdi_tmp}.device_distance_day_pre
+device_distance_day_pre=$tmpdb.device_distance_day_pre
 # output
-device_distance_risk_3month=${dm_mobdi_tmp}.device_distance_risk_3month
+device_distance_risk_3month=$tmpdb.device_distance_risk_3month
 
 hive -e"
 SET mapreduce.map.memory.mb=6144;

@@ -19,15 +19,18 @@ p14day=`date -d "$day -14 days" +%Y%m%d`
 p30day=`date -d "$day -30 days" +%Y%m%d`
 
 #源表
-tmp_anticheat_device_ip_pre=dw_mobdi_tmp.tmp_anticheat_device_ip_pre
+source /home/dba/mobdi_center/conf/hive-env.sh
+tmpdb=$dw_mobdi_tmp
+
+tmp_anticheat_device_ip_pre=$tmpdb.tmp_anticheat_device_ip_pre
 
 #输出表
-tmp_anticheat_device_ip_cnt_7days=dw_mobdi_tmp.tmp_anticheat_device_ip_cnt_7days
-tmp_anticheat_device_ip_cnt_14days=dw_mobdi_tmp.tmp_anticheat_device_ip_cnt_14days
-tmp_anticheat_device_ip_cnt_30days=dw_mobdi_tmp.tmp_anticheat_device_ip_cnt_30days
-tmp_anticheat_device_first3_ip_cnt_7days=dw_mobdi_tmp.tmp_anticheat_device_first3_ip_cnt_7days
-tmp_anticheat_device_first3_ip_cnt_14days=dw_mobdi_tmp.tmp_anticheat_device_first3_ip_cnt_14days
-tmp_anticheat_device_first3_ip_cnt_30days=dw_mobdi_tmp.tmp_anticheat_device_first3_ip_cnt_30days
+tmp_anticheat_device_ip_cnt_7days=d$tmpdb.tmp_anticheat_device_ip_cnt_7days
+tmp_anticheat_device_ip_cnt_14days=$tmpdb.tmp_anticheat_device_ip_cnt_14days
+tmp_anticheat_device_ip_cnt_30days=$tmpdb.tmp_anticheat_device_ip_cnt_30days
+tmp_anticheat_device_first3_ip_cnt_7days=$tmpdb.tmp_anticheat_device_first3_ip_cnt_7days
+tmp_anticheat_device_first3_ip_cnt_14days=$tmpdb.tmp_anticheat_device_first3_ip_cnt_14days
+tmp_anticheat_device_first3_ip_cnt_30days=$tmpdb.tmp_anticheat_device_first3_ip_cnt_30days
 
 hive -v -e "
 set hive.exec.parallel=true;

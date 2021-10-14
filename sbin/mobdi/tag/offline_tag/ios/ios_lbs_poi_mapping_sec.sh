@@ -24,15 +24,14 @@ day=$1
 type=$2
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ## 源表
 #dws_device_location_staying_di=dm_mobdi_topic.dws_device_location_staying_di
-#ios_id_mapping_sec_df_view=dm_mobdi_mapping.ios_id_mapping_full_sec_view
+#dim_id_mapping_ios_sec_df_view=dim_mobdi_mapping.dim_id_mapping_ios_sec_df_view
 
 #mapping
+#dim_poi_config_mapping_par=dim_sdk_mapping.dim_poi_config_mapping_par
 #poi_config_mapping_par=dm_sdk_mapping.poi_config_mapping_par
 
 #md
@@ -59,7 +58,7 @@ spark2-submit \
             \"distanceRange\": \"200\"
         }
     },
-    \"poiTable\": \"(select poi_id,name,lat,lon,bssid,geohash6,geohash7,attribute,type from dm_sdk_mapping.poi_config_mapping_par where version='1000')t\",
+    \"poiTable\": \"(select poi_id,name,lat,lon,bssid,geohash6,geohash7,attribute,type from $dim_poi_config_mapping_par where version='1000')t\",
     \"lbsSql\": \"select ifid,lat,lon,net_type,begintime,endtime,country,province,city,area,street,plat,geohash7,bssid,day
 from
 (
@@ -92,7 +91,7 @@ from
   (
       select device,
              ifids as ifid
-      from $ios_id_mapping_full_sec_view
+      from $dim_id_mapping_ios_sec_df_view
       lateral view explode(split(ifid,',')) t as ifids
       where ifids <> ''
   ) c
@@ -102,7 +101,7 @@ from
     \"poiCondition\": {
         \"type\": \"${type}\"
     },
-    \"targetTable\": \"dm_mobdi_topic.lbs_poi_${type}_tmp\"
+    \"targetTable\": \"$dm_mobdi_topic.lbs_poi_${type}_tmp\"
 }"
 
 hive -e "
@@ -135,7 +134,7 @@ select ifid,
        poiinfo,
        poi_type as type,
        day
-from dm_mobdi_topic.lbs_poi_${type}_tmp
+from $dm_mobdi_topic.lbs_poi_${type}_tmp
 where day=${day}
 cluster by ifid;
 "

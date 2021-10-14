@@ -17,22 +17,21 @@ fi
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
 tmp_anticheat_device_gps_ip_pre=dw_mobdi_tmp.tmp_anticheat_device_gps_ip_pre
 
 #mapping表
 #geohash6_area_mapping_par=dim_sdk_mapping.geohash6_area_mapping_par
-#geohash8_lbs_info_mapping_par=dim_sdk_mapping.geohash8_lbs_info_mapping_par
+#dim_geohash8_china_area_mapping_par=dim_sdk_mapping.dim_geohash8_china_area_mapping_par
+#dim_mapping_ip_attribute_code=dim_sdk_mapping.dim_mapping_ip_attribute_code
 #mapping_ip_attribute_code=dim_sdk_mapping.mapping_ip_attribute_code
 
 #输出表
 tmp_anticheat_device_gps_ip_location=dw_mobdi_tmp.tmp_anticheat_device_gps_ip_location
 
-ipmappingPartition=`hive -S -e "show partitions $mapping_ip_attribute_code" | sort |tail -n 1`
+ipmappingPartition=`hive -S -e "show partitions $dim_mapping_ip_attribute_code" | sort |tail -n 1`
 
 function device_gps_ip(){
 
@@ -91,7 +90,7 @@ gps_location_pre as (
     left join
     (
         select geohash_6_code,province_code,city_code
-        from $geohash6_area_mapping_par
+        from $dim_geohash6_china_area_mapping_par
         where version = '1000'
     ) b
     on substring(a.geohash8,1,6) = b.geohash_6_code
@@ -119,7 +118,7 @@ gps_location as(
         left join
         (
             select geohash_8_code,province_code,city_code
-            from $geohash8_lbs_info_mapping_par
+            from $dim_geohash8_china_area_mapping_par
             where version = '1000'
         ) geohash8_mapping
         on t.geohash8 = geohash8_mapping.geohash_8_code
@@ -145,7 +144,7 @@ ip_location as(
     left join
     (
         select minip,country_code,province_code,city_code
-        from $mapping_ip_attribute_code
+        from $dim_mapping_ip_attribute_code
         where $ipmappingPartition
     ) mapping_ip_attribute
     on a.minip = mapping_ip_attribute.minip

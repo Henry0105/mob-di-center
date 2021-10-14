@@ -32,16 +32,15 @@ day="$1"
 day_start="$1"
 
 
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 #input
 #dwd_log_wifi_info_sec_di=dm_mobdi_master.dwd_log_wifi_info_sec_di
 #dwd_pv_sec_di=dm_mobdi_master.dwd_pv_sec_di
 
 #mapping
+#dim_language_code_mapping=dim_sdk_mapping.dim_language_code_mapping
 #lang_code_mapping=dm_sdk_mapping.lang_code_mapping
+#dim_map_country_sdk=dim_sdk_mapping.dim_map_country_sdk
 #map_country_sdk=dm_sdk_mapping.map_country_sdk
 
 #md
@@ -105,13 +104,13 @@ FROM
   GROUP BY device,lower(trim(regexp_replace(language,'-','_'))),plat,day
 ) a
 LEFT JOIN
-$lang_code_mapping d ON a.language=trim(lower(d.code))
+$dim_language_code_mapping d ON a.language=trim(lower(d.code))
 LEFT JOIN
-$lang_code_mapping b ON split(a.language,'_')[0]=trim(lower(b.code))
+$dim_language_code_mapping b ON split(a.language,'_')[0]=trim(lower(b.code))
 LEFT JOIN
-$map_country_sdk c ON split(a.language,'_')[1]=trim(lower(c.zone))
+$dim_map_country_sdk c ON split(a.language,'_')[1]=trim(lower(c.zone))
 LEFT JOIN
-$map_country_sdk e ON split(a.language,'_')[2]=trim(lower(e.zone));
+$dim_map_country_sdk e ON split(a.language,'_')[2]=trim(lower(e.zone));
 "
 
 #生成结果数据，保留近365天数据 

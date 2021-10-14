@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 set -x -e
 
 : '
@@ -66,10 +66,7 @@ filesnum=300
           type2
           time   堂食时间
 '
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #dws_device_location_staying_di=dm_mobdi_topic.dws_device_location_staying_di

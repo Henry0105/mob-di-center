@@ -15,7 +15,7 @@ fi
 
 day=$1
 
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
 #device_work_relation_info_mi=dm_mobdi_report.device_work_relation_info_mi

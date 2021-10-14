@@ -11,8 +11,7 @@ day=$1
 p1monthday=`date -d "$day -1 months" +%Y%m%d`
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 
 #input

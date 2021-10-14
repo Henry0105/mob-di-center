@@ -6,9 +6,7 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ###源表
 #dwd_auto_location_info_sec_di=dm_mobdi_master.dwd_auto_location_info_sec_di
@@ -20,7 +18,7 @@ auto_location_tb=${dwd_auto_location_info_sec_di#*.}
 #dim_geohash6_china_area_mapping_par
 #geohash6_area_mapping_par=dm_sdk_mapping.geohash6_area_mapping_par
 #dim_geohash8_china_area_mapping_par
-#geohash8_lbs_info_mapping_par=dm_sdk_mapping.geohash8_lbs_info_mapping_par
+#dim_geohash8_china_area_mapping_par=dm_sdk_mapping.dim_geohash8_china_area_mapping_par
 
 ###目标表
 #dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di

@@ -4,32 +4,33 @@ set -e -x
 
 day=$1
 
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #dim_id_mapping_android_sec_df_view=dim_mobdi_mapping.dim_id_mapping_android_sec_df_view
 #tmp
-device_all_risk_pre=${dm_mobdi_tmp}.device_all_risk_pre
-device_info_risk=${dm_mobdi_tmp}.device_info_risk
-device_active_risk=${dm_mobdi_tmp}.device_active_risk
-device_sharecount_risk=${dm_mobdi_tmp}.device_sharecount_risk
-device_oauthcount_risk=${dm_mobdi_tmp}.device_oauthcount_risk
-device_applist_risk=${dm_mobdi_tmp}.device_applist_risk
-device_unstall_risk=${dm_mobdi_tmp}.device_unstall_risk
-device_install_risk=${dm_mobdi_tmp}.device_install_risk
-device_strange_app_type_install_3month=${dm_mobdi_tmp}.device_strange_app_type_install_3month
-device_bssidcnt_risk=${dm_mobdi_tmp}.device_bssidcnt_risk
-device_network_risk=${dm_mobdi_tmp}.device_network_risk
-device_distance_risk=${dm_mobdi_tmp}.device_distance_risk
-device_gps_ip_risk=${dm_mobdi_tmp}.device_gps_ip_risk
-device_ip_risk=${dm_mobdi_tmp}.device_ip_risk
-device_ip_proxy_3month=${dm_mobdi_tmp}.device_ip_proxy_3month
-device_unstall_freq_risk=${dm_mobdi_tmp}.device_unstall_freq_risk
-device_install_freq_risk=${dm_mobdi_tmp}.device_install_freq_risk
-device_ip_entropy_risk=${dm_mobdi_tmp}.device_ip_entropy_risk
-device_ip_proxy_p_risk=${dm_mobdi_tmp}.device_ip_proxy_p_risk
+tmpdb=$dm_mobdi_tmp
+device_all_risk_pre=$tmpdb.device_all_risk_pre
+device_info_risk=$tmpdb.device_info_risk
+device_active_risk=$tmpdb.device_active_risk
+device_sharecount_risk=$tmpdb.device_sharecount_risk
+device_oauthcount_risk=$tmpdb.device_oauthcount_risk
+device_applist_risk=$tmpdb.device_applist_risk
+device_unstall_risk=$tmpdb.device_unstall_risk
+device_install_risk=$tmpdb.device_install_risk
+device_strange_app_type_install_3month=$tmpdb.device_strange_app_type_install_3month
+device_bssidcnt_risk=$tmpdb.device_bssidcnt_risk
+device_network_risk=$tmpdb.device_network_risk
+device_distance_risk=$tmpdb.device_distance_risk
+device_gps_ip_risk=$tmpdb.device_gps_ip_risk
+device_ip_risk=$tmpdb.device_ip_risk
+device_ip_proxy_3month=$tmpdb.device_ip_proxy_3month
+device_unstall_freq_risk=$tmpdb.device_unstall_freq_risk
+device_install_freq_risk=$tmpdb.device_install_freq_risk
+device_ip_entropy_risk=$tmpdb.device_ip_entropy_risk
+device_ip_proxy_p_risk=$tmpdb.device_ip_proxy_p_risk
 #out
-device_all_risk=${dm_mobdi_tmp}.device_all_risk
+device_all_risk=$tmpdb.device_all_risk
 
 hive -e"
 SET mapreduce.map.memory.mb=4096;

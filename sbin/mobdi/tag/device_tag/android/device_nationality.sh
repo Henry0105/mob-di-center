@@ -60,10 +60,7 @@ fi
 indate=$1
 
 
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 echo "start step 1"
 
@@ -86,29 +83,35 @@ echo $carrier_last
 
 #input
 
-#dim_device_applist_new_di=dm_mobdi_mapping.dim_device_applist_new_di
-#device_language=rp_mobdi_report.device_language
-#map_country_sdk=dm_sdk_mapping.map_country_sdk
-#rp_device_location_permanent=rp_mobdi_report.rp_device_location_permanent
+#device_language=dm_mobdi_report.device_language
+#rp_device_location_permanent=dm_mobdi_report.rp_device_location_permanent
 #app_rank_monthly_2=rp_appgo_common.app_rank_monthly_2
 #dws_device_ip_info_di=dm_mobdi_topic.dws_device_ip_info_di
-#mapping_carrier_country=dm_sdk_mapping.mapping_carrier_country
 #dwd_device_info_df=dm_mobdi_master.dwd_device_info_df
+
+#mapping
+#dim_device_applist_new_di=dim_mobdi_mapping.dim_device_applist_new_di
+#dim_map_country_sdk=dim_sdk_mapping.dim_map_country_sdk
+#map_country_sdk=dm_sdk_mapping.map_country_sdk
+#dim_mapping_carrier_country=dim_sdk_mapping.dim_mapping_carrier_country
+#mapping_carrier_country=dm_sdk_mapping.mapping_carrier_country
+#dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
 #app_pkg_mapping_par=dm_sdk_mapping.app_pkg_mapping_par
 
 
 #tmp
-tmp_device_nationality_base=dm_mobdi_tmp.tmp_device_nationality_base
-tmp_device_nationality_language=dw_mobdi_tmp.tmp_device_nationality_language
-tmp_device_nationality_permanent_pre=dw_mobdi_tmp.tmp_device_nationality_permanent_pre
-tmp_device_nationality_permanent=dw_mobdi_tmp.tmp_device_nationality_permanent
-tmp_device_nationality_apprank_uniq=dw_mobdi_tmp.tmp_device_nationality_apprank_uniq
-tmp_device_nationality_ip=dw_mobdi_tmp.tmp_device_nationality_ip
-tmp_device_nationality_carrier=dw_mobdi_tmp.tmp_device_nationality_carrier
-tmp_device_nationality_apprank_cnt=dw_mobdi_tmp.tmp_device_nationality_apprank_cnt
+tmpdb=$dm_mobdi_tmp
+tmp_device_nationality_base=$tmpdb.tmp_device_nationality_base
+tmp_device_nationality_language=$tmpdb.tmp_device_nationality_language
+tmp_device_nationality_permanent_pre=$tmpdb.tmp_device_nationality_permanent_pre
+tmp_device_nationality_permanent=$tmpdb.tmp_device_nationality_permanent
+tmp_device_nationality_apprank_uniq=$tmpdb.tmp_device_nationality_apprank_uniq
+tmp_device_nationality_ip=$tmpdb.tmp_device_nationality_ip
+tmp_device_nationality_carrier=$tmpdb.tmp_device_nationality_carrier
+tmp_device_nationality_apprank_cnt=$tmpdb.tmp_device_nationality_apprank_cnt
 
 #output
-#device_nationality=rp_mobdi_report.device_nationality
+#device_nationality=dm_mobdi_report.device_nationality
 
 
 
@@ -166,7 +169,7 @@ select device,ch_name as country
 from
 (
   select zone,ch_name
-  from $map_country_sdk
+  from $dim_map_country_sdk
   group by zone,ch_name
 ) b2
 inner join
@@ -239,7 +242,7 @@ select device,ch_name as country
 from
 (
   select zone,ch_name
-  from $map_country_sdk
+  from $dim_map_country_sdk
   group by zone,ch_name
 ) b1
 inner join
@@ -293,7 +296,7 @@ from
     from
     (
       select operator,country
-      from $mapping_carrier_country
+      from $dim_mapping_carrier_country
       group by operator,country
     )a
   )aa
@@ -342,7 +345,7 @@ from
         left join
         (
           select *
-          from $app_pkg_mapping_par
+          from $dim_app_pkg_mapping_par
           where version='1000'
         ) b2 on b1.app_id = b2.pkg
       )b
@@ -440,14 +443,14 @@ from
               from $tmp_device_nationality_carrier
             )a1
             inner join
-            $map_country_sdk a2 on a1.country = a2.ch_name
+            $dim_map_country_sdk a2 on a1.country = a2.ch_name
 
             union all
 
             select a1.device,a2.ch_name as country,upper(a2.zone) as country_code,'5' as tag
             from $tmp_device_nationality_apprank_cnt a1
             inner join
-            $map_country_sdk  a2 on upper(a1.zone) = upper(a2.zone)
+            $dim_map_country_sdk  a2 on upper(a1.zone) = upper(a2.zone)
           )a
           group by device,country,country_code
         )aa
@@ -466,7 +469,7 @@ from
       where cnt >= 5
     ) a1
     inner join
-    $map_country_sdk     a2 on upper(a1.zone) = upper(a2.zone)
+    $dim_map_country_sdk     a2 on upper(a1.zone) = upper(a2.zone)
   )b2 on b1.device = b2.device
 )code_map
 where country_code not in ('00','an','cs','eh');

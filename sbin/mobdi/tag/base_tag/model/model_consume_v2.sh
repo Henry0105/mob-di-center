@@ -19,14 +19,13 @@ if [ $# -ne 1 ]; then
 fi
 day=$1
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb="dw_mobdi_tmp"
-appdb="rp_mobdi_report"
 
 #seed="select device,applist from test.zhangxy_consume_device_sample2"
 seed="select device,applist from ${label_l1_applist_refine_cnt_di} where day='$day'"
-mapping="dim_sdk_mapping.mapping_consume_pkg"
+#mapping="dim_sdk_mapping.mapping_consume_pkg"
+mapping=$dim_mapping_consume_pkg
 output_table=${label_l1_consume_1001_di}
 model_path="/dmgroup/dba/modelpath/20200721/consume_1001/cluster_6"
 model_path2="/dmgroup/dba/modelpath/20200721/consume_1001/cluster_9"

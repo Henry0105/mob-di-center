@@ -12,7 +12,7 @@ set -x -e
 !
 day=$1
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ##input
 device_applist_new=${dim_device_applist_new_di}

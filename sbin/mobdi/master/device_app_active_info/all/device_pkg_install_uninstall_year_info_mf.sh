@@ -16,7 +16,7 @@ day=`date +%Y%m%d -d "${day_pre:0:6}01 -1 days"`
 before365Day=`date +%Y%m%d -d "${day} -365 days"`
 
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ## 源表
 master_reserved_new=$dws_device_install_app_re_status_di

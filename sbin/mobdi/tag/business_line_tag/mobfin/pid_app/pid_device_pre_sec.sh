@@ -17,16 +17,16 @@ fi
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
-#dim_id_mapping_android_sec_df=dm_mobdi_mapping.dim_id_mapping_android_sec_df
+#dim_id_mapping_android_sec_df=dim_mobdi_mapping.dim_id_mapping_android_sec_df
 
 # mapping
-#dim_pid_attribute_sec_df=dm_mobdi_mapping.dim_pid_attribute_full_par_secview
+#dim_pid_attribute_full_par_secview=dim_mobdi_mapping.dim_pid_attribute_full_par_secview
 
 #输出表
-tmp_anticheat_pid_device_pre_sec=dw_mobdi_tmp.tmp_anticheat_pid_device_pre_sec
+tmp_anticheat_pid_device_pre_sec=$dw_mobdi_tmp.tmp_anticheat_pid_device_pre_sec
 
 
 androidPartition=`hive -S -e "show partitions $dim_id_mapping_android_sec_df" | sort |tail -n 1 `

@@ -18,43 +18,62 @@ location_day=${day:0:6}01
 day_run=`date +%Y%m%d -d "${location_day} -1 month"`
 
 p30=`date -d "${day_run} -1 months" +%Y%m%d`
-value=`hive -e "show partitions dm_mobdi_mapping.apppkg_name_info_wf"|tail -n 1`
+#dim_apppkg_name_info_wf=dim_mobdi_mapping.dim_apppkg_name_info_wf
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+value=`hive -e "show partitions $dim_apppkg_name_info_wf"|tail -n 1`
 
+source /home/dba/mobdi_center/conf/hive-env.sh
+
+tmpdb=$dm_mobdi_tmp
 ## 源表
 #dws_device_install_app_status_40d_di=dm_mobdi_topic.dws_device_install_app_status_40d_di
 #dws_device_active_applist_di=dm_mobdi_topic.dws_device_active_applist_di
-tmp_engine00002_datapre=dm_mobdi_tmp.tmp_engine00002_datapre
+tmp_engine00002_datapre=$tmpdb.tmp_engine00002_datapre
 #device_profile_label_full_par=dm_mobdi_report.device_profile_label_full_par
 
 ## mapping表
+#dim_apppkg_name_info_wf=dim_mobdi_mapping.dim_apppkg_name_info_wf
 #apppkg_name_info_wf=dm_mobdi_mapping.apppkg_name_info_wf
+#dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
 #app_pkg_mapping_par=dm_sdk_mapping.app_pkg_mapping_par
+#dim_app_business_trip_list=dim_sdk_mapping.dim_app_business_trip_list
 #app_business_trip_list=dm_sdk_mapping.app_business_trip_list
+#dim_vacation_flag_par=dim_sdk_mapping.dim_vacation_flag_par
 #vacation_flag=dm_sdk_mapping.vacation_flag
 
 ## 目标表
-engine00002_data_collect=dm_mobdi_tmp.engine00002_data_collect
+engine00002_data_collect=$tmpdb.engine00002_data_collect
+
+app_pkg_mapping_par_db=${dim_app_pkg_mapping_par%.*}
+app_pkg_mapping_par_tb=${dim_app_pkg_mapping_par#*.}
+profile_label_full_par_db=${device_profile_label_full_par%.*}
+profile_label_full_par_tb=${device_profile_label_full_par#*.}
+vacation_flag_db=${dim_vacation_flag_par%.*}
+vacation_flag_tb=${dim_vacation_flag_par#*.}
 
 
 ## 获取最新分区
 sql1="
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dm_sdk_mapping', 'app_pkg_mapping_par', 'version');
+SELECT GET_LAST_PARTITION('$app_pkg_mapping_par_db', '$app_pkg_mapping_par_tb', 'version');
 drop temporary function GET_LAST_PARTITION;
 "
 app_pkg_mapping_par_lastday=(`hive  -e "$sql1"`)
+
+sql2="
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
+create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
+SELECT GET_LAST_PARTITION('$vacation_flag_db', '$vacation_flag_tb', 'version');
+drop temporary function GET_LAST_PARTITION;
+"
+vacation_flag_lastday=(`hive  -e "$sql2"`)
 
 
 sql3="
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dm_mobdi_report', 'device_profile_label_full_par', 'version');
+SELECT GET_LAST_PARTITION('$profile_label_full_par_db', '$profile_label_full_par_tb', 'version');
 drop temporary function GET_LAST_PARTITION;
 "
 device_profile_label_full_par_lastday=(`hive  -e "$sql3"`)
@@ -121,12 +140,12 @@ from
                     select coalesce(b2.pkg,b1.apppkg) as pkg, b1.apppkg, b1.install_score, b1.active_score
                     from (
                         select a1.apppkg, a2.install_score, a2.active_score
-                        from (select * from $apppkg_name_info_wf where $value) a1
-                        inner join (select * from  $app_business_trip_list where version='1000') a2 on a1.app_name = a2.appname
+                        from (select * from $dim_apppkg_name_info_wf where $value) a1
+                        inner join (select * from  $dim_app_business_trip_list where version='1000') a2 on a1.app_name = a2.appname
                         ) b1
                     left join (
                         select pkg, apppkg
-                        from $app_pkg_mapping_par
+                        from $dim_app_pkg_mapping_par
                         where version = '$app_pkg_mapping_par_lastday'
                         ) b2 on b1.apppkg = b2.apppkg
                     ) t2 on t1.pkg = t2.pkg
@@ -147,7 +166,7 @@ from
                 group by c1.device
                 ) tt2 on tt1.device = tt2.device
             ) ttt1
-        left join $vacation_flag ttt2 on ttt1.day = ttt2.day
+        left join $dim_vacation_flag_par ttt2 on ttt1.day = ttt2.day and ttt2.version= '$vacation_flag_lastday'
         ) a
         group by device,day,flag, active_flag) b
 group by device,day,flag,score

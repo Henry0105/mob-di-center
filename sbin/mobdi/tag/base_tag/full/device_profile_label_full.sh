@@ -17,10 +17,10 @@ fi
 day=$1
 day365=`date -d "$day -365 days" +%Y%m%d`
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb="dw_mobdi_tmp"
-appdb="rp_mobdi_report"
+tmpdb=$dw_mobdi_tmp
+appdb=$rp_mobdi_report
 
 ##input
 device_permanent_place=$label_l2_permanent_place_mf
@@ -29,16 +29,17 @@ device_mapping_label=$label_mapping_type_all_di
 device_model_label=$label_model_type_all_di
 device_statics_label=$label_statics_type_all_di
 device_mintime_full=$device_mintime_mapping
-mapping_area_par="dim_sdk_mapping.mapping_area_par"
 label_grouplist2_di=$label_l1_grouplist2_di
-device_cate_preference_incr="dw_mobdi_tmp.device_cate_preference_incr"
+device_cate_preference_incr=$tmpdb.device_cate_preference_incr
+#dim_mapping_area_par=dim_sdk_mapping.dim_mapping_area_par
+#mapping_area_par=dim_sdk_mapping.mapping_area_par
 
 ##output
 device_profile_label_full=$device_profile_label_full_par
 
 monthly_lastpar=`hive -S -e "show partitions $device_permanent_place" |tail -n 1 `
 location_monthly_lastpar=`hive -S -e "show partitions $device_location_3monthly_struct" |tail -n 1 `
-area_mapping_lastpar=`hive -S -e "show partitions $mapping_area_par" | tail -n 1`
+area_mapping_lastpar=`hive -S -e "show partitions $dim_mapping_area_par" | tail -n 1`
 
 :<<!
 建表语句：

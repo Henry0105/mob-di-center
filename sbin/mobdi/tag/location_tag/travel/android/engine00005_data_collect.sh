@@ -14,17 +14,20 @@ fi
 day=$1
 insert_day=${day:0:6}01
 
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
+
+tmpdb=$dm_mobdi_tmp
 
 ## 源表
-tmp_engine00002_datapre=dm_mobdi_tmp.tmp_engine00002_datapre
+tmp_engine00002_datapre=$tmpdb.tmp_engine00002_datapre
 
 ## mapping 表
 
+#dim_traffic_ssid_bssid_match_info_mf=dim_mobdi_mapping.dim_traffic_ssid_bssid_match_info_mf
 #dim_traffic_ssid_bssid_match_info_mf=dm_mobdi_mapping.dim_traffic_ssid_bssid_match_info_mf
 
 ## 目标表
-engine00005_data_collect=dm_mobdi_tmp.engine00005_data_collect
+engine00005_data_collect=$tmpdb.engine00005_data_collect
 
 
 mapping_sql="

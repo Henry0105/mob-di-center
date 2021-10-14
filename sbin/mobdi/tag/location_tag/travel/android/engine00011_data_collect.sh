@@ -13,23 +13,28 @@ fi
 
 day=$1
 
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
+
+tmpdb=$dm_mobdi_tmp
 
 ## 源表
-tmp_engine00002_datapre=dm_mobdi_tmp.tmp_engine00002_datapre
+tmp_engine00002_datapre=$tmpdb.tmp_engine00002_datapre
 
 ## mapping 表
+#dim_poi_config_mapping_par=dim_sdk_mapping.dim_poi_config_mapping_par
 #poi_config_mapping_par=dm_sdk_mapping.poi_config_mapping_par
+#dim_hotel_ssid_bssid_match_info_mf=dim_mobdi_mapping.dim_hotel_ssid_bssid_match_info_mf
 #dim_hotel_ssid_bssid_match_info_mf=dm_mobdi_mapping.dim_hotel_ssid_bssid_match_info_mf
 
+hotel_ssid_bssid_match_info_db=${dim_hotel_ssid_bssid_match_info_mf%.*}
+hotel_ssid_bssid_match_info_tb=${dim_hotel_ssid_bssid_match_info_mf#*.}
 ## 目标表
-engine00011_data_collect=dm_mobdi_tmp.engine00011_data_collect
+engine00011_data_collect=$tmpdb.engine00011_data_collect
 
 ip_mapping_sql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dm_sdk_mapping', 'dim_hotel_ssid_bssid_match_info_mf', 'day');
+    SELECT GET_LAST_PARTITION('$hotel_ssid_bssid_match_info_db', '$hotel_ssid_bssid_match_info_tb', 'day');
 "
 hotel_ssid_bssid=(`hive -e "$ip_mapping_sql"`)
 
@@ -71,7 +76,7 @@ left join
            get_json_object(attribute,'$.price_level') as price_level,
            get_json_object(attribute,'$.hotel_style') as hotel_style,
            get_json_object(attribute,'$.brand') as brand
-    from $poi_config_mapping_par
+    from $dim_poi_config_mapping_par
     where type=6
     and version='1000'
   ) t

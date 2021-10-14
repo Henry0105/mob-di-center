@@ -17,23 +17,23 @@ day=$1
 p90day=`date -d "$day -90 days" +%Y%m%d`
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
 #dws_device_install_app_re_status_di=dm_mobdi_topic.dws_device_install_app_re_status_di
 
 #mapping
 #app_pkg_mapping_par=dim_sdk_mapping.app_pkg_mapping_par
+#dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
+
 
 #tmp
-tmp_anticheat_device_install_90days_pre=dw_mobdi_tmp.tmp_anticheat_device_install_90days_pre
+tmp_anticheat_device_install_90days_pre=$dw_mobdi_tmp.tmp_anticheat_device_install_90days_pre
 
 #output
 #label_l1_anticheat_device_riskscore=dm_mobdi_report.label_l1_anticheat_device_riskscore
 
-mappingPartition=`hive -S -e "show partitions $app_pkg_mapping_par" | sort |tail -n 1`
+mappingPartition=`hive -S -e "show partitions $dim_app_pkg_mapping_par" | sort |tail -n 1`
 
 hive -v -e "
 set mapreduce.map.memory.mb=4096;
@@ -75,7 +75,7 @@ from
         left join 
         (
             select pkg,apppkg
-            from $app_pkg_mapping_par
+            from $dim_app_pkg_mapping_par
             where $mappingPartition
             group by pkg, apppkg
         ) as n

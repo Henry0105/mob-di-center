@@ -14,14 +14,14 @@ if [[ $# -lt 1 ]]; then
      exit 1
 fi
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
+#dim_poi_config_mapping_par=dim_sdk_mapping.dim_poi_config_mapping_par
 #dm_sdk_mapping.poi_config_mapping_par
 #dm_mobdi_topic.dws_device_location_staying_di
 #tmp
-offline_chile_mom=dm_mobdi_tmp.offline_chile_mom
+offline_chile_mom=$dm_mobdi_tmp.offline_chile_mom
 #out
 #dm_mobdi_report.timewindow_offline_profile_v2
 
@@ -51,7 +51,7 @@ spark2-submit \
  "{
      \"dataType\": \"1\",
      \"lbsSql\": \"select device,lat,lon from $dws_device_location_staying_di where day='$day' and type in ('gps','wifi','tlocation','base') and accuracy != '0'\",
-     \"poiTable\": \"(select name,lat,lon,attribute,baidu_lat_lon_boundary,type from $poi_config_mapping_par where version = '1001' and type = 26 and get_json_object(attribute,'$.cate2') = '妇幼保健')\",
+     \"poiTable\": \"(select name,lat,lon,attribute,baidu_lat_lon_boundary,type from $dim_poi_config_mapping_par where version = '1001' and type = 26 and get_json_object(attribute,'$.cate2') = '妇幼保健')\",
      \"poiFields\": \"name,lat,lon,attribute,baidu_lat_lon_boundary,type\",
      \"poiCalFields\": {
          \"distance\": {

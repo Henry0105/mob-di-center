@@ -11,8 +11,7 @@ day=$1
 new_ver=${day}.1000
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ## 源表
 #dwd_dsign_di=dm_mobdi_master.dwd_dsign_di

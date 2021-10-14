@@ -11,24 +11,25 @@ echo "时间窗口: $timewindow"
 echo "开始日期: $pday"
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 # input
+#dim_id_mapping_ios_sec_df=dim_mobdi_mapping.dim_id_mapping_ios_sec_df
 #ios_id_mapping_sec_df=dim_mobdi_mapping.ios_id_mapping_sec_df
 #dws_device_sdk_run_master_di=dm_mobdi_master.dws_device_sdk_run_master_di
 
 # mapping
+#dim_mapping_pkg_category_ios=dim_sdk_mapping.dim_mapping_pkg_category_ios
 #mapping_pkg_category_ios=dim_sdk_mapping.mapping_pkg_category_ios
 
 # output
 #timewindow_online_profile_ios_sec=dm_mobdi_report.timewindow_online_profile_ios_sec
-
+ios_id_mapping_db=${dim_id_mapping_ios_sec_df%.*}
+ios_id_mapping_tb=${dim_id_mapping_ios_sec_df#*.}
 ios_id_mapping_full_sql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'ios_id_mapping_sec_df', 'version');
+    SELECT GET_LAST_PARTITION('$ios_id_mapping_db', '$ios_id_mapping_tb', 'version');
 "
 ios_id_mapping_full_partition=(`hive -e "$ios_id_mapping_full_sql"`)
 
@@ -46,7 +47,7 @@ set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
 
 with device_ifid_mapping_tmp as (
-select device, ifid from $ios_id_mapping_sec_df
+select device, ifid from $dim_id_mapping_ios_sec_df
   where version='$ios_id_mapping_full_partition'
   and device is not null and length(device)= 40 and device = regexp_extract(device,'([a-f0-9]{40})', 0) and ifid != '' and size(split(ifid, ',')) <= 3
 ),
@@ -61,7 +62,7 @@ select
 from
 (select day,device,pkg from $dws_device_sdk_run_master_di where day>='$pday' and day<='$day' and plat=2 group by day,device,pkg ) dsrm
 join
-(select apppkg,cate_l1_id,cate_l2_id from $mapping_pkg_category_ios where version='1000' and apppkg<>'' group by apppkg,cate_l1_id,cate_l2_id ) mapping
+(select apppkg,cate_l1_id,cate_l2_id from $dim_mapping_pkg_category_ios where version='1000' and apppkg<>'' group by apppkg,cate_l1_id,cate_l2_id ) mapping
 on dsrm.pkg=mapping.apppkg
 ),
 

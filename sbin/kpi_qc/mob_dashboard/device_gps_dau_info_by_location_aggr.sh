@@ -16,8 +16,7 @@ fi
 
 day=$1
 
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_dashboard.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #dwd_device_location_aggr_statiscs2_w=mob_dashboard.dwd_device_location_aggr_statiscs2_w

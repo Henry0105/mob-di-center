@@ -9,7 +9,7 @@ fi
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ## 源表
 device_full_with_brand_mapping=dw_mobdi_tmp.device_full_with_brand_mapping

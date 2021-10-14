@@ -18,10 +18,10 @@ day=$1
 p30day=`date -d "$day -30 days" +%Y%m%d`
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
-tmp_anticheat_device_gps_ip_location=dw_mobdi_tmp.tmp_anticheat_device_gps_ip_location
+tmp_anticheat_device_gps_ip_location=$dw_mobdi_tmp.tmp_anticheat_device_gps_ip_location
 
 #输出表
 #label_l1_anticheat_device_riskScore=dm_mobdi_report.label_l1_anticheat_device_riskScore

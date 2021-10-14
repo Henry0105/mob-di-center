@@ -4,18 +4,19 @@ set -x -v
 
 day=$1
 
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
+tmpdb=$dm_mobdi_tmp
 ## 源表
-engine00002_data_collect=dm_mobdi_tmp.engine00002_data_collect
-engine00003_data_collect=dm_mobdi_tmp.engine00003_data_collect
-engine00004_data_collect=dm_mobdi_tmp.engine00004_data_collect
-engine00005_data_collect=dm_mobdi_tmp.engine00005_data_collect
-engine00006_data_collect=dm_mobdi_tmp.engine00006_data_collect
-engine00007_data_collect=dm_mobdi_tmp.engine00007_data_collect
-engine00008_data_collect=dm_mobdi_tmp.engine00008_data_collect
-engine00010_data_collect=dm_mobdi_tmp.engine00010_data_collect
-engine00011_data_collect=dm_mobdi_tmp.engine00011_data_collect
+engine00002_data_collect=$tmpdb.engine00002_data_collect
+engine00003_data_collect=$tmpdb.engine00003_data_collect
+engine00004_data_collect=$tmpdb.engine00004_data_collect
+engine00005_data_collect=$tmpdb.engine00005_data_collect
+engine00006_data_collect=$tmpdb.engine00006_data_collect
+engine00007_data_collect=$tmpdb.engine00007_data_collect
+engine00008_data_collect=$tmpdb.engine00008_data_collect
+engine00010_data_collect=$tmpdb.engine00010_data_collect
+engine00011_data_collect=$tmpdb.engine00011_data_collect
 
 
 ## 目标表

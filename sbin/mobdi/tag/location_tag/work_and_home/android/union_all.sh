@@ -5,20 +5,31 @@ set -e -x
 day=$1
 days=${day:0:6}01
 
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
+tmpdb=$dm_mobdi_tmp
 #input
-tmp_device_live_place=dm_mobdi_tmp.tmp_device_live_place
-tmp_device_work_place=dm_mobdi_tmp.tmp_device_work_place
+tmp_device_live_place=$tmpdb.tmp_device_live_place
+tmp_device_work_place=$tmpdb.tmp_device_work_place
 
 #mapping
-#dm_sdk_mapping.geohash6_area_mapping_par
-#dm_sdk_mapping.geohash8_lbs_info_mapping_par
+#dm_sdk_mapping.dim_geohash6_china_area_mapping_par
+#dm_sdk_mapping.dim_geohash8_china_area_mapping_par
 #dm_sdk_mapping.mapping_area_par
+#dim_mapping_area_par=dim_sdk_mapping.dim_mapping_area_par
 
 #out
 #dm_mobdi_report.rp_device_location_3monthly
+
+dim_mapping_area_par_db=${dim_mapping_area_par%.*}
+dim_mapping_area_par_tb=${dim_mapping_area_par#*.}
+sql="
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
+create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
+SELECT GET_LAST_PARTITION('$dim_mapping_area_par_db', '$dim_mapping_area_par_tb', 'version');
+drop temporary function GET_LAST_PARTITION;
+"
+mapping_area_par_lastday=(`hive  -e "$sql"`)
 
 hive -e"
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
@@ -96,21 +107,21 @@ with live_place as(
       from $tmp_device_live_place
       where stage in('A','B','C','D')
     ) live
-    left join (select * from $geohash6_area_mapping_par where version='1000') geohash6_mapping
+    left join (select * from $dim_geohash6_china_area_mapping_par where version='1000') geohash6_mapping
     on (get_geohash(centerlat, centerlon, 6) = geohash6_mapping.geohash_6_code)
     where live.rk = 1
     )geo6
-    left join (select * from $geohash8_lbs_info_mapping_par where version='1000') geohash8_mapping
+    left join (select * from $dim_geohash8_china_area_mapping_par where version='1000') geohash8_mapping
     on (case when geo6.geohash_6_code is null then get_geohash(lat_home, lon_home, 8) else concat('', rand()) end = geohash8_mapping.geohash_8_code)
   )t
   left  join
-  (select country,country_code from $mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par') group by country,country_code) mapping_country
+  (select country,country_code from $dim_mapping_area_par where flag='$mapping_area_par_lastday' group by country,country_code) mapping_country
   on t.country=mapping_country.country_code
   left join
-  (select province,province_code from $mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par') group by province,province_code) mapping_province
+  (select province,province_code from $dim_mapping_area_par where flag='$mapping_area_par_lastday' group by province,province_code) mapping_province
   on t.province=mapping_province.province_code
   left join
-  (select city,city_code from $mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par') group by city,city_code) mapping_city
+  (select city,city_code from $dim_mapping_area_par where flag='$mapping_area_par_lastday' group by city,city_code) mapping_city
   on t.city=mapping_city.city_code
   left join
   (
@@ -118,7 +129,7 @@ with live_place as(
    from
    (
     select area_poi,area_code,row_number() over(partition by area_code order by length(area_poi)) as rank
-    from $mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par')
+    from $dim_mapping_area_par where flag='$mapping_area_par_lastday'
    ) min_area
    where rank=1
   ) mapping_area
@@ -178,27 +189,27 @@ work_place as (
       from $tmp_device_work_place
       where stage in('A','B','C','D')
     ) work
-    left join (select * from $geohash6_area_mapping_par where version='1000') geohash6_mapping
+    left join (select * from $dim_geohash6_china_area_mapping_par where version='1000') geohash6_mapping
     on (get_geohash(centerlat, centerlon, 6) = geohash6_mapping.geohash_6_code)
     where work.rk = 1
     )geo6
-    left join (select * from $geohash8_lbs_info_mapping_par where version='1000') geohash8_mapping
+    left join (select * from $dim_geohash8_china_area_mapping_par where version='1000') geohash8_mapping
     on (case when geo6.geohash_6_code is null then get_geohash(lat_work, lon_work, 8) else concat('', rand()) end = geohash8_mapping.geohash_8_code)
   )t
   left  join
-  (select country,country_code from $mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par') group by country,country_code) mapping_country
+  (select country,country_code from $dim_mapping_area_par where flag='$mapping_area_par_lastday' group by country,country_code) mapping_country
   on t.country=mapping_country.country_code
   left join
-  (select province,province_code from $mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par') group by province,province_code) mapping_province
+  (select province,province_code from $dim_mapping_area_par where flag='$mapping_area_par_lastday' group by province,province_code) mapping_province
   on t.province=mapping_province.province_code
   left join
-  (select city,city_code from $mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par') group by city,city_code) mapping_city
+  (select city,city_code from $dim_mapping_area_par where flag='$mapping_area_par_lastday' group by city,city_code) mapping_city
   on t.city=mapping_city.city_code
   left join
   (
    select area_poi,area_code from(
     select area_poi,area_code,row_number() over(partition by area_code order by length(area_poi)) as rank
-    from $mapping_area_par where flag=GET_LAST_PARTITION('dm_sdk_mapping','mapping_area_par')
+    from $dim_mapping_area_par where flag='$mapping_area_par_lastday'
     ) min_area
     where rank=1
     ) mapping_area

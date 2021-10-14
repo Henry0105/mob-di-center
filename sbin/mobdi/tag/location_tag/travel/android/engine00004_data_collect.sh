@@ -15,12 +15,12 @@ day=$1
 location_day=${day:0:6}01
 p1=`date -d "${location_day} -1 days" +%Y%m%d`
 
-
+tmpdb=$dm_mobdi_tmp
 ## 源表
-tmp_engine00002_datapre=dm_mobdi_tmp.tmp_engine00002_datapre
+tmp_engine00002_datapre=$tmpdb.tmp_engine00002_datapre
 
 ## 目标表
-engine00004_data_collect=dm_mobdi_tmp.engine00004_data_collect
+engine00004_data_collect=$tmpdb.engine00004_data_collect
 
 sql_final="
 create temporary function city_day_count as 'com.youzu.mob.java.udf.TravelCityDayCount';

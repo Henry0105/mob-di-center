@@ -27,9 +27,7 @@ formatDate=`date -d "${day}" +%Y-%m-%d`
 formatStartdate=`date -d "${startdate}" +%Y-%m-%d`
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #dws_device_active_di=dm_mobdi_topic.dws_device_active_di

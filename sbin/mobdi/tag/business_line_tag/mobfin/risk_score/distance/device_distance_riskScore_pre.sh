@@ -17,12 +17,13 @@ fi
 day=$1
 
 #源表
-tmp_anticheat_device_distance_pre=dw_mobdi_tmp.tmp_anticheat_device_distance_pre
+tmpdb=$dw_mobdi_tmp
+tmp_anticheat_device_distance_pre=$tmpdb.tmp_anticheat_device_distance_pre
 
 #输出表
-tmp_anticheat_device_avgdistance_pre=dw_mobdi_tmp.tmp_anticheat_device_avgdistance_pre
-tmp_anticheat_device_nightdistance_pre=dw_mobdi_tmp.tmp_anticheat_device_nightdistance_pre
-tmp_anticheat_device_alldistance_pre=dw_mobdi_tmp.tmp_anticheat_device_alldistance_pre
+tmp_anticheat_device_avgdistance_pre=$tmpdb.tmp_anticheat_device_avgdistance_pre
+tmp_anticheat_device_nightdistance_pre=$tmpdb.tmp_anticheat_device_nightdistance_pre
+tmp_anticheat_device_alldistance_pre=$tmpdb.tmp_anticheat_device_alldistance_pre
 
 hive -v -e "
 create table if not exists $tmp_anticheat_device_avgdistance_pre(

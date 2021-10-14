@@ -10,11 +10,12 @@ if [ $# -lt 1 ]; then
   exit 1
 fi
 
+tmpdb=$dm_mobdi_tmp
 ## 源表
-tmp_engine00001_datapre=dm_mobdi_tmp.tmp_engine00001_datapre
+tmp_engine00001_datapre=$tmpdb.tmp_engine00001_datapre
 
 ## 目标表
-engine00001_data_collect=dm_mobdi_tmp.engine00001_data_collect
+engine00001_data_collect=$tmpdb.engine00001_data_collect
 
 
 day=$1

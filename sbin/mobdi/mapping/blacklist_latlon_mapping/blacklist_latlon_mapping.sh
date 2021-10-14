@@ -6,7 +6,7 @@ day=$1
 p3month=`date -d "$day -3 month" +%Y%m%d`
 pmonth=`date -d "$day -1 month" +%Y%m%d`
 
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 tmpdb=$dm_mobdi_tmp
 ### 源表

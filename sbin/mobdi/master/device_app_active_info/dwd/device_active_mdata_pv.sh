@@ -18,8 +18,7 @@ fi
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ## 源表
 #dwd_mdata_nginx_pv_di=dm_mobdi_master.dwd_mdata_nginx_pv_di

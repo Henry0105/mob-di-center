@@ -28,8 +28,7 @@ nextMonth=`date -d "${firstDay} 1 month" "+%Y%m%d"`
 lastDay=`date -d "${nextMonth} -1 days" "+%Y%m%d"`
 prev18Month=`date -d "$currentDay 18 month ago" +%Y%m`
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 # input
 #dwd_log_share_new_di=dm_mobdi_master.dwd_log_share_new_di

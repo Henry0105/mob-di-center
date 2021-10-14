@@ -6,7 +6,7 @@ day=$1
 
 p1month=`date -d "$day -30 days" +%Y%m%d`
 
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 # input
 #dwd_simulator_det_info_sec_di=dm_mobdi_master.dwd_simulator_det_info_sec_di

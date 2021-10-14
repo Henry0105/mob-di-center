@@ -9,8 +9,7 @@ if [ $# -ne 1 ]; then
 fi
 
 day=$1
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 sql="
 insert overwrite table ${device_applist_new} partition(day=$day)
 select device,COALESCE(b.apppkg,a.pkg) as pkg,$day as processtime 

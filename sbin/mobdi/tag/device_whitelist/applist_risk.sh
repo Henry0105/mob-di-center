@@ -3,8 +3,7 @@
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 # input
 #dws_device_install_app_status_40d_di=dm_mobdi_topic.dws_device_install_app_status_40d_di
 #dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par

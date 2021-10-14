@@ -2,14 +2,14 @@
 
 set -x -e
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-
+source /home/dba/mobdi_center/conf/hive-env.sh
+tmpdb=$dm_mobdi_tmp
 # input
-device_distance_risk_1month=${dm_mobdi_tmp}.device_distance_risk_1month
-device_distance_risk_2month=${dm_mobdi_tmp}.device_distance_risk_2month
-device_distance_risk_3month=${dm_mobdi_tmp}.device_distance_risk_3month
+device_distance_risk_1month=$tmpdb.device_distance_risk_1month
+device_distance_risk_2month=$tmpdb.device_distance_risk_2month
+device_distance_risk_3month=$tmpdb.device_distance_risk_3month
 # output
-device_distance_risk=${dm_mobdi_tmp}.device_distance_risk
+device_distance_risk=$tmpdb.device_distance_risk
 
 hive -e"
 insert overwrite table $device_distance_risk

@@ -11,17 +11,19 @@ fi
 
 day=$1
 
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
+
+tmpdb=$dm_mobdi_tmp
 
 ## 源表
-tmp_engine00002_datapre=dm_mobdi_tmp.tmp_engine00002_datapre
+tmp_engine00002_datapre=$tmpdb.tmp_engine00002_datapre
 
 ## mapping 表
+#dim_mapping_city_level_par=dim_sdk_mapping.dim_mapping_city_level_par
 #mapping_city_level_par=dm_sdk_mapping.mapping_city_level_par
 
 ## 目标表
-engine00006_data_collect=dm_mobdi_tmp.engine00006_data_collect
-
+engine00006_data_collect=$tmpdb.engine00006_data_collect
 
 
 HADOOP_USER_NAME=dba hive -v -e "
@@ -58,7 +60,7 @@ from
 left join
 (
 select city_code, level
-from $mapping_city_level_par
+from $dim_mapping_city_level_par
 where version='1001'
 )t2
 on t1.city = t2.city_code

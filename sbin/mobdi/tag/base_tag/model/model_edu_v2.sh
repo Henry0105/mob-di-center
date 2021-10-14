@@ -19,10 +19,9 @@ if [ $# -ne 1 ]; then
 fi
 day=$1
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb="dw_mobdi_tmp"
-appdb="rp_mobdi_report"
+tmpdb=$dw_mobdi_tmp
 
 #input
 tmp_score_part1="${tmpdb}.tmp_score_part1"
@@ -38,7 +37,7 @@ tmp_score_app2vec="${tmpdb}.tmp_score_app2vec"
 #参数
 modelPath="/dmgroup/dba/modelpath/20200111/linear_regression_model/edu_lr"
 threshold="1.7,0.37,0.6,1.35"
-out_put_table="${appdb}.label_l2_result_scoring_di"
+out_put_table=$label_l2_result_scoring_di
 
 #准备sql
 sql1="

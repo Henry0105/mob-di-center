@@ -15,13 +15,14 @@ fi
 
 day=$1
 
+tmpdb=$dw_mobdi_tmp
 #源表
-tmp_anticheat_device_bssid_pre=dw_mobdi_tmp.tmp_anticheat_device_bssid_pre
+tmp_anticheat_device_bssid_pre=$tmpdb.tmp_anticheat_device_bssid_pre
 
 #输出表
-tmp_anticheat_device_bssid_cnt_7days=dw_mobdi_tmp.tmp_anticheat_device_bssid_cnt_7days
-tmp_anticheat_device_bssid_cnt_14days=dw_mobdi_tmp.tmp_anticheat_device_bssid_cnt_14days
-tmp_anticheat_device_bssid_cnt_30days=dw_mobdi_tmp.tmp_anticheat_device_bssid_cnt_30days
+tmp_anticheat_device_bssid_cnt_7days=$tmpdb.tmp_anticheat_device_bssid_cnt_7days
+tmp_anticheat_device_bssid_cnt_14days=$tmpdb.tmp_anticheat_device_bssid_cnt_14days
+tmp_anticheat_device_bssid_cnt_30days=$tmpdb.tmp_anticheat_device_bssid_cnt_30days
 
 hive -v -e "
 create table if not exists $tmp_anticheat_device_bssid_cnt_7days(

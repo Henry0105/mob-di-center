@@ -3,8 +3,7 @@
 
 set -x -e
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #dm_mobdi_topic.dws_device_lbs_poi_android_sec_di

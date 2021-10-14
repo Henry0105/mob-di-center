@@ -11,16 +11,19 @@ fi
 
 day=$1
 
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
+
+tmpdb=$dm_mobdi_tmp
 
 ## 源表
-tmp_engine00002_datapre=dm_mobdi_tmp.tmp_engine00002_datapre
+tmp_engine00002_datapre=$tmpdb.tmp_engine00002_datapre
 
 ## mapping 表
+#dim_mapping_area_par=dim_sdk_mapping.dim_mapping_area_par
 #mapping_area_par=dm_sdk_mapping.mapping_area_par
 
 ## 目标表
-engine00007_data_collect=dm_mobdi_tmp.engine00007_data_collect
+engine00007_data_collect=$tmpdb.engine00007_data_collect
 
 
 ip_mapping_sql="
@@ -48,7 +51,7 @@ left join
 (
 select continents,country,province,city,area,country_code,province_code,city_code,area_code
 from
-$mapping_area_par
+$dim_mapping_area_par
 where flag='20191010' and length(trim(city_code))>0 and city_code is not null
 group by continents,country,province,city,area,country_code,province_code,city_code,area_code
 )t2

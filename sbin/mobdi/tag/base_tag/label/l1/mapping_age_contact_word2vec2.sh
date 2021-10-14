@@ -16,7 +16,7 @@ fi
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 model_path="/dmgroup/dba/modelpath/20200810/mapping_age_contact_word2vec"

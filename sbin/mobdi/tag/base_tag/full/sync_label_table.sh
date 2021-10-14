@@ -16,10 +16,14 @@ fi
 
 day=$1
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb="dw_mobdi_tmp"
-appdb="rp_mobdi_report"
+#device_mapping_label_incr
+#label_mapping_type_all_di
+#device_model_label_incr
+#label_model_type_all_di
+#device_statics_label_incr
+#label_statics_type_all_di
 
 hive -v -e "
 set mapreduce.job.queuename=root.yarn_data_compliance2;

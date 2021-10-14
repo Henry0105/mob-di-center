@@ -17,22 +17,22 @@ day=$1
 p90day=`date -d "$day -90 days" +%Y%m%d`
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
 #dws_device_ip_info_di=dm_mobdi_topic.dws_device_ip_info_di
 
 #mapping
+#dim_ip_type_mf=dim_mobdi_mapping.dim_ip_type_mf
 #dim_ip_type_all_mf=dim_mobdi_mapping.dim_ip_type_all_mf
 
 #tmp
-tmp_anticheat_device_ip_cnt_90days=dw_mobdi_tmp.tmp_anticheat_device_ip_cnt_90days
+tmp_anticheat_device_ip_cnt_90days=$dw_mobdi_tmp.tmp_anticheat_device_ip_cnt_90days
 
 #输出表
 #label_l1_anticheat_device_proxy_ip_label_wf=dm_mobdi_report.label_l1_anticheat_device_proxy_ip_label_wf
 
-iptypePartition=`hive -S -e "show partitions $dim_ip_type_all_mf" | sort |tail -n 1 `
+iptypePartition=`hive -S -e "show partitions $dim_ip_type_mf" | sort |tail -n 1 `
 
 hive -v -e "
 set mapreduce.map.memory.mb=4096;
@@ -68,7 +68,7 @@ with ip_daili as(
     left semi join
     (
         select clientip
-        from $dim_ip_type_all_mf
+        from $dim_ip_type_mf
         where $iptypePartition
         and type = 3
         group by clientip

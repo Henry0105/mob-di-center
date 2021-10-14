@@ -12,8 +12,7 @@ set -x -e
 if [ -z "$1" ]; then 
   exit 1
 fi
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 
 

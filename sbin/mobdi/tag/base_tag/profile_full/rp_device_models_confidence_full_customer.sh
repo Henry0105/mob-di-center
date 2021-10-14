@@ -21,15 +21,22 @@ fi
 
 day=$1
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 tmpdb="dw_mobdi_tmp"
 appdb="rp_mobdi_report"
+#device_models_confidence_full_customer=dm_mobdi_report.device_models_confidence_full_customer
+#device_models_confidence_full_customer_view=dm_mobdi_report.device_models_confidence_full_customer_view
+#label_l2_result_scoring_di=dm_mobdi_report.label_l2_result_scoring_di
+#device_models_confidence_full=dm_mobdi_report.device_models_confidence_full
+
+#model_confidence_config_maping_customer=tp_mobdi_model.model_confidence_config_maping_customer
+#model_confidence_config_maping_customer=dim_sdk_mapping.model_confidence_config_maping_customer
 
 #全量自洽表对外提供，类似full表，保留最近5个分区即可。
 #dw_mobdi_md.models_with_confidence_union_logic_par,dw_mobdi_md.device_cate_preference_incr->rp_mobdi_app.device_models_confidence_full,rp_mobdi_app.device_models_confidence_full_view
 new_ver=${day}.1000
 
-lastPartStr=`hive -e "show partitions $appdb.device_models_confidence_full_customer" | sort | tail -n 1`
+lastPartStr=`hive -e "show partitions $device_models_confidence_full_customer" | sort | tail -n 1`
 
 if [ -z "$lastPartStr" ]; then
     lastPartStrA=$lastPartStr
@@ -44,7 +51,7 @@ echo $lastPartStrA
 
 hive -v -e"
 set mapreduce.job.queuename=root.yarn_data_compliance2;
-insert overwrite table $appdb.device_models_confidence_full_customer partition(version='$new_ver')
+insert overwrite table $device_models_confidence_full_customer partition(version='$new_ver')
 select device,gender,gender_cl,agebin,agebin_cl,edu,edu_cl,income,income_cl,kids,kids_cl,
        car,car_cl,house,house_cl,married,married_cl,occupation,occupation_cl,industry,
        industry_cl,agebin_1001,agebin_1001_cl,processtime,coalesce(cate_preference_list,''),income_1001,income_1001_cl,
@@ -105,10 +112,10 @@ from
                                       end as normal_probability,
                                      quadratic_coefficient,primary_coefficient,intercept
                               from ( select *
-                                     from dim_sdk_mapping.model_confidence_config_maping_customer
+                                     from $model_confidence_config_maping_customer
                                      where version='1006') a1
                               inner join (select device,prediction,probability,day,kind
-                                          from $appdb.label_l2_result_scoring_di
+                                          from $label_l2_result_scoring_di
                                           where day='$day') a2
                               on a1.kind = a2.kind
                               and a1.prediction = a2.prediction) t1
@@ -118,7 +125,7 @@ from
     left join (select device,gender,agebin,edu,income,
                       kids,car,house,married,occupation,
                       industry,agebin_1001,processtime,cate_preference_list,income_1001,occupation_1001
-               from $appdb.device_models_confidence_full
+               from $device_models_confidence_full
                where version = '$new_ver') full
     on confidence.device=full.device
 
@@ -128,7 +135,7 @@ from
            car,car_cl,house,house_cl,married,married_cl,occupation,occupation_cl,industry,
            industry_cl,agebin_1001,agebin_1001_cl,processtime,cate_preference_list,income_1001,income_1001_cl,
            occupation_1001,occupation_1001_cl
-    from $appdb.device_models_confidence_full_customer
+    from $device_models_confidence_full_customer
     where 1=1 ${lastPartStrA}
   ) un
 ) tmp
@@ -136,17 +143,17 @@ where rn=1;
 "
 
 #实现删除过期的分区的功能，只保留最近5个分区
-for old_version in `hive -e "show partitions $appdb.device_models_confidence_full_customer " | grep -v '_bak' | sort | head -n -10`
+for old_version in `hive -e "show partitions $device_models_confidence_full_customer " | grep -v '_bak' | sort | head -n -10`
 do
     echo "rm $old_version"
-    hive -v -e "alter table $appdb.device_models_confidence_full_customer drop if exists partition($old_version)"
+    hive -v -e "alter table $device_models_confidence_full_customer drop if exists partition($old_version)"
 done
 
 
 hive -v -e "
-create or replace view $appdb.device_models_confidence_full_customer_view as
+create or replace view $device_models_confidence_full_customer_view as
 select *
-from $appdb.device_models_confidence_full_customer
+from $device_models_confidence_full_customer
 where version='${new_ver}';
 "
 

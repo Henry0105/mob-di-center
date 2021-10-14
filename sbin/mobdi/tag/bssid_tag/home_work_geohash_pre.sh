@@ -15,14 +15,16 @@ fi
 
 day=$1
 
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
+#dim_poi_config_mapping_par=dim_sdk_mapping.dim_poi_config_mapping_par
 #poi_config_mapping_par=dm_sdk_mapping.poi_config_mapping_par
 
+tmpdb=$dm_mobdi_tmp
 #输出表
-tmp_home_geohash_info=dm_mobdi_tmp.tmp_home_geohash_info
-tmp_work_geohash_info=dm_mobdi_tmp.tmp_work_geohash_info
+tmp_home_geohash_info=$tmpdb.tmp_home_geohash_info
+tmp_work_geohash_info=$tmpdb.tmp_work_geohash_info
 
 #亲友/工作地公用中间表建立
 hive -v -e "
@@ -64,7 +66,7 @@ select lat,lon,n.geohash6_split as geohash6
 from
 (
     select lat,lon,get_geohash_adjacent(geohash6) as geohash6_list
-    from $poi_config_mapping_par
+    from $dim_poi_config_mapping_par
     where version='1001' 
     and type = 5 
     and attribute not rlike '.*写字楼|商铺.*'
@@ -94,7 +96,7 @@ from
     from
     (
         select lat,lon,get_geohash_adjacent(geohash6) as geohash6_list
-        from $poi_config_mapping_par
+        from $dim_poi_config_mapping_par
         where version = '1001' 
         and type = 5 
         and attribute rlike '.*写字楼|商铺.*'
@@ -106,7 +108,7 @@ from
     from
     (
         select lat,lon,get_geohash_adjacent(geohash6) as geohash6_list
-        from $poi_config_mapping_par
+        from $dim_poi_config_mapping_par
         where version = '1001' 
         and type = 7 
     )b lateral view explode(split(geohash6_list, ',')) n as geohash6_split

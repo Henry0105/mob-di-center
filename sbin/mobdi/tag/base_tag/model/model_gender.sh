@@ -19,15 +19,14 @@ if [ $# -ne 1 ]; then
 fi
 day=$1
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb="dw_mobdi_tmp"
-appdb="rp_mobdi_report"
+tmpdb=$dw_mobdi_tmp
 
 #input
-label_merge_all="${tmpdb}.model_merge_all_features"
 label_apppkg_feature_index=${label_l1_apppkg_feature_index}
 label_apppkg_category_index=${label_l1_apppkg_category_index}
+label_merge_all=${tmpdb}.model_merge_all_features
 income_1001_university_bssid_index=${tmpdb}.income_1001_university_bssid_index
 income_1001_shopping_mall_bssid_index=${tmpdb}.income_1001_shopping_mall_bssid_index
 income_1001_traffic_bssid_index=${tmpdb}.income_1001_traffic_bssid_index

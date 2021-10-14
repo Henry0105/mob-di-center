@@ -6,9 +6,7 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ###源表
 #dwd_t_location_sec_di=dm_mobdi_master.dwd_t_location_sec_di
@@ -20,7 +18,7 @@ t_location_tb=${dwd_t_location_sec_di#*.}
 #dim_geohash6_china_area_mapping_par
 #geohash6_area_mapping_par=dm_sdk_mapping.geohash6_area_mapping_par
 #dim_geohash8_china_area_mapping_par
-#geohash8_lbs_info_mapping_par=dm_sdk_mapping.geohash8_lbs_info_mapping_par
+#dim_geohash8_china_area_mapping_par=dm_sdk_mapping.dim_geohash8_china_area_mapping_par
 
 ###目标表
 #dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
@@ -210,7 +208,7 @@ from (
                 left join (select * from $dim_geohash6_china_area_mapping_par where version='1000') geohash6_mapping
                 on (get_geohash(lat, lon, 6) = geohash6_mapping.geohash_6_code)  --通过GEOHASH6关联
           ) geo6
-          left join (select * from $geohash8_lbs_info_mapping_par where version='1000') geohash8_mapping
+          left join (select * from $dim_geohash8_china_area_mapping_par where version='1000') geohash8_mapping
           on (case when geo6.geohash_6_code is null then get_geohash(lat, lon, 8) else concat('', rand()) end = geohash8_mapping.geohash_8_code) --未关联上的通过GEOHASH8关联
     ) a
     left join (select lat,lon from $dim_geohash8_china_area_mapping_par where day='$last_ip_mapping_partition' and stage='A') b

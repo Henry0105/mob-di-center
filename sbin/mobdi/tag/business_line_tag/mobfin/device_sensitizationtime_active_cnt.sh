@@ -16,9 +16,7 @@ fi
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
 #dwd_pv_sec_di=dm_mobdi_master.dwd_pv_sec_di
@@ -26,6 +24,16 @@ source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #mapping表
 #vacation_flag_par=dim_sdk_mapping.vacation_flag_par
+#dim_vacation_flag_par=dm_sdk_mapping.dim_vacation_flag_par
+vacation_flag_db=${dim_vacation_flag_par%.*}
+vacation_flag_tb=${dim_vacation_flag_par#*.}
+sql="
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
+create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
+SELECT GET_LAST_PARTITION('$vacation_flag_db', '$vacation_flag_tb', 'version');
+drop temporary function GET_LAST_PARTITION;
+"
+vacation_flag_lastday=(`hive  -e "$sql"`)
 
 #输出表
 #label_l1_anticheat_device_cnt=dm_mobdi_report.label_l1_anticheat_device_cnt
@@ -80,7 +88,7 @@ with device_time_table as
     left join 
     (
         select day,flag
-        from $vacation_flag_par
+        from $dim_vacation_flag_par
         where version = '1000'
     ) b
     on a.day = b.day
@@ -155,7 +163,7 @@ with device_time_table as
     left join 
     (
         select day,flag
-        from $vacation_flag_par
+        from $dim_vacation_flag_par
         where version = '1000'
     ) b
     on a.day = b.day

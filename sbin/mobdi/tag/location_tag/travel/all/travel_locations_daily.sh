@@ -11,12 +11,13 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #dm_mobdi_topic.dws_device_location_current_di
 #dm_mobdi_report.rp_device_location_permanent
+location_permanent_db=${rp_device_location_permanent%.*}
+location_permanent_tb=${rp_device_location_permanent#*.}
 
 #out
 #dm_mobdi_topic.dws_device_travel_location_di
@@ -30,7 +31,7 @@ if [ -z "$2" ]; then
     rp_device_location_permanent_sql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dm_mobdi_report', 'rp_device_location_permanent', 'day');
+    SELECT GET_LAST_PARTITION('$location_permanent_db', '$location_permanent_tb', 'day');
     drop temporary function GET_LAST_PARTITION;"
     rp_device_location_permanent_last_snapshot_day=(`hive -e "$rp_device_location_permanent_sql"`)
 else

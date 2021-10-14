@@ -19,15 +19,11 @@ if [ $# -ne 1 ]; then
 fi
 day=$1
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb="dw_mobdi_tmp"
-appdb="rp_mobdi_report"
+tmpdb=$dw_mobdi_tmp
+appdb=$rp_mobdi_report
 
-
-label_age_unstall_feature="$appdb.label_age_app_unstall_1y"
-label_age_pre_app_tgi_feature="$appdb.label_age_pre_app_tgi_feature"
-label_age_applist_part2_beforechi="$appdb.label_age_applist_part2_beforechi"
 
 #input
 
@@ -43,8 +39,6 @@ tmp_score_app2vec="${tmpdb}.tmp_score_app2vec_v3"
 tmp_score_part7="${tmpdb}.tmp_score_part7"
 tmp_score_part8="${tmpdb}.tmp_score_part8"
 
-
-
 modelPath="/dmgroup/dba/modelpath/20201222/linear_regression_model/agemodel"
 modelPath0="/dmgroup/dba/modelpath/20201222/linear_regression_model/age1001model_0"
 modelPath1="/dmgroup/dba/modelpath/20201222/linear_regression_model/age1001model_1"
@@ -52,9 +46,9 @@ modelPath2="/dmgroup/dba/modelpath/20201222/linear_regression_model/age1001model
 
 #0.6,1.6,1.05,0.7,0.2
 threshold="0.9,1.2,1,0.85,0.3"
-out_put_table="${appdb}.label_l2_result_scoring_di"
+out_put_table=$label_l2_result_scoring_di
 test_flag="0"
-whitelist="dim_sdk_mapping.whitelist_dpiage_shandong_used"
+whitelist=$dim_whitelist_dpiage_shandong_used
 
 spark2-submit --master yarn --deploy-mode cluster \
 --queue root.yarn_data_compliance2 \

@@ -13,8 +13,7 @@ p2weeks=`date -d "$day -14 day" +%Y%m%d`
 p1month=`date -d "$day -30 day" +%Y%m%d`
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ## 源表
 #dwd_log_oauth_new_di=dm_mobdi_master.dwd_log_oauth_new_di

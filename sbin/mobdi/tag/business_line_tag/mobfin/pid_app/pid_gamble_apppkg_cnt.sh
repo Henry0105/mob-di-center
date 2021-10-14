@@ -17,22 +17,21 @@ day=$1
 p30day=`date -d "$day -30 days" +%Y%m%d`
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
-tmp_anticheat_pid_device_pre_sec=dw_mobdi_tmp.tmp_anticheat_pid_device_pre_sec
+tmp_anticheat_pid_device_pre_sec=$dw_mobdi_tmp.tmp_anticheat_pid_device_pre_sec
 #dws_device_install_app_re_status_di=dm_mobdi_topic.dws_device_install_app_re_status_di
 #dws_device_active_applist_di=dm_mobdi_topic.dws_device_active_applist_di
 
 #mapping
+#dim_apppkg_hd_mapping_byga=dim_sdk_mapping.dim_apppkg_hd_mapping_byga
 #dim_apppkg_hd_mapping=dim_sdk_mapping.dim_apppkg_hd_mapping
 
 #输出表
 #label_l1_anticheat_pid_cnt_sec=dm_mobdi_report.label_l1_anticheat_pid_cnt_sec
 
-apppkgPartition=`hive -S -e "show partitions $dim_apppkg_hd_mapping" | sort |tail -n 1 `
+apppkgPartition=`hive -S -e "show partitions $dim_apppkg_hd_mapping_byga" | sort |tail -n 1 `
 pidPartition=`hive -S -e "show partitions $tmp_anticheat_pid_device_pre_sec" | sort |tail -n 1 `
 
 #安装过赌博类应用数
@@ -64,7 +63,7 @@ set mapred.job.name=pid_gamble_apppkg_cnt_1;
 
 with apppkg_table as (
     select apppkg
-    from $dim_apppkg_hd_mapping
+    from $dim_apppkg_hd_mapping_byga
     where flag_gamble = 1
     and $apppkgPartition
 ),
@@ -131,7 +130,7 @@ set mapred.job.name=pid_gamble_apppkg_cnt_2;
 
 with apppkg_table as (
     select apppkg
-    from $dim_apppkg_hd_mapping
+    from $dim_apppkg_hd_mapping_byga
     where flag_gamble = 1
     and $apppkgPartition
 ),
@@ -198,7 +197,7 @@ set mapred.job.name=pid_gamble_apppkg_cnt_3;
 
 with apppkg_table as (
     select apppkg
-    from $dim_apppkg_hd_mapping
+    from $dim_apppkg_hd_mapping_byga
     where flag_gamble = 1
     and $apppkgPartition
 ),

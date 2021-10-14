@@ -15,12 +15,17 @@ set -x -e
 export LANG=en_US.UTF-8
 
 
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
+
+#rp_device_location_3monthly_struct=dm_mobdi_report.rp_device_location_3monthly_struct
+#rp_device_location_3monthly=dm_mobdi_report.rp_device_location_3monthly
+rp_device_location_3monthly_db=${rp_device_location_3monthly%.*}
+rp_device_location_3monthly_tb=${rp_device_location_3monthly#*.}
 
 day_sql="
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
 create temporary function get_last_partition as 'com.youzu.mob.java.udf.LatestPartition';
-select get_last_partition('dm_mobdi_report', 'rp_device_location_3monthly', 'day');
+select get_last_partition('$rp_device_location_3monthly_db', '$rp_device_location_3monthly_tb', 'day');
 drop temporary function get_last_partition;
 "
 day=(`hive -e "set hive.cli.print.header=false;$day_sql"`)
@@ -37,7 +42,7 @@ lat_work,lon_work,province_work,city_work,area_work,street(置为空),cnt_work,c
 '
 
 hive -e"
-create table if not exists dm_mobdi_report.rp_device_location_3monthly_struct(
+create table if not exists $rp_device_location_3monthly_struct(
 device string COMMENT '设备号',
 workplace string COMMENT '工作地,confidence表示置信度',
 residence string COMMENT '居住地,confidence表示置信度')

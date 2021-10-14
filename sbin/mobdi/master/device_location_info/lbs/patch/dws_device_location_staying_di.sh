@@ -15,8 +15,7 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 device_location_info_db=${dwd_device_location_info_di%.*}
 device_location_info_tb=${dwd_device_location_info_di#*.}
 

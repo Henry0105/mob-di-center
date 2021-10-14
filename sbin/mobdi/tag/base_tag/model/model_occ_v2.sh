@@ -19,15 +19,24 @@ if [ $# -ne 1 ]; then
 fi
 day=$1
 
-tmpdb="dw_mobdi_md"
-appdb="rp_mobdi_app"
+tmpdb=$dw_mobdi_md
 ## input
-label_merge_all="dw_mobdi_md.model_merge_all_features"
+label_merge_all=$tmpdb.model_merge_all_features
 label_apppkg_feature_index="${label_l1_apppkg_feature_index}"
 label_apppkg_category_index="${label_l1_apppkg_category_index}"
 
 ## out
-tmp_occ_predict=dw_mobdi_md.tmp_occ_predict
+tmp_occ_predict=$tmpdb.tmp_occ_predict
+income_1001_traffic_bssid_index=$tmpdb.income_1001_traffic_bssid_index
+income_1001_hotel_bssid_index=$tmpdb.income_1001_hotel_bssid_index
+income_1001_university_bssid_index=$tmpdb.income_1001_university_bssid_index
+income_1001_shopping_mall_bssid_index=$tmpdb.income_1001_shopping_mall_bssid_index
+tmp_occ_score_part1=${tmpdb}.tmp_occ_score_part1
+tmp_occ_score_part3=${tmpdb}.tmp_occ_score_part3
+tmp_occ_score_part4=${tmpdb}.tmp_occ_score_part4
+
+tmp_occ_score_part2=${tmpdb}.tmp_occ_score_part2
+tmp_occ_score_app2vec=${tmpdb}.tmp_occ_score_app2vec
 
 
 # 由于不能并行，故用model去启动特征计算
@@ -35,8 +44,8 @@ sh /home/dba/mobdi/tag/base_tag/label/l1/label_occ_v2_features.sh $day
 
 HADOOP_USER_NAME=dba hive -v -e "
 set mapreduce.job.queuename=root.yarn_data_compliance2;
-drop table if exists  ${tmpdb}.tmp_occ_score_part1;
-create table  ${tmpdb}.tmp_occ_score_part1 stored as orc as
+drop table if exists  $tmp_occ_score_part1;
+create table  $tmp_occ_score_part1 stored as orc as
 select device,
        if(size(collect_list(index))=0,collect_set(0),collect_list(index)) as index,
        if(size(collect_list(cnt))=0,collect_set(0.0),collect_list(cnt)) as cnt
@@ -173,8 +182,8 @@ set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
 
-drop table if exists  ${tmpdb}.tmp_occ_score_part3;
-create table ${tmpdb}.tmp_occ_score_part3 stored as orc as
+drop table if exists  $tmp_occ_score_part3;
+create table $tmp_occ_score_part3 stored as orc as
 select device,
        if(size(collect_list(index))=0,collect_set(0),collect_list(index)) as index,
        if(size(collect_list(cnt))=0,collect_set(0.0),collect_list(cnt)) as cnt
@@ -188,7 +197,7 @@ from
             when year>='2015' and year<='2019' then 4
             else 5 end index
       ,1.0 cnt
-  from ${appdb}.label_phone_year
+  from $label_phone_year
 
   union all
   select device
@@ -198,7 +207,7 @@ from
               when cnt>5 then 9
               else 10 end index
         ,1.0 cnt
-  from ${appdb}.label_bssid_num
+  from $label_bssid_num
 
   union all
   select device
@@ -208,7 +217,7 @@ from
               when distance >= 5000 then 14
               else 15 end index
         ,1.0 cnt
-  from ${appdb}.label_distance_avg
+  from $label_distance_avg
 
   union all
   select device
@@ -218,7 +227,7 @@ from
               when distance >= 5000 then 19
               else 20 end index
         ,1.0 cnt
-  from ${appdb}.label_distance_night
+  from $label_distance_night
 
   union all
   select device
@@ -229,18 +238,18 @@ from
               when home_work_dist>50000 then 25
               else 26 end index
         ,1.0 cnt
-  from ${appdb}.label_homeworkdist
+  from $label_homeworkdist
 
   union all
   select device,cast(26+cast(poi_type as double) as int) index,1.0 cnt
-  from ${appdb}.label_home_poiaround
+  from $label_home_poiaround
 
   union all
   select device,cast(46+cast(poi_type as double) as int) index,1.0 cnt
-  from ${appdb}.label_work_poiaround
+  from $label_work_poiaround
 
     union all
-   select device,index,cnt from ${appdb}.label_occ_score_workpoi_mid
+   select device,index,cnt from $label_occ_score_workpoi_mid
 )a
 group by device
 "
@@ -248,30 +257,30 @@ group by device
 
 HADOOP_USER_NAME=dba hive -v -e "
 set mapreduce.job.queuename=root.yarn_data_compliance2;
-drop table if exists  ${tmpdb}.tmp_occ_score_part4;
-create  table ${tmpdb}.tmp_occ_score_part4 stored as orc as
+drop table if exists  $tmp_occ_score_part4;
+create  table $tmp_occ_score_part4 stored as orc as
 select device,
        if(size(collect_list(index))=0,collect_set(0),collect_list(index)) as index,
        if(size(collect_list(cnt))=0,collect_set(0.0),collect_list(cnt)) as cnt
 from
 (
-  select device, index, 1.0 as cnt from dw_mobdi_md.income_1001_university_bssid_index where day='$day'
+  select device, index, 1.0 as cnt from $income_1001_university_bssid_index where day='$day'
 
   union all
 
-  select device, index, 1.0 as cnt from dw_mobdi_md.income_1001_shopping_mall_bssid_index where day='$day'
+  select device, index, 1.0 as cnt from $income_1001_shopping_mall_bssid_index where day='$day'
 
   union all
 
   select device, index, 1.0 as cnt
-  from dw_mobdi_md.income_1001_traffic_bssid_index
+  from $income_1001_traffic_bssid_index
   LATERAL VIEW explode(Array(traffic_bus_index,traffic_subway_index,traffic_airport_index,traffic_train_index)) a as index
   where day='$day'
 
   union all
 
   select device, index, 1.0 as cnt
-  from dw_mobdi_md.income_1001_hotel_bssid_index
+  from $income_1001_hotel_bssid_index
   LATERAL VIEW explode(Array(price_level1_index,price_level2_index,price_level3_index,price_level4_index,price_level5_index,
                              price_level6_index,rank_star1_index,rank_star2_index,rank_star3_index,rank_star4_index,
                              rank_star5_index,score_type1_index,score_type2_index,score_type3_index)) a as index
@@ -282,16 +291,16 @@ group by device
 
 
 HADOOP_USER_NAME=dba hive -v -e "
-drop table if exists  ${tmpdb}.tmp_occ_score_part2;
-create table ${tmpdb}.tmp_occ_score_part2 stored as orc as
+drop table if exists  $tmp_occ_score_part2;
+create table $tmp_occ_score_part2 stored as orc as
 select device,index,cnt from
-${appdb}.label_occ_score_applist
+$label_occ_score_applist
 "
 
 HADOOP_USER_NAME=dba hive -v -e "
-drop table if exists  ${tmpdb}.tmp_occ_score_app2vec;
-create table ${tmpdb}.tmp_occ_score_app2vec stored as orc as
-select * from ${appdb}.label_occ_app2vec
+drop table if exists  $tmp_occ_score_app2vec;
+create table $tmp_occ_score_app2vec stored as orc as
+select * from $label_occ_app2vec
 "
 
 
@@ -303,7 +312,7 @@ part3Table="${tmpdb}.tmp_occ_score_part3"
 part4Table="${tmpdb}.tmp_occ_score_part4"
 app2vecTable="${tmpdb}.tmp_occ_score_app2vec"
 modelPath="/dmgroup/dba/modelpath/20200811/linear_regression_model/occ_lr"
-outputTable="dw_mobdi_md.tmp_occ_predict"
+outputTable="${tmpdb}.tmp_occ_predict"
 
 HADOOP_USER_NAME=dba  /opt/mobdata/sbin/spark-submit \
 --queue root.yarn_data_compliance2 \
@@ -330,10 +339,9 @@ HADOOP_USER_NAME=dba  /opt/mobdata/sbin/spark-submit \
 
 hive -v -e"
 set mapreduce.job.queuename=root.yarn_data_compliance2;
-insert overwrite table rp_mobdi_app.label_l2_result_scoring_di partition(day='$day',kind='occupation')
+insert overwrite table $label_l2_result_scoring_di partition(day='$day',kind='occupation')
 select device,prediction,probability
-from
-dw_mobdi_md.tmp_occ_predict
+from $outputTable
 where day='$day'
 "
 

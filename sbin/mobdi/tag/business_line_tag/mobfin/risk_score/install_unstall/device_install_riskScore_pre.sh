@@ -17,14 +17,16 @@ day=$1
 p7days=`date -d "$day -7 days" +%Y%m%d`
 p14days=`date -d "$day -14 days" +%Y%m%d`
 p30days=`date -d "$day -30 days" +%Y%m%d`
+source /home/dba/mobdi_center/conf/hive-env.sh
 
+tmpdb=$dw_mobdi_tmp
 #源表
-tmp_anticheat_device_unstall_install_pre=dw_mobdi_tmp.tmp_anticheat_device_unstall_install_pre
+tmp_anticheat_device_unstall_install_pre=$tmpdb.tmp_anticheat_device_unstall_install_pre
 
 #输出表
-tmp_anticheat_device_install_7days_pre=dw_mobdi_tmp.tmp_anticheat_device_install_7days_pre
-tmp_anticheat_device_install_14days_pre=dw_mobdi_tmp.tmp_anticheat_device_install_14days_pre
-tmp_anticheat_device_install_30days_pre=dw_mobdi_tmp.tmp_anticheat_device_install_30days_pre
+tmp_anticheat_device_install_7days_pre=$tmpdb.tmp_anticheat_device_install_7days_pre
+tmp_anticheat_device_install_14days_pre=$tmpdb.tmp_anticheat_device_install_14days_pre
+tmp_anticheat_device_install_30days_pre=$tmpdb.tmp_anticheat_device_install_30days_pre
 
 hive -v -e "
 set hive.exec.parallel=true;

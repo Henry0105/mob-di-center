@@ -3,12 +3,12 @@
 day=$1
 p3months=`date -d "$day -90 day" +%Y%m%d`
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #dws_device_install_app_re_status_di=dm_mobdi_topic.dws_device_install_app_re_status_di
 #out
-device_strange_app_type_install_3month=${dm_mobdi_tmp}.device_strange_app_type_install_3month
+device_strange_app_type_install_3month=$dm_mobdi_tmp.device_strange_app_type_install_3month
 
 hive -e"
 SET hive.exec.parallel=true;

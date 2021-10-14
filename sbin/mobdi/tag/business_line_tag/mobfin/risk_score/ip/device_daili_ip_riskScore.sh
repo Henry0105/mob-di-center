@@ -16,19 +16,19 @@ fi
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
-tmp_anticheat_device_ip_pre=dw_mobdi_tmp.tmp_anticheat_device_ip_pre
+tmp_anticheat_device_ip_pre=$dw_mobdi_tmp.tmp_anticheat_device_ip_pre
 
 #mapping
+#dim_ip_type_mf=dim_mobdi_mapping.dim_ip_type_mf
 #dim_ip_type_all_mf=dim_mobdi_mapping.dim_ip_type_all_mf
 
 #输出表
 #label_l1_anticheat_device_proxy_ip_label_wf=dm_mobdi_report.label_l1_anticheat_device_proxy_ip_label_wf
 
-iptypePartition=`hive -S -e "show partitions $dim_ip_type_all_mf" | sort |tail -n 1 `
+iptypePartition=`hive -S -e "show partitions $dim_ip_type_mf" | sort |tail -n 1 `
 function proxy_ip(){
 
 timewindow=$1
@@ -50,7 +50,7 @@ with ip_daili as(
     from 
     (
         select clientip
-        from $dim_ip_type_all_mf
+        from $dim_ip_type_mf
         where $iptypePartition
         and type = 3
         group by clientip

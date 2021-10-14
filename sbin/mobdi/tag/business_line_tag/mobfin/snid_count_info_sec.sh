@@ -9,11 +9,10 @@ fi
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ## 源表
-dm_snid_mapping_v3_sec=dm_dataengine_mapping.dm_snid_mapping
+#dm_snid_mapping_v3_sec=dm_dataengine_mapping.dm_snid_mapping
 #dwd_device_info_df=dm_mobdi_master.dwd_device_info_df
 
 ## 目标表

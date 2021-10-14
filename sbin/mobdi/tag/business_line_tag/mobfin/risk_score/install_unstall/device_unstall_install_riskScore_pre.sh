@@ -17,17 +17,17 @@ day=$1
 p30day=`date -d "$day -30 days" +%Y%m%d`
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
 #dws_device_install_app_re_status_di=dm_mobdi_topic.dws_device_install_app_re_status_di
 
 #mapping
+#dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
 #app_pkg_mapping_par=dim_sdk_mapping.app_pkg_mapping_par
 
 #输出表
-tmp_anticheat_device_unstall_install_pre=dw_mobdi_tmp.tmp_anticheat_device_unstall_install_pre
+tmp_anticheat_device_unstall_install_pre=$dw_mobdi_tmp.tmp_anticheat_device_unstall_install_pre
 
 hive -v -e "
 create table if not exists $tmp_anticheat_device_unstall_install_pre(
@@ -41,7 +41,7 @@ partitioned by (day string comment '日期')
 stored as orc;
 "
 
-mappingPartition=`hive -S -e "show partitions $app_pkg_mapping_par" | sort |tail -n 1`
+mappingPartition=`hive -S -e "show partitions $dim_app_pkg_mapping_par" | sort |tail -n 1`
 hive -v -e "
 set hive.exec.parallel=true;
 SET hive.merge.mapfiles=true;
@@ -69,7 +69,7 @@ from
 left join 
 (
     select pkg,apppkg
-    from $app_pkg_mapping_par
+    from $dim_app_pkg_mapping_par
     where $mappingPartition
     group by pkg, apppkg
 ) as n

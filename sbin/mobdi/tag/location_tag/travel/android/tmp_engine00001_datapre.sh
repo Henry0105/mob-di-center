@@ -11,26 +11,30 @@ fi
 day=$1
 
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ## 源表
 #dws_device_location_staying_di=dm_mobdi_topic.dws_device_location_staying_di
 #rp_device_location_3monthly=dm_mobdi_report.rp_device_location_3monthly
 
 ## mapping表
+#dim_bssid_type_mf=dim_mobdi_mapping.dim_bssid_type_mf
 #dim_bssid_type_all_mf=dm_mobdi_mapping.dim_bssid_type_all_mf
 
+dim_bssid_type_mf_db=${dim_bssid_type_mf%.*}
+dim_bssid_type_mf_tb=${dim_bssid_type_mf#*.}
+rp_device_location_3monthly_db=${rp_device_location_3monthly%.*}
+rp_device_location_3monthly_tb=${rp_device_location_3monthly#*.}
+
 ## 目标表
-tmp_engine00001_datapre=dm_mobdi_tmp.tmp_engine00001_datapre
+tmp_engine00001_datapre=$dm_mobdi_tmp.tmp_engine00001_datapre
 
 ## 获取最新分区
 
 sql1="
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_bssid_type_all_mf', 'day');
+SELECT GET_LAST_PARTITION('$dim_bssid_type_mf_db', '$dim_bssid_type_mf_tb', 'day');
 drop temporary function GET_LAST_PARTITION;
 "
 dim_bssid_type_all_mf_lastday=(`hive  -e "$sql1"`)
@@ -38,7 +42,7 @@ dim_bssid_type_all_mf_lastday=(`hive  -e "$sql1"`)
 sql2="
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('rp_mobdi_app', 'rp_device_location_3monthly', 'day');
+SELECT GET_LAST_PARTITION('$rp_device_location_3monthly_db', '$rp_device_location_3monthly_tb', 'day');
 drop temporary function GET_LAST_PARTITION;
 "
 
@@ -140,7 +144,7 @@ from (
         ) t1
     inner join (
         select bssid
-        from $dim_bssid_type_all_mf
+        from $dim_bssid_type_mf
         where day = '$dim_bssid_type_all_mf_lastday' and type = 1 
         ) t2 on regexp_replace(t1.orig_note1, 'bssid=', '') = t2.bssid
 

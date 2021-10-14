@@ -18,13 +18,13 @@ day=$1
 p30day=`date -d "$day -30 days" +%Y%m%d`
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
 #dws_device_location_staying_di=dm_mobdi_topic.dws_device_location_staying_di
 
 #输出表
-tmp_anticheat_device_distance_pre=dw_mobdi_tmp.tmp_anticheat_device_distance_pre
+tmp_anticheat_device_distance_pre=$dw_mobdi_tmp.tmp_anticheat_device_distance_pre
 
 hive -v -e "
 create table if not exists $tmp_anticheat_device_distance_pre(

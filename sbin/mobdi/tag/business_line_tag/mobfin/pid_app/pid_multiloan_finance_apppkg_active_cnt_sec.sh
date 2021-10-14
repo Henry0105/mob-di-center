@@ -18,24 +18,23 @@ timewindow=$2
 pday=`date -d "$day -$timewindow days" +%Y%m%d`
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #源表
-tmp_anticheat_pid_device_pre_sec=dw_mobdi_tmp.tmp_anticheat_pid_device_pre_sec
+tmp_anticheat_pid_device_pre_sec=$dw_mobdi_tmp.tmp_anticheat_pid_device_pre_sec
 #dwd_pv_sec_di=dm_mobdi_master.dwd_pv_sec_di
 #dwd_log_run_new_di=dm_mobdi_master.dwd_log_run_new_di
 #dwd_device_app_runtimes_sec_di=dm_mobdi_master.dwd_device_app_runtimes_sec_di
 #dwd_xm_device_app_runtimes_sec_di=dm_mobdi_master.dwd_xm_device_app_runtimes_sec_di
 
 #mapping表
+#dim_online_category_mapping_v3=dim_sdk_mapping.dim_online_category_mapping_v3
 #online_category_mapping_v3=dim_sdk_mapping.online_category_mapping_v3
 
 #输出表
 #label_l1_anticheat_pid_cnt_sec=dm_mobdi_report.label_l1_anticheat_pid_cnt_sec
 
-categoryPartition=`hive -S -e "show partitions $online_category_mapping_v3" | sort |tail -n 1 `
+categoryPartition=`hive -S -e "show partitions $dim_online_category_mapping_v3" | sort |tail -n 1 `
 pidPartition=`hive -S -e "show partitions $tmp_anticheat_pid_device_pre_sec" | sort |tail -n 1 `
 
 hive -v -e "
@@ -56,7 +55,7 @@ set mapred.job.name=pid_multiloan_finance_apppkg_active_cnt_sec;
 
 with multiloan_finance_apppkg_table as (
     select relation 
-    from $online_category_mapping_v3 
+    from $dim_online_category_mapping_v3
     where $categoryPartition
     and cate in ('P2P借贷','小额借贷','消费金融','现金贷','综合借贷')
 ),

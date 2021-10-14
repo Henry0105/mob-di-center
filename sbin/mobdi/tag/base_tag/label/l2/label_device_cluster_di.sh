@@ -15,10 +15,7 @@ fi
 
 day=$1
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
-
-tmpdb="dw_mobdi_tmp"
-appdb="rp_mobdi_report"
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ##input
 cluster_incr=$device_cluster_incr

@@ -15,9 +15,7 @@ if [ $# -ne 1 ]; then
 fi
 
 day=$1
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ## input
 label_device_applist_cnt=$label_l1_applist_refine_cnt_di
@@ -34,11 +32,10 @@ SELECT GET_LAST_PARTITION('rp_mobdi_app', 'label_l1_house_price_mf', 'day');
 drop temporary function GET_LAST_PARTITION;
 "
 lastPartition=(`hive -e "$sql"`)
-
 ##tmp table
-label_merge_all=$model_merge_all_features
+label_merge_all=$dw_mobdi_md.model_merge_all_features
 ## output
-transfered_feature_table=$model_transfered_features
+transfered_feature_table=$dw_mobdi_tmp.model_transfered_features
 
 hive -v -e "
 set mapreduce.job.queuename=root.yarn_data_compliance2;

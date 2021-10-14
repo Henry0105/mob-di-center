@@ -9,12 +9,12 @@ p3month=`date -d "$days -3 month" +%Y%m`
 
 p1month=`date -d "$days -1 month" +%Y%m`
 
+source /home/dba/mobdi_center/conf/hive-env.sh
 
+tmpdb=$dm_mobdi_tmp
 #input
-tmp_device_location_summary_monthly=dm_mobdi_tmp.tmp_device_location_summary_monthly
-tmp_device_frequency_place=dm_mobdi_tmp.tmp_device_frequency_place
-
-
+tmp_device_location_summary_monthly=$tmpdb.tmp_device_location_summary_monthly
+tmp_device_frequency_place=$tmpdb.tmp_device_frequency_place
 
 prepare_sql="
 select device,lon,lat,time,unix_timestamp(concat(day, ' ', time), 'yyyyMMdd HH:mm:ss') as datetime,day

@@ -11,7 +11,7 @@ fi
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 # 包装前
 #dim_ios_phone_tac_mapping=dim_sdk_mapping.dim_ios_phone_tac_mapping

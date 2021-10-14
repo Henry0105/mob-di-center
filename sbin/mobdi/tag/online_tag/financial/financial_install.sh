@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 set -e -x
 cd `dirname $0`
 : '
@@ -17,8 +17,7 @@ windowTime=$2
 bday=`date -d "$day -${windowTime} days" "+%Y%m%d"`
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #dim_app_tag_system_mapping_par=dim_sdk_mapping.dim_app_tag_system_mapping_par

@@ -10,7 +10,7 @@ set -e -x
 '
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #app_category_mapping_par=dm_sdk_mapping.app_category_mapping_par

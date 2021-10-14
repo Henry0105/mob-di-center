@@ -17,19 +17,17 @@ fi
 
 day=$1
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb="dw_mobdi_tmp"
-appdb="rp_mobdi_report"
 
 ##input
-rp_device_profile_full_view="$appdb.rp_device_profile_full_view"
+#rp_device_profile_full_view=dm_mobdi_report.rp_device_profile_full_view
 
 ##mapping
-apppkg_info="dim_sdk_mapping.apppkg_info"
+#dim_apppkg_info=dim_sdk_mapping.dim_apppkg_info
 
 ##output
-rp_device_profile_label_appname_di="$appdb.rp_device_profile_label_appname_di"
+#rp_device_profile_label_appname_di=dm_mobdi_report.rp_device_profile_label_appname_di
 
 hive -v -e "
 set mapreduce.job.queuename=root.yarn_data_compliance2;
@@ -80,7 +78,7 @@ left join
     where processtime_all='$day'
   ) a1
   left join
-  $apppkg_info a2 on a1.apppkg = a2.apppkg
+  $dim_apppkg_info a2 on a1.apppkg = a2.apppkg
   group by a1.device
 ) t2 on t1.device=t2.device
 "

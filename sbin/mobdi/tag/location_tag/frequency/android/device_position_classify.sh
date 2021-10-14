@@ -13,13 +13,13 @@ day=$1
 date=${day:0:6}01
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #rp_device_frequency_3monthly=dm_mobdi_report.rp_device_frequency_3monthly
 
 #mapping
+#dim_chinese_area_code_new=dim_sdk_mapping.dim_chinese_area_code_new
 #chinese_area_code_new=dm_sdk_mapping.chinese_area_code_new
 
 #output
@@ -61,7 +61,7 @@ with frequency_info as(
       where day='$date'
       and length(trim(area))>0
     ) frequency
-    inner join $chinese_area_code_new area_mapping
+    inner join $dim_chinese_area_code_new area_mapping
     on frequency.area = area_mapping.area_code
   )t
 )

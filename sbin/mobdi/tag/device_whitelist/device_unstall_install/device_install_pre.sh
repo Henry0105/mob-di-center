@@ -3,14 +3,15 @@
 set -e -x
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
+tmpdb=$dm_mobdi_tmp
 
 # input
-unstall_install_risk_pre=${dm_mobdi_tmp}.unstall_install_risk_pre
+unstall_install_risk_pre=$tmpdb.unstall_install_risk_pre
 # output
-device_install_1month=${dm_mobdi_tmp}.device_install_1month
-device_install_2month=${dm_mobdi_tmp}.device_install_2month
-device_install_3month=${dm_mobdi_tmp}.device_install_3month
+device_install_1month=$tmpdb.device_install_1month
+device_install_2month=$tmpdb.device_install_2month
+device_install_3month=$tmpdb.device_install_3month
 
 day=$1
 

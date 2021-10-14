@@ -17,12 +17,13 @@ fi
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
+tmpdb=$dw_mobdi_tmp
 #源表
-tmp_anticheat_device_avgdistance_pre=dw_mobdi_tmp.tmp_anticheat_device_avgdistance_pre
-tmp_anticheat_device_nightdistance_pre=dw_mobdi_tmp.tmp_anticheat_device_nightdistance_pre
-tmp_anticheat_device_alldistance_pre=dw_mobdi_tmp.tmp_anticheat_device_alldistance_pre
+tmp_anticheat_device_avgdistance_pre=$tmpdb.tmp_anticheat_device_avgdistance_pre
+tmp_anticheat_device_nightdistance_pre=$tmpdb.tmp_anticheat_device_nightdistance_pre
+tmp_anticheat_device_alldistance_pre=$tmpdb.tmp_anticheat_device_alldistance_pre
 
 #输出表
 #label_l1_anticheat_device_riskScore=dm_mobdi_report.label_l1_anticheat_device_riskScore

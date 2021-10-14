@@ -18,9 +18,10 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 day=$1
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ## input
-label_merge_all="dw_mobdi_md.model_merge_all_features"
+label_merge_all=$dw_mobdi_md.model_merge_all_features
 
 ## output
 outputTable="${label_l2_result_scoring_di}"

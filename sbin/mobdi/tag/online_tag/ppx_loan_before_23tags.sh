@@ -3,8 +3,7 @@
 set -x -e
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #dwd_log_device_unstall_app_info_sec_di=dm_mobdi_master.dwd_log_device_unstall_app_info_sec_di

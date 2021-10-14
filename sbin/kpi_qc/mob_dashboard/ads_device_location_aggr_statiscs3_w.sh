@@ -4,8 +4,7 @@ set -e -x
 
 statis_date=$1
 
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_dashboard.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 : '
 input:$dwd_device_location_di_v2

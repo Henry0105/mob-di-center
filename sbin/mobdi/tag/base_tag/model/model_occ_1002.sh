@@ -19,10 +19,9 @@ if [ $# -ne 1 ]; then
 fi
 day=$1
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb="dw_mobdi_tmp"
-appdb="rp_mobdi_report"
+tmpdb=$dw_mobdi_tmp
 
 
 #input
@@ -34,14 +33,11 @@ tmp_score_part5="${tmpdb}.tmp_score_part5_v3"
 tmp_score_part6="${tmpdb}.tmp_score_part6_v3"
 tmp_score_app2vec="${tmpdb}.tmp_score_app2vec"
 
-
-
-
 modelPath="/user/tangzhzh/model202010/occ_lr"
 
 
 threshold="1.01,1.2,1.0,1.02,1.23,1.22,1.05,1.3"
-out_put_table="${appdb}.label_l2_result_scoring_di"
+out_put_table="$label_l2_result_scoring_di"
 
 spark2-submit --master yarn --deploy-mode cluster \
 --queue root.yarn_data_compliance2 \

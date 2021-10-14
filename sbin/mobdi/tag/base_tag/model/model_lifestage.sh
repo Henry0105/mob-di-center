@@ -13,10 +13,10 @@ set -x -e
 day=$1
 
 #input
-device_applist_new="dim_mobdi_mapping.device_applist_new"
+#dim_device_applist_new_di=dim_mobdi_mapping.dim_device_applist_new_di
 #mapping
-apppkg_name_info_wf="dim_mobdi_mapping.apppkg_name_info_wf"
-mapping_life_stage_applist="tp_sdk_model.mapping_life_stage_applist"
+#dim_apppkg_name_info_wf=dim_mobdi_mapping.dim_apppkg_name_info_wf
+#mapping_life_stage_applist=tp_sdk_model.mapping_life_stage_applist
 
 #output
 outputTable="${label_l2_result_scoring_di}"
@@ -35,7 +35,7 @@ from
     from
     (
       select 0 as life_stage,apppkg
-      from $apppkg_name_info_wf
+      from $dim_apppkg_name_info_wf
       where app_name like '%小学%'
       and day = ${day}
       union all
@@ -48,7 +48,7 @@ from
   inner join
   (
     select device, pkg as apppkg
-    from $device_applist_new
+    from $dim_device_applist_new_di
     where day = ${day}
   ) a2 on a1.apppkg = a2.apppkg
 )aa

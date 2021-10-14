@@ -17,7 +17,7 @@ fi
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #输出表
 #label_l1_anticheat_device_riskScore=dm_mobdi_report.label_l1_anticheat_device_riskScore
@@ -25,7 +25,7 @@ source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
 function bssidcnt_riskScore(){
 
 #源表
-table=dw_mobdi_tmp.tmp_anticheat_device_bssid_cnt_$1days
+table=$dw_mobdi_tmp.tmp_anticheat_device_bssid_cnt_$1days
 timewindow=$1
 
 q1=`hive -e "select percentile(cnt,0.25) from $table where day = '$day';"`

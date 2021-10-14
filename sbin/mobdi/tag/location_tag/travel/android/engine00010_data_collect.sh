@@ -13,16 +13,19 @@ fi
 
 day=$1
 
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
+
+tmpdb=$dm_mobdi_tmp
 
 ## 源表
-tmp_engine00002_datapre=dm_mobdi_tmp.tmp_engine00002_datapre
+tmp_engine00002_datapre=$tmpdb.tmp_engine00002_datapre
 
 ## mapping 表
+#dim_map_province_loc=dim_sdk_mapping.dim_map_province_loc
 #map_province_loc=dm_sdk_mapping.map_province_loc
 
 ## 目标表
-engine00010_data_collect=dm_mobdi_tmp.engine00010_data_collect
+engine00010_data_collect=$tmpdb.engine00010_data_collect
 
 
 sql_final="
@@ -51,7 +54,7 @@ select device,day as days,city,t1.travel_province,t1.base_province,t2.province1_
      left join
          (
          select country, province1_code, province2_code
-         from $map_province_loc
+         from $dim_map_province_loc
          where flag='1'
          )t2
          on t1.base_province = t2.province1_code
@@ -79,7 +82,7 @@ select device,day as days,city,t1.travel_province,t1.base_province,t2.province1_
      left join
          (
          select country, province1_code, province2_code
-         from $map_province_loc
+         from $dim_map_province_loc
          where flag='1'
          )t2
          on t1.base_province = t2.province1_code

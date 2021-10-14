@@ -1,10 +1,9 @@
-#! /bin/bash
+#!/bin/bash
 
 
 set -x -e
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #dm_mobdi_topic.dws_device_lbs_poi_android_sec_di
@@ -51,7 +50,7 @@ timewindow=$2
 	 --pk device \
 	 -p ${day} \
 	 -n 8000 \
-	 -f [brand:brand,taste:taste:，,cat1:category1,cat2:category2,time:time,total:total,price_level:price] \
+	 -f [brand:brand,taste:taste,cat1:category1,cat2:category2,time:time,total:total,price_level:price] \
 	 -t 1 \
 	 -w ${timewindow} \
 	 -s $dws_device_lbs_poi_android_sec_di \

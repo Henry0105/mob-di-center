@@ -2,8 +2,7 @@
 
 set -x -e
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 timewindow=$2
@@ -12,6 +11,7 @@ timewindow=$2
 #dws_ifid_lbs_poi_ios_sec_di=dm_mobdi_topic.dws_ifid_lbs_poi_ios_sec_di
 
 ## 目标表
+#timewindow_offline_profile_ios_v2_sec=dm_mobdi_report.timewindow_offline_profile_ios_v2_sec
 #timewindow_offline_profile_ios_v2_sec=rp_mobdi_app.timewindow_offline_profile_ios_v2_sec
 
 

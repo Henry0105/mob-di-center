@@ -8,8 +8,7 @@ p1months=`date -d "$day -30 days" +%Y%m`16
 p2months=`date -d "$day -60 days" +%Y%m`16
 p3months=`date -d "$day -90 days" +%Y%m`16
 
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
 #dwd_location_info_sec_di=dm_mobdi_master.dwd_location_info_sec_di
@@ -18,11 +17,11 @@ source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 #dim_geohash6_china_area_mapping_par=dim_sdk_mapping.dim_geohash6_china_area_mapping_par
 #dim_geohash8_china_area_mapping_par=dim_sdk_mapping.dim_geohash8_china_area_mapping_par
 #dim_mapping_ip_attribute_code=dim_sdk_mapping.dim_mapping_ip_attribute_code
-
+tmpdb=$dm_mobdi_tmp
 #md/output
-gps_ip_info_incr_pre=${dm_mobdi_tmp}.gps_ip_info_incr_pre
-gps_ip_risk_pre=${dm_mobdi_tmp}.gps_ip_risk_pre
-device_gps_ip_risk=${dm_mobdi_tmp}.device_gps_ip_risk
+gps_ip_info_incr_pre=$tmpdb.gps_ip_info_incr_pre
+gps_ip_risk_pre=$tmpdb.gps_ip_risk_pre
+device_gps_ip_risk=$tmpdb.device_gps_ip_risk
 
 hive -e"
 SET mapreduce.map.memory.mb=4096;

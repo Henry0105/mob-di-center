@@ -39,8 +39,7 @@ indate=$1
 输出结果：表名(dw_mobdi_md.sns_tmp_share)
 
 '
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 #input
 #dwd_log_share_new_di=dm_mobdi_master.dwd_log_share_new_di
 #dwd_log_oauth_new_di=dm_mobdi_master.dwd_log_oauth_new_di

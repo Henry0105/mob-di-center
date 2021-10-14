@@ -14,7 +14,7 @@ fi
 '
 # 无model直接使用
 
-source /home/dba/mobdi_center/sbin/mobdi/tag/base_tag/init_source_props.sh
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 date=$1
 

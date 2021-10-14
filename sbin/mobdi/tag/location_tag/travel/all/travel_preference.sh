@@ -7,12 +7,10 @@ day01=${day:0:6}01
 
 p30day=`date -d "$day01 -1 months" +%Y%m%d`
 
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 
-:'
+: '
 input:
 dm_mobdi_topic.ads_device_travel_di_old
 dm_sdk_mapping.app_category_mapping_par
@@ -28,14 +26,15 @@ dw_mobdi_tmp.travel_time_tmp
 dw_mobdi_tmp.travel_channel_tmp
 dw_mobdi_tmp.travel_info_tmp
 '
+tmpdb=$dw_mobdi_tmp
 #out
-travel_cn_tmp=dw_mobdi_tmp.travel_cn_tmp_${day01}
-travel_area_tmp=dw_mobdi_tmp.travel_area_tmp_${day01}
-travel_type_tmp=dw_mobdi_tmp.travel_type_tmp_${day01}
-travel_traffic_tmp=dw_mobdi_tmp.travel_traffic_tmp_${day01}
-travel_time_tmp=dw_mobdi_tmp.travel_time_tmp_${day01}
-travel_channel_tmp=dw_mobdi_tmp.travel_channel_tmp_${day01}
-travel_info_tmp=dw_mobdi_tmp.travel_info_tmp
+travel_cn_tmp=$tmpdb.travel_cn_tmp_${day01}
+travel_area_tmp=$tmpdb.travel_area_tmp_${day01}
+travel_type_tmp=$tmpdb.travel_type_tmp_${day01}
+travel_traffic_tmp=$tmpdb.travel_traffic_tmp_${day01}
+travel_time_tmp=$tmpdb.travel_time_tmp_${day01}
+travel_channel_tmp=$tmpdb.travel_channel_tmp_${day01}
+travel_info_tmp=$tmpdb.travel_info_tmp
 
 
 hive -e"

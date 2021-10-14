@@ -1,4 +1,4 @@
-#! /bin/sh 
+#!/bin/sh
 
  : '
 @owner:xdzhang
@@ -32,16 +32,16 @@ before_day=`date -d "$day -$days days" "+%Y%m%d"`
 TargetTable=$3
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #databases
-appdb=dm_mobdi_report
+appdb=$dm_mobdi_report
 
 #input
 #rp_device_active_label_profile=dm_mobdi_report.rp_device_active_label_profile
 
 #mapping
+#dim_tag_cat_mapping_dmp_par=dim_sdk_mapping.dim_tag_cat_mapping_dmp_par
 #tag_cat_mapping_dmp_par=dim_sdk_mapping.tag_cat_mapping_dmp_par
 
 : '
@@ -122,7 +122,7 @@ FROM
           WHERE device_profile.day >${before_day}
           and device_profile.day <=${day}) device_active
    JOIN 
-   (select dmp.cat2,dmp.tag_id from $tag_cat_mapping_dmp_par dmp where dmp.version ='1000' and ${param2}) tag_dmp
+   (select dmp.cat2,dmp.tag_id from $dim_tag_cat_mapping_dmp_par dmp where dmp.version ='1000' and ${param2}) tag_dmp
    ON tag_dmp.tag_id = device_active.tag
    group by tag_dmp.cat2,device_active.device ,device_active.day) active_tag group by active_tag.device,active_tag.day) device_day_count group by device_day_count.device;
 "

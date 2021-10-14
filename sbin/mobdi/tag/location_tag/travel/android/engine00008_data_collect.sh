@@ -11,18 +11,29 @@ fi
 
 day=$1
 
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
+tmpdb=$dm_mobdi_tmp
 
 ## 源表
-tmp_engine00002_datapre=dm_mobdi_tmp.tmp_engine00002_datapre
+tmp_engine00002_datapre=$tmpdb.tmp_engine00002_datapre
 
 ## mapping 表
+#dim_vacation_flag_par=dim_sdk_mapping.dim_vacation_flag_par
 #vacation_flag=dm_sdk_mapping.vacation_flag
 
 ## 目标表
-engine00008_data_collect=dm_mobdi_tmp.engine00008_data_collect
+engine00008_data_collect=$tmpdb.engine00008_data_collect
 
+vacation_flag_db=${dim_vacation_flag_par%.*}
+vacation_flag_tb=${dim_vacation_flag_par#*.}
+sql="
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
+create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
+SELECT GET_LAST_PARTITION('$vacation_flag_db', '$vacation_flag_tb', 'version');
+drop temporary function GET_LAST_PARTITION;
+"
+vacation_flag_lastday=(`hive  -e "$sql"`)
 
 hive -v -e "
 
@@ -47,7 +58,7 @@ from
     )a
   group by device, day, city
 )t1
-left join $vacation_flag t2 on t1.day=t2.day
+left join $dim_vacation_flag_par t2 on t1.day=t2.day and t2.version='$vacation_flag_lastday'
 )c
 ;
 "

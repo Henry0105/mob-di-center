@@ -16,31 +16,38 @@ fi
 day=$1
 p3monthDay=`date -d "$day -3 months" "+%Y%m%d"`
 
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_report.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 
 #源表
 #dwd_log_wifi_info_sec_di=dm_mobdi_master.dwd_log_wifi_info_sec_di
 #rp_device_location_3monthly=dm_mobdi_report.rp_device_location_3monthly
 
+tmpdb=$dm_mobdi_tmp
 #mapping表
-tmp_home_geohash_info=dm_mobdi_tmp.tmp_home_geohash_info
-tmp_work_geohash_info=dm_mobdi_tmp.tmp_work_geohash_info
-#dim_mapping_bssid_location_mf=dm_mobdi_mapping.dim_mapping_bssid_location_mf
-#dim_traffic_ssid_bssid_match_info_mf=dm_mobdi_mapping.dim_traffic_ssid_bssid_match_info_mf
-#dim_shopping_mall_ssid_bssid_match_info_mf=dm_mobdi_mapping.dim_shopping_mall_ssid_bssid_match_info_mf
-#dim_hotel_ssid_bssid_match_info_mf=dm_mobdi_mapping.dim_hotel_ssid_bssid_match_info_mf
-#dim_car_4s_ssid_bssid_match_info_mf=dm_mobdi_mapping.dim_car_4s_ssid_bssid_match_info_mf
+tmp_home_geohash_info=$tmpdb.tmp_home_geohash_info
+tmp_work_geohash_info=$tmpdb.tmp_work_geohash_info
+#dim_mapping_bssid_location_mf=dim_mobdi_mapping.dim_mapping_bssid_location_mf
+#dim_traffic_ssid_bssid_match_info_mf=dim_mobdi_mapping.dim_traffic_ssid_bssid_match_info_mf
+#dim_shopping_mall_ssid_bssid_match_info_mf=dim_mobdi_mapping.dim_shopping_mall_ssid_bssid_match_info_mf
+#dim_hotel_ssid_bssid_match_info_mf=dim_mobdi_mapping.dim_hotel_ssid_bssid_match_info_mf
+#dim_car_4s_ssid_bssid_match_info_mf=dim_mobdi_mapping.dim_car_4s_ssid_bssid_match_info_mf
 #vacation_flag=dm_sdk_mapping.vacation_flag
+vacation_flag_db=${dim_vacation_flag_par%.*}
+vacation_flag_tb=${dim_vacation_flag_par#*.}
+sql="
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
+create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
+SELECT GET_LAST_PARTITION('$vacation_flag_db', '$vacation_flag_tb', 'version');
+drop temporary function GET_LAST_PARTITION;
+"
+vacation_flag_lastday=(`hive  -e "$sql"`)
 
 #中间表
-tmp_workday_bssid_device_info=dm_mobdi_tmp.tmp_workday_bssid_device_info
-tmp_work_ssid_location_wt=dm_mobdi_tmp.tmp_work_ssid_location_wt
-tmp_work_ssid_bssid_location_info=dm_mobdi_tmp.tmp_work_ssid_bssid_location_info
-tmp_work_ssid_device_distance_confidence_info=dm_mobdi_tmp.tmp_work_ssid_device_distance_confidence_info
+tmp_workday_bssid_device_info=$tmpdb.tmp_workday_bssid_device_info
+tmp_work_ssid_location_wt=$tmpdb.tmp_work_ssid_location_wt
+tmp_work_ssid_bssid_location_info=$tmpdb.tmp_work_ssid_bssid_location_info
+tmp_work_ssid_device_distance_confidence_info=$tmpdb.tmp_work_ssid_device_distance_confidence_info
 
 #输出表
 #device_work_relation_info_mi=dm_mobdi_report.device_work_relation_info_mi
@@ -153,7 +160,7 @@ and real_date <= '$day'
 and pmod(datediff(to_date(from_unixtime(UNIX_TIMESTAMP(real_date,'yyyyMMdd'))),'2018-01-01'),7) +1 not in (6,7)
 and hours >= 8 
 and hours <= 21
-and not exists (select day from $vacation_flag v where x.real_date = v.day);
+and not exists (select day from $dim_vacation_flag_par v where v.version='$vacation_flag_lastday' and x.real_date = v.day);
 "
 
 bssidMappingLastParStr=`hive -e "show partitions $dim_mapping_bssid_location_mf" | sort| tail -n 1`

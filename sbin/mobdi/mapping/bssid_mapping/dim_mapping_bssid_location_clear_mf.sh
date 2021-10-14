@@ -5,7 +5,7 @@ set -x -e
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 ## input
 #dim_mapping_bssid_location_mf=dim_mobdi_mapping.dim_mapping_bssid_location_mf

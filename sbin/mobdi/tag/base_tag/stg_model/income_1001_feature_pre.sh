@@ -20,11 +20,33 @@ fi
 day=$1
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_topic.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
-source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
+md_db=$dw_mobdi_md
+phone_contacts_index=$md_db.phone_contacts_index
+phone_contacts_word2vec_index=$md_db.phone_contacts_word2vec_index
 
-calculate_model_device=dm_mobdi_tmp.calculate_model_device
+tmpdb=$dm_mobdi_tmp
+calculate_model_device=$tmpdb.calculate_model_device
+income_1001_phone_contacts_index=$tmpdb.income_1001_phone_contacts_index
+income_1001_phone_contacts_word2vec_index=$tmpdb.income_1001_phone_contacts_word2vec_index
+income_1001_phone_contacts_index=$tmpdb.income_1001_phone_contacts_index
+
+phone_contacts_index_db=${phone_contacts_index%.*}
+phone_contacts_index_tb=${phone_contacts_index#*.}
+
+phone_contacts_word2vec_index_db=${phone_contacts_word2vec_index%.*}
+phone_contacts_word2vec_index_tb=${phone_contacts_word2vec_index#*.}
+
+phoneContactsIndexLastPar=(`hive -e "
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
+create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
+SELECT GET_LAST_PARTITION('$phone_contacts_index_db', '$phone_contacts_index_tb', 'day');
+"`)
+phoneContactsWord2vecIndexLastPar=(`hive -e "
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
+create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
+SELECT GET_LAST_PARTITION('$phone_contacts_word2vec_index_db', '$phone_contacts_word2vec_index_tb', 'day');
+"`)
 
 #hive -v -e "
 #SET hive.merge.mapfiles=true;
@@ -160,11 +182,11 @@ p1month=`date -d "$day -1 months" +%Y%m%d`
 #) t;
 #"
 
-shoppingMallBssidMappingLastPar=(`hive -e "
-add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
-create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_shopping_mall_ssid_bssid_match_info_mf', 'day');
-"`)
+#shoppingMallBssidMappingLastPar=(`hive -e "
+#add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
+#create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
+#SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_shopping_mall_ssid_bssid_match_info_mf', 'day');
+#"`)
 #计算商场bssid特征
 #通过dim_mobdi_mapping.dim_shopping_mall_ssid_bssid_match_info_mf表，先计算device连接商场的日期
 #然后计算device在商场的连接天数
@@ -390,16 +412,6 @@ SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_shopping_mall_ssid_bssid_mat
 #) t1;
 #"
 
-phoneContactsIndexLastPar=(`hive -e "
-add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
-create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dw_mobdi_md', 'phone_contacts_index', 'day');
-"`)
-phoneContactsWord2vecIndexLastPar=(`hive -e "
-add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
-create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dw_mobdi_md', 'phone_contacts_word2vec_index', 'day');
-"`)
 #通讯录特征计算
 #先通过android_id_mapping_full表找出设备的最新手机号
 #然后和通讯录特征结果dw_mobdi_md.phone_contacts_index表join，得到设备的微商水军标志位、通讯录号码得分分段、是否有公司名、公司手机数量分段、职级排行分段、分词index
@@ -415,7 +427,7 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
-insert overwrite table dw_mobdi_tmp.income_1001_phone_contacts_index partition(day='$day')
+insert overwrite table $income_1001_phone_contacts_index partition(day='$day')
 select c.device,c.phone,
        case
          when micro_business_flag = 0 then 19479
@@ -469,10 +481,9 @@ from
   ) b on a.device=b.device
   where a.day='$day'
 ) c
-inner join
-dw_mobdi_md.phone_contacts_index d on d.day='$phoneContactsIndexLastPar' and c.phone=d.phone;
+inner join $phone_contacts_index d on d.day='$phoneContactsIndexLastPar' and c.phone=d.phone;
 
-insert overwrite table dw_mobdi_tmp.income_1001_phone_contacts_word2vec_index partition(day='$day')
+insert overwrite table $income_1001_phone_contacts_word2vec_index partition(day='$day')
 select device,index
 from
 (
@@ -484,9 +495,9 @@ from
          vec33_quantile,vec34_quantile,vec35_quantile,vec36_quantile,vec37_quantile,vec38_quantile,vec39_quantile,vec40_quantile,
          vec41_quantile,vec42_quantile,vec43_quantile,vec44_quantile,vec45_quantile,vec46_quantile,vec47_quantile,vec48_quantile,
          vec49_quantile,vec50_quantile
-  from dw_mobdi_tmp.income_1001_phone_contacts_index a
+  from $income_1001_phone_contacts_index a
   inner join
-  dw_mobdi_tmp.phone_contacts_word2vec_index b on b.day='$phoneContactsWord2vecIndexLastPar' and a.phone=b.phone
+  $phone_contacts_word2vec_index b on b.day='$phoneContactsWord2vecIndexLastPar' and a.phone=b.phone
   where a.day='$day'
 ) t
 LATERAL VIEW explode(Array(vec1_quantile+21496,

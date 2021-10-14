@@ -14,7 +14,7 @@ if [ $# -ne 1 ]; then
 fi
 
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 #入参
 day=$1
@@ -24,7 +24,7 @@ p30day=`date -d "$day -30 days" +%Y%m%d`
 #dwd_log_wifi_info_sec_di=dm_mobdi_master.dwd_log_wifi_info_sec_di
 
 #输出表
-tmp_anticheat_device_bssid_pre=dw_mobdi_tmp.tmp_anticheat_device_bssid_pre
+tmp_anticheat_device_bssid_pre=$dw_mobdi_tmp.tmp_anticheat_device_bssid_pre
 
 hive -v -e "
 create table if not exists $tmp_anticheat_device_bssid_pre(
