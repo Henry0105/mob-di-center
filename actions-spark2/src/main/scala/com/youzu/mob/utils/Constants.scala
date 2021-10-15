@@ -8,16 +8,23 @@ object Constants {
 
   val DWS_DEVICE_INSTALL_APP_RE_STATUS_DI = prop("dws_device_install_app_re_status_di")
   val DWS_DEVICE_DUID_MAPPING_NEW = prop("dws_device_duid_mapping_new")
+
   val PHONE_CONTACTS_DEDUP_FULL = prop("phone_contacts_dedup_full")
-  val IOS_ID_MAPPING_FULL_VIEW = prop("ios_id_mapping_full_view")
+
+  val IOS_ID_MAPPING_FULL_VIEW = prop("dim_id_mapping_ios_df_view")
+
+  // 原表是rp_sdk_dmp.rp_device_profile_full,该表已不存在
   val RP_DEVICE_PROFILE_FULL = prop("rp_device_profile_full")
-  val OFFLINE_ESTI_CONFIG = prop("offline_esti_config")
+
+  val OFFLINE_ESTI_CONFIG = prop("dim_offline_esti_config")
   val DWS_DEVICE_IP_INFO_DI = prop("dws_device_ip_info_di")
-  val MAP_CITY_SDK = prop("map_city_sdk")
+  val MAP_CITY_SDK = prop("dim_map_city_sdk")
   val MOBPUSH_UNSTALL_ANALYSIS_TMP = prop("mobpush_unstall_analysis_tmp")
   val IOS_PERMANENT_PLACE_SEC = prop("ios_permanent_place_sec")
-  val IOS_ID_MAPPING_FULL_SEC_VIEW = prop("ios_id_mapping_full_sec_view")
-  val SDK_LBS_DAILY_POI_IOS = prop("sdk_lbs_daily_poi_ios")
+  val IOS_ID_MAPPING_FULL_SEC_VIEW = prop("dim_id_mapping_ios_sec_df_view")
+
+  val SDK_LBS_DAILY_POI_IOS = prop("dws_ifid_lbs_poi_ios_sec_di")
+
   val DWS_IFID_LBS_POI_IOS_SEC_DI = prop("dws_ifid_lbs_poi_ios_sec_di")
   val PHONE_ONEDEGREE_REL = prop("phone_onedegree_rel")
   val TIMEWINDOW_OFFLINE_PROFILE_IOS_SEC = prop("timewindow_offline_profile_ios_sec")
@@ -28,23 +35,23 @@ object Constants {
   val DWS_DEVICE_LBS_POI_ANDROID_SEC_DI = prop("dws_device_lbs_poi_android_sec_di")
   val IOS_PERMANENT_PLACE = prop("ios_permanent_place")
   val DWS_DEVICE_TRAVEL_LOCATION_DI= prop("dws_device_travel_location_di")
-  val MAP_COUNTRY_SDK = prop("map_country_sdk")
-  val MAP_PROVINCE_LOC = prop("map_province_loc")
-  val VACATION_FLAG = prop("vacation_flag")
+  val MAP_COUNTRY_SDK = prop("dim_map_country_sdk")
+  val MAP_PROVINCE_LOC = prop("dim_map_province_loc")
+  val VACATION_FLAG = prop("dim_vacation_flag_par")
   val INDEX_PROFILE_HISTORY_ALL = prop("index_profile_history_all")
   val DWS_DEVICE_INSTALL_STATUS = prop("dws_device_install_status")
   val DWD_LOG_DEVICE_UNSTALL_APP_INFO_SEC_DI = prop("dwd_log_device_unstall_app_info_sec_di")
   val DWD_LOG_DEVICE_INSTALL_APP_INCR_INFO_SEC_DI = prop("dwd_log_device_install_app_incr_info_sec_di")
   val DWD_LOG_DEVICE_INSTALL_APP_ALL_INFO_SEC_DI = prop("dwd_log_device_install_app_all_info_sec_di")
   val DWS_DEVICE_APP_INSTALL_DI = prop("dws_device_app_install_di")
-  val ONLINE_CATEGORY_MAPPING = prop("online_category_mapping")
+  val ONLINE_CATEGORY_MAPPING = prop("dim_online_category_mapping")
   val DWD_LOG_SHARE_NEW_DI = prop("dwd_log_share_new_di")
   val DIM_SHARE_LEVEL_MAPPING = prop("dim_share_level_mapping")
   val ADS_SHARE_LABEL_MONTHLY = prop("ads_share_label_monthly")
   val TIMEWINDOW_ONLINE_PROFILE = prop("timewindow_online_profile")
   val TIMEWINDOW_OFFLINE_PROFILE = prop("timewindow_offline_profile")
-  val GEOHASH6_AREA_MAPPING = prop("geohash6_area_mapping")
-  val GEOHASH8_LBS_INFO_MAPPING = prop("geohash8_lbs_info_mapping")
+  val GEOHASH6_AREA_MAPPING = prop("dim_geohash6_china_area_mapping_par")
+  val GEOHASH8_LBS_INFO_MAPPING = prop("dim_geohash8_china_area_mapping_par")
   val DEVICE_PROFILE_LABEL_FULL_PAR = prop("device_profile_label_full_par")
   val ADS_PPX_SCORE_WEEKLY = prop("ads_ppx_score_weekly")
   val DIM_PPX_APP_MAPPING = prop("dim_ppx_app_mapping")
@@ -55,7 +62,7 @@ object Constants {
   val PHONE_LABEL = prop("phone_label")
 
   val DWS_DEVICE_APP_INFO_DF = prop("dws_device_app_info_df")
-  val DIM_ID_MAPPING_ANDROID_DF_VIEW = prop("dim_id_mapping_android_df_view")
+  val DIM_ID_MAPPING_ANDROID_DF_VIEW = prop("id_mapping_android_df_view")
 
   val DWS_DEVICE_CATERING_DINEIN_DI = prop("dws_device_catering_dinein_di")
   val DWS_DEVICE_LBS_POI_10TYPE_DI = prop("dws_device_lbs_poi_10type_di")

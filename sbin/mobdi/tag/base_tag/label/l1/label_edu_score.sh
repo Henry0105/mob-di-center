@@ -15,9 +15,9 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 #input
 device_applist_new=${dim_device_applist_new_di}
 #mapping
-shuoshi_app_new="tp_mobdi_model.shuoshi_app_new"
-zhuanke_app="tp_mobdi_model.zhuanke_app"
-gaozhong_app_new="tp_mobdi_model.gaozhong_app_new"
+#shuoshi_app_new="tp_mobdi_model.shuoshi_app_new"
+#zhuanke_app="tp_mobdi_model.zhuanke_app"
+#gaozhong_app_new="tp_mobdi_model.gaozhong_app_new"
 #output
 ## label_edu_score_di="rp_mobdi_app.label_l1_edu_score_device_label"
 

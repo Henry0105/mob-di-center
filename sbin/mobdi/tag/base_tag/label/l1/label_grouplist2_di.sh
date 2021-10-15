@@ -23,7 +23,7 @@ day=$1
 device_applist_new=${dim_device_applist_new_di}
 
 ##mapping
-grouplist2_mapping="dim_sdk_mapping.app_grouplist2_mapping"
+#dim_app_grouplist2_mapping="dim_sdk_mapping.app_grouplist2_mapping"
 
 ##output
 label_grouplist2_di=${label_l1_grouplist2_di}
@@ -110,7 +110,7 @@ from
         inner join
         (
 		   select apppkg,concat(cate_l1,cate_l2) as cate
-           from $grouplist2_mapping
+           from $dim_app_grouplist2_mapping
 		   group by apppkg,concat(cate_l1,cate_l2) 
         )b on a.pkg=b.apppkg
       ) c

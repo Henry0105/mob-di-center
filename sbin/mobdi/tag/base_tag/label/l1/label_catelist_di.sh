@@ -53,7 +53,7 @@ from
       left join
       (
         select apppkg,cate_l2_id
-        from dim_sdk_mapping.app_category_mapping_par
+        from $dim_app_category_mapping_par
         where version='1000'
         group by apppkg,cate_l2_id
       ) mapping on driver.pkg=mapping.apppkg

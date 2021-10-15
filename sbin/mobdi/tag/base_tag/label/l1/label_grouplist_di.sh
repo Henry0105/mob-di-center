@@ -150,35 +150,35 @@ from
           from
           (
             select apppkg,cate_l1 as cate
-            from dim_sdk_mapping.app_category_mapping_par
+            from $dim_app_category_mapping_par
             where version='1000'
             and cate_l1 in ('游戏服务','智能设备','教育培训','亲子服务')
 
             union all
 
             select apppkg,cate_l2 as cate
-            from dim_sdk_mapping.app_category_mapping_par
+            from $dim_app_category_mapping_par
             where version='1000'
 
             union all
 
             select apppkg,cate
-            from dim_sdk_mapping.app_category_add_mapping
+            from $dim_app_category_add_mapping
 
             union all
 
             select apppkg,life_stage as cate
-            from tp_sdk_model.mapping_life_stage_applist
+            from $mapping_life_stage_applist
             where life_stage in ('备孕','孕期')
 
             union all
             select apppkg,'电子竞技'  as cate
-            from dim_sdk_mapping.app_category_esport
+            from $dim_app_category_esport
             where version='1000'
 
             union all
             select apppkg,type as cate
-            from dim_sdk_mapping.app_category_energy
+            from $dim_app_category_energy
             where version='1000'
 
           )t group by apppkg,cate

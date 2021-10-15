@@ -24,7 +24,7 @@ day=$1
 ##input
 device_applist_new=${dim_device_applist_new_di}
 ##mapping
-apppkg_index="tp_mobdi_model.apppkg_index"
+#apppkg_index="tp_mobdi_model.apppkg_index"
 ##output
 label_apppkg_feature_index=${label_l1_apppkg_feature_index}
 

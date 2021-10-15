@@ -18,10 +18,7 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 tmpdb=${dw_mobdi_md}
-appdb="rp_mobdi_report"
 
-##tmpdb="mobdi_test"
-##appdb="mobdi_test"
 output_table="${tmpdb}.tmp_income1001_part4"
 #input
 device_applist_new=${dim_device_applist_new_di}

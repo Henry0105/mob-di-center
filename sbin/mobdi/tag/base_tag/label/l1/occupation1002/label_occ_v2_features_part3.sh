@@ -21,14 +21,22 @@ tmpdb=${dw_mobdi_md}
 appdb="rp_mobdi_report"
 #input
 device_applist_new=${dim_device_applist_new_di}
-gdpoi_explode_big="dm_sdk_mapping.mapping_gdpoi_explode_big"
-mapping_phonenum_year="dm_sdk_mapping.mapping_phonenum_year"
+#dim_mapping_gdpoi_explode_big="dm_sdk_mapping.mapping_gdpoi_explode_big"
+#dim_pid_release_year_china="dm_sdk_mapping.mapping_phonenum_year"
 
 
 tmp_occ1002_work_poi_2=${tmpdb}.tmp_occ1002_work_poi_2_${day}
 tmp_label_occ1002_predict_workpoi_mid=${tmpdb}.tmp_label_occ1002_predict_workpoi_mid_${day}
 
 tmp_tables=($tmp_occ1002_work_poi_2 $tmp_label_occ1002_predict_workpoi_mid)
+
+label_work_poiaround=${appdb}.label_work_poiaround_${day}
+label_home_poiaround=${appdb}.label_home_poiaround_${day}
+label_homeworkdist=${appdb}.label_homeworkdist_${day}
+label_distance_night=${appdb}.label_distance_night_${day}
+label_distance_avg=${appdb}.label_distance_avg_${day}
+label_bssid_num=${appdb}.label_bssid_num_${day}
+label_phone_year=${appdb}.label_phone_year_${day}
 
 output_table=${tmpdb}.tmp_occ1002_predict_part3
 ## part3添加tmp_work_poi_2,不能完全复用,可以和年龄part3合并
@@ -63,7 +71,7 @@ select x.device,y.phone_pre3,y.year from
   )e where rn=1
 )x
 left join
-(select * from $mapping_phonenum_year where version='1000')y
+(select * from $dim_pid_release_year_china where version='1000')y
 on substr(x.phone,1,3)=y.phone_pre3
 "
 
@@ -177,7 +185,7 @@ HADOOP_USER_NAME=dba /opt/mobdata/sbin/spark-submit \
 "{
     \"dataType\": \"1\",
     \"lbsSql\": \"  select device,lat_home lat,lon_home lon from ${tmpdb}.tmp_occ1002_label_homeworkdist  where lat_home is not null \",
-    \"poiTable\": \"$gdpoi_explode_big\",
+    \"poiTable\": \"$dim_mapping_gdpoi_explode_big\",
     \"poiFields\": \"poi_id,name,lat,lon,type\",
     \"poiCalFields\": {
         \"distance\": {
@@ -202,7 +210,7 @@ HADOOP_USER_NAME=dba /opt/mobdata/sbin/spark-submit \
 "{
     \"dataType\": \"1\",
     \"lbsSql\": \"  select device,lat_work lat,lon_work lon from ${tmpdb}.tmp_occ1002_label_homeworkdist  where lat_work is not null \",
-    \"poiTable\": \"$gdpoi_explode_big\",
+    \"poiTable\": \"$dim_mapping_gdpoi_explode_big\",
     \"poiFields\": \"poi_id,name,lat,lon,type\",
     \"poiCalFields\": {
         \"distance\": {
@@ -243,8 +251,8 @@ HADOOP_USER_NAME=dba /opt/mobdata/sbin/spark-submit \
 /home/dba/lib/mobdi-poi-tool-v0.1.0.jar  \
 "{
     \"dataType\": \"1\",
-    \"lbsSql\": \"  select device,lat_work lat,lon_work lon from ${appdb}.label_homeworkdist_${day} where lat_work is not null \",
-    \"poiTable\": \"$gdpoi_explode_big\",
+    \"lbsSql\": \"  select device,lat_work lat,lon_work lon from $label_homeworkdist where lat_work is not null \",
+    \"poiTable\": \"$dim_mapping_gdpoi_explode_big\",
     \"poiFields\": \"poi_id,name,lat,lon,type\",
     \"poiCalFields\": {
         \"distance\": {
@@ -321,7 +329,7 @@ from
             when year>='2015' and year<='2019' then 4
             else 5 end index
       ,1.0 cnt
-  from ${appdb}.label_phone_year_${day}
+  from $label_phone_year
 
   union all
   select device
@@ -331,7 +339,7 @@ from
               when cnt>5 then 9
               else 10 end index
         ,1.0 cnt
-  from ${appdb}.label_bssid_num_${day}
+  from $label_bssid_num
 
   union all
   select device
@@ -341,7 +349,7 @@ from
               when distance >= 5000 then 14
               else 15 end index
         ,1.0 cnt
-  from ${appdb}.label_distance_avg_${day}
+  from $label_distance_avg
 
   union all
   select device
@@ -351,7 +359,7 @@ from
               when distance >= 5000 then 19
               else 20 end index
         ,1.0 cnt
-  from ${appdb}.label_distance_night_${day}
+  from $label_distance_night
 
   union all
   select device
@@ -362,15 +370,15 @@ from
               when home_work_dist>50000 then 25
               else 26 end index
         ,1.0 cnt
-  from ${appdb}.label_homeworkdist_${day}
+  from $label_homeworkdist
 
   union all
   select device,cast(26+cast(poi_type as double) as int) index,1.0 cnt
-  from ${appdb}.label_home_poiaround_${day}
+  from $label_home_poiaround
 
   union all
   select device,cast(46+cast(poi_type as double) as int) index,1.0 cnt
-  from ${appdb}.label_work_poiaround_${day}
+  from $label_work_poiaround
 
   union all
   select device,index,cnt 

@@ -16,21 +16,48 @@ fi
 source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
-tmpdb="dw_mobdi_tmp"
-appdb="rp_mobdi_report"
+tmpdb="$dw_mobdi_tmp"
+mddb="$dw_mobdi_md"
+appdb="$rp_mobdi_report"
 #input
 device_applist_new=${dim_device_applist_new_di}
 
 #mapping
-mapping_app_cate_index1="dim_sdk_mapping.mapping_age_cate_index1"
-mapping_app_cate_index2="dim_sdk_mapping.mapping_age_cate_index2"
-mapping_app_index="dim_sdk_mapping.mapping_occ_app_index"
-mapping_phonenum_year="dim_sdk_mapping.mapping_phonenum_year"
-gdpoi_explode_big="dim_sdk_mapping.mapping_gdpoi_explode_big"
-gdpoi_explode_mid="dim_sdk_mapping.dim_gdpoi_explode_mid"
+#mapping_age_cate_index1="dim_sdk_mapping.mapping_age_cate_index1"
+#mapping_app_cate_index2="dim_sdk_mapping.mapping_age_cate_index2"
+#mapping_occ_app_index="dim_sdk_mapping.mapping_occ_app_index"
+#dim_pid_release_year_china="dim_sdk_mapping.mapping_phonenum_year"
+#dim_mapping_gdpoi_explode_big="dim_sdk_mapping.mapping_gdpoi_explode_big"
+#dim_gdpoi_explode_mid="dim_sdk_mapping.dim_gdpoi_explode_mid"
 #output
 
+label_occ_app2vec=${appdb}.label_occ_app2vec
+label_occ_score_applist=${appdb}.label_occ_score_applist
+label_occ_phone_year=${appdb}.label_occ_phone_year
+label_occ_bssid_num=${appdb}.label_occ_bssid_num
+label_occ_distance_avg=${appdb}.label_occ_distance_avg
+label_occ_distance_night=${appdb}.label_occ_distance_night
+label_occ_homeworkdist=${appdb}.label_occ_homeworkdist
+tmp_score_work_poi=${appdb}.tmp_score_work_poi
+
+tmp_occ_home_poi=${tmpdb}.tmp_occ_home_poi
+tmp_occ_work_poi=${tmpdb}.tmp_occ_work_poi
+tmp_work_poi=${tmpdb}.tmp_work_poi
+tmp_home_poi=${tmpdb}.tmp_home_poi
+
+apppkg_app2vec_db=${apppkg_app2vec_par_wi%.*}
+apppkg_app2vec_tb=${apppkg_app2vec_par_wi#*.}
 #logic
+tmp_anticheat_device_nightdistance_pre=$mddb.tmp_anticheat_device_nightdistance_pre
+tmp_anticheat_device_bssid_cnt_30days=$mddb.tmp_anticheat_device_bssid_cnt_30days
+tmp_anticheat_device_avgdistance_pre=$mddb.tmp_anticheat_device_avgdistance_pre
+nightdistance_db=${tmp_anticheat_device_nightdistance_pre%.*}
+nightdistance_tb=${tmp_anticheat_device_nightdistance_pre#*.}
+avgdistance_db=${tmp_anticheat_device_avgdistance_pre%.*}
+avgdistance_tb=${tmp_anticheat_device_avgdistance_pre#*.}
+bssid_cnt_db=${tmp_anticheat_device_bssid_cnt_30days%.*}
+bssid_cnt_tb=${tmp_anticheat_device_bssid_cnt_30days#*.}
+
 
 :<<!
 hive -v -e "
@@ -49,8 +76,8 @@ set hive.optimize.skewjoin = true;
 set hive.skewjoin.key = 10000000;
 set hive.groupby.skewindata=true;
 
-drop table if exists ${appdb}.label_occ_app2vec;
-create table ${appdb}.label_occ_app2vec stored as orc as
+drop table if exists $label_occ_app2vec;
+create table $label_occ_app2vec stored as orc as
 with seed as
 (
   select *
@@ -74,7 +101,7 @@ avg(d98) as d98,avg(d99) as d99,avg(d100) as d100
 from
 seed  x
 left join
-  (select * from rp_mobdi_app.apppkg_app2vec_par_wi where day=GET_LAST_PARTITION('rp_mobdi_app', 'apppkg_app2vec_par_wi', 'day')) y
+  (select * from $apppkg_app2vec_par_wi where day=GET_LAST_PARTITION('$apppkg_app2vec_db', '$apppkg_app2vec_tb', 'day')) y
 on x.pkg = y.apppkg
 group by device;
 
@@ -84,8 +111,8 @@ group by device;
 {
 hive -v -e "
 set mapreduce.job.queuename=root.yarn_data_compliance2;
-drop table if exists ${appdb}.label_occ_score_applist;
-create  table ${appdb}.label_occ_score_applist stored as orc as
+drop table if exists $label_occ_score_applist;
+create  table $label_occ_score_applist stored as orc as
 with seed as
 (
   select *
@@ -109,7 +136,7 @@ left join
     seed a
     join
     (
-      select apppkg, index_after_chi index from $mapping_app_index where version='1000'
+      select apppkg, index_after_chi index from $mapping_occ_app_index where version='1000'
     ) b
     on a.pkg=b.apppkg
   )c group by device
@@ -120,8 +147,8 @@ on x.device=y.device
 
 {
 hive -v -e "
-drop table if exists ${appdb}.label_occ_phone_year;
-create table ${appdb}.label_occ_phone_year stored as orc as
+drop table if exists $label_occ_phone_year;
+create table $label_occ_phone_year stored as orc as
 with seed as
 (
   select device
@@ -142,14 +169,14 @@ select x.device,y.phone_pre3,y.year from
       (
         select a.device,concat(phone,'=',phone_ltm) phone_list
         from seed a
-        join dim_mobdi_mapping.dim_id_mapping_android_df_view b
+        join $id_mapping_android_df_view b
         on a.device=b.device
       )c lateral view explode_tags(phone_list) n as phone,pn_tm
     )d       where length(phone) = 11
   )e where rn=1
 )x
 left join
-(select * from $mapping_phonenum_year where version='1000')y
+(select * from $dim_pid_release_year_china where version='1000')y
 on substr(x.phone,1,3)=y.phone_pre3
 "
 } &
@@ -161,8 +188,8 @@ add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
 create temporary function get_distance as 'com.youzu.mob.java.udf.GetDistance';
 
-drop table if exists ${appdb}.label_occ_bssid_num;
-create table ${appdb}.label_occ_bssid_num stored as orc as
+drop table if exists $label_occ_bssid_num;
+create table $label_occ_bssid_num stored as orc as
 with seed as
 (
   select device
@@ -177,14 +204,14 @@ from seed a
 left join
 (
 select * from
-dw_mobdi_md.tmp_anticheat_device_bssid_cnt_30days
-where day=GET_LAST_PARTITION('dw_mobdi_tmp', 'tmp_anticheat_device_bssid_cnt_30days', 'day')
+$tmp_anticheat_device_bssid_cnt_30days
+where day=GET_LAST_PARTITION('$bssid_cnt_db', '$bssid_cnt_tb', 'day')
 )b
 on a.device=b.device
 )c where rn=1;
 
-drop table if exists ${appdb}.label_occ_distance_avg;
-create table ${appdb}.label_occ_distance_avg stored as orc as
+drop table if exists $label_occ_distance_avg;
+create table $label_occ_distance_avg stored as orc as
 with seed as
 (
   select device
@@ -199,15 +226,15 @@ from seed a
 left join
 (
   select *
-  from dw_mobdi_md.tmp_anticheat_device_avgdistance_pre
-  where day=GET_LAST_PARTITION('dw_mobdi_tmp', 'tmp_anticheat_device_avgdistance_pre', 'day') and timewindow='30'
+  from $tmp_anticheat_device_avgdistance_pre
+  where day=GET_LAST_PARTITION('$avgdistance_db', '$avgdistance_tb', 'day') and timewindow='30'
 )b
 on a.device=b.device
 )c where rn=1
 ;
 
-drop table if exists ${appdb}.label_occ_distance_night;
-create  table ${appdb}.label_occ_distance_night stored as orc as
+drop table if exists $label_occ_distance_night;
+create  table $label_occ_distance_night stored as orc as
 with seed as
 (
   select device
@@ -222,15 +249,15 @@ from seed a
 left join
 (
   select *
-  from dw_mobdi_md.tmp_anticheat_device_nightdistance_pre
-  where day=GET_LAST_PARTITION('dw_mobdi_tmp', 'tmp_anticheat_device_nightdistance_pre', 'day') and timewindow='30'
+  from $tmp_anticheat_device_nightdistance_pre
+  where day=GET_LAST_PARTITION('$nightdistance_db', '$nightdistance_tb', 'day') and timewindow='30'
 )b
 on a.device=b.device
 )c where rn=1
 ;
 
-drop table if exists ${appdb}.label_occ_homeworkdist;
-create  table ${appdb}.label_occ_homeworkdist stored as orc as
+drop table if exists $label_occ_homeworkdist;
+create  table $label_occ_homeworkdist stored as orc as
 with seed as
 (
   select device
@@ -251,7 +278,7 @@ from
       ,if(b.workplace like '%lat%',split(split(b.workplace, ',')[0],':')[1],null) as lat_work
       ,if(b.workplace like '%lat%',split(split(b.workplace, ',')[1],':')[1],null) as lon_work
   from seed a
-  join rp_mobdi_app.rp_device_profile_full_view b
+  join $rp_device_profile_full_view b
   on a.device=b.device
 )t;
 
@@ -268,8 +295,8 @@ spark2-submit \
 /home/dba/lib/mobdi-poi-tool-v0.1.0.jar  \
 "{
     \"dataType\": \"1\",
-    \"lbsSql\": \"  select device,lat_home lat,lon_home lon from ${appdb}.label_homeworkdist where lat_home is not null \",
-    \"poiTable\": \"$gdpoi_explode_big\",
+    \"lbsSql\": \"  select device,lat_home lat,lon_home lon from $label_homeworkdist where lat_home is not null \",
+    \"poiTable\": \"$dim_mapping_gdpoi_explode_big\",
     \"poiFields\": \"poi_id,name,lat,lon,type\",
     \"poiCalFields\": {
         \"distance\": {
@@ -279,7 +306,7 @@ spark2-submit \
     \"poiCondition\": {
         \"type\": \"'01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20' \"
     },
-    \"targetTable\": \"${tmpdb}.tmp_occ_home_poi \"
+    \"targetTable\": \"$tmp_occ_home_poi \"
 }"
 
 spark2-submit \
@@ -295,8 +322,8 @@ spark2-submit \
 /home/dba/lib/mobdi-poi-tool-v0.1.0.jar  \
 "{
     \"dataType\": \"1\",
-    \"lbsSql\": \"  select device,lat_work lat,lon_work lon from ${appdb}.label_homeworkdist where lat_work is not null \",
-    \"poiTable\": \"$gdpoi_explode_big\",
+    \"lbsSql\": \"  select device,lat_work lat,lon_work lon from $label_homeworkdist where lat_work is not null \",
+    \"poiTable\": \"$dim_mapping_gdpoi_explode_big\",
     \"poiFields\": \"poi_id,name,lat,lon,type\",
     \"poiCalFields\": {
         \"distance\": {
@@ -306,7 +333,7 @@ spark2-submit \
     \"poiCondition\": {
         \"type\": \" '01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20' \"
     },
-    \"targetTable\": \"${tmpdb}.tmp_occ_work_poi \"
+    \"targetTable\": \"$tmp_occ_work_poi \"
 }"
 
 
@@ -323,8 +350,8 @@ spark2-submit \
 /home/dba/lib/mobdi-poi-tool-v0.1.0.jar  \
 "{
     \"dataType\": \"1\",
-    \"lbsSql\": \"  select device,lat_work lat,lon_work lon from ${appdb}.label_homeworkdist where lat_work is not null \",
-    \"poiTable\": \" $gdpoi_explode_mid \",
+    \"lbsSql\": \"  select device,lat_work lat,lon_work lon from $label_homeworkdist where lat_work is not null \",
+    \"poiTable\": \" $dim_gdpoi_explode_mid \",
     \"poiFields\": \"poi_id,name,lat,lon,type\",
     \"poiCalFields\": {
         \"distance\": {
@@ -334,11 +361,11 @@ spark2-submit \
     \"poiCondition\": {
         \"type\": \" '1401','1402','1403','1404','1405','1406','1407','1408','1409','1410','1411','1412','1413','1414','1415','1700','1701','1702','1703','1704' \"
     },
-    \"targetTable\": \"${appdb}.tmp_occ_score_work_poi \"
+    \"targetTable\": \"$tmp_occ_score_work_poi \"
 }"
 
 hive -v -e"
-create table ${appdb}.label_occ_score_workpoi_mid as
+create table $label_occ_score_workpoi_mid as
 select device
       ,case when poi_type='1401' then 67
             when poi_type='1402' then 68
@@ -363,7 +390,7 @@ select device
             else 87 end index,1.0 cnt
 from (select a.device,b.poi_type
       from $label_homeworkdist a
-      join ${appdb}.tmp_score_work_poi b
+      join $tmp_score_work_poi b
       on a.device=b.device
       group by a.device,b.poi_type
       )x
@@ -373,16 +400,16 @@ from (select a.device,b.poi_type
 
 hive -v -e "
 set mapreduce.job.queuename=root.yarn_data_compliance2;
-drop table if exists ${appdb}.label_home_poiaround;
-create table ${appdb}.label_home_poiaround stored as orc as
+drop table if exists $label_home_poiaround;
+create table $label_home_poiaround stored as orc as
 select device,poi_type
-from ${tmpdb}.tmp_home_poi
+from $tmp_home_poi
 group by device,poi_type
 ;
-drop table if exists ${appdb}.label_work_poiaround;
-create  table ${appdb}.label_work_poiaround stored as orc as
+drop table if exists $label_work_poiaround;
+create  table $label_work_poiaround stored as orc as
 select device,poi_type
-from ${tmpdb}.tmp_work_poi
+from $tmp_work_poi
 group by device,poi_type
 ;
 "

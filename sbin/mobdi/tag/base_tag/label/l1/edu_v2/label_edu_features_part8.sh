@@ -9,16 +9,18 @@ set -e -x
 '
 
 day=$1
+source /home/dba/mobdi_center/conf/hive-env.sh
+tmpdb=${dw_mobdi_md}
 
 #input
-device_applist_new=dim_mobdi_mapping.device_applist_new
+device_applist_new=${dim_device_applist_new_di}
 
 #mapping
-mapping_edu_app_tgi_level=dim_sdk_mapping.mapping_edu_app_tgi_level
-mapping_edu_app_tgi_feature_index0=dim_sdk_mapping.mapping_edu_app_tgi_feature_index0
+#mapping_edu_app_tgi_level=dim_sdk_mapping.mapping_edu_app_tgi_level
+#mapping_edu_app_tgi_feature_index0=dim_sdk_mapping.mapping_edu_app_tgi_feature_index0
 
 #ouput
-tmp_edu_score_part8=dw_mobdi_md.tmp_edu_score_part8
+tmp_edu_score_part8=$tmpdb.tmp_edu_score_part8
 
 :<<!
 CREATE TABLE dw_mobdi_md.tmp_edu_score_part8(

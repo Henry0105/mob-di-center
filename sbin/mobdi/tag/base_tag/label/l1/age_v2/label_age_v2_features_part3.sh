@@ -16,45 +16,59 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 tmpdb=${dw_mobdi_md}
-appdb="rp_mobdi_report"
+appdb=$rp_mobdi_report
 #input
 device_applist_new=${dim_device_applist_new_di}
 
+tmp_anticheat_device_bssid_cnt_30days=$tmpdb.tmp_anticheat_device_bssid_cnt_30days
+tmp_anticheat_device_avgdistance_pre=$tmpdb.tmp_anticheat_device_avgdistance_pre
+tmp_anticheat_device_nightdistance_pre=$tmpdb.tmp_anticheat_device_nightdistance_pre
+avgdistance_pre_db=${tmp_anticheat_device_avgdistance_pre%.*}
+avgdistance_pre_tb=${tmp_anticheat_device_avgdistance_pre#*.}
+
+nightdistance_pre_db=${tmp_anticheat_device_nightdistance_pre%.*}
+nightdistance_pre_tb=${tmp_anticheat_device_nightdistance_pre#*.}
+
+bssid_cnt_db=${tmp_anticheat_device_bssid_cnt_30days%.*}
+bssid_cnt_tb=${tmp_anticheat_device_bssid_cnt_30days#*.}
+
+
+
 #mapping
-mapping_app_cate_index1="dm_sdk_mapping.mapping_age_cate_index1"
-mapping_app_cate_index2="dm_sdk_mapping.mapping_age_cate_index2"
-mapping_app_index="dm_sdk_mapping.mapping_age_app_index"
-mapping_phonenum_year="dm_sdk_mapping.mapping_phonenum_year"
-gdpoi_explode_big="dm_sdk_mapping.mapping_gdpoi_explode_big"
-mapping_contacts_words_20000="dm_sdk_mapping.mapping_contacts_words_20000"
-mapping_word_index="dm_sdk_mapping.mapping_age_word_index"
-mapping_contacts_word2vec2="dm_sdk_mapping.mapping_contacts_word2vec2_view"
+#mapping_app_cate_index1="dm_sdk_mapping.mapping_age_cate_index1"
+#mapping_app_cate_index2="dm_sdk_mapping.mapping_age_cate_index2"
+#mapping_app_index="dm_sdk_mapping.mapping_age_app_index"
+#mapping_phonenum_year="dm_sdk_mapping.mapping_phonenum_year"
+#gdpoi_explode_big="dm_sdk_mapping.mapping_gdpoi_explode_big"
+#mapping_contacts_words_20000="dm_sdk_mapping.mapping_contacts_words_20000"
+#mapping_word_index="dm_sdk_mapping.mapping_age_word_index"
+#mapping_contacts_word2vec2="dm_sdk_mapping.mapping_contacts_word2vec2_view"
 
-app_pkg_mapping="dm_sdk_mapping.app_pkg_mapping_par"
-age_app_index0_mapping="dm_sdk_mapping.mapping_age_app_index0"
+#app_pkg_mapping="dm_sdk_mapping.app_pkg_mapping_par"
+#age_app_index0_mapping="dm_sdk_mapping.mapping_age_app_index0"
 
-android_id_mapping_sec_df="dim_mobdi_mapping.android_id_mapping_sec_df"
+#android_id_mapping_sec_df="dim_mobdi_mapping.android_id_mapping_sec_df"
 
 #tmp
-label_phone_year="${appdb}.label_phone_year"
-label_bssid_num="${appdb}.label_bssid_num"
-label_distance_avg="${appdb}.label_distance_avg"
-label_distance_night="${appdb}.label_distance_night"
-label_homeworkdist="${appdb}.label_homeworkdist"
-label_home_poiaround="${appdb}.label_home_poiaround"
-label_work_poiaround="${appdb}.label_work_poiaround"
+#label_phone_year="${appdb}.label_phone_year"
+#label_bssid_num="${appdb}.label_bssid_num"
+#label_distance_avg="${appdb}.label_distance_avg"
+#label_distance_night="${appdb}.label_distance_night"
+#label_homeworkdist="${appdb}.label_homeworkdist"
+#label_home_poiaround="${appdb}.label_home_poiaround"
+#label_work_poiaround="${appdb}.label_work_poiaround"
+#label_contact_words_chi="${appdb}.label_contact_words_chi"
+#label_contact_word2vec="${appdb}.label_contact_word2vec"
+#label_score_applist="${appdb}.label_score_applist"
+#label_app2vec="${appdb}.label_app2vec"
+#label_apppkg_feature_index="${appdb}.label_l1_apppkg_feature_index"
+#label_apppkg_category_index="${appdb}.label_l1_apppkg_category_index"
+
 income_1001_university_bssid_index="${tmpdb}.income_1001_university_bssid_index"
 income_1001_shopping_mall_bssid_index="${tmpdb}.income_1001_shopping_mall_bssid_index"
 income_1001_traffic_bssid_index="${tmpdb}.income_1001_traffic_bssid_index"
 income_1001_hotel_bssid_index="${tmpdb}.income_1001_hotel_bssid_index"
-label_contact_words_chi="${appdb}.label_contact_words_chi"
-label_contact_word2vec="${appdb}.label_contact_word2vec"
-label_score_applist="${appdb}.label_score_applist"
-label_app2vec="${appdb}.label_app2vec"
-
 label_merge_all="${tmpdb}.model_merge_all_features"
-label_apppkg_feature_index="${appdb}.label_l1_apppkg_feature_index"
-label_apppkg_category_index="${appdb}.label_l1_apppkg_category_index"
 
 
 #output
@@ -176,7 +190,7 @@ from
                 inner join
                 (
                     select device,pid,pid_ltm
-                    from $android_id_mapping_sec_df
+                    from $id_mapping_android_sec_df
                     where version = '$full_last_version'
                 ) b
                 on a.device = b.device
@@ -217,8 +231,8 @@ from seed a
 left join
 (
 select * from
-dw_mobdi_md.tmp_anticheat_device_bssid_cnt_30days
-where day=GET_LAST_PARTITION('dw_mobdi_md', 'tmp_anticheat_device_bssid_cnt_30days', 'day')
+$tmp_anticheat_device_bssid_cnt_30days
+where day=GET_LAST_PARTITION('$bssid_cnt_db', '$bssid_cnt_tb', 'day')
 )b
 on a.device=b.device
 )c where rn=1;
@@ -239,8 +253,8 @@ from seed a
 left join
 (
   select *
-  from dw_mobdi_md.tmp_anticheat_device_avgdistance_pre
-  where day=GET_LAST_PARTITION('dw_mobdi_md', 'tmp_anticheat_device_avgdistance_pre', 'day') and timewindow='30'
+  from $tmp_anticheat_device_avgdistance_pre
+  where day=GET_LAST_PARTITION('$avgdistance_pre_db', '$avgdistance_pre_tb', 'day') and timewindow='30'
 )b
 on a.device=b.device
 )c where rn=1
@@ -262,8 +276,8 @@ from seed a
 left join
 (
   select *
-  from dw_mobdi_md.tmp_anticheat_device_nightdistance_pre
-  where day=GET_LAST_PARTITION('dw_mobdi_md', 'tmp_anticheat_device_nightdistance_pre', 'day') and timewindow='30'
+  from $tmp_anticheat_device_nightdistance_pre
+  where day=GET_LAST_PARTITION('$nightdistance_pre_db', '$nightdistance_pre_tb', 'day') and timewindow='30'
 )b
 on a.device=b.device
 )c where rn=1
@@ -311,7 +325,7 @@ spark2-submit \
 "{
     \"dataType\": \"1\",
     \"lbsSql\": \"  select device,lat_home lat,lon_home lon from ${tmp_label_homeworkdist} where lat_home is not null \",
-    \"poiTable\": \"$gdpoi_explode_big\",
+    \"poiTable\": \"$dim_gdpoi_explode_big\",
     \"poiFields\": \"poi_id,name,lat,lon,type\",
     \"poiCalFields\": {
         \"distance\": {
@@ -337,7 +351,7 @@ spark2-submit \
 "{
     \"dataType\": \"1\",
     \"lbsSql\": \"  select device,lat_work lat,lon_work lon from ${tmp_label_homeworkdist} where lat_work is not null \",
-    \"poiTable\": \"$gdpoi_explode_big\",
+    \"poiTable\": \"$dim_gdpoi_explode_big\",
     \"poiFields\": \"poi_id,name,lat,lon,type\",
     \"poiCalFields\": {
         \"distance\": {

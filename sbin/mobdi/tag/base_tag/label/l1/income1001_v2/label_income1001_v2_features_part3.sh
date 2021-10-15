@@ -18,22 +18,45 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 tmpdb=${dw_mobdi_md}
-appdb="rp_mobdi_report"
+appdb=$rp_mobdi_report
 
 ##tmpdb="mobdi_test"
 ##appdb="mobdi_test"
 output_table="${tmpdb}.tmp_income1001_part3"
 #input
 device_applist_new=${dim_device_applist_new_di}
-gdpoi_explode_big="dm_sdk_mapping.mapping_gdpoi_explode_big"
-mapping_phonenum_year="dm_sdk_mapping.mapping_phonenum_year"
+#gdpoi_explode_big="dm_sdk_mapping.mapping_gdpoi_explode_big"
+#mapping_phonenum_year="dm_sdk_mapping.mapping_phonenum_year"
+mapping_phonenum_year=$dim_pid_release_year_china
 
+label_income1001_v2_phone_year=${appdb}.label_income1001_v2_phone_year
+label_income1001_v2_bssid_num=${appdb}.label_income1001_v2_bssid_num
+label_income1001_v2_distance_avg=${appdb}.label_income1001_v2_distance_avg
+label_income1001_v2_distance_night=${appdb}.label_income1001_v2_distance_night
+label_income1001_v2_homeworkdist=${appdb}.label_income1001_v2_homeworkdist
+label_income1001_v2_home_poiaround=${appdb}.label_income1001_v2_home_poiaround
+label_income1001_v2_work_poiaround=${appdb}.label_income1001_v2_work_poiaround
+
+tmp_anticheat_device_avgdistance_pre=$tmpdb.tmp_anticheat_device_avgdistance_pre
+tmp_income1001_v2_work_poi=$tmpdb.tmp_income1001_v2_work_poi
+tmp_income1001_v2_home_poi=$tmpdb.tmp_income1001_v2_home_poi
+
+avgdistance_db=${tmp_anticheat_device_avgdistance_pre%.*}
+avgdistance_tb=${tmp_anticheat_device_avgdistance_pre#*.}
+
+tmp_anticheat_device_bssid_cnt_30days=$tmpdb.tmp_anticheat_device_bssid_cnt_30days
+bssid_cnt_db=${tmp_anticheat_device_bssid_cnt_30days%.*}
+bssid_cnt_tb=${tmp_anticheat_device_bssid_cnt_30days#*.}
+
+tmp_anticheat_device_nightdistance_pre=dw_mobdi_md.tmp_anticheat_device_nightdistance_pre
+nightdistance_db=${tmp_anticheat_device_nightdistance_pre%.*}
+nightdistance_tb=${tmp_anticheat_device_nightdistance_pre#*.}
 ## part3完全复用年龄part3
 
 HADOOP_USER_NAME=dba hive -e"
 set mapreduce.job.queuename=root.yarn_data_compliance2;
-drop table if exists ${appdb}.label_income1001_v2_phone_year;
-create table ${appdb}.label_income1001_v2_phone_year stored as orc as
+drop table if exists $label_income1001_v2_phone_year;
+create table $label_income1001_v2_phone_year stored as orc as
 with seed as
 (
   select device
@@ -54,7 +77,7 @@ select x.device,y.phone_pre3,y.year from
       (
         select a.device,concat(phone,'=',phone_ltm) phone_list
         from seed a
-        join dim_mobdi_mapping.android_id_mapping_full_view b
+        join $id_mapping_android_df_view b
         on a.device=b.device
       )c lateral view explode_tags(phone_list) n as phone,pn_tm
     )d       where length(phone) = 11
@@ -71,8 +94,8 @@ add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
 create temporary function get_distance as 'com.youzu.mob.java.udf.GetDistance';
 
-drop table if exists ${appdb}.label_income1001_v2_bssid_num;
-create table ${appdb}.label_income1001_v2_bssid_num stored as orc as
+drop table if exists $label_income1001_v2_bssid_num;
+create table $label_income1001_v2_bssid_num stored as orc as
 with seed as
 (
   select device
@@ -86,15 +109,14 @@ from
 from seed a
 left join
 (
-select * from
-dw_mobdi_md.tmp_anticheat_device_bssid_cnt_30days
-where day=GET_LAST_PARTITION('dw_mobdi_md', 'tmp_anticheat_device_bssid_cnt_30days', 'day')
+select * from $tmp_anticheat_device_bssid_cnt_30days
+where day=GET_LAST_PARTITION('$bssid_cnt_db', '$bssid_cnt_tb', 'day')
 )b
 on a.device=b.device
 )c where rn=1;
 
-drop table if exists ${appdb}.label_income1001_v2_distance_avg;
-create table ${appdb}.label_income1001_v2_distance_avg stored as orc as
+drop table if exists $label_income1001_v2_distance_avg;
+create table $label_income1001_v2_distance_avg stored as orc as
 with seed as
 (
   select device
@@ -109,15 +131,15 @@ from seed a
 left join
 (
   select *
-  from dw_mobdi_md.tmp_anticheat_device_avgdistance_pre
-  where day=GET_LAST_PARTITION('dw_mobdi_md', 'tmp_anticheat_device_avgdistance_pre', 'day') and timewindow='30'
+  from $tmp_anticheat_device_avgdistance_pre
+  where day=GET_LAST_PARTITION('$avgdistance_db', '$avgdistance_tb', 'day') and timewindow='30'
 )b
 on a.device=b.device
 )c where rn=1
 ;
 
-drop table if exists ${appdb}.label_income1001_v2_distance_night;
-create  table ${appdb}.label_income1001_v2_distance_night stored as orc as
+drop table if exists $label_income1001_v2_distance_night;
+create  table $label_income1001_v2_distance_night stored as orc as
 with seed as
 (
   select device
@@ -132,15 +154,15 @@ from seed a
 left join
 (
   select *
-  from dw_mobdi_md.tmp_anticheat_device_nightdistance_pre
-  where day=GET_LAST_PARTITION('dw_mobdi_md', 'tmp_anticheat_device_nightdistance_pre', 'day') and timewindow='30'
+  from $tmp_anticheat_device_nightdistance_pre
+  where day=GET_LAST_PARTITION('$nightdistance_db', '$nightdistance_tb', 'day') and timewindow='30'
 )b
 on a.device=b.device
 )c where rn=1
 ;
 
-drop table if exists ${appdb}.label_income1001_v2_homeworkdist;
-create  table ${appdb}.label_income1001_v2_homeworkdist stored as orc as
+drop table if exists $label_income1001_v2_homeworkdist;
+create  table $label_income1001_v2_homeworkdist stored as orc as
 with seed as
 (
   select device
@@ -161,7 +183,7 @@ from
       ,if(b.workplace like '%lat%',split(split(b.workplace, ',')[0],':')[1],null) as lat_work
       ,if(b.workplace like '%lat%',split(split(b.workplace, ',')[1],':')[1],null) as lon_work
   from seed a
-  join rp_mobdi_app.rp_device_profile_full_view b
+  join $rp_device_profile_full_view b
   on a.device=b.device
 )t;
 "
@@ -176,8 +198,8 @@ HADOOP_USER_NAME=dba /opt/mobdata/sbin/spark-submit \
 /home/dba/lib/mobdi-poi-tool-v0.1.0.jar  \
 "{
     \"dataType\": \"1\",
-    \"lbsSql\": \"  select device,lat_home lat,lon_home lon from ${appdb}.label_income1001_v2_homeworkdist  where lat_home is not null \",
-    \"poiTable\": \"$gdpoi_explode_big\",
+    \"lbsSql\": \"  select device,lat_home lat,lon_home lon from $label_income1001_v2_homeworkdist  where lat_home is not null \",
+    \"poiTable\": \"$dim_gdpoi_explode_big\",
     \"poiFields\": \"poi_id,name,lat,lon,type\",
     \"poiCalFields\": {
         \"distance\": {
@@ -187,7 +209,7 @@ HADOOP_USER_NAME=dba /opt/mobdata/sbin/spark-submit \
     \"poiCondition\": {
         \"type\": \"'01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20' \"
     },
-    \"targetTable\": \"${tmpdb}.tmp_income1001_v2_home_poi\"
+    \"targetTable\": \"$tmp_income1001_v2_home_poi\"
 }"
 
 
@@ -203,8 +225,8 @@ HADOOP_USER_NAME=dba /opt/mobdata/sbin/spark-submit \
 /home/dba/lib/mobdi-poi-tool-v0.1.0.jar  \
 "{
     \"dataType\": \"1\",
-    \"lbsSql\": \"  select device,lat_work lat,lon_work lon from ${appdb}.label_income1001_v2_homeworkdist  where lat_work is not null \",
-    \"poiTable\": \"$gdpoi_explode_big\",
+    \"lbsSql\": \"  select device,lat_work lat,lon_work lon from $label_income1001_v2_homeworkdist  where lat_work is not null \",
+    \"poiTable\": \"$dim_gdpoi_explode_big\",
     \"poiFields\": \"poi_id,name,lat,lon,type\",
     \"poiCalFields\": {
         \"distance\": {
@@ -214,21 +236,21 @@ HADOOP_USER_NAME=dba /opt/mobdata/sbin/spark-submit \
     \"poiCondition\": {
         \"type\": \" '01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20' \"
     },
-    \"targetTable\": \"${tmpdb}.tmp_income1001_v2_work_poi\"
+    \"targetTable\": \"$tmp_income1001_v2_work_poi\"
 }"
 
 
 HADOOP_USER_NAME=dba hive -e"
-drop table if exists ${appdb}.label_income1001_v2_home_poiaround;
-create table ${appdb}.label_income1001_v2_home_poiaround stored as orc as
+drop table if exists $label_income1001_v2_home_poiaround;
+create table $label_income1001_v2_home_poiaround stored as orc as
 select device,poi_type
-from ${tmpdb}.tmp_income1001_v2_home_poi
+from $tmp_income1001_v2_home_poi
 group by device,poi_type
 ;
-drop table if exists ${appdb}.label_income1001_v2_work_poiaround;
-create  table ${appdb}.label_income1001_v2_work_poiaround stored as orc as
+drop table if exists $label_income1001_v2_work_poiaround;
+create  table $label_income1001_v2_work_poiaround stored as orc as
 select device,poi_type
-from ${tmpdb}.tmp_income1001_v2_work_poi
+from $tmp_income1001_v2_work_poi
 group by device,poi_type
 ;
 "
@@ -259,7 +281,7 @@ from
             when year>='2015' and year<='2019' then 4
             else 5 end index
       ,1.0 cnt
-  from ${appdb}.label_income1001_v2_phone_year
+  from $label_income1001_v2_phone_year
 
   union all
   select device
@@ -269,7 +291,7 @@ from
               when cnt>5 then 9
               else 10 end index
         ,1.0 cnt
-  from ${appdb}.label_income1001_v2_bssid_num
+  from $label_income1001_v2_bssid_num
 
   union all
   select device
@@ -279,7 +301,7 @@ from
               when distance >= 5000 then 14
               else 15 end index
         ,1.0 cnt
-  from ${appdb}.label_income1001_v2_distance_avg
+  from $label_income1001_v2_distance_avg
 
   union all
   select device
@@ -289,7 +311,7 @@ from
               when distance >= 5000 then 19
               else 20 end index
         ,1.0 cnt
-  from ${appdb}.label_income1001_v2_distance_night
+  from $label_income1001_v2_distance_night
 
   union all
   select device
@@ -300,15 +322,15 @@ from
               when home_work_dist>50000 then 25
               else 26 end index
         ,1.0 cnt
-  from ${appdb}.label_income1001_v2_homeworkdist
+  from $label_income1001_v2_homeworkdist
 
   union all
   select device,cast(26+cast(poi_type as double) as int) index,1.0 cnt
-  from ${appdb}.label_income1001_v2_home_poiaround
+  from $label_income1001_v2_home_poiaround
 
   union all
   select device,cast(46+cast(poi_type as double) as int) index,1.0 cnt
-  from ${appdb}.label_income1001_v2_work_poiaround
+  from $label_income1001_v2_work_poiaround
 )a
 group by device
 "

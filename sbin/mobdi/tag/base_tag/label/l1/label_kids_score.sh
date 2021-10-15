@@ -17,9 +17,9 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 ##input
 device_applist_new=${dim_device_applist_new_di}
 #mapping
-kids_pkg03="tp_mobdi_model.kids_pkg03"
-kids_pkg37="tp_mobdi_model.kids_pkg37"
-kids_pkg712="tp_mobdi_model.kids_pkg712"
+#kids_pkg03="tp_mobdi_model.kids_pkg03"
+#kids_pkg37="tp_mobdi_model.kids_pkg37"
+#kids_pkg712="tp_mobdi_model.kids_pkg712"
 #output
 label_kids_score_di=${label_l1_kids_score_di}
 

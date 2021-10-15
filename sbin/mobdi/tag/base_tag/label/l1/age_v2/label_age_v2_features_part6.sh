@@ -16,48 +16,47 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 tmpdb=${dw_mobdi_md}
-appdb="rp_mobdi_report"
+appdb="$rp_mobdi_report"
 #input
 device_applist_new=${dim_device_applist_new_di}
 
 #mapping
-mapping_app_cate_index1="dim_sdk_mapping.mapping_age_cate_index1"
-mapping_app_cate_index2="dim_sdk_mapping.mapping_age_cate_index2"
-mapping_app_index="dim_sdk_mapping.mapping_age_app_index"
-mapping_phonenum_year="dim_sdk_mapping.mapping_phonenum_year"
-gdpoi_explode_big="dim_sdk_mapping.mapping_gdpoi_explode_big"
-mapping_contacts_words_20000="dim_sdk_mapping.mapping_contacts_words_20000"
-mapping_word_index="dim_sdk_mapping.mapping_age_word_index"
-mapping_contacts_word2vec2="dim_sdk_mapping.mapping_contacts_word2vec2_view"
-
-app_pkg_mapping="dim_sdk_mapping.app_pkg_mapping_par"
-age_app_index0_mapping="dim_sdk_mapping.mapping_age_app_index0"
+#mapping_app_cate_index1="dim_sdk_mapping.mapping_age_cate_index1"
+#mapping_app_cate_index2="dim_sdk_mapping.mapping_age_cate_index2"
+#mapping_app_index="dim_sdk_mapping.mapping_age_app_index"
+#mapping_phonenum_year="dim_sdk_mapping.mapping_phonenum_year"
+#gdpoi_explode_big="dim_sdk_mapping.mapping_gdpoi_explode_big"
+#mapping_contacts_words_20000="dim_sdk_mapping.mapping_contacts_words_20000"
+#mapping_word_index="dim_sdk_mapping.mapping_age_word_index"
+#mapping_contacts_word2vec2="dim_sdk_mapping.mapping_contacts_word2vec2_view"
+#app_pkg_mapping="dim_sdk_mapping.app_pkg_mapping_par"
+#age_app_index0_mapping="dim_sdk_mapping.mapping_age_app_index0"
 
 #tmp
-label_phone_year="${appdb}.label_phone_year"
-label_bssid_num="${appdb}.label_bssid_num"
-label_distance_avg="${appdb}.label_distance_avg"
-label_distance_night="${appdb}.label_distance_night"
-label_homeworkdist="${appdb}.label_homeworkdist"
-label_home_poiaround="${appdb}.label_home_poiaround"
-label_work_poiaround="${appdb}.label_work_poiaround"
+#label_phone_year="${appdb}.label_phone_year"
+#label_bssid_num="${appdb}.label_bssid_num"
+#label_distance_avg="${appdb}.label_distance_avg"
+#label_distance_night="${appdb}.label_distance_night"
+#label_homeworkdist="${appdb}.label_homeworkdist"
+#label_home_poiaround="${appdb}.label_home_poiaround"
+#label_work_poiaround="${appdb}.label_work_poiaround"
+#label_contact_words_chi="${appdb}.label_contact_words_chi"
+#label_contact_word2vec="${appdb}.label_contact_word2vec"
+#label_score_applist="${appdb}.label_score_applist"
+#label_app2vec="${appdb}.label_app2vec"
+#label_apppkg_feature_index="${appdb}.label_l1_apppkg_feature_index"
+#label_apppkg_category_index="${appdb}.label_l1_apppkg_category_index"
+
 income_1001_university_bssid_index="${tmpdb}.income_1001_university_bssid_index"
 income_1001_shopping_mall_bssid_index="${tmpdb}.income_1001_shopping_mall_bssid_index"
 income_1001_traffic_bssid_index="${tmpdb}.income_1001_traffic_bssid_index"
 income_1001_hotel_bssid_index="${tmpdb}.income_1001_hotel_bssid_index"
-label_contact_words_chi="${appdb}.label_contact_words_chi"
-label_contact_word2vec="${appdb}.label_contact_word2vec"
-label_score_applist="${appdb}.label_score_applist"
-label_app2vec="${appdb}.label_app2vec"
-
 label_merge_all="${tmpdb}.model_merge_all_features"
-label_apppkg_feature_index="${appdb}.label_l1_apppkg_feature_index"
-label_apppkg_category_index="${appdb}.label_l1_apppkg_category_index"
 
-android_id_mapping_sec_df="dim_mobdi_mapping.android_id_mapping_sec_df"
+#android_id_mapping_sec_df="dim_mobdi_mapping.android_id_mapping_sec_df"
 
 #view
-dim_pid_attribute_full_par_secview="dm_mobdi_mapping.dim_pid_attribute_full_par_secview"
+#dim_pid_attribute_full_par_secview="dm_mobdi_mapping.dim_pid_attribute_full_par_secview"
 
 #output
 tmp_score_part1="${tmpdb}.tmp_score_part1"
@@ -80,11 +79,14 @@ tmp_score_part8="${tmpdb}.tmp_score_part8"
 output_table=${tmpdb}.tmp_score_part6
 output_table_v3=${tmpdb}.tmp_score_part6_v3
 
+id_mapping_android_db=${id_mapping_android_sec_df%.*}
+id_mapping_android_tb=${id_mapping_android_sec_df#*.}
+
 #id_mapping最新分区
 full_partition_sql="
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_id_mapping_android_sec_df', 'version');
+SELECT GET_LAST_PARTITION('$id_mapping_android_db', '$id_mapping_android_tb', 'version');
 drop temporary function GET_LAST_PARTITION;
 "
 full_last_version=(`hive -e "$full_partition_sql"`)
@@ -134,14 +136,14 @@ from
       (
         select a.device,concat(phone,'=',phone_ltm) phone_list
         from seed a
-        join dm_mobdi_mapping.dim_id_mapping_android_df_view b
+        join $id_mapping_android_df_view b
         on a.device=b.device
       )c lateral view explode_tags(phone_list) n as phone,pn_tm
     )d       where length(phone) = 11
   )e where rn=1
 )x
 left join
-$mapping_contacts_word2vec2 y
+$mapping_contacts_word2vec2_view y
 on x.phone=y.phone
 )xx
 lateral view posexplode(w2v_100) n as index,cnt
@@ -208,7 +210,7 @@ left join
                                 inner join
                                 (
                                     select device,pid,pid_ltm
-                                    from $android_id_mapping_sec_df
+                                    from $id_mapping_android_sec_df
                                     where version = '$full_last_version'
                                 ) b
                                 on a.device = b.device

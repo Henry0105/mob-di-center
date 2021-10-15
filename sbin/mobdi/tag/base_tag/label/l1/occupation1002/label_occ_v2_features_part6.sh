@@ -18,12 +18,11 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 tmpdb=${dw_mobdi_md}
-appdb="rp_mobdi_report"
 #input
 device_applist_new=${dim_device_applist_new_di}
-mapping_app_index="dim_sdk_mapping.mapping_app_income_index"
-mapping_contacts_words_20000="dim_sdk_mapping.mapping_contacts_words_20000"
-
+#mapping_app_income_index="dim_sdk_mapping.mapping_app_income_index"
+#mapping_contacts_words_20000="dim_sdk_mapping.mapping_contacts_words_20000"
+tmp_occ1002_predict_part6=${tmpdb}.tmp_occ1002_predict_part6
 ##取的v3版本
 HADOOP_USER_NAME=dba hive -e"
 set mapreduce.job.queuename=root.yarn_data_compliance2;
@@ -33,8 +32,8 @@ SET mapreduce.child.map.java.opts='-Xmx6g';
 set mapreduce.reduce.memory.mb=8196;
 SET mapreduce.reduce.java.opts='-Xmx6g';
 
-drop table if exists ${tmpdb}.tmp_occ1002_predict_part6;
-create table ${tmpdb}.tmp_occ1002_predict_part6 stored as orc as
+drop table if exists $tmp_occ1002_predict_part6;
+create table $tmp_occ1002_predict_part6 stored as orc as
 with seed as
 (
   select device
@@ -60,14 +59,14 @@ from
       (
         select a.device,concat(phone,'=',phone_ltm) phone_list
         from seed a
-        join dim_mobdi_mapping.android_id_mapping_full_view b
+        join $id_mapping_android_df_view b
         on a.device=b.device
       )c lateral view explode_tags(phone_list) n as phone,pn_tm
     )d       where length(phone) = 11
   )e where rn=1
 )x
 join
-(select * from dim_sdk_mapping.mapping_contacts_word2vec2 where day='20201222') y
+(select * from $mapping_contacts_word2vec2 where day='20201222') y
 on x.phone=y.phone
 )xx
 lateral view posexplode(w2v_100) n as index,cnt

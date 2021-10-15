@@ -21,19 +21,20 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 
-mapdb="dim_sdk_mapping"
 tmpdb="dw_mobdi_tmp"
-middb="dw_mobdi_tmp"
+middb="dw_mobdi_md"
 appdb="rp_mobdi_report"
 ##input
 device_applist_new=${dim_device_applist_new_di}
+
+income_1001_app_cate_index=$middb.income_1001_app_cate_index
 
 ##mapping
 app_category_index_mapping="tp_mobdi_model.mapping_app_category_index_new"
 app_category_mapping="dim_sdk_mapping.app_category_mapping_par"
 
-mapping_app_cate_index1="${mapdb}.mapping_age_cate_index1"
-mapping_app_cate_index2="${mapdb}.mapping_age_cate_index2"
+#mapping_app_cate_index1="${mapdb}.mapping_age_cate_index1"
+#mapping_app_cate_index2="${mapdb}.mapping_age_cate_index2"
 ##output
 apppkg_category_index=${label_l1_apppkg_category_index}
 
@@ -95,14 +96,13 @@ from
       group by apppkg,cate_l1_id
     ) b on a.pkg=b.apppkg
   ) c
-  inner join
-  dw_mobdi_md.income_1001_app_cate_index d on c.cate_l1_id=d.cate_l1_id
+  inner join $income_1001_app_cate_index d on c.cate_l1_id=d.cate_l1_id
 ) e
 group by device,index;
 "
 
 #得到设备的app catel1分类特征索引（occupation_1001模型专用）
-occupation_1001_app_cate_l1_index="dw_mobdi_md.occupation_1001_app_cate_l1_index"
+occupation_1001_app_cate_l1_index="$middb.occupation_1001_app_cate_l1_index"
 hive -v -e "
 insert overwrite table $apppkg_category_index partition (day = '$day', version = '1003.occupation_1001.cate_l1')
 select device,index,1.0 as cnt
@@ -133,7 +133,7 @@ group by device,index;
 "
 
 #得到设备的app catel2分类特征索引（occupation_1001模型专用）
-occupation_1001_app_cate_l2_index="dw_mobdi_md.occupation_1001_app_cate_l2_index"
+occupation_1001_app_cate_l2_index="$middb.occupation_1001_app_cate_l2_index"
 hive -v -e "
 insert overwrite table $apppkg_category_index partition (day = '$day', version = '1003.occupation_1001.cate_l2')
 select device,index,1.0 as cnt
@@ -204,7 +204,7 @@ group by a3.device, a1.index;
 "
 
 #得到设备的app catel1分类特征索引（gender模型专用）
-gender_app_cate_l1_index="dw_mobdi_md.gender_app_cate_l1_index"
+gender_app_cate_l1_index="$middb.gender_app_cate_l1_index"
 hive -v -e "
 insert overwrite table $apppkg_category_index partition (day = '$day', version = '1003.gender.cate_l1')
 select device,index,1.0 as cnt
@@ -235,7 +235,7 @@ group by device,index;
 "
 
 #得到设备的app catel2分类特征索引（gender模型专用）
-gender_app_cate_l2_index="dw_mobdi_md.gender_app_cate_l2_index"
+gender_app_cate_l2_index="$middb.gender_app_cate_l2_index"
 hive -v -e "
 insert overwrite table $apppkg_category_index partition (day = '$day', version = '1003.gender.cate_l2')
 select device,index,1.0 as cnt

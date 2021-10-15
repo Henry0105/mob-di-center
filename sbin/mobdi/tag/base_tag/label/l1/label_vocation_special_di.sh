@@ -19,7 +19,7 @@ date=$1
 ##input
 device_applist_new=${dim_device_applist_new_di}
 ##mapping
-mapping_special_identity="tp_mobdi_model.mapping_special_identity"
+#mapping_special_identity=tp_mobdi_model.mapping_special_identity
 
 #output
 label_l1_vocation_special=${label_l1_vocation_special}

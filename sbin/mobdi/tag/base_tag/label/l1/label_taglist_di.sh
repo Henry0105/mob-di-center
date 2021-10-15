@@ -16,6 +16,7 @@ fi
 
 source /home/dba/mobdi_center/conf/hive-env.sh
 
+mddb=$dw_mobdi_md
 date=$1
 
 ##input
@@ -23,6 +24,8 @@ device_applist_new=${dim_device_applist_new_di}
 
 #output
 label_taglist_di=${label_l1_taglist_di}
+
+tag_idf=$mddb.tag_idf
 
 hive -v -e "
 set mapreduce.job.queuename=root.yarn_data_compliance2;
@@ -55,13 +58,13 @@ with mobdi_tfidf_tmp AS
       from
       (
         select *
-        from dim_sdk_mapping.app_tag_system_mapping_par
+        from $dim_app_tag_system_mapping_par
         where version='1000'
       ) a
       inner join
       (
         select *
-        from dim_sdk_mapping.tag_id_mapping_par
+        from $dim_tag_id_mapping_par
         where version='1000'
       ) b on a.tag = b.tag
     ) t
@@ -95,7 +98,7 @@ from
   select a.device,a.tag,a.tf*b.idf tfidf
   from device_tag_tf_inc a
   left join
-  dw_mobdi_md.tag_idf b on a.tag = b.tag
+  $tag_idf b on a.tag = b.tag
 ) a
 group by device;
 "

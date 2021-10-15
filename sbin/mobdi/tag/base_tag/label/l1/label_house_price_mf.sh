@@ -9,10 +9,13 @@ appdb="rp_mobdi_report"
 
 day=$1
 ## input table
-rp_device_location_3monthly="${appdb}.rp_device_location_3monthly"
-
+#rp_device_location_3monthly="${appdb}.rp_device_location_3monthly"
+device_location_db=${rp_device_location_3monthly%.*}
+device_location_tb=${rp_device_location_3monthly#*.}
 ## mapping table
-house_price_mapping_par="tp_mobdi_model.house_price_mapping_par"
+#house_price_mapping_par="tp_mobdi_model.house_price_mapping_par"
+house_price_db=${house_price_mapping_par%.*}
+house_price_tb=${house_price_mapping_par#*.}
 
 ## target table 
 label_house_price_mf=${label_l1_house_price_mf}
@@ -20,7 +23,7 @@ label_house_price_mf=${label_l1_house_price_mf}
 sql="
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('rp_mobdi_app', 'rp_device_location_3monthly', 'day');
+SELECT GET_LAST_PARTITION('$device_location_db', '$device_location_tb', 'day');
 drop temporary function GET_LAST_PARTITION;
 "
 lastPartition=(`hive -e "$sql"`)
@@ -28,7 +31,7 @@ lastPartition=(`hive -e "$sql"`)
 house_price_sql="
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('tp_mobdi_model', 'house_price_mapping_par', 'version');
+SELECT GET_LAST_PARTITION('$house_price_db', '$house_price_tb', 'version');
 drop temporary function GET_LAST_PARTITION;
 "
 house_price_lastPartition=(`hive -e "$house_price_sql"`)
@@ -37,7 +40,7 @@ house_price_lastPartition=(`hive -e "$house_price_sql"`)
 #检查数据是否存在
 function check_data(){
   par=$1
-  findHdfs=`hadoop fs -ls hdfs://ShareSdkHadoop/user/hive/warehouse/rp_mobdi_app.db/rp_device_location_3monthly/day=${par} | wc -l`
+  findHdfs=`hadoop fs -ls hdfs://ShareSdkHadoop/user/hive/warehouse/$device_location_db.db/$device_location_tb/day=${par} | wc -l`
   if [[ ${findHdfs} -eq 0 ]] ;then
     echo "Error! day=${par} partition of $rp_device_location_3monthly is not found"
     exit 1

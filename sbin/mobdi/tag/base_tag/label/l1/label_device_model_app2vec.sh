@@ -13,7 +13,7 @@ day=$1
 ##input
 device_applist_new=${dim_device_applist_new_di}
 ##mapping
-app2vec_mapping_par="dim_sdk_mapping.app2vec_mapping_par"
+#app2vec_mapping_par="dim_sdk_mapping.app2vec_mapping_par"
 ##output
 label_l1_device_model_app2vec=${label_l1_device_model_app2vec}
 

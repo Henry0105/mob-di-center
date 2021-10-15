@@ -22,8 +22,8 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 model_path="/dmgroup/dba/modelpath/20200810/mapping_age_contact_word2vec"
 
 #output
-mapping_contacts_word2vec2=${tp_mobdi_model}.mapping_contacts_word2vec2
-mapping_contacts_word2vec2_view=${tp_mobdi_model}.mapping_contacts_word2vec2_view
+#mapping_contacts_word2vec2=${tp_mobdi_model}.mapping_contacts_word2vec2
+#mapping_contacts_word2vec2_view=${tp_mobdi_model}.mapping_contacts_word2vec2_view
 
 hive -v -e "
 create table if not exists $mapping_contacts_word2vec2
@@ -38,7 +38,7 @@ stored as orc;
 phone_contact_version=(`hive  -e "
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dm_mobdi_tmp', 'phone_contacts_index_word_split_prepare', 'day');
+SELECT GET_LAST_PARTITION('$dm_mobdi_tmp', 'phone_contacts_index_word_split_prepare', 'day');
 "`)
 
 

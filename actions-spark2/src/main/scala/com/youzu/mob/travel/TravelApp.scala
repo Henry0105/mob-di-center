@@ -193,6 +193,7 @@ object TravelApp {
 
 
   def getVacationFlag(spark: SparkSession, day: String): Int = {
+    // 注意: 表变更为分区表了,但是这里取的是第一行并且数据量较小所以不影响
     val rows = spark.sql(s"select flag from $VACATION_FLAG where day=$day").collect()
     if (rows.nonEmpty) {
       rows(0).getInt(0)

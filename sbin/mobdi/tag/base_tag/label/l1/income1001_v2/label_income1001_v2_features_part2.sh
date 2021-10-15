@@ -18,14 +18,13 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 tmpdb=${dw_mobdi_md}
-appdb="rp_mobdi_report"
 
 ##tmpdb="mobdi_test"
 ##appdb="mobdi_test"
 output_table="${tmpdb}.tmp_income1001_part2"
 #input
 device_applist_new=${dim_device_applist_new_di}
-mapping_app_index="dm_sdk_mapping.mapping_income1001_v2_app_index0"
+mapping_app_index=${mapping_income1001_v2_app_index0}
 
 ## part2 mapping_app_index源数据不同,不能复用
 HADOOP_USER_NAME=dba hive -e"

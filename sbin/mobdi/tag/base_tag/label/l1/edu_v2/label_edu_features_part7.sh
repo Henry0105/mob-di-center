@@ -12,18 +12,18 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 tmpdb=${dw_mobdi_md}
-appdb="rp_mobdi_report"
 
 #input
 device_applist_new=${dim_device_applist_new_di}
-label_device_pkg_install_uninstall_year_info_mf=${label_device_pkg_install_uninstall_year_info_mf}
+#label_device_pkg_install_uninstall_year_info_mf=${label_device_pkg_install_uninstall_year_info_mf}
 
 #mapping
-app_pkg_mapping_par=dim_sdk_mapping.app_pkg_mapping_par
-mapping_edu_app_index0=dim_sdk_mapping.mapping_edu_app_index0
-
+#app_pkg_mapping_par=dim_sdk_mapping.app_pkg_mapping_par
+#mapping_edu_app_index0=dim_sdk_mapping.mapping_edu_app_index0
+install_uninstall_year_db=${label_device_pkg_install_uninstall_year_info_mf%.*}
+install_uninstall_year_tb=${label_device_pkg_install_uninstall_year_info_mf#*.}
 #ouput
-tmp_edu_score_part7=dw_mobdi_md.tmp_edu_score_part7
+tmp_edu_score_part7=$tmpdb.tmp_edu_score_part7
 
 :<<!
 CREATE TABLE dw_mobdi_md.tmp_edu_score_part7(
@@ -84,13 +84,13 @@ edu_uninstall_1y as (
             (
                 select device,pkg
                 from $label_device_pkg_install_uninstall_year_info_mf
-                where day = GET_LAST_PARTITION('rp_mobdi_report','label_device_pkg_install_uninstall_year_info_mf','day')
+                where day = GET_LAST_PARTITION('$install_uninstall_year_db','$install_uninstall_year_tb','day')
                 and refine_final_flag = -1
             ) t1
             left join
             (
                 select *
-                from $app_pkg_mapping_par
+                from $dim_app_pkg_mapping_par
                 where version = '1000'
             ) t2
             on t1.pkg = t2.pkg
@@ -99,7 +99,7 @@ edu_uninstall_1y as (
         left join
         (
             select *
-            from $app_pkg_mapping_par
+            from $dim_app_pkg_mapping_par
             where version = '1000'
         ) t4
         on t3.apppkg = t4.pkg

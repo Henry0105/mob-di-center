@@ -9,9 +9,9 @@ day=$1
 # 无model使用
 
 #input
-device_lbs_poi_daily=dm_mobdi_topic.dws_device_lbs_poi_10type_di
+#dws_device_lbs_poi_10type_di=dm_mobdi_topic.dws_device_lbs_poi_10type_di
 #output
-label_ios_hospital_active_day_cnt=${label_ios_hospital_active_day_cnt}
+#label_ios_hospital_active_day_cnt=${label_ios_hospital_active_day_cnt}
 
 p3monthDay=`date -d "$day -3 months" "+%Y%m%d"`
 
@@ -24,7 +24,7 @@ from (
     from (
         select
             device, day
-        from ${device_lbs_poi_daily}
+        from ${dws_device_lbs_poi_10type_di}
         where day > '$p3monthDay' and day <= '$day'
         and type_9 is not null
         and type_9.name is not null

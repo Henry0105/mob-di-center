@@ -18,10 +18,9 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 tmpdb=${dw_mobdi_md}
-appdb="rp_mobdi_report"
 #input
 device_applist_new=${dim_device_applist_new_di}
-mapping_app_index="dm_sdk_mapping.mapping_app_income_index"
+#mapping_app_income_index="dm_sdk_mapping.mapping_app_income_index"
 
 output_table=${tmpdb}.tmp_occ1002_predict_part2
 
@@ -52,7 +51,7 @@ from
 seed a
 join
 (
-select apppkg,index from $mapping_app_index where version='1000'
+select apppkg,index from $mapping_app_income_index where version='1000'
 ) b
 on a.pkg=b.apppkg
 )c group by device

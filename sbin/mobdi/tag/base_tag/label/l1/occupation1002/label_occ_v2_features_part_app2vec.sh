@@ -18,10 +18,13 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 tmpdb=${dw_mobdi_md}
-appdb="rp_mobdi_report"
 
 #input
 device_applist_new=${dim_device_applist_new_di}
+tmp_label_occ1002_app2vec=${tmpdb}.tmp_label_occ1002_app2vec
+
+apppkg_app2vec_db=${apppkg_app2vec_par_wi%.*}
+apppkg_app2vec_tb=${apppkg_app2vec_par_wi#*.}
 
 HADOOP_USER_NAME=dba hive -e"
 set mapreduce.job.queuename=root.yarn_data_compliance2;
@@ -31,8 +34,8 @@ set hive.optimize.skewjoin = true;
 set hive.skewjoin.key = 10000000;
 set hive.groupby.skewindata=true;
 
-drop table if exists ${tmpdb}.tmp_label_occ1002_app2vec;
-create table ${tmpdb}.tmp_label_occ1002_app2vec stored as orc as
+drop table if exists $tmp_label_occ1002_app2vec;
+create table $tmp_label_occ1002_app2vec stored as orc as
 with seed as
 (
   select *
@@ -56,7 +59,7 @@ avg(d98) as d98,avg(d99) as d99,avg(d100) as d100
 from
 seed  x
 left join
-  (select * from rp_mobdi_app.apppkg_app2vec_par_wi where day=GET_LAST_PARTITION('rp_mobdi_app', 'apppkg_app2vec_par_wi', 'day')) y
+  (select * from $apppkg_app2vec_par_wi where day=GET_LAST_PARTITION('$apppkg_app2vec_db', '$apppkg_app2vec_tb', 'day')) y
 on x.pkg = y.apppkg
 group by device;
 "

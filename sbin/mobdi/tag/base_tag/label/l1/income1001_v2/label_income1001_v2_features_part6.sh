@@ -18,20 +18,20 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 tmpdb=${dw_mobdi_md}
-appdb="rp_mobdi_report"
 
 ##tmpdb="mobdi_test"
 ##appdb="mobdi_test"
 output_table="${tmpdb}.tmp_income1001_part6"
 device_applist_new=${dim_device_applist_new_di}
-mapping_contacts_word2vec2_sec="dm_sdk_mapping.mapping_contacts_word2vec2_sec"
+#mapping_contacts_word2vec2_sec="dm_sdk_mapping.mapping_contacts_word2vec2_sec"
 android_id_mapping_sec_df=${dim_id_mapping_android_sec_df}
-dim_pid_attribute_full_par_secview="dim_mobdi_mapping.dim_pid_attribute_full_par_secview"
-
+#dim_pid_attribute_full_par_secview="dim_mobdi_mapping.dim_pid_attribute_full_par_secview"
+android_id_mapping_sec_df_db=${android_id_mapping_sec_df%.*}
+android_id_mapping_sec_df_tb=${android_id_mapping_sec_df#*.}
 full_partition_sql="
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_id_mapping_android_sec_df', 'version');
+SELECT GET_LAST_PARTITION('$android_id_mapping_sec_df_db', '$android_id_mapping_sec_df_tb', 'version');
 drop temporary function GET_LAST_PARTITION;
 "
 full_last_version=(`hive -e "$full_partition_sql"`)

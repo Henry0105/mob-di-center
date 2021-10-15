@@ -13,7 +13,7 @@ month=`date -d "${day}" +%m`
 
 ## input table
 #device_info_master_full_par="dm_mobdi_master.device_info_master_full_par"
-dwd_device_info_df="dm_mobdi_master.dwd_device_info_df"
+#dwd_device_info_df="dm_mobdi_master.dwd_device_info_df"
 
 ## taget table
 label_diff_month_df=${label_l1_diff_month_df}

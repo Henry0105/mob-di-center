@@ -18,16 +18,16 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 tmpdb=${dw_mobdi_md}
-appdb="rp_mobdi_report"
 
 #input
 label_merge_all="${tmpdb}.model_merge_all_features"
-label_apppkg_category_index="${appdb}.label_l1_apppkg_category_index"
+tmp_occ1002_predict_part1="${tmpdb}.tmp_occ1002_predict_part1"
+#label_l1_apppkg_category_index="${appdb}.label_l1_apppkg_category_index"
 
 HADOOP_USER_NAME=dba hive -e"
 set mapreduce.job.queuename=root.yarn_data_compliance2;
-drop table if exists ${tmpdb}.tmp_occ1002_predict_part1;
-create table ${tmpdb}.tmp_occ1002_predict_part1 as
+drop table if exists $tmp_occ1002_predict_part1;
+create table $tmp_occ1002_predict_part1 as
 select device,
        if(size(collect_list(index))=0,collect_set(0),collect_list(index)) as index,
        if(size(collect_list(cnt))=0,collect_set(0.0),collect_list(cnt)) as cnt
@@ -145,11 +145,11 @@ from
 
   union all
 
-  select device,index,cnt from $label_apppkg_category_index where day = '${day}' and version = '1003.age.cate_l1'
+  select device,index,cnt from $label_l1_apppkg_category_index where day = '${day}' and version = '1003.age.cate_l1'
 
   union all
 
-  select device,index,cnt from $label_apppkg_category_index where day = '${day}' and version = '1003.age.cate_l2'
+  select device,index,cnt from $label_l1_apppkg_category_index where day = '${day}' and version = '1003.age.cate_l2'
 )a
 group by device
 ;

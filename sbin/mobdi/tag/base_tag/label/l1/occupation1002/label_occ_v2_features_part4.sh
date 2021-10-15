@@ -18,30 +18,34 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 tmpdb=${dw_mobdi_md}
-appdb="rp_mobdi_report"
 #input
 device_applist_new=${dim_device_applist_new_di}
-mapping_app_index="dm_sdk_mapping.mapping_app_income_index"
+#mapping_app_income_index="dm_sdk_mapping.mapping_app_income_index"
+tmp_occ1002_predict_part4=${tmpdb}.tmp_occ1002_predict_part4
+income_1001_university_bssid_index=${tmpdb}.income_1001_university_bssid_index
+income_1001_shopping_mall_bssid_index=${tmpdb}.income_1001_shopping_mall_bssid_index
+income_1001_traffic_bssid_index=${tmpdb}.income_1001_traffic_bssid_index
+
 
 HADOOP_USER_NAME=dba hive -e"
 set mapreduce.job.queuename=root.yarn_data_compliance2;
-drop table if exists ${tmpdb}.tmp_occ1002_predict_part4;
-create table ${tmpdb}.tmp_occ1002_predict_part4 stored as orc as
+drop table if exists $tmp_occ1002_predict_part4;
+create table $tmp_occ1002_predict_part4 stored as orc as
 select device,
        if(size(collect_list(index))=0,collect_set(0),collect_list(index)) as index,
        if(size(collect_list(cnt))=0,collect_set(0.0),collect_list(cnt)) as cnt
 from
 (
-  select device, index, 1.0 as cnt from dw_mobdi_md.income_1001_university_bssid_index where day='$day'
+  select device, index, 1.0 as cnt from $income_1001_university_bssid_index where day='$day'
 
   union all
 
-  select device, index, 1.0 as cnt from dw_mobdi_md.income_1001_shopping_mall_bssid_index where day='$day'
+  select device, index, 1.0 as cnt from $income_1001_shopping_mall_bssid_index where day='$day'
 
   union all
 
   select device, index, 1.0 as cnt
-  from dw_mobdi_md.income_1001_traffic_bssid_index
+  from $income_1001_traffic_bssid_index
   LATERAL VIEW explode(Array(traffic_bus_index,traffic_subway_index,traffic_airport_index,traffic_train_index)) a as index
   where day='$day'
 

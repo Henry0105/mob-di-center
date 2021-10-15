@@ -18,10 +18,7 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 tmpdb=${dw_mobdi_md}
-appdb="rp_mobdi_report"
 
-##tmpdb="mobdi_test"
-##appdb="mobdi_test"
 output_table="${tmpdb}.tmp_income1001_part1"
 #input
 label_merge_all="${tmpdb}.model_merge_all_features"
