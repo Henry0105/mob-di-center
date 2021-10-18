@@ -95,7 +95,7 @@
                         <configuration>
                             <tasks>
                                 <move
-                                  file="${project.build.directory}/assembly-${project.version}"
+                                  file="${project.build.directory}/assembly-${project.version}-dist"
                                   tofile="${project.basedir}/../dist"/>
                             </tasks>
                         </configuration>
