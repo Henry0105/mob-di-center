@@ -29,10 +29,12 @@ device_applist_new=${dim_device_applist_new_di}
 app_category_mapping="dm_sdk_mapping.app_category_mapping_par"
 
 ##output
-#apppkg_category_index="dm_mobdi_report.label_l1_apppkg_category_index"
+#label_l1_apppkg_category_index="dm_mobdi_report.label_l1_apppkg_category_index"
 
-#得到设备的app分类特征索引
+
+#计算设备的头部apppkg分类特征索引（consume_level模型专用）
 hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapreduce.map.memory.mb=5120;
 set mapreduce.map.java.opts='-Xmx4600m';
 set mapreduce.child.map.java.opts='-Xmx4600m';
@@ -43,8 +45,8 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
-insert overwrite table $label_l1_apppkg_category_index partition (day = ${day}, version = '1003')
-select a3.device, a1.index, 1.0 as cnt
+insert overwrite table $label_l1_apppkg_category_index partition (day = '$day', version = '1003.consume_level')
+select a3.device, a1.index, cast(count(1) as double) as cnt
 from
 (
   select cate_l2, index
@@ -60,9 +62,16 @@ inner join
 ) as a2 on a1.cate_l2 = a2.cate_l2
 inner join
 (
-  select device, pkg
-  from $device_applist_new
-  where day = ${day}
-) a3 on a2.apppkg = a3.pkg
-group by device, index;
+  select t1.device, t2.apppkg
+  from
+  (
+    select device, pkg
+    from $device_applist_new
+    where day = '$day'
+  ) t1
+  inner join
+  tp_mobdi_model.apppkg_index t2 on t1.pkg=t2.apppkg and t2.model='common' and t2.version='1003'
+  group by t1.device, t2.apppkg
+) a3 on a3.apppkg=a2.apppkg
+group by a3.device, a1.index;
 "

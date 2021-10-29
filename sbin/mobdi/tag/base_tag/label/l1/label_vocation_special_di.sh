@@ -36,14 +36,40 @@ set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
 set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.merge.smallfiles.avgsize=200000000;
-insert overwrite table $label_l1_vocation_special partition(day=$day)
-select device,max(identity) as identity
-from $mapping_special_identity a1
-inner join
+
+INSERT OVERWRITE TABLE $label_l1_vocation_special PARTITION (day=$day)
+SELECT device
+     , MAX(identity) AS identity
+FROM
 (
-  select device,pkg
-  from $device_applist_new
-  where day=$day
-) a2 on a1.pkg = a2.pkg
-group by device;
+  SELECT device
+       , CASE
+           WHEN identity = '团购商家' THEN 100
+           WHEN identity = '酒店商家' THEN 101
+           WHEN identity = '滴滴快的司机' THEN 102
+           WHEN identity = '代驾司机' THEN 103
+           WHEN identity = '货车司机' THEN 104
+           WHEN identity = '专车司机' THEN 105
+           WHEN identity = '快递员' THEN 106
+           WHEN identity = '外卖配送员' THEN 107
+           WHEN identity = '外卖商家' THEN 108
+           WHEN identity = '京东商家' THEN 109
+           WHEN identity = '淘宝商家' THEN 110
+           WHEN identity = '微店商家' THEN 111
+           WHEN identity = '医疗从业者' THEN 112
+           WHEN identity = '会计从业者' THEN 113
+           WHEN identity = '幼师' THEN 114
+           WHEN identity = '互联网从业者' THEN 115
+         ELSE -1
+         END AS identity
+  from $mapping_special_identity AS a1
+  INNER JOIN
+  (
+    SELECT device
+         , pkg
+    FROM $device_applist_new
+    WHERE day='$day'
+  ) AS a2 ON a1.pkg = a2.pkg
+) AS a3
+GROUP BY device;
 "

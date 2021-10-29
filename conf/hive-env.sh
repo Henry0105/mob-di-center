@@ -7,4 +7,5 @@ source ./hive_db_tb_mobdi_mapping.properties
 source ./hive_db_tb_report.properties
 source ./hive_db_tb_sdk_mapping.properties
 source ./hive_db_tb_topic.properties
+source ./hive_db_tb_tmp.properties
 echo "hive表变量加载完毕"

@@ -28,7 +28,7 @@ label_apppkg_category_index=$label_l1_apppkg_category_index
 sql="
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('rp_mobdi_app', 'label_l1_house_price_mf', 'day');
+SELECT GET_LAST_PARTITION('dm_mobdi_report', 'label_l1_house_price_mf', 'day');
 drop temporary function GET_LAST_PARTITION;
 "
 lastPartition=(`hive -e "$sql"`)
@@ -38,7 +38,7 @@ label_merge_all=$dw_mobdi_md.model_merge_all_features
 transfered_feature_table=$dw_mobdi_tmp.model_transfered_features
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.exec.parallel=true;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
@@ -96,7 +96,7 @@ left join
 "
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.exec.parallel=true;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;

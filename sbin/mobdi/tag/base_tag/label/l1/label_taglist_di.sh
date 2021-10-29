@@ -28,7 +28,7 @@ label_taglist_di=${label_l1_taglist_di}
 tag_idf=$mddb.tag_idf
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.optimize.index.filter=true;
 set hive.exec.orc.zerocopy=true;
 set hive.optimize.ppd=true;

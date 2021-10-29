@@ -10,26 +10,21 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 
+tmp_db=$dm_mobdi_tmp
+
 ##input
 device_applist_new=${dim_device_applist_new_di}
+
 ##mapping
-#app2vec_mapping_par="dim_sdk_mapping.app2vec_mapping_par"
+#app2vec_mapping_par="tp_mobdi_model.app2vec_mapping_par"
+
+##tmp
+tmp_label_app2vec=${tmp_db}.tmp_label_app2vec
+
 ##output
 label_l1_device_model_app2vec=${label_l1_device_model_app2vec}
 
-#生成每日模型运行需要的app2vec
-hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
-SET hive.merge.mapfiles=true;
-SET hive.merge.mapredfiles=true;
-set mapred.max.split.size=250000000;
-set mapred.min.split.size.per.node=128000000;
-set mapred.min.split.size.per.rack=128000000;
-set hive.merge.smallfiles.avgsize=250000000;
-set hive.merge.size.per.task = 250000000;
-set hive.optimize.skewjoin = true;
-set hive.skewjoin.key = 10000000;
-insert overwrite table $label_l1_device_model_app2vec partition(day='$day')
+sql="
 select device,
        avg(d1) as d1,avg(d2) as d2,avg(d3) as d3,avg(d4) as d4,avg(d5) as d5,avg(d6) as d6,avg(d7) as d7,avg(d8) as d8,avg(d9) as d9,
        avg(d10) as d10,avg(d11) as d11,avg(d12) as d12,avg(d13) as d13,avg(d14) as d14,avg(d15) as d15,avg(d16) as d16,avg(d17) as d17,
@@ -73,13 +68,61 @@ select device,
        avg(d282) as d282,avg(d283) as d283,avg(d284) as d284,avg(d285) as d285,avg(d286) as d286,avg(d287) as d287,avg(d288) as d288,
        avg(d289) as d289,avg(d290) as d290,avg(d291) as d291,avg(d292) as d292,avg(d293) as d293,avg(d294) as d294,avg(d295) as d295,
        avg(d296) as d296,avg(d297) as d297,avg(d298) as d298,avg(d299) as d299,avg(d300) as d300
-from
-(
-  select device, pkg as apppkg
-  from $device_applist_new
-  where day = '$day'
-) x
+from seed as x
 inner join
-$app2vec_mapping_par y on y.day='20200214' and x.apppkg = y.apppkg
-group by device;
+$app2vec_mapping_par y on y.day='20200214' and x.pkg = y.apppkg
+group by device
 "
+
+
+spark2-submit --master yarn --deploy-mode cluster \
+--class com.youzu.mob.newscore.App2Vec \
+--driver-memory 4G \
+--executor-memory 12G \
+--executor-cores 4 \
+--queue root.yarn_data_compliance \
+--conf spark.shuffle.service.enabled=true \
+--conf spark.dynamicAllocation.enabled=true \
+--conf spark.dynamicAllocation.minExecutors=100 \
+--conf spark.dynamicAllocation.maxExecutors=200 \
+--conf spark.dynamicAllocation.executorIdleTimeout=30s \
+--conf spark.dynamicAllocation.schedulerBacklogTimeout=5s \
+--conf spark.yarn.executor.memoryOverhead=4096 \
+--conf spark.kryoserializer.buffer.max=1024 \
+--conf spark.speculation=true \
+--conf spark.driver.maxResultSize=4g \
+--conf spark.default.parallelism=2000 \
+--conf spark.sql.shuffle.partitions=2000 \
+--conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
+/home/dba/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar \
+--inputTable $device_applist_new \
+--outputTable $tmp_label_app2vec \
+--day $day \
+--sql "$sql" \
+--flag "label_app2vec"
+
+#去小文件
+hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
+set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
+SET hive.merge.mapfiles=true;
+SET hive.merge.mapredfiles=true;
+set mapred.max.split.size=256000000;
+set mapred.min.split.size.per.node=250000000;
+set mapred.min.split.size.per.rack=250000000;
+set hive.merge.smallfiles.avgsize=250000000;
+set hive.merge.size.per.task=250000000;
+set hive.exec.reducers.bytes.per.reducer=256000000;
+set hive.exec.dynamic.partition=true;
+set hive.exec.dynamic.partition.mode=nonstrict;
+set hive.support.quoted.identifiers=None;
+
+INSERT OVERWRITE TABLE $label_l1_device_model_app2vec PARTITION(day)
+SELECT \`(stage)?+.+\`
+FROM $tmp_label_app2vec
+WHERE day = '$day';
+"
+
+#只保留最近7个分区
+hive -v -e "alter table ${tmp_label_app2vec} drop if exists partition(day='$b7day');"
+

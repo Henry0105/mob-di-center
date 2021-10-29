@@ -35,7 +35,7 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 
 hive -v -e"
-set mapreduce.job.queuename=root.yarn_data_compliance2;
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.optimize.index.filter=true;
 set hive.exec.orc.zerocopy=true;
 set hive.optimize.ppd=true;

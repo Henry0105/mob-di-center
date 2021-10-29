@@ -12,6 +12,8 @@ set -x -e
 !
 day=$1
 
+source /home/dba/mobdi_center/conf/hive-env.sh
+
 #input
 #dim_device_applist_new_di=dim_mobdi_mapping.dim_device_applist_new_di
 #mapping
