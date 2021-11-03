@@ -169,7 +169,7 @@ spark2-submit --class com.youzu.mob.newscore.ModelProfileTableMerge \
   --conf spark.dynamicAllocation.maxExecutors=100 \
   --files ${path}/tag_merge_2.properties \
   --conf spark.sql.shuffle.partitions=200 \
-/home/dba/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar ${day} ${path}/tag_merge_2.properties
+/home/dba/mobdi_center/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar ${day} ${path}/tag_merge_2.properties
 
 #全字段去重
 hive -v -e "

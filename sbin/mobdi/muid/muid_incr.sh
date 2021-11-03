@@ -20,4 +20,4 @@ spark2-submit \
 	--class com.mob.deviceid.gen.GenDeviceIdInc \
 	--conf spark.executor.memoryOverhead=10240 \
 	--conf spark.driver.maxResultSize=8g \
-	/home/dba/lib/MobDI_Muid-1.0-SNAPSHOT-jar-with-dependencies.jar $day
+	/home/dba/mobdi_center/lib/MobDI_Muid-1.0-SNAPSHOT-jar-with-dependencies.jar $day

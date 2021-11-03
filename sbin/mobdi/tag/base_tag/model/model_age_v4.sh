@@ -45,6 +45,6 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.network.timeout=1000000 \
 --conf spark.executor.heartbeatInterval=60s \
 --conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
-/home/dba/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$day" \
+/home/dba/mobdi_center/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$day" \
 "$sourceData" "$outputTable" "$precisionTable1" "$precisionTable2" "$precisionTable3" \
 "$precisionTable4" "$precisionTable5" "$precisionTable6"

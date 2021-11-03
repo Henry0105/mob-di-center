@@ -44,7 +44,7 @@ spark2-submit --master yarn --deploy-mode client \
 --conf spark.sql.autoBroadcastJoinThreshold=104857600 \
 --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
 --driver-java-options "-XX:MaxPermSize=1024m" \
-/home/dba/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar \
+/home/dba/mobdi_center/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar \
 "
 {
     \"partition\": \"${day}\",
@@ -54,4 +54,4 @@ spark2-submit --master yarn --deploy-mode client \
     \"windowTime\": \"${windowTime}\"
 }
 "
-#~/jdk1.8.0_45/bin/java -cp /home/dba/lib/mysql-utils-1.0-jar-with-dependencies.jar  com.mob.TagUpdateTime -d sec_mobdi_test -t timewindow_offline_profile_ios_sec
+#~/jdk1.8.0_45/bin/java -cp /home/dba/mobdi_center/lib/mysql-utils-1.0-jar-with-dependencies.jar  com.mob.TagUpdateTime -d sec_mobdi_test -t timewindow_offline_profile_ios_sec

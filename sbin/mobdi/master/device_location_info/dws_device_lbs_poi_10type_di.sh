@@ -210,7 +210,7 @@ and c.blon is null)
 --conf spark.yarn.executor.memoryOverhead=10240 \
 --conf spark.driver.maxResultSize=4g \
 --driver-java-options "-XX:MaxPermSize=1g" \
-/home/dba/lib/MobDI-spark-1.0-prod-jar-with-dependencies.jar "${day}" "${beforeNum}" "${lbs_tmp}" "${poi_tmp}" "${exceptsql}" "${tmp_sql}" "${add_poi}" $partitions "${insert_daily_sql}" "${insert_dinein_sql}" $isHbase "$filesnum" "$dropsql"
+/home/dba/mobdi_center/lib/MobDI-spark-1.0-prod-jar-with-dependencies.jar "${day}" "${beforeNum}" "${lbs_tmp}" "${poi_tmp}" "${exceptsql}" "${tmp_sql}" "${add_poi}" $partitions "${insert_daily_sql}" "${insert_dinein_sql}" $isHbase "$filesnum" "$dropsql"
 
 # 合并小文件
 hive -e"

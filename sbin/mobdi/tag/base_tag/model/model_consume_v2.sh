@@ -76,7 +76,7 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.speculation=true \
 --conf spark.driver.maxResultSize=4g \
 --conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
-/home/dba/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$day" "$seed" "$mapping" "$output_table" "$model_path" "$model_path2" $tran_flag
+/home/dba/mobdi_center/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$day" "$seed" "$mapping" "$output_table" "$model_path" "$model_path2" $tran_flag
 
 hive -v -e "
 set mapreduce.job.queuename=root.yarn_data_compliance2;

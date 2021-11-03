@@ -44,7 +44,7 @@ spark2-submit  --master yarn --deploy-mode cluster \
  --conf spark.dynamicAllocation.maxExecutors=400 \
  --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
  --driver-java-options "-XX:MaxPermSize=1g" \
-/home/dba/lib/mobdi-poi-tool-v0.1.0.jar \
+/home/dba/mobdi_center/lib/mobdi-poi-tool-v0.1.0.jar \
  "{
     \"dataType\": \"1\",
     \"poiCalFields\": {

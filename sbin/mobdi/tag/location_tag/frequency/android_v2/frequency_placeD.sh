@@ -45,4 +45,4 @@ spark2-submit --master yarn \
 			  --conf spark.driver.maxResultSize=5g \
         --conf spark.sql.adaptive.enabled=true \
          --conf spark.sql.adaptive.shuffle.targetPostShuffleInputSize=256000000 \
-			  /home/dba/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar D "$prepare_sql" 1
+			  /home/dba/mobdi_center/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar D "$prepare_sql" 1

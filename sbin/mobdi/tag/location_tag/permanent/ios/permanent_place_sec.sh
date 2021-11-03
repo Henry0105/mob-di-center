@@ -48,6 +48,6 @@ spark2-submit --master yarn \
 			  --conf spark.dynamicAllocation.maxExecutors=100 \
 			  --conf spark.default.parallelism=1200 \
 			  --conf spark.sql.shuffle.partitions=1500 \
-			  /home/dba/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar $day $p90day
+			  /home/dba/mobdi_center/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar $day $p90day
 			  
-#~/jdk1.8.0_45/bin/java -cp /home/dba/lib/mysql-utils-1.0-jar-with-dependencies.jar  com.mob.TagUpdateTime -d sec_mobdi_test -t ios_permanent_place_sec
+#~/jdk1.8.0_45/bin/java -cp /home/dba/mobdi_center/lib/mysql-utils-1.0-jar-with-dependencies.jar  com.mob.TagUpdateTime -d sec_mobdi_test -t ios_permanent_place_sec

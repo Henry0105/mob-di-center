@@ -50,7 +50,7 @@ spark2-submit \
  --conf spark.dynamicAllocation.enabled=true\
  --conf spark.dynamicAllocation.minExecutors=100\
  --conf spark.dynamicAllocation.maxExecutors=400\
- /home/dba/lib/mobdi-poi-tool-v0.1.0.jar \
+ /home/dba/mobdi_center/lib/mobdi-poi-tool-v0.1.0.jar \
  "{
     \"dataType\": \"1\",
     \"poiCalFields\": {

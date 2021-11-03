@@ -49,7 +49,7 @@ timewindow=$2
 	--conf "spark.rpc.askTimeout=400" \
     --conf "spark.shuffle.service.enabled=true"     \
 	--conf "spark.sql.shuffle.partitions=3000" \
-	/home/dba/lib/offlineLabel-v0.1.0-jar-with-dependencies.jar  --partition ${day} --filenum 2000 --fields [hotel_style:hotel_style,rank_star:rank_star,location:location,score_type:score_type,facilities:facilities,price_level:price_level,brand:brand,total:total] \
+	/home/dba/mobdi_center/lib/offlineLabel-v0.1.0-jar-with-dependencies.jar  --partition ${day} --filenum 2000 --fields [hotel_style:hotel_style,rank_star:rank_star,location:location,score_type:score_type,facilities:facilities,price_level:price_level,brand:brand,total:total] \
 	--lbstype 6 --windowtime ${timewindow} --pk ifid --sourcetable $dws_ifid_lbs_poi_ios_sec_di --targetable $timewindow_offline_profile_ios_v2_sec
 
     #./offlineLabel-1.0-SNAPSHOT-jar-with-dependencies.jar -p 20180927 -n 2 -f [brand:brand1,taste:taste1,type1:category1,type2:category2,time:time1,total:total1] -t 1 -w 7 -s dm_mobdi_master.device_catering_dinein_detail -g test.timewindow_offline_profile

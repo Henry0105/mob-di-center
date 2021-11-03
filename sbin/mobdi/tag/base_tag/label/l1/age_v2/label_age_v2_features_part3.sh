@@ -321,7 +321,7 @@ spark2-submit \
 --conf spark.dynamicAllocation.maxExecutors=200 \
 --driver-memory 12G \
 --executor-memory 35G \
-/home/dba/lib/mobdi-poi-tool-v0.1.0.jar  \
+/home/dba/mobdi_center/lib/mobdi-poi-tool-v0.1.0.jar  \
 "{
     \"dataType\": \"1\",
     \"lbsSql\": \"  select device,lat_home lat,lon_home lon from ${tmp_label_homeworkdist} where lat_home is not null \",
@@ -347,7 +347,7 @@ spark2-submit \
 --conf spark.dynamicAllocation.maxExecutors=200 \
 --driver-memory 12G \
 --executor-memory 35G \
-/home/dba/lib/mobdi-poi-tool-v0.1.0.jar  \
+/home/dba/mobdi_center/lib/mobdi-poi-tool-v0.1.0.jar  \
 "{
     \"dataType\": \"1\",
     \"lbsSql\": \"  select device,lat_work lat,lon_work lon from ${tmp_label_homeworkdist} where lat_work is not null \",

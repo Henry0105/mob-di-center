@@ -23,7 +23,7 @@ sorted_pkg=$tmpdb.sorted_pkg
 #app_detail_yyb=dw_ext_crawl.app_detail_yyb
 
 cd `dirname $0`
-libpath=/home/dba/lib
+libpath=/home/dba/mobdi_center/lib
 
 lastpar=`hive -S -e "show partitions $rp_app_rank_category_insatll_monthly" |tail -n 1`
 

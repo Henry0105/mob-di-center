@@ -127,7 +127,7 @@ spark2-submit --master yarn \
             --executor-memory 12g \
             --executor-cores 4 \
             --conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
-	   /home/dba/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar  "$day" "$hive_url" "$ads_device_travel_di_old"
+	   /home/dba/mobdi_center/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar  "$day" "$hive_url" "$ads_device_travel_di_old"
 
 hive -v -e "
 set hive.vectorized.execution.enabled=true;

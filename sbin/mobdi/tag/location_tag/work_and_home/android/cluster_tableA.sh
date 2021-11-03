@@ -68,7 +68,7 @@ spark2-submit --master yarn \
 			  --conf spark.executor.memoryOverhead=4096 \
 			  --conf spark.driver.maxResultSize=5g \
         --conf "spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:+UseG1GC "     \
-        /home/dba/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "A${i}" "${prepare_sql}" 1
+        /home/dba/mobdi_center/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "A${i}" "${prepare_sql}" 1
 }
 
 for i in {0..3}

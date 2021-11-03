@@ -47,7 +47,7 @@ timewindow=$2
     --conf "spark.shuffle.service.enabled=true"     \
 	--conf "spark.sql.shuffle.partitions=16001" \
 	--conf "spark.yarn.executor.memoryOverhead=4096" \
-	/home/dba/lib/offlineLabel-v0.1.0-jar-with-dependencies.jar  --partition ${day} --filenum 8000 --fields [hotel_style:hotel_style,rank_star:rank_star,location:location:,,score_type:score_type,facilities:facilities:,,price_level:price_level,brand:brand,total:total] \
+	/home/dba/mobdi_center/lib/offlineLabel-v0.1.0-jar-with-dependencies.jar  --partition ${day} --filenum 8000 --fields [hotel_style:hotel_style,rank_star:rank_star,location:location:,,score_type:score_type,facilities:facilities:,,price_level:price_level,brand:brand,total:total] \
 	--lbstype 6 --windowtime ${timewindow} --pk device --sourcetable $dws_device_lbs_poi_android_sec_di --targetable $timewindow_offline_profile_v2
 
 

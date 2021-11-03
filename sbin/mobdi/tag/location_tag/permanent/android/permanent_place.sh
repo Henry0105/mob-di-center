@@ -18,7 +18,7 @@ then
 			  --conf spark.yarn.executor.memoryOverhead=2048 \
 			  --conf spark.network.timeout=200s \
 			  --conf spark.executor.heartbeatInterval=30s \
-			  /home/dba/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$day" "$p90day"
+			  /home/dba/mobdi_center/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$day" "$p90day"
 else
 	echo $day
 fi

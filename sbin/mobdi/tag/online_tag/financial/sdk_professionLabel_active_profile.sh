@@ -126,4 +126,4 @@ FROM
    ON tag_dmp.tag_id = device_active.tag
    group by tag_dmp.cat2,device_active.device ,device_active.day) active_tag group by active_tag.device,active_tag.day) device_day_count group by device_day_count.device;
 "
-~/jdk1.8.0_45/bin/java -cp /home/dba/lib/mysql-utils-1.0-jar-with-dependencies.jar  com.mob.TagUpdateTime -d rp_mobdi_app -t ${TargetTable}
+~/jdk1.8.0_45/bin/java -cp /home/dba/mobdi_center/lib/mysql-utils-1.0-jar-with-dependencies.jar  com.mob.TagUpdateTime -d rp_mobdi_app -t ${TargetTable}

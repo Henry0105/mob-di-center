@@ -94,7 +94,7 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.default.parallelism=2000 \
 --conf spark.sql.shuffle.partitions=2000 \
 --conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
-/home/dba/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar \
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar \
 --inputTable $device_applist_new \
 --outputTable $tmp_label_app2vec \
 --day $day \
