@@ -34,7 +34,7 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 #dwd_log_share_new_di=dm_mobdi_master.dwd_log_share_new_di
 #dwd_log_oauth_new_di=dm_mobdi_master.dwd_log_oauth_new_di
 
-tmpdb=$dw_mobdi_tmp
+tmpdb=$dm_mobdi_tmp
 # md
 tmp_device_snsuid_android=$tmpdb.tmp_device_snsuid_android    # 只用到一次    dw_mobdi_tmp.tmp_device_snsuid_android
 tmp_device_snsuid_ios=$tmpdb.tmp_device_snsuid_ios            # 只用到一次    dw_mobdi_tmp.tmp_device_snsuid_ios

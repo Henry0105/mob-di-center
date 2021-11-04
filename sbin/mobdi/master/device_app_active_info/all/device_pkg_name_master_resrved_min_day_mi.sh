@@ -21,7 +21,7 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 ## 源表
 master_reserved_new=${dws_device_install_app_re_status_di}
 
-tmpdb=$dw_mobdi_tmp
+tmpdb=$dm_mobdi_tmp
 ## 临时表
 calculate_tmp=$tmpdb.tmp_calculate
 

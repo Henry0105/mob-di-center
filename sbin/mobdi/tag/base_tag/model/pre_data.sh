@@ -33,9 +33,9 @@ drop temporary function GET_LAST_PARTITION;
 "
 lastPartition=(`hive -e "$sql"`)
 ##tmp table
-label_merge_all=$dw_mobdi_md.model_merge_all_features
+label_merge_all=${dm_mobdi_tmp}.model_merge_all_features
 ## output
-transfered_feature_table=$dw_mobdi_tmp.model_transfered_features
+transfered_feature_table=${dm_mobdi_tmp}.model_transfered_features
 
 hive -v -e "
 set mapreduce.job.queuename=root.yarn_data_compliance;

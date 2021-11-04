@@ -32,12 +32,17 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 #device_mintime_incr_mapping=$device_mintime_incr_mapping
 #device_mintime_mapping=$device_mintime_mapping
 
-
-
 hive -v -e"
 set mapreduce.job.queuename=root.yarn_data_compliance;
+set mapreduce.map.memory.mb=5120;
+set mapreduce.map.java.opts='-Xmx4600m' -XX:+UseG1GC;
+set mapreduce.child.map.java.opts='-Xmx4600m';
+set mapreduce.reduce.memory.mb=5120;
+set mapreduce.reduce.java.opts='-Xmx4600m' -XX:+UseG1GC;
+
 set hive.optimize.index.filter=true;
 set hive.exec.orc.zerocopy=true;
+set hive.vectorized.execution.enabled=true;
 set hive.optimize.ppd=true;
 
 set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
@@ -50,18 +55,43 @@ set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task=250000000;
 set hive.exec.reducers.bytes.per.reducer=256000000;
 
+set hive.groupby.skewindata=true;
+set hive.exec.parallel=true;
+set hive.exec.parallel.thread.number=10;
+
 insert overwrite table $device_mintime_incr_mapping partition(day='${day}')
 select incr.device, incr.plat
-from 
+from
 (
-  select muid as device,plat
-    from $dwd_log_device_info_jh_sec_di
-    where day = '${day}'
-    and plat in ('1','2')
-    group by muid,plat
+  select device,plat
+  from
+  (
+      select device,plat
+      from $dwd_log_device_info_jh_sec_di
+      where day = '${day}'
+      and plat in ('1','2')
+      group by device,plat
+
+      union all
+
+      select device,1 as plat
+      from $dim_device_applist_new_di
+      where day = '${day}'
+      group by device
+
+      union all
+
+      select device,plat
+      from $dws_device_ip_info_di
+      where day = '${day}'
+      and plat in (1,2)
+      group by device,plat
+  )a
+  group by device,plat
 ) incr
 left join
-$device_mintime_mapping ful on incr.device = ful.device
+$device_mintime_mapping ful
+on incr.device = ful.device
 where ful.device is null;
 
 insert overwrite table $device_mintime_mapping
@@ -72,5 +102,5 @@ union all
 
 select device, plat, day
 from $device_mintime_incr_mapping
-where day='${day}'
+where day='${day}';
 "

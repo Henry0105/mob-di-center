@@ -21,7 +21,7 @@ day=$1
 
 source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb=$dw_mobdi_tmp
+tmpdb=$dm_mobdi_tmp
 ## input
 tmp_score_part1="${tmpdb}.tmp_score_part1"
 tmp_score_part3="${tmpdb}.tmp_score_part3"

@@ -19,7 +19,7 @@ day365=`date -d "$day -365 days" +%Y%m%d`
 
 source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb=$dw_mobdi_tmp
+tmpdb=$dm_mobdi_tmp
 appdb=$rp_mobdi_report
 
 ##input
@@ -62,7 +62,7 @@ set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
 set mapreduce.job.queuename=root.yarn_data_compliance2;
 
-insert overwrite table dw_mobdi_tmp.device_cate_preference_list
+insert overwrite table dm_mobdi_tmp.device_cate_preference_list
 select device,
        concat(concat_ws(',',collect_list(cate_id)),'=',concat_ws(',',collect_list(cast(preference as string)))) as cate_preference_list
 from $device_cate_preference_incr

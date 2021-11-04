@@ -31,33 +31,6 @@ model_path="/dmgroup/dba/modelpath/20200721/consume_1001/cluster_6"
 model_path2="/dmgroup/dba/modelpath/20200721/consume_1001/cluster_9"
 tran_flag=0
 
-hive -v -e "
-CREATE TABLE  if not exists $output_table (
-  device  string,
-   bank  bigint,
-   beauty  bigint,
-   beauty_borrow  bigint,
-   borrow  bigint,
-   card  bigint,
-   fans  bigint,
-   haitao  bigint,
-   highend_shop  bigint,
-   legend_game  bigint,
-   luxury_car  bigint,
-   makeup  bigint,
-   money_game  bigint,
-   photo  bigint,
-   shopping  bigint,
-   prediction_only_install  int,
-   cluster4_prediction_nooffline  int,
-   cluster  int)
-COMMENT '聚类结果表'
-partitioned by
-(day string)
-stored as orc;
-"
-
-
 spark2-submit --master yarn --deploy-mode cluster \
 --queue root.yarn_data_compliance2 \
 --class com.youzu.mob.newscore.ConsumeV2 \
@@ -79,7 +52,7 @@ spark2-submit --master yarn --deploy-mode cluster \
 /home/dba/mobdi_center/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$day" "$seed" "$mapping" "$output_table" "$model_path" "$model_path2" $tran_flag
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
+set mapreduce.job.queuename=root.yarn_data_compliance;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;

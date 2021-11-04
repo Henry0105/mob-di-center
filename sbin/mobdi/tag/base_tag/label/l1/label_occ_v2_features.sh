@@ -16,7 +16,7 @@ fi
 source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
-tmpdb="$dw_mobdi_tmp"
+tmpdb="${dm_mobdi_tmp}"
 mddb="$dw_mobdi_md"
 appdb="$rp_mobdi_report"
 #input

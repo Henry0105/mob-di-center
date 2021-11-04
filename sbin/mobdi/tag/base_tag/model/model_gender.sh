@@ -21,7 +21,7 @@ day=$1
 
 source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb=$dw_mobdi_tmp
+tmpdb=${dm_mobdi_tmp}
 
 #input
 label_apppkg_feature_index=${label_l1_apppkg_feature_index}
@@ -243,7 +243,7 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.shuffle.service.enabled=true \
 --conf spark.dynamicAllocation.enabled=true \
 --conf spark.dynamicAllocation.minExecutors=1 \
---conf spark.dynamicAllocation.maxExecutors=50 \
+--conf spark.dynamicAllocation.maxExecutors=100 \
 --conf spark.sql.shuffle.partitions=2000 \
 --conf spark.dynamicAllocation.executorIdleTimeout=30s \
 --conf spark.dynamicAllocation.schedulerBacklogTimeout=5s \

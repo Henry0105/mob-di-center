@@ -20,7 +20,7 @@ fi
 day=$1
 source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb=$dw_mobdi_tmp
+tmpdb=$dm_mobdi_tmp
 
 #input
 transfered_feature_table="${tmpdb}.model_transfered_features"
@@ -32,9 +32,8 @@ model="/dmgroup/dba/modelpath/20200413/consume_level"
 out_put_table=$label_l2_result_scoring_di
 threshold="1.0,1.1,1.0,1.0"
 
-md_db=$dw_mobdi_md
-consume_level_device_index=$md_db.consume_level_device_index
-consume_level_device_index_onehot_prepare=$md_db.consume_level_device_index_onehot_prepare
+consume_level_device_index=${tmpdb}.consume_level_device_index
+consume_level_device_index_onehot_prepare=${tmpdb}.consume_level_device_index_onehot_prepare
 
 #dim_device_applist_new_di=dim_mobdi_mapping.dim_device_applist_new_di
 
@@ -128,6 +127,7 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
+set mapreduce.job.queuename=root.yarn_data_compliance;
 insert overwrite table $consume_level_device_index_onehot_prepare partition(day='$day')
 select device,
        cast(sum(if(index>=0 and index<=7,index,0)) as int) as city_level_1001,
@@ -163,6 +163,7 @@ spark2-submit --master yarn --deploy-mode cluster \
 --driver-memory 8G \
 --executor-memory 15G \
 --executor-cores 5 \
+--queue root.yarn_data_compliance \
 --conf spark.shuffle.service.enabled=true \
 --conf spark.dynamicAllocation.enabled=true \
 --conf spark.dynamicAllocation.minExecutors=1 \

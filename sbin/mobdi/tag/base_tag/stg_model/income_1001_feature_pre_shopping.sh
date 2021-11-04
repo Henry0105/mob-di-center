@@ -33,11 +33,7 @@ income_1001_bssid_index_calculate_base_info=${tmp_db}.income_1001_bssid_index_ca
 #out
 income_1001_shopping_mall_bssid_index=${tmp_db}.income_1001_shopping_mall_bssid_index
 
-shoppingMallBssidMappingLastPar=(`hive -e "
-add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
-create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_shopping_mall_ssid_bssid_match_info_mf', 'day');
-"`)
+shoppingMallBssidMappingLastPar=hive -e "show partitions $dim_shopping_mall_ssid_bssid_match_info_mf" | awk -v day=${day} -F '=' '$2<=day {print $0}'| sort| tail -n 1
 #计算商场bssid特征
 #通过dm_mobdi_mapping.dim_shopping_mall_ssid_bssid_match_info_mf表，先计算device连接商场的日期
 #然后计算device在商场的连接天数

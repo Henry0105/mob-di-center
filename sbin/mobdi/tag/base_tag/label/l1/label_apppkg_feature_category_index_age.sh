@@ -26,8 +26,8 @@ device_applist_new=${dim_device_applist_new_di}
 
 ##mapping
 app_category_mapping="dm_sdk_mapping.app_category_mapping_par"
-#mapping_app_cate_index1="tp_mobdi_model.mapping_age_cate_index1"
-#mapping_app_cate_index2="tp_mobdi_model.mapping_age_cate_index2"
+#mapping_age_cate_index1="tp_mobdi_model.mapping_age_cate_index1"
+#mapping_age_cate_index2="tp_mobdi_model.mapping_age_cate_index2"
 
 ##output
 #apppkg_category_index="dm_mobdi_report.label_l1_apppkg_category_index"
@@ -73,7 +73,7 @@ from
     ) b on a.pkg=b.apppkg
   ) c
   inner join
-  $mapping_app_cate_index1 d on c.cate_l1_id=d.cate_l1_id
+  $mapping_age_cate_index1 d on c.cate_l1_id=d.cate_l1_id
 ) e
 group by device,index;
 "
@@ -119,7 +119,7 @@ from
     ) b on a.pkg=b.apppkg
   ) c
   inner join
-  $mapping_app_cate_index2 d on c.cate_l2_id=d.cate_l2_id
+  $mapping_age_cate_index2 d on c.cate_l2_id=d.cate_l2_id
 ) e
 group by device,index;
 "

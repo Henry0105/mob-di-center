@@ -14,19 +14,14 @@ fi
 
 source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb=$dw_mobdi_tmp
-md_db=$dw_mobdi_md
-models_with_confidence_pre=$tmpdb.models_with_confidence_pre
-
-#device_profile_label_full_par=dm_mobdi_report.device_profile_label_full_par
-
-full_version=`hive -e "show partitions $device_profile_label_full_par"| grep -v 'monthly_bak'|awk -F '=' '{print $2}'|tail -n 1`
+tmpdb=${dm_mobdi_tmp}
+models_with_confidence_pre=${tmpdb}.models_with_confidence_pre
 
 ## input
 result_scoring_par=$label_l2_result_scoring_di
 
 ##中间落地表
-models_with_confidence_pre_par=$md_db.models_with_confidence_pre_par
+models_with_confidence_pre_par=${tmpdb}.models_with_confidence_pre_par
 
 ## mapping
 #model_confidence_config_maping=tp_mobdi_model.model_confidence_config_maping
@@ -41,7 +36,7 @@ echo ${day}
 last_conf_par=`hive -e "show partitions tp_mobdi_model.model_confidence_config_maping" | sort | tail -n 1`
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
+set mapreduce.job.queuename=root.yarn_data_compliance;
 insert overwrite table $models_with_confidence_pre
 select device,prediction,probability,day,kind,
        case
@@ -107,7 +102,7 @@ from dw_mobdi_md.models_with_confidence_pre;
 
 #增加edu的前置逻辑自洽
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
+set mapreduce.job.queuename=root.yarn_data_compliance;
 insert overwrite table $models_with_confidence_pre_par partition(day = '$day')
 select a.device,
        case when b.prediction=6 and a.prediction=9 and conv(substr(a.device, 0, 4), 16 ,10)/65535<0.8 then 8
@@ -161,15 +156,15 @@ spark2-submit --class com.youzu.mob.newscore.ModelProfileTableMerge \
   --master yarn-cluster \
   --name merge_two_$day \
   --driver-memory 4G \
-  --executor-memory 6G \
-  --executor-cores 2 \
+  --executor-memory 12G \
+  --executor-cores 4 \
   --conf spark.shuffle.service.enabled=true \
   --conf spark.dynamicAllocation.enabled=true \
-  --conf spark.dynamicAllocation.minExecutors=20 \
-  --conf spark.dynamicAllocation.maxExecutors=100 \
+  --conf spark.dynamicAllocation.minExecutors=100 \
+  --conf spark.dynamicAllocation.maxExecutors=200 \
   --files ${path}/tag_merge_2.properties \
-  --conf spark.sql.shuffle.partitions=200 \
-/home/dba/mobdi_center/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar ${day} ${path}/tag_merge_2.properties
+  --conf spark.sql.shuffle.partitions=800 \
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar ${day} ${path}/tag_merge_2.properties
 
 #全字段去重
 hive -v -e "

@@ -21,7 +21,7 @@ day=$1
 
 source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb=$dw_mobdi_tmp
+tmpdb=${dm_mobdi_tmp}
 
 ## input
 transfered_feature_table="$tmpdb.model_transfered_features"

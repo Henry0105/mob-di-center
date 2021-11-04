@@ -12,7 +12,7 @@ day=$1
 source /home/dba/mobdi_center/conf/hive-env.sh
 
 ## 源表
-device_full_with_brand_mapping=dw_mobdi_tmp.device_full_with_brand_mapping
+device_full_with_brand_mapping=dm_mobdi_tmp.device_full_with_brand_mapping
 #device_all_risk_refine=dm_mobdi_report.device_all_risk_refine
 
 ## 目标表

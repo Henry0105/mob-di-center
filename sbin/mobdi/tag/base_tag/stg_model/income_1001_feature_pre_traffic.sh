@@ -24,7 +24,7 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 tmp_db=$dm_mobdi_tmp
 
 input
-#calculate_model_device=${tmp_db}.calculate_model_device
+calculate_model_device=${tmp_db}.calculate_model_device
 
 #md
 traffic_bssid=dw_mobdi_md.traffic_bssid

@@ -21,7 +21,7 @@ day=$1
 
 source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb=$dw_mobdi_tmp
+tmpdb=${dm_mobdi_tmp}
 
 ##input
 transfered_feature_table="${tmpdb}.model_transfered_features"
@@ -81,4 +81,4 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.speculation=true \
 --conf spark.driver.maxResultSize=4g \
 --conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
-/home/dba/mobdi_center/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$modelPath" "$tmp_sql" "$length" "$outputTable" "$day"
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$modelPath" "$tmp_sql" "$length" "$outputTable" "$day"

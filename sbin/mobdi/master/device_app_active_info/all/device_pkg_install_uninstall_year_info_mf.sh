@@ -20,7 +20,7 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 ## 源表
 master_reserved_new=$dws_device_install_app_re_status_di
-tmpdb=$dw_mobdi_tmp
+tmpdb=$dm_mobdi_tmp
 master_reserved_new_month_aggregation_mi=$tmpdb.md_master_reserved_new_month_aggregation_mi
 device_pkg_name_master_resrved_min_day_mi=$tmpdb.md_device_pkg_name_master_resrved_min_day_mi
 
