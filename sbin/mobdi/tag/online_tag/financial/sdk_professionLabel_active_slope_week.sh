@@ -117,4 +117,4 @@ SELECT NVL(now_rp.device,bef_rp.device) as device ${param1},
        WHERE bef.day =${bday})bef_rp
   on bef_rp.device = now_rp.device
 "
-~/jdk1.8.0_45/bin/java -cp /home/dba/lib/mysql-utils-1.0-jar-with-dependencies.jar  com.mob.TagUpdateTime -d rp_mobdi_app -t rp_device_financial_slope_week_profile
+~/jdk1.8.0_45/bin/java -cp /home/dba/mobdi_center/lib/mysql-utils-1.0-jar-with-dependencies.jar  com.mob.TagUpdateTime -d rp_mobdi_app -t rp_device_financial_slope_week_profile

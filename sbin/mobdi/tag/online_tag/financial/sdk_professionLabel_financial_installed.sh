@@ -231,7 +231,7 @@ FROM ${tmpdb}.${tmptable} t
   on t.device = app_count.device
 group by t.device,t.apppkg,app_count.count) all_tmp group by all_tmp.device,all_tmp.count;
 "
-~/jdk1.8.0_45/bin/java -cp /home/dba/lib/mysql-utils-1.0-jar-with-dependencies.jar  com.mob.TagUpdateTime -d rp_mobdi_app -t rp_device_financial_installed_profile
+~/jdk1.8.0_45/bin/java -cp /home/dba/mobdi_center/lib/mysql-utils-1.0-jar-with-dependencies.jar  com.mob.TagUpdateTime -d rp_mobdi_app -t rp_device_financial_installed_profile
 
 #clear tmp table
 hive -e "truncate table ${tmpdb}.${tmptable}"

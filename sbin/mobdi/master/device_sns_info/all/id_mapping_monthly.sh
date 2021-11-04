@@ -16,7 +16,7 @@
 set -x -e
 export LANG=zh_CN.UTF-8
 cd `dirname $0`
-libPath=/home/dba/lib
+libPath=/home/dba/mobdi_center/lib
 : '
 @parameters
 @DATE:传入日期参数，执行该日期前一个月的数据

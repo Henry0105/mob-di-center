@@ -55,7 +55,7 @@ spark2-submit --master yarn  --deploy-mode cluster  \
 --conf spark.dynamicAllocation.minExecutors=20 \
 --conf spark.driver.memory=2G \
 --conf spark.shuffle.service.enabled=true \
---jars /home/dba/lib/ansj_seg-5.1.6.jar,/home/dba/lib/nlp-lang-1.7.7.jar \
+--jars /home/dba/mobdi_center/lib/ansj_seg-5.1.6.jar,/home/dba/mobdi_center/lib/nlp-lang-1.7.7.jar \
 /home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar $day $phone_contact_version $model_path $mapping_contacts_word2vec2
 
 hive -v -e "

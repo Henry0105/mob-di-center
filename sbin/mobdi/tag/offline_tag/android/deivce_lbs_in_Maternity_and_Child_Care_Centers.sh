@@ -47,7 +47,7 @@ spark2-submit \
 --conf spark.storage.memoryFraction=0.4 \
 --conf spark.shuffle.memoryFraction=0.4 \
 --conf spark.yarn.executor.memoryOverhead=4096 \
-/home/dba/lib/mobdi-poi-tool-v0.1.0.jar \
+/home/dba/mobdi_center/lib/mobdi-poi-tool-v0.1.0.jar \
  "{
      \"dataType\": \"1\",
      \"lbsSql\": \"select device,lat,lon from $dws_device_location_staying_di where day='$day' and type in ('gps','wifi','tlocation','base') and accuracy != '0'\",

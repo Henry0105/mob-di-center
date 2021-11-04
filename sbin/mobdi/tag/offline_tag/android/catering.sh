@@ -46,7 +46,7 @@ timewindow=$2
 	--conf "spark.rpc.askTimeout=400" \
     --conf "spark.shuffle.service.enabled=true"     \
     --conf "spark.yarn.executor.memoryOverhead=4096" \
-     /home/dba/lib/offlineLabel-v0.1.0-jar-with-dependencies.jar \
+     /home/dba/mobdi_center/lib/offlineLabel-v0.1.0-jar-with-dependencies.jar \
 	 --pk device \
 	 -p ${day} \
 	 -n 8000 \

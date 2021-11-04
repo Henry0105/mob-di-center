@@ -48,7 +48,7 @@ timewindow=$2
 	--conf "spark.rpc.askTimeout=400" \
     --conf "spark.shuffle.service.enabled=true"     \
     --conf "spark.sql.shuffle.partitions=3000" \
-	/home/dba/lib/offlineLabel-v0.1.0-jar-with-dependencies.jar \
+	/home/dba/mobdi_center/lib/offlineLabel-v0.1.0-jar-with-dependencies.jar \
 	--partition ${day} \
 	--filenum 2000 \
 	--fields [name:name,price:price,brand:brand,zone:zone,type:type:,,total:total] \

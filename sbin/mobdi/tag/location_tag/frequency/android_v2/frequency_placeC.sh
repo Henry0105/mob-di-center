@@ -52,4 +52,4 @@ spark2-submit --master yarn \
 			  --conf spark.default.parallelism=10000 \
 			  --conf spark.sql.shuffle.partitions=10000 \
 			  --conf spark.driver.maxResultSize=5g \
-			  /home/dba/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar C "$prepare_sql" 1
+			  /home/dba/mobdi_center/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar C "$prepare_sql" 1

@@ -143,4 +143,4 @@ spark2-submit --master yarn --deploy-mode cluster \
 --name "SortingAppCagtegoryUtils" \
 --conf spark.sql.shuffle.partitions=100 \
 --conf spark.sql.autoBroadcastJoinThreshold=519715200 \
-/home/dba/lib/MobDI_Monitor-1.0-SNAPSHOT-jar-with-dependencies.jar "$mysqlInfoStr" "$mailList" "$insertTestTableSql" "$checkDataSqls" "$bakAndInsertSql" "$doubleCheckSql"
+/home/dba/mobdi_center/lib/MobDI_Monitor-1.0-SNAPSHOT-jar-with-dependencies.jar "$mysqlInfoStr" "$mailList" "$insertTestTableSql" "$checkDataSqls" "$bakAndInsertSql" "$doubleCheckSql"

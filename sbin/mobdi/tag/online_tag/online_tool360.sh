@@ -796,7 +796,7 @@ spark2-submit --master yarn --deploy-mode client \
 --conf spark.sql.autoBroadcastJoinThreshold=104857600 \
 --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
 --driver-java-options "-XX:MaxPermSize=1024m" \
-/home/dba/lib/OnlineUniversalTool-v0.1.0-jar-with-dependencies.jar \
+/home/dba/mobdi_center/lib/OnlineUniversalTool-v0.1.0-jar-with-dependencies.jar \
 "
 {
 	\"category_mapping\":\"${category_mapping}\",
