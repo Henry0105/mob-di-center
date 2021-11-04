@@ -10,7 +10,7 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 
-tmp_db=$dm_mobdi_tmp
+tmp_db=${dm_mobdi_tmp}
 
 ##input
 device_applist_new=${dim_device_applist_new_di}

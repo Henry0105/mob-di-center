@@ -16,7 +16,7 @@ fi
 
 source /home/dba/mobdi_center/conf/hive-env.sh
 
-mddb=$dw_mobdi_md
+mddb=${dw_mobdi_md}
 date=$1
 
 ##input
@@ -25,7 +25,7 @@ device_applist_new=${dim_device_applist_new_di}
 #output
 label_taglist_di=${label_l1_taglist_di}
 
-tag_idf=$mddb.tag_idf
+tag_idf=${mddb}.tag_idf
 
 hive -v -e "
 set mapreduce.job.queuename=root.yarn_data_compliance;
