@@ -24,7 +24,7 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 device_mapping_label=$label_mapping_type_all_di
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=125000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -134,7 +134,23 @@ select driver.device,
        case
          when info.cpu='' then 'unknown'
          else info.cpu
-       end as cpu
+       end as cpu,
+       case
+         when info.sdcardstorage_clean='' then 'unknown'
+         else info.sdcardstorage_clean
+       end as sdcardstorage,
+       case
+         when info.ram_clean='' then 'unknown'
+         else info.ram_clean
+       end as ram,
+       case
+         when info.romimg_clean='' then 'unknown'
+         else info.romimg_clean
+       end as romimg,
+       case
+         when info.displayid_clean='' then 'unknown'
+         else info.displayid_clean
+       end as displayid
 from
 (
   select device

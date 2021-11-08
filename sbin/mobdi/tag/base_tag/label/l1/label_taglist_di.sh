@@ -16,7 +16,7 @@ fi
 
 source /home/dba/mobdi_center/conf/hive-env.sh
 
-mddb=${dw_mobdi_md}
+mddb=${dm_mobdi_tmp}
 date=$1
 
 ##input

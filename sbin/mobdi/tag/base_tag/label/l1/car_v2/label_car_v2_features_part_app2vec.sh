@@ -13,21 +13,21 @@ if [ $# -ne 1 ]; then
     echo "USAGE: <day>"
     exit 1
 fi
-source /home/dba/mobdi_center/conf/hive-env.sh
-
 day=$1
+
+source /home/dba/mobdi_center/conf/hive-env.sh
+tmpdb=$dm_mobdi_tmp
+
 #input
-device_applist_new="dm_mobdi_mapping.device_applist_new"
+device_applist_new=${dim_device_applist_new_di}
 
-tmpdb="$dw_mobdi_md"
+#tmp
+tmp_part_car_app2vec=${tmpdb}.tmp_part_car_app2vec
 
-#input
-#apppkg_app2vec_par_wi="$appdb.apppkg_app2vec_par_wi"
-#optput
-output_table="$tmpdb.tmp_car_pre_app2vec"
+#put
+output_table=${tmpdb}.tmp_car_pre_app2vec
 
-hive -e "
-insert overwrite table ${output_table} partition(day='${day}')
+sql="
 select device,
 avg(coalesce(d1,0)) as d1,avg(coalesce(d2,0)) as d2,avg(coalesce(d3,0)) as d3,avg(coalesce(d4,0)) as d4,avg(coalesce(d5,0)) as d5,
 avg(coalesce(d6,0)) as d6,avg(coalesce(d7,0)) as d7,avg(coalesce(d8,0)) as d8,avg(coalesce(d9,0)) as d9,avg(coalesce(d10,0)) as d10,
@@ -49,20 +49,66 @@ avg(coalesce(d81,0)) as d81,avg(coalesce(d82,0)) as d82,avg(coalesce(d83,0)) as 
 avg(coalesce(d86,0)) as d86,avg(coalesce(d87,0)) as d87,avg(coalesce(d88,0)) as d88,avg(coalesce(d89,0)) as d89,avg(coalesce(d90,0)) as d90,
 avg(coalesce(d91,0)) as d91,avg(coalesce(d92,0)) as d92,avg(coalesce(d93,0)) as d93,avg(coalesce(d94,0)) as d94,avg(coalesce(d95,0)) as d95,
 avg(coalesce(d96,0)) as d96,avg(coalesce(d97,0)) as d97,avg(coalesce(d98,0)) as d98,avg(coalesce(d99,0)) as d99,avg(coalesce(d100,0)) as d100
-from
-(
-  select *
-  from $dim_device_applist_new_di
-  where day = '$day'
-) x
+from seed as x
 left join
-  (select * from $apppkg_app2vec_par_wi where day='20210124') y -- 固定分区
+  (select * from $apppkg_app2vec_par_wi where day = '20210124') y
 on x.pkg = y.apppkg
-group by device;
+group by device
 "
 
+
+spark2-submit --master yarn --deploy-mode cluster \
+--class com.youzu.mob.newscore.App2Vec \
+--driver-memory 4G \
+--executor-memory 12G \
+--executor-cores 4 \
+--queue root.yarn_data_compliance \
+--conf spark.shuffle.service.enabled=true \
+--conf spark.dynamicAllocation.enabled=true \
+--conf spark.dynamicAllocation.minExecutors=100 \
+--conf spark.dynamicAllocation.maxExecutors=200 \
+--conf spark.dynamicAllocation.executorIdleTimeout=30s \
+--conf spark.dynamicAllocation.schedulerBacklogTimeout=5s \
+--conf spark.yarn.executor.memoryOverhead=4096 \
+--conf spark.kryoserializer.buffer.max=1024 \
+--conf spark.speculation=true \
+--conf spark.driver.maxResultSize=4g \
+--conf spark.default.parallelism=2000 \
+--conf spark.sql.shuffle.partitions=2000 \
+--conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar \
+--inputTable $device_applist_new \
+--outputTable $tmp_part_car_app2vec \
+--day $day \
+--sql "$sql" \
+--flag "car_app2_vec"
+
+#去小文件
+hive -v -e "
+set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
+SET hive.merge.mapfiles=true;
+SET hive.merge.mapredfiles=true;
+set mapred.max.split.size=256000000;
+set mapred.min.split.size.per.node=250000000;
+set mapred.min.split.size.per.rack=250000000;
+set hive.merge.smallfiles.avgsize=250000000;
+set hive.merge.size.per.task=250000000;
+set hive.exec.reducers.bytes.per.reducer=256000000;
+set hive.exec.dynamic.partition=true;
+set hive.exec.dynamic.partition.mode=nonstrict;
+set hive.support.quoted.identifiers=None;
+
+INSERT OVERWRITE TABLE $output_table PARTITION(day)
+SELECT \`(stage)?+.+\`
+FROM $tmp_part_car_app2vec
+WHERE day = '$day';
+"
+
+#只保留最近7个分区
 for old_version in `hive -e "show partitions ${output_table} " | grep -v '_bak' | sort | head -n -7`
 do
     echo "rm $old_version"
-    hive -v -e "alter table ${output_table} drop if exists partition($old_version)"
+    hive -v -e "alter table ${output_table} drop if exists partition($old_version);"
 done
+
+hive -v -e "alter table ${tmp_part_car_app2vec} drop if exists partition(day='$b7day');"

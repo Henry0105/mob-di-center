@@ -9,16 +9,17 @@ fi
 day=$1
 day_before_one_month=$(date -d "${day} -1 month" "+%Y%m%d")
 source /home/dba/mobdi_center/conf/hive-env.sh
-
+insertday=${day}_muid
 #dim_age_app_category_final_new=dim_mobdi_mapping.dim_age_app_category_final_new
 #category_mapping_table=dm_mobdi_mapping.age_app_category_final_new
 #label_device_pkg_install_uninstall_year_info_mf="rp_mobdi_app.label_device_pkg_install_uninstall_year_info_mf"
 
-age_new_pkg_install_12="$dm_mobdi_tmp.age_new_pkg_install_12"
+age_new_pkg_install_12="${dm_mobdi_tmp}.age_new_pkg_install_12"
 
 
 
 hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -29,7 +30,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $age_new_pkg_install_12 partition (day=$day)
+insert overwrite table $age_new_pkg_install_12 partition (day=$insertday)
 select device
 ,max(case when cate_id='cate14' then cnt_1 else 0 end ) as cate14_12_12
 ,max(case when cate_id='cate26' then cnt_1 else 0 end ) as cate26_12_12
@@ -103,6 +104,6 @@ from
 group by device;
 "
 
-hive -e "
-alter table $age_new_pkg_install_12 drop partition (day< $day_before_one_month);
-"
+#hive -e "
+#alter table $age_new_pkg_install_12 drop partition (day< $day_before_one_month);
+#"

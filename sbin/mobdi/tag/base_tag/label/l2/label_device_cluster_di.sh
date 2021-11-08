@@ -25,7 +25,7 @@ label_cluster_di=$label_l2_device_cluster_di
 
 ##目前只是简单的把数据拷贝过来，后面需要重写
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
+set mapreduce.job.queuename=root.yarn_data_compliance;
 insert overwrite table $label_cluster_di partition (day=$day)
 select device,cluster
 from $cluster_incr

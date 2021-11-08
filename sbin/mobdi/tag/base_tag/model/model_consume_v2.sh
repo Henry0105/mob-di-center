@@ -21,10 +21,7 @@ day=$1
 
 source /home/dba/mobdi_center/conf/hive-env.sh
 
-
-#seed="select device,applist from test.zhangxy_consume_device_sample2"
 seed="select device,applist from ${label_l1_applist_refine_cnt_di} where day='$day'"
-#mapping="dim_sdk_mapping.mapping_consume_pkg"
 mapping=$dim_mapping_consume_pkg
 output_table=${label_l1_consume_1001_di}
 model_path="/dmgroup/dba/modelpath/20200721/consume_1001/cluster_6"
@@ -49,7 +46,7 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.speculation=true \
 --conf spark.driver.maxResultSize=4g \
 --conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
-/home/dba/mobdi_center/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$day" "$seed" "$mapping" "$output_table" "$model_path" "$model_path2" $tran_flag
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$day" "$seed" "$mapping" "$output_table" "$model_path" "$model_path2" $tran_flag
 
 hive -v -e "
 set mapreduce.job.queuename=root.yarn_data_compliance;

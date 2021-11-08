@@ -10,7 +10,7 @@ set -e -x
 
 day=$1
 source /home/dba/mobdi_center/conf/hive-env.sh
-tmpdb=${dw_mobdi_md}
+tmpdb=${dm_mobdi_tmp}
 
 #input
 device_applist_new=${dim_device_applist_new_di}
@@ -20,23 +20,8 @@ device_applist_new=${dim_device_applist_new_di}
 #mapping_edu_app_tgi_feature_index0=dim_sdk_mapping.mapping_edu_app_tgi_feature_index0
 
 #ouput
-tmp_edu_score_part8=$tmpdb.tmp_edu_score_part8
+tmp_edu_score_part8=${tmpdb}.tmp_edu_score_part8
 
-:<<!
-CREATE TABLE dw_mobdi_md.tmp_edu_score_part8(
-  device string,
-  index array<int>,
-  cnt array<double>)
-stored as orc;
-
-20210303修改表结构，为了可并行执行
-CREATE TABLE dw_mobdi_md.tmp_edu_score_part8(
-  device string,
-  index array<int>,
-  cnt array<double>)
-partitioned by (day string)
-stored as orc;
-!
 
 hive -v -e "
 set mapreduce.job.queuename=root.yarn_data_compliance2;

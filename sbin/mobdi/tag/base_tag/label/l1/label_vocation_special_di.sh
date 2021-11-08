@@ -25,7 +25,7 @@ device_applist_new=${dim_device_applist_new_di}
 label_l1_vocation_special=${label_l1_vocation_special}
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.exec.parallel=true;
 set hive.auto.convert.join=true;
 set hive.map.aggr=true;
@@ -62,7 +62,7 @@ FROM
            WHEN identity = '互联网从业者' THEN 115
          ELSE -1
          END AS identity
-  from $mapping_special_identity AS a1
+  FROM $mapping_special_identity AS a1
   INNER JOIN
   (
     SELECT device

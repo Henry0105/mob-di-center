@@ -9,15 +9,17 @@ fi
 day=$1
 day_before_one_month=$(date -d "${day} -1 month" "+%Y%m%d")
 source /home/dba/mobdi_center/conf/hive-env.sh
+insertday=${day}_muid
 
 #dim_age_app_category_final_new=dim_mobdi_mapping.dim_age_app_category_final_new
 #category_mapping_table=dm_mobdi_mapping.age_app_category_final_new
 #label_device_pkg_install_uninstall_year_info_mf="rp_mobdi_app.label_device_pkg_install_uninstall_year_info_mf"
 
-age_new_ratio_features_3m="$dm_mobdi_tmp.age_new_ratio_features_3m"
+age_new_ratio_features_3m="${dm_mobdi_tmp}.age_new_ratio_features_3m"
 
 
 hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -28,7 +30,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $age_new_ratio_features_3m partition(day=$day) 
+insert overwrite table $age_new_ratio_features_3m partition(day=$insertday)
 select
     device
 ,tgi1_18_24_6_3m_cnt
@@ -60,15 +62,12 @@ from(
             (
                 select device,pkg,refine_final_flag,first_day,flag_day,update_day,day
                 from $label_device_pkg_install_uninstall_year_info_mf
-                where day=$day and update_day between $day_before_one_month and $day
+                where day=$day
+                and update_day between $day_before_one_month and $day
             )b
             on a.pkg=b.pkg
         )t1
          where datediff(date,update_day)<=90 and  datediff(date,flag_day)<=90
         group by device
     )t2 ;
-"
-
-hive -e "
-alter table $age_new_ratio_features_3m drop partition(day< $day_before_one_month);
 "

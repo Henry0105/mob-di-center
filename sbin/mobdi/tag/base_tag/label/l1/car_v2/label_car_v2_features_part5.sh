@@ -14,9 +14,10 @@ fi
 source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
-tmpdb="$dw_mobdi_md"
+tmpdb=$dm_mobdi_tmp
+
 #input
-#device_applist_new="dm_mobdi_mapping.device_applist_new"
+#dim_device_applist_new_di
 
 #mapping
 #mapping_contacts_words_20000_sec="dm_sdk_mapping.mapping_contacts_words_20000_sec"
@@ -33,14 +34,10 @@ output_table=${tmpdb}.tmp_car_score_part5
 
 id_mapping_db=${id_mapping_android_sec_df%.*}
 id_mapping_tb=${id_mapping_android_sec_df#*.}
+
 #id_mapping最新分区
-full_partition_sql="
-add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
-create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-SELECT GET_LAST_PARTITION('$id_mapping_db', '$id_mapping_tb', 'version');
-drop temporary function GET_LAST_PARTITION;
-"
-full_last_version=( "$(hive -e "$full_partition_sql")" )
+pidPartition=hive -e "show partitions $dim_device_pid_merge_df" | awk -v day=${day} -F '=' '$2<=day {print $0}'| sort| tail -n 1
+
 
 ##v3版的part5通讯录特征
 hive -v -e "
@@ -87,8 +84,8 @@ left join
                             inner join
                             (
                                 select device,pid,pid_ltm
-                                from $id_mapping_android_sec_df
-                                where version = '${full_last_version[0]}'
+                                from $dim_device_pid_merge_df
+                                where $pidPartition
                             ) b
                             on a.device = b.device
                         )c

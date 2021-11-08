@@ -101,14 +101,13 @@ echo $carrier_last
 
 #tmp
 tmpdb=$dm_mobdi_tmp
-tmp_device_nationality_base=$tmpdb.tmp_device_nationality_base
-tmp_device_nationality_language=$tmpdb.tmp_device_nationality_language
-tmp_device_nationality_permanent_pre=$tmpdb.tmp_device_nationality_permanent_pre
-tmp_device_nationality_permanent=$tmpdb.tmp_device_nationality_permanent
-tmp_device_nationality_apprank_uniq=$tmpdb.tmp_device_nationality_apprank_uniq
-tmp_device_nationality_ip=$tmpdb.tmp_device_nationality_ip
-tmp_device_nationality_carrier=$tmpdb.tmp_device_nationality_carrier
-tmp_device_nationality_apprank_cnt=$tmpdb.tmp_device_nationality_apprank_cnt
+tmp_device_nationality_base=${tmpdb}.device_nationality_base
+tmp_device_nationality_language=${tmpdb}.device_nationality_language
+tmp_device_nationality_permanent_pre=${tmpdb}.device_nationality_permanent_pre
+tmp_device_nationality_permanent=${tmpdb}.device_nationality_permanent
+tmp_device_nationality_ip=${tmpdb}.device_nationality_ip
+tmp_device_nationality_carrier=${tmpdb}.device_nationality_carrier
+tmp_device_nationality_apprank_cnt=${tmpdb}.device_nationality_apprank_cnt
 
 #output
 #device_nationality=dm_mobdi_report.device_nationality
@@ -116,7 +115,7 @@ tmp_device_nationality_apprank_cnt=$tmpdb.tmp_device_nationality_apprank_cnt
 
 
 #--每天增量更新的base表
- hive -e "
+hive -e "
 set hive.exec.parallel=true;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
@@ -161,9 +160,9 @@ inner join
 #--常住地 dw_mobdi_md.device_nationality_base,dm_sdk_mapping.map_country_sdk,
 #rp_mobdi_app.rp_device_location_permanent->dw_mobdi_md.device_nationality_permanent
 
-
 #--设备居住地信息
- hive -e "
+hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 insert overwrite table $tmp_device_nationality_permanent_pre
 select device,ch_name as country
 from
@@ -192,45 +191,13 @@ select a2.device,a2.country
 from $tmp_device_nationality_permanent_pre a2
 inner join  $tmp_device_nationality_base a1 on a1.device = a2.device;
 " &
-
-#--App榜单 rp_appgo_common.app_rank_monthly_2->dw_mobdi_md.device_nationality_apprank|
-#dw_mobdi_md.device_nationality_apprank,dw_mobdi_md.device_nationality_apprank->dw_mobdi_md.device_nationality_apprank_uniq
-
-
-hive -e "
-insert overwrite table $tmp_device_nationality_apprank_uniq
-select zone,app_id,avgrank
-from
-(
-  select zone,app_id,avgrank,
-         count(*) over(partition by app_id) as cnt
-  from
-  (
-    select zone,app_id,avgrank
-    from
-    (
-      select zone,app_id,avgrank,
-             row_number() over (partition by zone order by avgrank) as rank
-      from
-      (
-        select zone,app_id,(maxrank+minrank)/2 as avgrank
-        from  $app_rank_monthly_2
-        where par_time =${apprank_last_day}
-        and category_id = 2
-      ) a
-    ) aa
-    where rank <= 10000
-  )tmp
-)tt
-where cnt=1;
-" &
-
 wait
 
 echo "start step 3"
 
 #--ip地址
- hive -e "
+hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.exec.parallel=true;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
@@ -283,7 +250,8 @@ inner join
 " &
 
 #--运营商 dm_sdk_mapping.mapping_carrier_country,dw_mobdi_md.device_nationality_hardware->dw_mobdi_md.device_nationality_carrier
- hive -e "
+hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 insert overwrite table $tmp_device_nationality_carrier
 select a2.device,a1.country
 from
@@ -315,61 +283,12 @@ inner join
   ) b2 on b1.device = b2.device
 ) a2 on a1.operator = a2.carrier;
 " &
-
-#dw_mobdi_md.device_nationality_apprank_uniq,dm_sdk_mapping.app_pkg_mapping_par,
-#dm_mobdi_mapping.device_applist_new->dw_mobdi_md.device_nationality_apprank_cnt
-
- hive -e "
-set hive.exec.parallel=true;
-set hive.hadoop.supports.splittable.combineinputformat=true;
-set hive.merge.mapfiles = true;
-set hive.merge.mapredfiles = true;
-set hive.merge.size.per.task = 125000000;
-set hive.merge.smallfiles.avgsize=16000000;
-insert overwrite table $tmp_device_nationality_apprank_cnt
-select device,zone,cnt
-from
-(
-  select device,zone,cnt,
-         row_number() over (partition by device order by cnt desc) as rank
-  from
-  (
-    select a2.device,a1.zone,count(1) as cnt
-    from
-    (
-      select zone,pkg
-      from
-      (
-        select b1.zone,coalesce(b2.apppkg,b1.app_id) as pkg
-        from $tmp_device_nationality_apprank_uniq b1
-        left join
-        (
-          select *
-          from $dim_app_pkg_mapping_par
-          where version='1000'
-        ) b2 on b1.app_id = b2.pkg
-      )b
-      group by zone,pkg
-    ) a1
-    inner join
-    (
-      select device,pkg
-      from  $dim_device_applist_new_di
-      where day = ${indate}
-      and processtime = ${indate}
-    )a2 on a1.pkg = a2.pkg
-    group by a2.device,a1.zone
-  )c
-)cc
-where rank = 1;
-" &
-
 wait
 echo "start final step...."
 
 #--安装10个以上上榜APP的设备优先级最高
 #--插入正式表
- hive -e "
+hive -e "
 CREATE TABLE IF NOT EXISTS $device_nationality(
 device string,
 nationality string,
@@ -381,7 +300,8 @@ stored as orc;
 
 # dw_mobdi_md.device_nationality_language,dw_mobdi_md.device_nationality_ip,dw_mobdi_md.device_nationality_permanent,
 #dw_mobdi_md.device_nationality_carrier,dm_sdk_mapping.map_country_sdk,dw_mobdi_md.device_nationality_apprank_cnt->rp_mobdi_app.device_nationality partition
- hive -e "
+hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.exec.parallel=true;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
@@ -391,9 +311,9 @@ set hive.merge.smallfiles.avgsize=16000000;
 insert overwrite table $device_nationality partition (day = ${indate})
 select device,
        case
-         when country_code = 'hk' then '中国香港'
-         when country_code = 'mo' then '中国澳门'
-         when country_code = 'tw' then '中国台湾'
+         when country_code = 'hk' then '中国'
+         when country_code = 'mo' then '中国'
+         when country_code = 'tw' then '中国'
          else nationality
        end as nationality,
        case
@@ -404,8 +324,9 @@ select device,
        end as country_code
 from
 (
-  select b1.device,coalesce(b2.country,b1.country) as nationality,
-         coalesce(lower(b2.country_code),lower(b1.country_code)) as country_code
+  select b1.device,
+         b1.country as nationality,
+         lower(b1.country_code) as country_code
   from
   (
     select device,country,country_code
@@ -444,13 +365,6 @@ from
             )a1
             inner join
             $dim_map_country_sdk a2 on a1.country = a2.ch_name
-
-            union all
-
-            select a1.device,a2.ch_name as country,upper(a2.zone) as country_code,'5' as tag
-            from $tmp_device_nationality_apprank_cnt a1
-            inner join
-            $dim_map_country_sdk  a2 on upper(a1.zone) = upper(a2.zone)
           )a
           group by device,country,country_code
         )aa
@@ -459,18 +373,6 @@ from
     )aaaa
     where rank = 1
   )b1
-  left join
-  (
-    select a1.device,a2.ch_name as country,upper(a2.zone) as country_code
-    from
-    (
-      select device,zone
-      from $tmp_device_nationality_apprank_cnt
-      where cnt >= 5
-    ) a1
-    inner join
-    $dim_map_country_sdk     a2 on upper(a1.zone) = upper(a2.zone)
-  )b2 on b1.device = b2.device
 )code_map
 where country_code not in ('00','an','cs','eh');
 "

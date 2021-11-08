@@ -26,7 +26,7 @@ class  AgeScoreV3(@transient spark: SparkSession) {
     val whitelist = args(5)
     val out_put_table = args(6)
     val day = args(7)
-    val testdb = if (args(8)=="1") "mobdi_test" else "dw_mobdi_md"
+    val testdb = if (args(8)=="1") "mobdi_test" else "dm_mobdi_tmp"
 
 
     var rdd_val1 = spark.sql(

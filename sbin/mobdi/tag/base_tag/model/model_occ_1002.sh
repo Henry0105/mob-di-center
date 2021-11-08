@@ -27,7 +27,7 @@ tmpdb=$dm_mobdi_tmp
 #input
 tmp_score_part1="${tmpdb}.tmp_score_part1"
 tmp_score_part2="${tmpdb}.tmp_occ1002_predict_part2"
-tmp_score_part3="${tmpdb}.tmp_occ1002_predict_part3"
+tmp_score_part3="${tmpdb}.tmp_score_part3"
 tmp_score_part4="${tmpdb}.tmp_score_part4"
 tmp_score_part5="${tmpdb}.tmp_score_part5_v3"
 tmp_score_part6="${tmpdb}.tmp_score_part6_v3"
@@ -58,4 +58,4 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.driver.maxResultSize=4g \
  --conf spark.default.parallelism=2000 \
 --conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
-/home/dba/mobdi_center/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$tmp_score_part1" "$tmp_score_part2" "$tmp_score_part3" "$tmp_score_part4" "$tmp_score_part5" "$tmp_score_part6" "$tmp_score_app2vec" "$modelPath" "$threshold" "$out_put_table" "$day"
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$tmp_score_part1" "$tmp_score_part2" "$tmp_score_part3" "$tmp_score_part4" "$tmp_score_part5" "$tmp_score_part6" "$tmp_score_app2vec" "$modelPath" "$threshold" "$out_put_table" "$day"

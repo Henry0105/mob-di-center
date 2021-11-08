@@ -27,15 +27,15 @@ fi
 day=$1
 
 source /home/dba/mobdi_center/conf/hive-env.sh
-tmpdb=$dw_mobdi_tmp
+tmpdb=$dm_mobdi_tmp
 ##input
 label_l1_catelist_di=$label_l1_catelist_di
 
 ##output
-device_cate_preference_incr=$tmpdb.device_cate_preference_incr
+device_cate_preference_incr=${tmpdb}.device_cate_preference_incr
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
+set mapreduce.job.queuename=root.yarn_data_compliance;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
 create temporary function explode_tags as 'com.youzu.mob.java.udtf.ExplodeTags';
 

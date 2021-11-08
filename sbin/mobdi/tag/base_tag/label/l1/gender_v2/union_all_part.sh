@@ -9,25 +9,27 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 p7=$(date -d "$day -7 days" "+%Y%m%d")
-tmpdb=$dm_mobdi_tmp
-gender_feature_v2_part1="$tmpdb.gender_feature_v2_part1"
-gender_feature_v2_part2="$tmpdb.gender_feature_v2_part2"
-gender_feature_v2_part3="$tmpdb.gender_feature_v2_part3"
-gender_feature_v2_part4="$tmpdb.gender_feature_v2_part4"
-gender_feature_v2_part5="$tmpdb.gender_feature_v2_part5"
-gender_feature_v2_part6="$tmpdb.gender_feature_v2_part6"
-gender_feature_v2_part7="$tmpdb.gender_feature_v2_part7"
-gender_feature_v2_part8="$tmpdb.gender_feature_v2_part8"
-gender_feature_v2_part9="$tmpdb.gender_feature_v2_part9"
-gender_feature_v2_part13="$tmpdb.gender_feature_v2_part13"
-gender_feature_v2_part14="$tmpdb.gender_feature_v2_part14"
-gender_feature_v2_part15="$tmpdb.gender_feature_v2_part15"
-gender_feature_v2_part16="$tmpdb.gender_feature_v2_part16"
-gender_feature_v2_part17="$tmpdb.gender_feature_v2_part17"
-gender_feature_v2_part18="$tmpdb.gender_feature_v2_part18"
-gender_feature_v2_part19="$tmpdb.gender_feature_v2_part19"
+day=${day}_muid
 
-gender_feature_v2_final="$tmpdb.gender_feature_v2_final"
+tmpdb=$dm_mobdi_tmp
+gender_feature_v2_part1="${tmpdb}.gender_feature_v2_part1"
+gender_feature_v2_part2="${tmpdb}.gender_feature_v2_part2"
+gender_feature_v2_part3="${tmpdb}.gender_feature_v2_part3"
+gender_feature_v2_part4="${tmpdb}.gender_feature_v2_part4"
+gender_feature_v2_part5="${tmpdb}.gender_feature_v2_part5"
+gender_feature_v2_part6="${tmpdb}.gender_feature_v2_part6"
+gender_feature_v2_part7="${tmpdb}.gender_feature_v2_part7"
+gender_feature_v2_part8="${tmpdb}.gender_feature_v2_part8"
+gender_feature_v2_part9="${tmpdb}.gender_feature_v2_part9"
+gender_feature_v2_part13="${tmpdb}.gender_feature_v2_part13"
+gender_feature_v2_part14="${tmpdb}.gender_feature_v2_part14"
+gender_feature_v2_part15="${tmpdb}.gender_feature_v2_part15"
+gender_feature_v2_part16="${tmpdb}.gender_feature_v2_part16"
+gender_feature_v2_part17="${tmpdb}.gender_feature_v2_part17"
+gender_feature_v2_part18="${tmpdb}.gender_feature_v2_part18"
+gender_feature_v2_part19="${tmpdb}.gender_feature_v2_part19"
+
+gender_feature_v2_final="${tmpdb}.gender_feature_v2_final"
 
 hive -e "
 set mapred.max.split.size=256000000;
@@ -657,4 +659,4 @@ from $gender_feature_v2_part19 where day=$day
 ;
 "
 
-hive -e "alter table $gender_feature_v2_final drop partition(day<$p7);"
+#hive -e "alter table $gender_feature_v2_final drop partition(day<$p7);"

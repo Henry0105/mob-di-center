@@ -8,27 +8,30 @@ fi
 
 day=$1
 day_before_two_month=$(date -d "${day} -2 month" "+%Y%m%d")
-source /home/dba/mobdi_center/conf/hive-env.sh
-tmpdb=$dm_mobdi_tmp
-age_new_ratio_features_12m="$tmpdb.age_new_ratio_features_12m"
-age_new_ratio_features_6m="$tmpdb.age_new_ratio_features_6m"
-age_new_ratio_features_3m="$tmpdb.age_new_ratio_features_3m"
-age_new_newIns_recency_features="$tmpdb.age_new_newIns_recency_features"
-age_new_Ins_recency_features="$tmpdb.age_new_Ins_recency_features"
-age_new_install_cnt_6mv12m="$tmpdb.age_new_install_cnt_6mv12m"
-age_new_pkg_install_12="$tmpdb.age_new_pkg_install_12"
-age_new_applist_install_bycate_id_whether="$tmpdb.age_new_applist_install_bycate_id_whether"
-age_new_active_recency_features="$tmpdb.age_new_active_recency_features"
-age_new_active_days_12="$tmpdb.age_new_active_days_12"
-age_new_active_days_6="$tmpdb.age_new_active_days_6"
-age_new_active_days_3="$tmpdb.age_new_active_days_3"
-age_new_active_days_1="$tmpdb.age_new_active_days_1"
-age_new_embedding_cosin_bycate="$tmpdb.age_new_embedding_cosin_bycate"
-age_new_topic_wgt="$tmpdb.age_new_topic_wgt"
+day=${day}_muid
 
-age_new_age_features_all="$tmpdb.age_new_features_all"
+source /home/dba/mobdi_center/conf/hive-env.sh
+tmpdb=${dm_mobdi_tmp}
+age_new_ratio_features_12m="${tmpdb}.age_new_ratio_features_12m"
+age_new_ratio_features_6m="${tmpdb}.age_new_ratio_features_6m"
+age_new_ratio_features_3m="${tmpdb}.age_new_ratio_features_3m"
+age_new_newIns_recency_features="${tmpdb}.age_new_newIns_recency_features"
+age_new_Ins_recency_features="${tmpdb}.age_new_Ins_recency_features"
+age_new_install_cnt_6mv12m="${tmpdb}.age_new_install_cnt_6mv12m"
+age_new_pkg_install_12="${tmpdb}.age_new_pkg_install_12"
+age_new_applist_install_bycate_id_whether="${tmpdb}.age_new_applist_install_bycate_id_whether"
+age_new_active_recency_features="${tmpdb}.age_new_active_recency_features"
+age_new_active_days_12="${tmpdb}.age_new_active_days_12"
+age_new_active_days_6="${tmpdb}.age_new_active_days_6"
+age_new_active_days_3="${tmpdb}.age_new_active_days_3"
+age_new_active_days_1="${tmpdb}.age_new_active_days_1"
+age_new_embedding_cosin_bycate="${tmpdb}.age_new_embedding_cosin_bycate"
+age_new_topic_wgt="${tmpdb}.age_new_topic_wgt"
+
+age_new_age_features_all="${tmpdb}.age_new_features_all"
 
 hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -554,6 +557,6 @@ left join(
 on a.device = p.device
 "
 
-hive -e "
-alter table $age_new_age_features_all drop partition(day< $day_before_two_month);
-"
+#hive -e "
+#alter table $age_new_age_features_all drop partition(day< $day_before_two_month);
+#"

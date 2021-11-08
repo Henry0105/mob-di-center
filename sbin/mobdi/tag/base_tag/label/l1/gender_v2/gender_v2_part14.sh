@@ -9,12 +9,15 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 p7=$(date -d "$day -7 days" "+%Y%m%d")
-tmpdb=$dm_mobdi_tmp
-gender_feature_v2_part2="$tmpdb.gender_feature_v2_part2"
+insertday=${day}_muid
 
-gender_feature_v2_part14="$tmpdb.gender_feature_v2_part14"
+tmpdb=$dm_mobdi_tmp
+gender_feature_v2_part2="${tmpdb}.gender_feature_v2_part2"
+
+gender_feature_v2_part14="${tmpdb}.gender_feature_v2_part14"
 
 hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -25,7 +28,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $gender_feature_v2_part14 partition(day=$day)
+insert overwrite table $gender_feature_v2_part14 partition(day=$insertday)
 select device,
 car, game, male_other, female_high, edu, female_other, 
 (car + game + male_other) male_cnt, (female_high + edu + female_other) female_cnt,
@@ -41,8 +44,8 @@ select t1.device,
 (index115 + index57 + index120 + index59 + index130 + index117) female_high,
 (index87+index93+index91+index86+index88+index94+index92) edu,
 (index42+index16+index188+index64+index52+index112+index128+index14+index47+index43) female_other
-from $gender_feature_v2_part2 t1 where day=$day
+from $gender_feature_v2_part2 t1 where day=$insertday
 ) t
 "
 
-hive -e "alter table $gender_feature_v2_part14 drop partition(day<$p7);"
+#hive -e "alter table $gender_feature_v2_part14 drop partition(day<$p7);"

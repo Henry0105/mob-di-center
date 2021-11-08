@@ -20,35 +20,7 @@ tmpdb=$dw_mobdi_tmp
 tmp_anticheat_device_bssid_pre=$tmpdb.tmp_anticheat_device_bssid_pre
 
 #输出表
-tmp_anticheat_device_bssid_cnt_7days=$tmpdb.tmp_anticheat_device_bssid_cnt_7days
-tmp_anticheat_device_bssid_cnt_14days=$tmpdb.tmp_anticheat_device_bssid_cnt_14days
-tmp_anticheat_device_bssid_cnt_30days=$tmpdb.tmp_anticheat_device_bssid_cnt_30days
-
-hive -v -e "
-create table if not exists $tmp_anticheat_device_bssid_cnt_7days(
-    device string comment '设备号',
-    cnt bigint comment '设备连接bssid数'
-)
-comment '近7天设备连接bssid数中间表'
-partitioned by (day string comment '日期')
-stored as orc;
-
-create table if not exists $tmp_anticheat_device_bssid_cnt_14days(
-    device string comment '设备号',
-    cnt bigint comment '设备连接bssid数'
-)
-comment '近14天设备连接bssid数中间表'
-partitioned by (day string comment '日期')
-stored as orc;
-
-create table if not exists $tmp_anticheat_device_bssid_cnt_30days(
-    device string comment '设备号',
-    cnt bigint comment '设备连接bssid数'
-)
-comment '近30天设备连接bssid数中间表'
-partitioned by (day string comment '日期')
-stored as orc;
-"
+tmp_anticheat_device_bssid_cnt_30days=${tmpdb}.tmp_anticheat_device_bssid_cnt_30days
 
 function bssidcnt(){
 

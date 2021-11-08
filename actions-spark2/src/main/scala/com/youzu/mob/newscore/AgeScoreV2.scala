@@ -5,7 +5,7 @@ import org.apache.spark.ml.feature.VectorAssembler
 import org.apache.spark.sql.SparkSession
 
 import scala.collection.mutable.ArrayBuffer
-import org.apache.spark.ml.linalg.{Vector => mlVector, Vectors => mlVectors}
+import org.apache.spark.ml.linalg.{Vectors => mlVectors}
 import org.apache.spark.mllib.linalg.{Vector => mllibVector, Vectors => mllibVectors}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions
@@ -32,7 +32,7 @@ class  AgeScoreV2(@transient spark: SparkSession) {
     val threshold = args(4).split(",").map(_.toDouble)
     val out_put_table = args(5)
     val day = args(7)
-    val testdb = if (args(8)=="1") "test" else "dw_mobdi_md"
+    val testdb = if (args(8)=="1") "test" else "dm_mobdi_tmp"
 
 
 

@@ -14,7 +14,7 @@ fi
 source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
-tmpdb="$dw_mobdi_md"
+tmpdb=$dm_mobdi_tmp
 #input
 #device_applist_new="dm_mobdi_mapping.device_applist_new"
 

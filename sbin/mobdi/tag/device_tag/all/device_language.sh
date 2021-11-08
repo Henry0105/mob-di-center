@@ -44,27 +44,14 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 #map_country_sdk=dm_sdk_mapping.map_country_sdk
 
 #md
-tmp_device_language_tmp=dw_mobdi_tmp.tmp_device_language_tmp
+tmp_device_language_tmp=dm_mobdi_tmp.device_language_tmp
 
 #out
 #device_language=rp_mobdi_report.device_language
 
 #生成增量数据，主要为获取该段时间内的语言数据，可一次性跑多天
-HADOOP_USER_NAME=dba hive -e "
-
-CREATE TABLE IF NOT EXISTS $tmp_device_language_tmp(
-device string,
-language_code string,
-language_cn string,
-language_name string,
-country_cn string,
-country_en string,
-plat string
-)
-partitioned by (day string)
-stored as orc;    
-
-set mapreduce.job.queuename=root.yarn_data_compliance2;
+hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 SET hive.exec.dynamic.partition=true;  
 SET hive.exec.dynamic.partition.mode=nonstrict; 
 SET hive.exec.max.dynamic.partitions.pernode=10000;
@@ -83,7 +70,7 @@ FROM
   SELECT device,lower(trim(regexp_replace(language,'-','_'))) as language,plat,day
   FROM
   (
-    SELECT trim(lower(muid)) as device,language,plat,day
+    SELECT if(plat=2,device,trim(lower(muid))) as device,language,plat,day
     FROM $dwd_log_wifi_info_sec_di
     WHERE day>=$day_start
     and day<=$day
@@ -93,7 +80,7 @@ FROM
 
     UNION ALL
             
-    SELECT trim(lower(muid)) AS device,language,plat,day
+    SELECT if(plat=2,deviceid,trim(lower(muid))) as device,language,plat,day
     FROM $dwd_pv_sec_di
     WHERE day>=$day_start
     and day<=$day
@@ -113,24 +100,8 @@ LEFT JOIN
 $dim_map_country_sdk e ON split(a.language,'_')[2]=trim(lower(e.zone));
 "
 
-#生成结果数据，保留近365天数据 
-HADOOP_USER_NAME=dba hive -e"
-set mapreduce.job.queuename=root.yarn_data_compliance2;
-CREATE TABLE  IF NOT EXISTS $device_language(
-device string,
-language_code string,
-language_cn string,
-language_name string,
-country_cn string,
-country_en string,
-plat string,
-update_date string
-)
-partitioned by (day string)
-stored as orc;    
- "
-
-lastPartStr=`HADOOP_USER_NAME=dba hive -e  "show partitions ${device_language}" | sort | tail -n 1`
+#生成结果数据，保留近365天数据
+lastPartStr=`hive -e  "show partitions ${device_language}" | sort | tail -n 1`
 
 
 #如果不为空则加 AND；方便自动化运行
@@ -142,7 +113,7 @@ if [ -n "$lastPartStr" ]; then
     lastPartStrA=" AND   $lastPartStr"
 fi
 
-HADOOP_USER_NAME=dba hive -e"
+hive -e"
 set mapreduce.job.queuename=root.yarn_data_compliance2;
 INSERT OVERWRITE TABLE $device_language PARTITION (day=$day)
 SELECT device,language_code,language_cn,language_name,country_cn,country_en, plat,update_date,update_date as processtime

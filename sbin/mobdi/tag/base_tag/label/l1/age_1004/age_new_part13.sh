@@ -9,14 +9,15 @@ fi
 day=$1
 day_before_one_month=$(date -d "${day} -1 month" "+%Y%m%d")
 source /home/dba/mobdi_center/conf/hive-env.sh
-
+insertday=${day}_muid
 #label_device_pkg_install_uninstall_year_info_mf="rp_mobdi_app.label_device_pkg_install_uninstall_year_info_mf"
 
-age_new_topic_wgt="$dm_mobdi_tmp.age_new_topic_wgt"
+age_new_topic_wgt="${dm_mobdi_tmp}.age_new_topic_wgt"
 #dim_pkg_topic_wgt=dim_mobdi_mapping.dim_pkg_topic_wgt
 #pkg_topic_wgt="dm_mobdi_mapping.pkg_topic_wgt"
 
 hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -27,7 +28,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table  $age_new_topic_wgt partition (day=$day)
+insert overwrite table  $age_new_topic_wgt partition (day=$insertday)
 select device,
 avg( topic_0) as topic_0,
 avg( topic_1)as topic_1,
@@ -61,6 +62,6 @@ on a.pkg=b.pkg
 group by device;
 "
 
-hive -e "
-alter table $age_new_topic_wgt drop partition(day< $day_before_one_month);
-"
+#hive -e "
+#alter table $age_new_topic_wgt drop partition(day< $day_before_one_month);
+#"

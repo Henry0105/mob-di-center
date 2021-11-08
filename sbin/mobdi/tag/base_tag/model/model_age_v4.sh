@@ -9,14 +9,14 @@ fi
 day=$1
 tmpdb=$dm_mobdi_tmp
 #input
-label_age_feature="$tmpdb.age_new_features_all"
+label_age_feature="${tmpdb}.age_new_features_all"
 
-precisionTable1="$tmpdb.age_below_18_pr_table"
-precisionTable2="$tmpdb.age_18_24_pr_table"
-precisionTable3="$tmpdb.age_25_34_pr_table"
-precisionTable4="$tmpdb.age_35_44_pr_table"
-precisionTable5="$tmpdb.age_45_54_pr_table"
-precisionTable6="$tmpdb.age_beyond_54_pr_table"
+precisionTable1="${tmpdb}.age_below_18_pr_table"
+precisionTable2="${tmpdb}.age_18_24_pr_table"
+precisionTable3="${tmpdb}.age_25_34_pr_table"
+precisionTable4="${tmpdb}.age_35_44_pr_table"
+precisionTable5="${tmpdb}.age_45_54_pr_table"
+precisionTable6="${tmpdb}.age_beyond_54_pr_table"
 
 #output
 outputTable=$age_scoring_v4_result_di
@@ -45,6 +45,6 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.network.timeout=1000000 \
 --conf spark.executor.heartbeatInterval=60s \
 --conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
-/home/dba/mobdi_center/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$day" \
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$day" \
 "$sourceData" "$outputTable" "$precisionTable1" "$precisionTable2" "$precisionTable3" \
 "$precisionTable4" "$precisionTable5" "$precisionTable6"

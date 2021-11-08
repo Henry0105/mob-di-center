@@ -30,7 +30,7 @@ device_model_label=$label_model_type_all_di
 device_statics_label=$label_statics_type_all_di
 device_mintime_full=$device_mintime_mapping
 label_grouplist2_di=$label_l1_grouplist2_di
-device_cate_preference_incr=$tmpdb.device_cate_preference_incr
+device_cate_preference_list=${tmpdb}.device_cate_preference_list
 #dim_mapping_area_par=dim_sdk_mapping.dim_mapping_area_par
 #mapping_area_par=dim_sdk_mapping.mapping_area_par
 
@@ -41,34 +41,6 @@ monthly_lastpar=`hive -S -e "show partitions $device_permanent_place" |tail -n 1
 location_monthly_lastpar=`hive -S -e "show partitions $device_location_3monthly_struct" |tail -n 1 `
 area_mapping_lastpar=`hive -S -e "show partitions $dim_mapping_area_par" | tail -n 1`
 
-:<<!
-建表语句：
-create table if not exists dw_mobdi_md.device_cate_preference_list(
-    device string comment '设备ID',
-    cate_preference_list string COMMENT 'app分类偏好度列表'
-)
-stored as orc;
-!
-
-#dw_mobdi_md.device_cate_preference_incr该表数据量较大，单独处理
-hive -v -e "
-set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
-SET hive.merge.mapfiles=true;
-SET hive.merge.mapredfiles=true;
-set mapred.max.split.size=250000000;
-set mapred.min.split.size.per.node=128000000;
-set mapred.min.split.size.per.rack=128000000;
-set hive.merge.smallfiles.avgsize=250000000;
-set hive.merge.size.per.task = 250000000;
-set mapreduce.job.queuename=root.yarn_data_compliance2;
-
-insert overwrite table dm_mobdi_tmp.device_cate_preference_list
-select device,
-       concat(concat_ws(',',collect_list(cate_id)),'=',concat_ws(',',collect_list(cast(preference as string)))) as cate_preference_list
-from $device_cate_preference_incr
-where day = '${day}'
-group by device;
-"
 
 #定义方法
 struct_2_str() {
@@ -174,8 +146,40 @@ newVer=${day}.1000
 
 value=`hive -e "show partitions $device_profile_label_full"| grep -v 'monthly_bak'|awk -F '=' '{print $2}'|tail -n 1`
 
+dd=`date -d "$day" +%d`
+agebin_1004_sql_union=""
+agebin_1004_sql_join=""
+agebin_1004_sql_select="coalesce(full.agebin_1004,-1) as agebin_1004,coalesce(full.agebin_1004_cl,-1) as agebin_1004_cl"
+age_day=$(date -d "$day" +%Y%m01)
+age_day=$(date -d "$age_day -1 day" +%Y%m%d)
+
+if [ $dd -eq 10 ];then
+hdfs dfs -test -d /user/hive/warehouse/dm_mobdi_report.db/age_scoring_v4_result_di/day=$age_day
+agebin_1004_sql_union="union all
+    select device
+    from $age_scoring_v4_result_di
+    where day='$age_day'
+    and device rlike '[a-f0-9]{40}'
+    and device!='0000000000000000000000000000000000000000'
+"
+agebin_1004_sql_join="left join
+(
+  select device,
+  case when label=0 then 9 when label=1 then 8 when label=2 then 7 when label=3 then 6 when label>3 then 5 end as agebin_1004,
+  maxpro agebin_1004_cl
+  from $age_scoring_v4_result_di
+  where day = '$age_day'
+) agebin_1004_model on un.device=agebin_1004_model.device
+"
+agebin_1004_sql_select="
+case when full.agebin_1004_cl=1 then full.agebin_1004 else
+ coalesce(agebin_1004_model.agebin_1004,full.agebin_1004,-1) end as agebin_1004,
+case when full.agebin_1004_cl=1 then full.agebin_1004_cl else
+ coalesce(agebin_1004_model.agebin_1004_cl,full.agebin_1004_cl,-1) end as agebin_1004_cl
+"
+fi
+
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
 set hive.merge.mapredfiles = true;
@@ -311,7 +315,7 @@ select un.device,
        coalesce(models.occupation_cl,full.occupation_cl,-1) as occupation_cl,
        coalesce(models.industry_cl,full.industry_cl,-1) as industry_cl,
        coalesce(models.agebin_1001_cl,full.agebin_1001_cl,-1) as agebin_1001_cl,
-       coalesce(preference.cate_preference_list,full.cate_preference_list,'') as cate_preference_list,
+       coalesce(preference.cate_preference_list,full.cate_preference_list,'unknown') as cate_preference_list,
        coalesce(models.income_1001_cl,full.income_1001_cl,-1) as income_1001_cl,
        coalesce(models.occupation_1001_cl,full.occupation_1001_cl,-1) as occupation_1001_cl,
        coalesce(models.consume_level_cl,full.consume_level_cl,-1) as consume_level_cl,
@@ -330,7 +334,18 @@ select un.device,
        `device_info_update_sync 'mapping' 'mapping.factory_cn_subcompany' 'full.factory_cn_subcompany' 'factory_cn_subcompany' 0`,
        `device_info_update_sync 'mapping' 'mapping.sim_type' 'full.sim_type' 'sim_type' 0`,
        `device_info_update_sync 'mapping' 'mapping.screen_size' 'full.screen_size' 'screen_size' 0`,
-       `device_info_update_sync 'mapping' 'mapping.cpu' 'full.cpu' 'cpu' 0`
+       `device_info_update_sync 'mapping' 'mapping.cpu' 'full.cpu' 'cpu' 0`,
+       coalesce(models.occupation_1002,full.occupation_1002,-1) as occupation_1002,
+       coalesce(models.occupation_1002_cl,full.occupation_1002_cl,-1) as occupation_1002_cl,
+       `device_info_update_sync 'mapping' 'mapping.sdcardstorage' 'full.sdcardstorage' 'sdcardstorage' 0`,
+       `device_info_update_sync 'mapping' 'mapping.ram' 'full.ram' 'ram' 0`,
+       `device_info_update_sync 'mapping' 'mapping.romimg' 'full.romimg' 'romimg' 0`,
+       `device_info_update_sync 'mapping' 'mapping.displayid' 'full.displayid' 'displayid' 0`,
+       case when full.gender_1001_cl=1 then full.gender_1001 else
+        coalesce(models.gender_1001,full.gender_1001,-1) end as gender_1001,
+       case when full.gender_1001_cl=1 then 1 else
+        coalesce(models.gender_1001_cl,full.gender_1001_cl,-1) end as gender_1001_cl,
+       $agebin_1004_sql_select
 from
 (
   select device
@@ -364,6 +379,8 @@ from
     from $device_profile_label_full
     where processtime_all>'$day365'
     and version = '${value}'
+
+    $agebin_1004_sql_union
   ) base
   group by device
 )un
@@ -419,7 +436,8 @@ left join
 left join
 (
   select device,cate_preference_list
-  from dw_mobdi_md.device_cate_preference_list
+  from $device_cate_preference_list
+  where day = '$day'
 ) preference on un.device=preference.device
 left join
 (
@@ -428,7 +446,9 @@ left join
   from $device_profile_label_full
   where processtime_all='$day365'
   and version = '${value}'
-) day_365 on un.device=day_365.device;
+) day_365 on un.device=day_365.device
+$agebin_1004_sql_join
+;
 "
 
 #实现full表数据每月一号更新的功能
@@ -439,8 +459,6 @@ if [ $DAY -eq 1 ];then
 echo `date +%Y%m%d:%H:%M` "bak data monthly task start..."
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
-
 insert overwrite table $device_profile_label_full PARTITION(version='${day}_monthly_bak')
 select device,carrier,network,cell_factory,sysver,model,model_level,screensize,country,province,city,city_level,country_cn,
        province_cn,city_cn,breaked,city_level_1001,public_date,identity,gender,agebin,car,married,edu,income,house,kids,
@@ -450,7 +468,8 @@ select device,carrier,network,cell_factory,sysver,model,model_level,screensize,c
        stats_flag,processtime,processtime_all,price,permanent_city_level,income_1001,occupation_1001,consume_level,consume_1001,group_list2,
        gender_cl,agebin_cl,car_cl,married_cl,edu_cl,income_cl,house_cl,kids_cl,occupation_cl,industry_cl,agebin_1001_cl,cate_preference_list,
        income_1001_cl,occupation_1001_cl,consume_level_cl,update_time,agebin_1002,agebin_1002_cl,agebin_1003,agebin_1003_cl,
-       factory_cn,factory_clean_subcompany,factory_cn_subcompany,sim_type,screen_size,cpu
+       factory_cn,factory_clean_subcompany,factory_cn_subcompany,sim_type,screen_size,cpu,occupation_1002,occupation_1002_cl,
+       sdcardstorage,ram,romimg,displayid,gender_1001,gender_1001_cl,agebin_1004,agebin_1004_cl
 from $device_profile_label_full
 where version='$newVer';
 "
@@ -460,7 +479,7 @@ echo `date +%Y%m%d:%H:%M` "${day}_monthly_bak over..." >>full_labels_monthly_bak
 fi
 
 #实现删除过期的分区的功能，只保留最近10个分区
-for old_version in `hive -e "show partitions $device_profile_label_full " | grep -v '_bak' | grep -v '20210111.1000' | sort | head -n -12`
+for old_version in `hive -e "show partitions $device_profile_label_full " | grep -v '_bak' | sort | head -n -12`
 do
     echo "rm $old_version"
     hive -v -e "alter table $device_profile_label_full drop if exists partition($old_version)"
@@ -478,10 +497,185 @@ if [[ ${qc_success_flag} -eq 1 ]]; then
 fi
 
 hive -v -e "
-create or replace view rp_mobdi_report.rp_device_profile_full_view as
-select *
-from $device_profile_label_full
-where version='${newVer}';
+CREATE OR REPLACE VIEW dm_mobdi_report.rp_device_profile_full_view AS
+SELECT device
+      , carrier
+      , network
+      , cell_factory
+      , sysver
+      , model
+      , model_level
+      , screensize
+      , country
+      , province
+      , city
+      , city_level
+      , country_cn
+      , province_cn
+      , city_cn
+      , breaked
+      , city_level_1001
+      , public_date
+      , identity
+      , gender
+      , agebin
+      , car
+      , married
+      , edu
+      , income
+      , house
+      , kids
+      , occupation
+      , industry
+      , life_stage
+      , special_time
+      , consum_level
+      , agebin_1001
+      , tag_list
+      , repayment
+      , segment
+      , applist
+      , tot_install_apps
+      , nationality
+      , nationality_cn
+      , last_active
+      , group_list
+      , first_active_time
+      , catelist
+      , permanent_country
+      , permanent_province
+      , permanent_city
+      , permanent_country_cn
+      , permanent_province_cn
+      , permanent_city_cn
+      , workplace
+      , residence
+      , mapping_flag
+      , model_flag
+      , stats_flag
+      , processtime
+      , processtime_all
+      , price
+      , permanent_city_level
+      , income_1001
+      , occupation_1001
+      , consume_level
+      , consume_1001
+      , group_list2
+      , case
+          when gender_cl = 1 then rand()*0.19 + 0.8
+          when gender_cl = 0 then rand()*0.09 + 0.01
+        else gender_cl
+        end as gender_cl
+      , case
+          when agebin_cl = 1 then rand()*0.19 + 0.8
+          when agebin_cl = 0 then rand()*0.09 + 0.01
+        else agebin_cl
+        end as agebin_cl
+      , case
+          when car_cl = 1 then rand()*0.19 + 0.8
+          when car_cl = 0 then rand()*0.09 + 0.01
+        else car_cl
+        end as car_cl
+      , case
+          when married_cl = 1 then rand()*0.19 + 0.8
+          when married_cl = 0 then rand()*0.09 + 0.01
+        else married_cl
+        end as married_cl
+      , case
+          when edu_cl = 1 then rand()*0.19 + 0.8
+          when edu_cl = 0 then rand()*0.09 + 0.01
+        else edu_cl
+        end as edu_cl
+      , case
+          when income_cl = 1 then rand()*0.19 + 0.8
+          when income_cl = 0 then rand()*0.09 + 0.01
+        else income_cl
+        end as income_cl
+      , case
+          when house_cl = 1 then rand()*0.19 + 0.8
+          when house_cl = 0 then rand()*0.09 + 0.01
+        else house_cl
+        end as house_cl
+      , case
+          when kids_cl = 1 then rand()*0.19 + 0.8
+          when kids_cl = 0 then rand()*0.09 + 0.01
+        else kids_cl
+        end as kids_cl
+      , case
+          when occupation_cl = 1 then rand()*0.19 + 0.8
+          when occupation_cl = 0 then rand()*0.09 + 0.01
+        else occupation_cl
+        end as occupation_cl
+      , case
+          when industry_cl = 1 then rand()*0.19 + 0.8
+          when industry_cl = 0 then rand()*0.09 + 0.01
+        else industry_cl
+        end as industry_cl
+      , case
+          when agebin_1001_cl = 1 then rand()*0.19 + 0.8
+          when agebin_1001_cl = 0 then rand()*0.09 + 0.01
+        else agebin_1001_cl
+        end as agebin_1001_cl
+      , cate_preference_list
+      , case
+          when income_1001_cl = 1 then rand()*0.19 + 0.8
+          when income_1001_cl = 0 then rand()*0.09 + 0.01
+        else income_1001_cl
+        end as income_1001_cl
+      , case
+          when occupation_1001_cl = 1 then rand()*0.19 + 0.8
+          when occupation_1001_cl = 0 then rand()*0.09 + 0.01
+        else occupation_1001_cl
+        end as occupation_1001_cl
+      , case
+          when consume_level_cl = 1 then rand()*0.19 + 0.8
+          when consume_level_cl = 0 then rand()*0.09 + 0.01
+        else consume_level_cl
+        end as consume_level_cl
+      , update_time
+      , agebin_1002
+      , case
+          when agebin_1002_cl in ('1','1.0') then rand()*0.19 + 0.8
+          when agebin_1002_cl in ('0','0.0') then rand()*0.09 + 0.01
+        else agebin_1002_cl
+        end as agebin_1002_cl
+      , agebin_1003
+      , case
+          when agebin_1003_cl in ('1','1.0') then rand()*0.19 + 0.8
+          when agebin_1003_cl in ('0','0.0') then rand()*0.09 + 0.01
+        else agebin_1003_cl
+        end as agebin_1003_cl
+      , factory_cn
+      , factory_clean_subcompany
+      , factory_cn_subcompany
+      , sim_type
+      , screen_size
+      , cpu
+      , occupation_1002
+      , case
+          when occupation_1002_cl = 1 then rand()*0.19 + 0.8
+          when occupation_1002_cl = 0 then rand()*0.09 + 0.01
+        else occupation_1002_cl
+        end as occupation_1002_cl
+      , sdcardstorage
+      , ram
+      , romimg
+      , displayid
+      , gender_1001
+      , case
+          when gender_1001_cl = 1 then rand()*0.19 + 0.8
+          when gender_1001_cl = 0 then rand()*0.09 + 0.01
+        else gender_1001_cl
+        end as gender_1001_cl
+      , agebin_1004
+      , case
+          when agebin_1004_cl = 1 then rand()*0.19 + 0.8
+          when agebin_1004_cl = 0 then rand()*0.09 + 0.01
+        else agebin_1004_cl
+        end as agebin_1004_cl
+FROM $device_profile_label_full_par
+WHERE version='${newVer}';
 "
 ~/jdk1.8.0_45/bin/java -cp /home/dba/mobdi_center/lib/mysql-utils-1.0-jar-with-dependencies.jar  com.mob.TagUpdateTime -d rp_mobdi_app -t rp_device_profile_full_view
 

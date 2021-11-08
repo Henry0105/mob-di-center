@@ -17,17 +17,14 @@ fi
 source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
-tmpdb=${dw_mobdi_md}
-
-##tmpdb="mobdi_test"
-##appdb="mobdi_test"
+tmpdb=${dm_mobdi_tmp}
 output_table="${tmpdb}.tmp_income1001_part2"
 #input
 device_applist_new=${dim_device_applist_new_di}
 mapping_app_index=${mapping_income1001_v2_app_index0}
 
 ## part2 mapping_app_index源数据不同,不能复用
-HADOOP_USER_NAME=dba hive -e"
+hive -e"
 set mapreduce.job.queuename=root.yarn_data_compliance2;
 with seed as
 (

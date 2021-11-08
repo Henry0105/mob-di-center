@@ -22,11 +22,11 @@ appdb=$dm_mobdi_report
 #input
 device_applist_new=${dim_device_applist_new_di}
 
-#tmp
-tmp_part_app2vec=${tmpdb}.tmp_part_app2vec
+##tmp
+tmp_part_app2vec_v3=${tmpdb}.tmp_part_app2vec_v3
 
 #output
-output_table=${tmpdb}.tmp_score_app2vec
+output_table_v3=${tmpdb}.tmp_score_app2vec_v3
 
 :<<!
 hive -v -e "
@@ -51,13 +51,13 @@ avg(d74) as d74,avg(d75) as d75,avg(d76) as d76,avg(d77) as d77,avg(d78) as d78,
 avg(d82) as d82,avg(d83) as d83,avg(d84) as d84,avg(d85) as d85,avg(d86) as d86,avg(d87) as d87,avg(d88) as d88,avg(d89) as d89,
 avg(d90) as d90,avg(d91) as d91,avg(d92) as d92,avg(d93) as d93,avg(d94) as d94,avg(d95) as d95,avg(d96) as d96,avg(d97) as d97,
 avg(d98) as d98,avg(d99) as d99,avg(d100) as d100
-from seed as x
+from seed x
 left join
-  (select * from $apppkg_app2vec_par_wi where day = '20210926') y
+  (select * from $apppkg_app2vec_par_wi where day='20201108') y
 on x.pkg = y.apppkg
+where x.pkg not in ('com.xwtec.sd.mobileclient','com.hanweb.android.sdzwfw.activity','com.inspur.vista.labor','com.android.clock.sd','com.qdccb.bank','com.sdhs.easy.high.road')
 group by device
 "
-
 
 spark2-submit --master yarn --deploy-mode cluster \
 --class com.youzu.mob.newscore.App2Vec \
@@ -79,10 +79,10 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
 /home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar \
 --inputTable $device_applist_new \
---outputTable $tmp_part_app2vec \
+--outputTable $tmp_part_app2vec_v3 \
 --day $day \
 --sql "$sql" \
---flag "app2_vec"
+--flag "app2vec_v3"
 
 #去小文件
 hive -v -e "
@@ -99,17 +99,18 @@ set hive.exec.dynamic.partition=true;
 set hive.exec.dynamic.partition.mode=nonstrict;
 set hive.support.quoted.identifiers=None;
 
-INSERT OVERWRITE TABLE $output_table PARTITION(day)
+INSERT OVERWRITE TABLE $output_table_v3 PARTITION(day)
 SELECT \`(stage)?+.+\`
-FROM $tmp_part_app2vec
+FROM $tmp_part_app2vec_v3
 WHERE day = '$day';
 "
 
+
 #只保留最近7个分区
-for old_version in `hive -e "show partitions ${output_table} " | grep -v '_bak' | sort | head -n -7`
+for old_version in `hive -e "show partitions ${output_table_v3} " | grep -v '_bak' | sort | head -n -7`
 do
     echo "rm $old_version"
-    hive -v -e "alter table ${output_table} drop if exists partition($old_version);"
+    hive -v -e "alter table ${output_table_v3} drop if exists partition($old_version)"
 done
 
-hive -v -e "alter table ${tmp_part_app2vec} drop if exists partition(day='$b7day');"
+hive -v -e "alter table ${tmp_part_app2vec_v3} drop if exists partition(day='$b7day');"

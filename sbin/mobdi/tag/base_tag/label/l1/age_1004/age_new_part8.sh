@@ -10,17 +10,18 @@ day=$1
 day_before_one_year=$(date -d "${day} -1 year" "+%Y%m%d")
 day_before_one_month=$(date -d "${day} -1 month" "+%Y%m%d")
 source /home/dba/mobdi_center/conf/hive-env.sh
-
+insertday=${day}_muid
 #dim_age_app_category_final_new=dim_mobdi_mapping.dim_age_app_category_final_new
 #category_mapping_table=dm_mobdi_mapping.age_app_category_final_new
 
 #dws_device_active_applist_di=dm_mobdi_topic.dws_device_active_applist_di
 #device_active_applist=dm_mobdi_master.device_active_applist
 
-age_new_active_days_12="$dm_mobdi_tmp.age_new_active_days_12"
+age_new_active_days_12="${dm_mobdi_tmp}.age_new_active_days_12"
 
 
 hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -36,7 +37,7 @@ set mapreduce.map.memory.mb=9000;
 set mapreduce.reduce.java.opts=-Xmx10000m;
 set mapreduce.reduce.memory.mb=9000;
 set mapred.reduce.tasks=50000;
-insert overwrite table $age_new_active_days_12 partition (day=$day)
+insert overwrite table $age_new_active_days_12 partition (day=$insertday)
 select device
 ,max(case when cate_id='tgi2_18_5' then cnt_1 else 0 end ) as tgi2_18_5_act_day_12m
 ,max(case when cate_id='tgi2_18_6' then cnt_1 else 0 end ) as tgi2_18_6_act_day_12m
@@ -69,6 +70,6 @@ from
 group by device;
 "
 
-hive -e "
-alter table $age_new_active_days_12 drop partition(day< $day_before_one_month);
-"
+#hive -e "
+#alter table $age_new_active_days_12 drop partition(day< $day_before_one_month);
+#"

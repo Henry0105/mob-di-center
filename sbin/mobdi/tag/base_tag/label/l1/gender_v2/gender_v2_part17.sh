@@ -9,10 +9,10 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 p7=$(date -d "$day -7 days" "+%Y%m%d")
-
+insertday=${day}_muid
 #device_applist_new="dm_mobdi_mapping.device_applist_new"
 
-gender_feature_v2_part17="$dm_mobdi_tmp.gender_feature_v2_part17"
+gender_feature_v2_part17="${dm_mobdi_tmp}.gender_feature_v2_part17"
 
 #app_category_mapping_par="dm_sdk_mapping.app_category_mapping_par"
 
@@ -26,19 +26,8 @@ gender_feature_v2_part17="$dm_mobdi_tmp.gender_feature_v2_part17"
 
 last_par=20210418
 
-hive -e "
-set mapred.max.split.size=256000000;
-set mapred.min.split.size.per.node=100000000;
-set mapred.min.split.size.per.rack=100000000;
-set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
-set hive.merge.smallfiles.avgsize=256000000;
-set hive.merge.mapfiles = true;
-set hive.merge.mapredfiles = true;
-set hive.merge.size.per.task = 256000000;
-set hive.exec.max.dynamic.partitions.pernode=1000;
-set hive.exec.max.dynamic.partitions=10000;
-with gender_device_cate_l2_app2vec_vec2_score as(
-select device, cate_l2_id, cate_l2, 
+sql="
+select device, cate_l2_id, cate_l2,
 avg(d1) as d1,avg(d2) as d2,avg(d3) as d3,avg(d4) as d4,avg(d5) as d5,avg(d6) as d6,avg(d7) as d7,avg(d8) as d8,avg(d9) as d9,
 avg(d10) as d10,avg(d11) as d11,avg(d12) as d12,avg(d13) as d13,avg(d14) as d14,avg(d15) as d15,avg(d16) as d16,avg(d17) as d17,
 avg(d18) as d18,avg(d19) as d19,avg(d20) as d20,avg(d21) as d21,avg(d22) as d22,avg(d23) as d23,avg(d24) as d24,avg(d25) as d25,
@@ -52,13 +41,56 @@ avg(d74) as d74,avg(d75) as d75,avg(d76) as d76,avg(d77) as d77,avg(d78) as d78,
 avg(d82) as d82,avg(d83) as d83,avg(d84) as d84,avg(d85) as d85,avg(d86) as d86,avg(d87) as d87,avg(d88) as d88,avg(d89) as d89,
 avg(d90) as d90,avg(d91) as d91,avg(d92) as d92,avg(d93) as d93,avg(d94) as d94,avg(d95) as d95,avg(d96) as d96,avg(d97) as d97,
 avg(d98) as d98,avg(d99) as d99,avg(d100) as d100
-from (select device,pkg apppkg from $dim_device_applist_new_di where day = '$day') x
-join (select * from $apppkg_app2vec_par_wi where day = '$last_par') y on x.apppkg = y.apppkg 
-join (select apppkg, cate_l2_id, cate_l2 from $dim_app_category_mapping_par where version='1000' group by apppkg, cate_l2_id, cate_l2) z
-on x.apppkg=z.apppkg 
+from seed x
+join (select * from $apppkg_app2vec_par_wi where day = '$last_par') y on x.pkg = y.apppkg
+join (select apppkg, cate_l2_id, cate_l2 from $app_category_mapping_par where version='1000' group by apppkg, cate_l2_id, cate_l2) z
+on x.pkg=z.apppkg
 group by device, cate_l2_id, cate_l2
-)
-insert overwrite table $gender_feature_v2_part17 partition(day=$day)
+"
+
+#output
+gender_device_cate_l2_app2vec_vec2_score=${dm_mobdi_tmp}.gender_device_cate_l2_app2vec_vec2_score
+
+spark2-submit --master yarn --deploy-mode cluster \
+--class com.youzu.mob.newscore.App2Vec \
+--driver-memory 4G \
+--queue root.yarn_data_compliance \
+--executor-memory 15G \
+--executor-cores 4 \
+--conf spark.shuffle.service.enabled=true \
+--conf spark.dynamicAllocation.enabled=true \
+--conf spark.dynamicAllocation.minExecutors=100 \
+--conf spark.dynamicAllocation.maxExecutors=200 \
+--conf spark.dynamicAllocation.executorIdleTimeout=30s \
+--conf spark.dynamicAllocation.schedulerBacklogTimeout=5s \
+--conf spark.yarn.executor.memoryOverhead=4096 \
+--conf spark.kryoserializer.buffer.max=1024 \
+--conf spark.speculation=true \
+--conf spark.driver.maxResultSize=4g \
+--conf spark.default.parallelism=2000 \
+--conf spark.sql.shuffle.partitions=2000 \
+--conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar \
+--inputTable $dim_device_applist_new_di \
+--outputTable $gender_device_cate_l2_app2vec_vec2_score \
+--day $day \
+--sql "$sql" \
+--flag "gender_v2_17_app2vec"
+
+hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
+set mapred.max.split.size=256000000;
+set mapred.min.split.size.per.node=100000000;
+set mapred.min.split.size.per.rack=100000000;
+set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
+set hive.merge.smallfiles.avgsize=256000000;
+set hive.merge.mapfiles = true;
+set hive.merge.mapredfiles = true;
+set hive.merge.size.per.task = 256000000;
+set hive.exec.max.dynamic.partitions.pernode=1000;
+set hive.exec.max.dynamic.partitions=10000;
+
+insert overwrite table $gender_feature_v2_part17 partition(day=$insertday)
 select device, 
 max(index1) index1,
 max(index2) index2,
@@ -925,14 +957,15 @@ from
     from (
       select t1.device, t2.cate_l2, t2.cate_l2_id, t2.tag, 
       sum(t1.d1*t2.d1+t1.d2*t2.d2+t1.d3*t2.d3+t1.d4*t2.d4+t1.d5*t2.d5+t1.d6*t2.d6+t1.d7*t2.d7+t1.d8*t2.d8+t1.d9*t2.d9+t1.d10*t2.d10+t1.d11*t2.d11+t1.d12*t2.d12+t1.d13*t2.d13+t1.d14*t2.d14+t1.d15*t2.d15+t1.d16*t2.d16+t1.d17*t2.d17+t1.d18*t2.d18+t1.d19*t2.d19+t1.d20*t2.d20+t1.d21*t2.d21+t1.d22*t2.d22+t1.d23*t2.d23+t1.d24*t2.d24+t1.d25*t2.d25+t1.d26*t2.d26+t1.d27*t2.d27+t1.d28*t2.d28+t1.d29*t2.d29+t1.d30*t2.d30+t1.d31*t2.d31+t1.d32*t2.d32+t1.d33*t2.d33+t1.d34*t2.d34+t1.d35*t2.d35+t1.d36*t2.d36+t1.d37*t2.d37+t1.d38*t2.d38+t1.d39*t2.d39+t1.d40*t2.d40+t1.d41*t2.d41+t1.d42*t2.d42+t1.d43*t2.d43+t1.d44*t2.d44+t1.d45*t2.d45+t1.d46*t2.d46+t1.d47*t2.d47+t1.d48*t2.d48+t1.d49*t2.d49+t1.d50*t2.d50+t1.d51*t2.d51+t1.d52*t2.d52+t1.d53*t2.d53+t1.d54*t2.d54+t1.d55*t2.d55+t1.d56*t2.d56+t1.d57*t2.d57+t1.d58*t2.d58+t1.d59*t2.d59+t1.d60*t2.d60+t1.d61*t2.d61+t1.d62*t2.d62+t1.d63*t2.d63+t1.d64*t2.d64+t1.d65*t2.d65+t1.d66*t2.d66+t1.d67*t2.d67+t1.d68*t2.d68+t1.d69*t2.d69+t1.d70*t2.d70+t1.d71*t2.d71+t1.d72*t2.d72+t1.d73*t2.d73+t1.d74*t2.d74+t1.d75*t2.d75+t1.d76*t2.d76+t1.d77*t2.d77+t1.d78*t2.d78+t1.d79*t2.d79+t1.d80*t2.d80+t1.d81*t2.d81+t1.d82*t2.d82+t1.d83*t2.d83+t1.d84*t2.d84+t1.d85*t2.d85+t1.d86*t2.d86+t1.d87*t2.d87+t1.d88*t2.d88+t1.d89*t2.d89+t1.d90*t2.d90+t1.d91*t2.d91+t1.d92*t2.d92+t1.d93*t2.d93+t1.d94*t2.d94+t1.d95*t2.d95+t1.d96*t2.d96+t1.d97*t2.d97+t1.d98*t2.d98+t1.d99*t2.d99+t1.d100*t2.d100) distance
-      from gender_device_cate_l2_app2vec_vec2_score t1 
+      from $gender_device_cate_l2_app2vec_vec2_score t1
       join $dim_gender_app2vec_cate_l2_center t2
-      on t1.cate_l2_id=t2.cate_l2_id
+      on t1.cate_l2_id=t2.cate_l2_id and t1.day = '$day'
       group by t1.device, t2.cate_l2, t2.cate_l2_id, t2.tag
     ) t1 join 
     (
       select device, cate_l2_id, sqrt(sum(d1*d1+d2*d2+d3*d3+d4*d4+d5*d5+d6*d6+d7*d7+d8*d8+d9*d9+d10*d10+d11*d11+d12*d12+d13*d13+d14*d14+d15*d15+d16*d16+d17*d17+d18*d18+d19*d19+d20*d20+d21*d21+d22*d22+d23*d23+d24*d24+d25*d25+d26*d26+d27*d27+d28*d28+d29*d29+d30*d30+d31*d31+d32*d32+d33*d33+d34*d34+d35*d35+d36*d36+d37*d37+d38*d38+d39*d39+d40*d40+d41*d41+d42*d42+d43*d43+d44*d44+d45*d45+d46*d46+d47*d47+d48*d48+d49*d49+d50*d50+d51*d51+d52*d52+d53*d53+d54*d54+d55*d55+d56*d56+d57*d57+d58*d58+d59*d59+d60*d60+d61*d61+d62*d62+d63*d63+d64*d64+d65*d65+d66*d66+d67*d67+d68*d68+d69*d69+d70*d70+d71*d71+d72*d72+d73*d73+d74*d74+d75*d75+d76*d76+d77*d77+d78*d78+d79*d79+d80*d80+d81*d81+d82*d82+d83*d83+d84*d84+d85*d85+d86*d86+d87*d87+d88*d88+d89*d89+d90*d90+d91*d91+d92*d92+d93*d93+d94*d94+d95*d95+d96*d96+d97*d97+d98*d98+d99*d99+d100*d100)) device_m
-      from gender_device_cate_l2_app2vec_vec2_score
+      from $gender_device_cate_l2_app2vec_vec2_score
+      and day = '$day'
       group by device, cate_l2_id
     ) t2 on t1.device=t2.device and t1.cate_l2_id=t2.cate_l2_id
     join $dim_gender_app2vec_cate_l2_center_vec_m t3 on t1.cate_l2_id=t3.cate_l2_id and t1.tag=t3.tag
@@ -942,4 +975,5 @@ from
 group by device;
 "
 
-hive -e "alter table $gender_feature_v2_part17 drop partition(day<$p7);"
+#hive -e "alter table $gender_feature_v2_part17 drop partition(day<$p7);"
+hive -e "alter table $gender_device_cate_l2_app2vec_vec2_score drop partition(day<$p7);"

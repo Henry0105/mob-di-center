@@ -129,5 +129,5 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.driver.maxResultSize=4g \
  --conf spark.default.parallelism=2000 \
 --conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
-/home/dba/mobdi_center/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$day" "$modelPath" "$threshold" "$sql1" "$sql2" "$sql3" "$sql4" "$sql5" "$sql6" "$sql7" "$sql8" "$sql9" "$out_put_table"
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$day" "$modelPath" "$threshold" "$sql1" "$sql2" "$sql3" "$sql4" "$sql5" "$sql6" "$sql7" "$sql8" "$sql9" "$out_put_table"
 

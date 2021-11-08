@@ -22,24 +22,18 @@ appdb=$dm_mobdi_report
 device_applist_new=${dim_device_applist_new_di}
 
 #mapping
-#mapping_contacts_word2vec2_view
+#mapping_contacts_words_20000_sec
 
-## 结果临时表
-output_table=${tmpdb}.tmp_score_part6
+#view
+#dim_pid_attribute_full_par_secview
+
+#output
+output_table_v3=${tmpdb}.tmp_score_part5_v3
 
 pidPartition=hive -e "show partitions $dim_device_pid_merge_df" | awk -v day=${day} -F '=' '$2<=day {print $0}'| sort| tail -n 1
-
-##-----part6
+##v3版的part5通讯录特征
 hive -v -e "
-SET mapreduce.map.memory.mb=8192;
-SET mapreduce.map.java.opts='-Xmx6g';
-SET mapreduce.child.map.java.opts='-Xmx6g';
-set mapreduce.reduce.memory.mb=8196;
-SET mapreduce.reduce.java.opts='-Xmx6g';
 set mapreduce.job.queuename=root.yarn_data_compliance;
-add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/pid_encrypt.jar;
-create temporary function pid_encrypt_array as 'com.mob.udf.PidEncryptArray';
-
 with seed as
 (
   select device
@@ -48,7 +42,7 @@ with seed as
   group by device
 )
 
-insert overwrite table ${output_table} partition(day='${day}')
+insert overwrite table ${output_table_v3} partition(day='${day}')
 select a.device,
        if(b.device is null,array(0), b.index) as index,
        if(b.device is null,array(0.0), b.cnt) as cnt
@@ -60,10 +54,10 @@ left join
            collect_list(cnt) as cnt
     from
     (
-        select device,index,cnt
+        select device,index,1.0 cnt
         from
         (
-            select x.device,y.w2v_100
+            select x.device,y.word_index
             from
             (
                 select device,
@@ -107,12 +101,13 @@ left join
             )x
             inner join
             (
-                select concat_ws(',',pid_encrypt_array(split(trim(phone),','))) as pid,w2v_100
-                from $mapping_contacts_word2vec2_view
+                select *
+                from $mapping_contacts_words_20000_sec
+                where version = '1000'
             )y
             on x.pid = y.pid
         )xx
-        lateral view posexplode(w2v_100) n as index,cnt
+        lateral view explode(word_index) n as index
     )yy
     group by device
 )b
@@ -120,8 +115,8 @@ on a.device = b.device;
 "
 
 #只保留最近7个分区
-for old_version in `hive -e "show partitions ${output_table} " | grep -v '_bak' | sort | head -n -7`
+for old_version in `hive -e "show partitions ${output_table_v3} " | grep -v '_bak' | sort | head -n -7`
 do
     echo "rm $old_version"
-    hive -v -e "alter table ${output_table} drop if exists partition($old_version)"
+    hive -v -e "alter table ${output_table_v3} drop if exists partition($old_version)"
 done

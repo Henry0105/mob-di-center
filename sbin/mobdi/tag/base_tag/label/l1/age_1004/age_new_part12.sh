@@ -9,13 +9,13 @@ fi
 day=$1
 day_before_one_month=$(date -d "${day} -1 month" "+%Y%m%d")
 source /home/dba/mobdi_center/conf/hive-env.sh
-
+insertday=${day}_muid
 #label_device_pkg_install_uninstall_year_info_mf="rp_mobdi_app.label_device_pkg_install_uninstall_year_info_mf"
 
 tmpdb=$dm_mobdi_tmp
-age_new_uninstall_avg_embedding="$tmpdb.age_new_uninstall_avg_embedding"
-age_new_uninstall_avg_embedding_cosin_temp="$tmpdb.age_new_uninstall_avg_embedding_cosin_temp"
-age_new_embedding_cosin_bycate="$tmpdb.age_new_embedding_cosin_bycate"
+age_new_uninstall_avg_embedding="${tmpdb}.age_new_uninstall_avg_embedding"
+age_new_uninstall_avg_embedding_cosin_temp="${tmpdb}.age_new_uninstall_avg_embedding_cosin_temp"
+age_new_embedding_cosin_bycate="${tmpdb}.age_new_embedding_cosin_bycate"
 
 #apppkg_app2vec_par_wi="rp_mobdi_app.apppkg_app2vec_par_wi"
 
@@ -34,6 +34,7 @@ skew_pkgs_arr=$(hive -e "$skew_pkgs_sql")
 skew_pkgs=${skew_pkgs_arr//[\[\]]}
 
 hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -62,7 +63,7 @@ where day='${day}' and update_day between '${day_before_one_month}'  and '${day}
 and refine_final_flag in (0,1) and pkg in ($skew_pkgs)
 group by device,pkg,update_day;
 
-insert overwrite table $age_new_uninstall_avg_embedding partition (day='${day}')
+insert overwrite table $age_new_uninstall_avg_embedding partition (day='${insertday}')
 select device,
 avg(d1) as d1,avg(d2) as d2,avg(d3) as d3,avg(d4) as d4,avg(d5) as d5,avg(d6) as d6,avg(d7) as d7,avg(d8) as d8,avg(d9) as d9,avg(d10) as d10,
 avg(d11) as d11,avg(d12) as d12,avg(d13) as d13,avg(d14) as d14,avg(d15) as d15,avg(d16) as d16,avg(d17) as d17,avg(d18) as d18,avg(d19) as d19,avg(d20) as d20,
@@ -91,6 +92,7 @@ group by device,update_day
 "
 
 hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -102,18 +104,19 @@ set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
 
-insert overwrite table $age_new_uninstall_avg_embedding_cosin_temp partition (day=${day})
+insert overwrite table $age_new_uninstall_avg_embedding_cosin_temp partition (day=${insertday})
 select /*+ MAPJOIN(a) */ device,a.cate_id,a.label,(a.d1* b.d1+a.d2* b.d2+a.d3* b.d3+a.d4* b.d4+a.d5* b.d5+a.d6* b.d6+a.d7* b.d7+a.d8* b.d8+a.d9* b.d9+a.d10* b.d10+a.d11* b.d11+a.d12* b.d12+a.d13* b.d13+a.d14* b.d14+a.d15* b.d15+a.d16* b.d16+a.d17* b.d17+a.d18* b.d18+a.d19* b.d19+a.d20* b.d20+a.d21* b.d21+a.d22* b.d22+a.d23* b.d23+a.d24* b.d24+a.d25* b.d25+a.d26* b.d26+a.d27* b.d27+a.d28* b.d28+a.d29* b.d29+a.d30* b.d30+a.d31* b.d31+a.d32* b.d32+a.d33* b.d33+a.d34* b.d34+a.d35* b.d35+a.d36* b.d36+a.d37* b.d37+a.d38* b.d38+a.d39* b.d39+a.d40* b.d40+a.d41* b.d41+a.d42* b.d42+a.d43* b.d43+a.d44* b.d44+a.d45* b.d45+a.d46* b.d46+a.d47* b.d47+a.d48* b.d48+a.d49* b.d49+a.d50* b.d50+a.d51* b.d51+a.d52* b.d52+a.d53* b.d53+a.d54* b.d54+a.d55* b.d55+a.d56* b.d56+a.d57* b.d57+a.d58* b.d58+a.d59* b.d59+a.d60* b.d60+a.d61* b.d61+a.d62* b.d62+a.d63* b.d63+a.d64* b.d64+a.d65* b.d65+a.d66* b.d66+a.d67* b.d67+a.d68* b.d68+a.d69* b.d69+a.d70* b.d70+a.d71* b.d71+a.d72* b.d72+a.d73* b.d73+a.d74* b.d74+a.d75* b.d75+a.d76* b.d76+a.d77* b.d77+a.d78* b.d78+a.d79* b.d79+a.d80* b.d80+a.d81* b.d81+a.d82* b.d82+a.d83* b.d83+a.d84* b.d84+a.d85* b.d85+a.d86* b.d86+a.d87* b.d87+a.d88* b.d88+a.d89* b.d89+a.d90* b.d90+a.d91* b.d91+a.d92* b.d92+a.d93* b.d93+a.d94* b.d94+a.d95* b.d95+a.d96* b.d96+a.d97* b.d97+a.d98* b.d98+a.d99* b.d99+a.d100* b.d100
 )/(cate_vector_length*device_vector_length) as cosin_similarity,update_day
 from( 
     select *, sqrt(d1*d1+d2*d2+d3*d3+d4*d4+d5*d5+d6*d6+d7*d7+d8*d8+d9*d9+d10*d10+d11*d11+d12*d12+d13*d13+d14*d14+d15*d15+d16*d16+d17*d17+d18*d18+d19*d19+d20*d20+d21*d21+d22*d22+d23*d23+d24*d24+d25*d25+d26*d26+d27*d27+d28*d28+d29*d29+d30*d30+d31*d31+d32*d32+d33*d33+d34*d34+d35*d35+d36*d36+d37*d37+d38*d38+d39*d39+d40*d40+d41*d41+d42*d42+d43*d43+d44*d44+d45*d45+d46*d46+d47*d47+d48*d48+d49*d49+d50*d50+d51*d51+d52*d52+d53*d53+d54*d54+d55*d55+d56*d56+d57*d57+d58*d58+d59*d59+d60*d60+d61*d61+d62*d62+d63*d63+d64*d64+d65*d65+d66*d66+d67*d67+d68*d68+d69*d69+d70*d70+d71*d71+d72*d72+d73*d73+d74*d74+d75*d75+d76*d76+d77*d77+d78*d78+d79*d79+d80*d80+d81*d81+d82*d82+d83*d83+d84*d84+d85*d85+d86*d86+d87*d87+d88*d88+d89*d89+d90*d90+d91*d91+d92*d92+d93*d93+d94*d94+d95*d95+d96*d96+d97*d97+d98*d98+d99*d99+d100*d100) as device_vector_length
     from $age_new_uninstall_avg_embedding
-    where day=${day} and update_day between '${day_before_one_month}'  and '${day}'
+    where day=${insertday} and update_day between '${day_before_one_month}'  and '${day}'
     )b 
 cross join ( select * from  $dim_age_cate_avg_embedding_all )a;
 "
 
 hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -124,7 +127,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $age_new_embedding_cosin_bycate partition (day=${day})
+insert overwrite table $age_new_embedding_cosin_bycate partition (day=${insertday})
     select device
 ,max(case when cate_id='cate1' and label='18以下' then cosin_similarity else -1 end ) as cate1_18_install_trend
 ,max(case when cate_id='cate10' and label='18-24岁' then cosin_similarity else -1 end ) as cate10_18_24_install_trend
@@ -273,12 +276,12 @@ insert overwrite table $age_new_embedding_cosin_bycate partition (day=${day})
 ,max(case when cate_id='tgi2_45_54_2' and label='18-24岁' then cosin_similarity else -1 end ) as tgi2_45_54_2_18_24_install_trend
 ,max(case when cate_id='tgi2_55_1' and label='18以下' then cosin_similarity else -1 end ) as tgi2_55_1_18_install_trend
 from $age_new_uninstall_avg_embedding_cosin_temp
-where day=${day}
+where day=${insertday}
 group by device
 "
 
-hive -e "
-alter table $age_new_uninstall_avg_embedding drop partition(day< $day_before_one_month);
-alter table $age_new_uninstall_avg_embedding_cosin_temp drop partition(day< $day_before_one_month);
-alter table $age_new_embedding_cosin_bycate drop partition(day< $day_before_one_month);
-"
+#hive -e "
+#alter table $age_new_uninstall_avg_embedding drop partition(day< $day_before_one_month);
+#alter table $age_new_uninstall_avg_embedding_cosin_temp drop partition(day< $day_before_one_month);
+#alter table $age_new_embedding_cosin_bycate drop partition(day< $day_before_one_month);
+#"

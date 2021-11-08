@@ -8,6 +8,7 @@ fi
 
 day=$1
 day_before_one_month=$(date -d "${day} -1 month" "+%Y%m%d")
+insertday=${day}_muid
 
 source /home/dba/mobdi_center/conf/hive-env.sh
 
@@ -15,12 +16,13 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 #category_mapping_table=dm_mobdi_mapping.age_app_category_final_new
 #label_device_pkg_install_uninstall_year_info_mf=rp_mobdi_app.label_device_pkg_install_uninstall_year_info_mf
 tmpdb=$dm_mobdi_tmp
-age_new_ratio_features_12m="$tmpdb.age_new_ratio_features_12m"
-age_new_ratio_features_6m="$tmpdb.age_new_ratio_features_6m"
-age_new_install_cnt_6mv12m="$tmpdb.age_new_install_cnt_6mv12m"
+age_new_ratio_features_12m="${tmpdb}.age_new_ratio_features_12m"
+age_new_ratio_features_6m="${tmpdb}.age_new_ratio_features_6m"
+age_new_install_cnt_6mv12m="${tmpdb}.age_new_install_cnt_6mv12m"
 
 
 hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -31,7 +33,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $age_new_ratio_features_12m partition(day=$day)
+insert overwrite table $age_new_ratio_features_12m partition(day=$insertday)
 select device
 ,cate2_12m_cnt
 ,cate7006_001_12m_cnt
@@ -304,6 +306,7 @@ from(
 
 
 hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -314,7 +317,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $age_new_ratio_features_6m partition(day=$day)
+insert overwrite table $age_new_ratio_features_6m partition(day=$insertday)
 select
     device
     ,cate2_6m_cnt
@@ -433,6 +436,7 @@ from(
 
 
 hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -443,7 +447,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $age_new_install_cnt_6mv12m partition (day=$day)
+insert overwrite table $age_new_install_cnt_6mv12m partition (day=$insertday)
 select a.device
 ,case when cate2_6m_cnt=-999 or cate2_12m_cnt=-999 then -999 when cate2_12m_cnt=0 then -9 else cate2_6m_cnt/cate2_12m_cnt end as cate2_6mv12m
 ,case when cate7006_001_6m_cnt=-999 or cate7006_001_12m_cnt=-999 then -999 when cate7006_001_12m_cnt=0 then -9 else cate7006_001_6m_cnt/cate7006_001_12m_cnt end as cate7006_001_6mv12m
@@ -471,7 +475,7 @@ from(
             ,tgi2_35_44_6_12m_cnt
             ,tgi2_45_54_0_12m_cnt
     from $age_new_ratio_features_12m
-    where day=$day
+    where day=$insertday
     
 )a 
 left join(
@@ -488,13 +492,7 @@ left join(
         ,tgi2_35_44_6_6m_cnt
         ,tgi2_45_54_0_6m_cnt
     from $age_new_ratio_features_6m
-    where day=$day
+    where day=$insertday
 )b 
 on a.device = b.device ;
-"
-
-hive -e "
-alter table $age_new_ratio_features_12m drop partition(day< $day_before_one_month);
-alter table $age_new_ratio_features_6m drop partition(day< $day_before_one_month);
-alter table $age_new_install_cnt_6mv12m drop partition(day< $day_before_one_month);
 "

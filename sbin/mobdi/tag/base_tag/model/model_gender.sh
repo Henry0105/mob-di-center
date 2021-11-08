@@ -252,4 +252,4 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.driver.maxResultSize=4g \
 --conf spark.speculation=true \
 --conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
-/home/dba/mobdi_center/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$modelPath" "$tmp_sql" "$length" "$outputTable" "$day" "$model_app2vec"
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$modelPath" "$tmp_sql" "$length" "$outputTable" "$day" "$model_app2vec"

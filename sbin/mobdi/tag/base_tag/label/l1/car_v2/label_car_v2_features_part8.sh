@@ -18,7 +18,7 @@ day=$1
 
 export HADOOP_USER_NAME=dba
 
-tmpdb="$dw_mobdi_md"
+tmpdb=$dm_mobdi_tmp
 
 #optput
 output_table_8=${tmpdb}.tmp_car_score_part8
