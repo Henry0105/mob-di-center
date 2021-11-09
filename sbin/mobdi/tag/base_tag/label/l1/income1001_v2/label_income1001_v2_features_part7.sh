@@ -12,6 +12,8 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
+day=$1
+
 source /home/dba/mobdi_center/conf/hive-env.sh
 tmpdb=$dm_mobdi_tmp
 appdb=$dm_mobdi_report
