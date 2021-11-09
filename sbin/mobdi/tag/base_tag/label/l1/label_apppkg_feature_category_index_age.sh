@@ -50,7 +50,7 @@ set hive.merge.size.per.task = 250000000;
 set hive.exec.compress.intermediate=true;
 set hive.intermediate.compression.codec=org.apache.hadoop.io.compress.SnappyCodec;
 
-insert overwrite table $apppkg_category_index partition (day = '$day', version = '1003.age.cate_l1')
+insert overwrite table $label_l1_apppkg_category_index partition (day = '$day', version = '1003.age.cate_l1')
 select device,index,1.0 as cnt
 from
 (

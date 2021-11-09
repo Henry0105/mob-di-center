@@ -46,6 +46,9 @@ create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPa
 SELECT GET_LAST_PARTITION('${tmp_db}', 'pid_contacts_word2vec_index_sec', 'day');
 "`)
 
+pidPartition=`hive -e "show partitions $dim_device_pid_merge_df" | awk -v day=${day} -F '=' '$2<=day {print $0}'| sort| tail -n 1`
+
+
 #通讯录特征计算
 #先通过android_id_mapping_full表找出设备的最新手机号
 #然后和通讯录特征结果dm_mobdi_tmp.pid_contacts_index_sec表join，得到设备的微商水军标志位、通讯录号码得分分段、是否有公司名、公司手机数量分段、职级排行分段、分词index
@@ -105,8 +108,9 @@ from
       from
       (
         select device,concat(pid,'=',pid_ltm) pid_list
-        from $dim_id_mapping_android_sec_df_view
-        where length(pid)>0
+        from $dim_device_pid_merge_df
+        where $pidPartition
+        and length(pid)>0
         and length(pid)<87000   --涉密后pid长度变长，同比例增加长度限制
       ) pid_info
       lateral view explode_tags(pid_list) pid_tmp as pid,pn_tm

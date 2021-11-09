@@ -70,12 +70,6 @@ permanent_last_par=${permanent_par[(${#permanent_par[*]}-1)]#*=}
 permanent_arr=(${permanent_last_par//// })
 permanent_last_day=${permanent_arr[0]}
 
-apprank_sql="show partitions $app_rank_monthly_2;"
-apprank_par=(` hive -e "$apprank_sql"`)
-apprank_last_par=${apprank_par[(${#apprank_par[*]}-1)]#*=}
-apprank_arr=(${apprank_last_par//// })
-apprank_last_day=${apprank_arr[0]}
-
 carrier_par=` hive -e "show partitions $dwd_device_info_df" | tail -n 1`
 carrier_last=${carrier_par%/*}
 echo $carrier_last

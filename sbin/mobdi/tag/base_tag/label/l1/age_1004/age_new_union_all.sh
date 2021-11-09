@@ -42,7 +42,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $age_new_age_features_all partition (day = $day)
+insert overwrite table $age_new_age_features_all partition (day = '$day')
 select 
 a.device
 ,cate2_12m_cnt
@@ -467,92 +467,92 @@ a.device
 from(
     select *
     from $age_new_ratio_features_12m
-    where day=${day}
+    where day='${day}'
 )a 
 left join(
     select *
     from $age_new_ratio_features_6m 
-    where day=${day}
+    where day='${day}'
     
 )b 
 on a.device = b.device
 left join(
     select *
     from $age_new_ratio_features_3m 
-    where day=${day}
+    where day='${day}'
 )c 
 on a.device = c.device
 left join(
     select *
     from $age_new_newIns_recency_features
-    where day=${day}
+    where day='${day}'
 )d 
 on a.device = d.device
 left join(
     select *
     from $age_new_Ins_recency_features
-    where day=${day}
+    where day='${day}'
 )e 
 on a.device = e.device
 left join(
     select *
     from $age_new_install_cnt_6mv12m
-    where day=${day}
+    where day='${day}'
 )f 
 on a.device = f.device
 left join(
     select *
     from $age_new_pkg_install_12
-    where day=${day}
+    where day='${day}'
 )g 
 on a.device = g.device
 left join(
     select *
     from $age_new_applist_install_bycate_id_whether
-    where day=${day}
+    where day='${day}'
 )h 
 on a.device = h.device
 left join(
     select *
     from $age_new_active_recency_features 
-    where day=${day}
+    where day='${day}'
 )i 
 on a.device = i.device
 left join(
     select *
     from $age_new_active_days_12
-    where day=${day}
+    where day='${day}'
 )j 
 on a.device = j.device
 left join(
     select *
     from $age_new_active_days_6
-    where day=${day}
+    where day='${day}'
 )k 
 on a.device = k.device
 left join(
     select *
     from $age_new_active_days_3
-    where day=${day}
+    where day='${day}'
 
 )l 
 on a.device =l.device 
 left join(
     select *
     from $age_new_active_days_1
-    where day=${day}
+    where day='${day}'
 )m 
 on a.device = m.device
 left join(
     select *
     from $age_new_embedding_cosin_bycate
-    where day=${day}
+    where day='${day}'
 )n 
 on a.device = n.device
 left join(
     select *
     from $age_new_topic_wgt
-    where day=${day}
+    where day='${day}'
 )p 
 on a.device = p.device
 "

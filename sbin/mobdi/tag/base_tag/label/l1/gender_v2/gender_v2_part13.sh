@@ -58,7 +58,7 @@ from(
     )b group by device, index
 )c
 )
-insert overwrite table $gender_feature_v2_part13 partition(day=$insertday)
+insert overwrite table $gender_feature_v2_part13 partition(day='$insertday')
 select device, 
 max(cate1_male_female) cate1_male_female,
 max(cate2_male_female) cate2_male_female,

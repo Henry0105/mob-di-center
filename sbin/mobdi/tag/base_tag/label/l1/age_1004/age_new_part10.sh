@@ -30,7 +30,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $age_new_active_days_3 partition (day=$insertday)
+insert overwrite table $age_new_active_days_3 partition (day='$insertday')
 select device
 ,max(case when cate_id='tgi2_55_0' then cnt_1 else 0 end ) as tgi2_55_0_act_day_3m
 ,max(case when cate_id='tgi2_18_24_0' then cnt_1 else 0 end ) as tgi2_18_24_0_act_day_3m

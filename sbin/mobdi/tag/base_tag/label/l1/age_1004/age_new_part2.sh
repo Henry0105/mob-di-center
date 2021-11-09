@@ -30,7 +30,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $age_new_ratio_features_3m partition(day=$insertday)
+insert overwrite table $age_new_ratio_features_3m partition(day='$insertday')
 select
     device
 ,tgi1_18_24_6_3m_cnt

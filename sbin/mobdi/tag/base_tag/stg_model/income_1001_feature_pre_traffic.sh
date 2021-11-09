@@ -23,7 +23,7 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 tmp_db=$dm_mobdi_tmp
 
-input
+#input
 calculate_model_device=${tmp_db}.calculate_model_device
 
 #md

@@ -30,7 +30,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $gender_feature_v2_part3 partition(day=$insertday)
+insert overwrite table $gender_feature_v2_part3 partition(day='$insertday')
 select t1.device,
 (index1)/(cast (t2.tot_install_apps as float)) index1,
 (index2)/(cast (t2.tot_install_apps as float)) index2,
@@ -54,7 +54,7 @@ select t1.device,
 from $gender_feature_v2_part1 t1 
 join (select device,count(pkg) tot_install_apps from $dim_device_applist_new_di where day = '$day' group by device) t2
 on t1.device=t2.device
-where t1.day=$insertday;
+where t1.day='$insertday';
 "
 
 #hive -e "alter table $gender_feature_v2_part3 drop partition(day<$p7);"

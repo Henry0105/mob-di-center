@@ -37,7 +37,7 @@ set mapreduce.map.memory.mb=9000;
 set mapreduce.reduce.java.opts=-Xmx10000m;
 set mapreduce.reduce.memory.mb=9000;
 set mapred.reduce.tasks=50000;
-insert overwrite table $age_new_active_days_12 partition (day=$insertday)
+insert overwrite table $age_new_active_days_12 partition (day='$insertday')
 select device
 ,max(case when cate_id='tgi2_18_5' then cnt_1 else 0 end ) as tgi2_18_5_act_day_12m
 ,max(case when cate_id='tgi2_18_6' then cnt_1 else 0 end ) as tgi2_18_6_act_day_12m

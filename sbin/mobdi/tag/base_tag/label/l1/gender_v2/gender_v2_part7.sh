@@ -28,13 +28,13 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $gender_feature_v2_part7 partition(day=$insertday)
+insert overwrite table $gender_feature_v2_part7 partition(day='$insertday')
 select device,
 case when tgi_male_high+tgi_male=0 and tgi_female+tgi_female_high>0 then 0 
 when tgi_female+tgi_female_high=0 and tgi_male_high+tgi_male>0 then 2 
 when tgi_female+tgi_female_high=0 and tgi_male_high+tgi_male>0 then -1 
 else (tgi_male_high+tgi_male)/(cast ((tgi_female+tgi_female_high) as float)) end tgi_male_female 
-from $gender_feature_v2_part5 where day=$insertday;
+from $gender_feature_v2_part5 where day='$insertday';
 "
 
 #hive -e "alter table $gender_feature_v2_part7 drop partition(day<$p7);"

@@ -27,7 +27,7 @@ device_applist_new=${dim_device_applist_new_di}
 ## 结果临时表
 output_table=${tmpdb}.tmp_score_part6
 
-pidPartition=hive -e "show partitions $dim_device_pid_merge_df" | awk -v day=${day} -F '=' '$2<=day {print $0}'| sort| tail -n 1
+pidPartition=`hive -e "show partitions $dim_device_pid_merge_df" | awk -v day=${day} -F '=' '$2<=day {print $0}'| sort| tail -n 1`
 
 ##-----part6
 hive -v -e "

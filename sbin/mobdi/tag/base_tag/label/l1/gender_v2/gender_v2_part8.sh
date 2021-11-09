@@ -28,7 +28,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $gender_feature_v2_part8 partition(day=$insertday)
+insert overwrite table $gender_feature_v2_part8 partition(day='$insertday')
 select t1.device, sum(tgi) sum_tgi, count(*) cnt, avg(tgi) avg_tgi
 from (select device,pkg apppkg from $dim_device_applist_new_di where day = '$day') t1
 join $dim_gender_app_tgi_level_5 t2

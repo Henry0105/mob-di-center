@@ -16,7 +16,7 @@ insertday=${day}_muid
 
 #gender_pre_high_tgi_app_no="dm_sdk_mapping.gender_pre_high_tgi_app_no"
 
-gender_feature_v2_part9="$dm_mobdi_tmp.gender_feature_v2_part9"
+gender_feature_v2_part9="${dm_mobdi_tmp}.gender_feature_v2_part9"
 
 hive -e "
 set mapreduce.job.queuename=root.yarn_data_compliance;
@@ -30,7 +30,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $gender_feature_v2_part9 partition(day=$insertday)
+insert overwrite table $gender_feature_v2_part9 partition(day='$insertday')
 select t3.device, 
 max(app1) app1,
 max(app2) app2,

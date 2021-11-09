@@ -29,7 +29,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $age_new_applist_install_bycate_id_whether partition (day=$insertday)
+insert overwrite table $age_new_applist_install_bycate_id_whether partition (day='$insertday')
 select device
 ,sum(case when datediff(date,update_day)<=30 then 1 else 0 end ) as flag_1m
 ,sum(case when datediff(date,update_day)<=30 and cate_id='tgi2_55_0' then 1 else 0 end ) as flag_1m_tgi2_55_0

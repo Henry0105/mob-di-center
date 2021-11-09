@@ -29,7 +29,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table  $age_new_Ins_recency_features partition (day=$insertday)
+insert overwrite table  $age_new_Ins_recency_features partition (day='$insertday')
 select
      device
     ,datediff(date_dt, cate7006_001_install_first_min) as cate7006_001_install_first_min_diff

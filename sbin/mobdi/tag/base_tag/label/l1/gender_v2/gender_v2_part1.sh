@@ -9,7 +9,7 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
 p7=$(date -d "$day -7 days" "+%Y%m%d")
-tmpdb=${dw_mobdi_tmp}
+tmpdb=${dm_mobdi_tmp}
 insertday=${day}_muid
 #device_applist_new="dm_mobdi_mapping.device_applist_new"
 
@@ -31,7 +31,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $gender_feature_v2_part1 partition(day=$insertday)
+insert overwrite table $gender_feature_v2_part1 partition(day='$insertday')
 select device,  
 max(index1) index1,
 max(index2) index2,

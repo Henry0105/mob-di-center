@@ -28,7 +28,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table  $age_new_topic_wgt partition (day=$insertday)
+insert overwrite table  $age_new_topic_wgt partition (day='$insertday')
 select device,
 avg( topic_0) as topic_0,
 avg( topic_1)as topic_1,

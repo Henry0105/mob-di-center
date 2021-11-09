@@ -14,10 +14,10 @@ fi
 source /home/dba/mobdi_center/conf/hive-env.sh
 
 day=$1
-tmpdb=$dm_mobdi_tmp
+tmpdb=dm_mobdi_tmp
 
 #input
-#dim_device_applist_new_di
+#device_applist_new="dm_mobdi_mapping.device_applist_new"
 
 #mapping
 #mapping_contacts_words_20000_sec="dm_sdk_mapping.mapping_contacts_words_20000_sec"
@@ -36,7 +36,7 @@ id_mapping_db=${id_mapping_android_sec_df%.*}
 id_mapping_tb=${id_mapping_android_sec_df#*.}
 
 #id_mapping最新分区
-pidPartition=hive -e "show partitions $dim_device_pid_merge_df" | awk -v day=${day} -F '=' '$2<=day {print $0}'| sort| tail -n 1
+pidPartition=`hive -e "show partitions $dim_device_pid_merge_df" | awk -v day=${day} -F '=' '$2<=day {print $0}'| sort| tail -n 1`
 
 
 ##v3版的part5通讯录特征

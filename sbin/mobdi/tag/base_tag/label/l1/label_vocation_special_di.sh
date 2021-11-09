@@ -14,7 +14,7 @@ set -x -e
 
 source /home/dba/mobdi_center/conf/hive-env.sh
 
-date=$1
+day=$1
 
 ##input
 device_applist_new=${dim_device_applist_new_di}

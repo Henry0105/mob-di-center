@@ -30,7 +30,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $gender_feature_v2_part15 partition(day=$insertday)
+insert overwrite table $gender_feature_v2_part15 partition(day='$insertday')
 select device,
 car, game, male_other, female_high, edu, female_other, 
 (car + game + male_other) male_cnt, (female_high + edu + female_other) female_cnt,

@@ -28,7 +28,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $gender_feature_v2_part10 partition(day=$insertday)
+insert overwrite table $gender_feature_v2_part10 partition(day='$insertday')
 select t1.device, 
 case when app379>0.5 and app123<=0.5  then 1 else 0 end app_comb1,
 case when app379>0.5 and app123>0.5  then 1 else 0 end app_comb2,
@@ -116,7 +116,7 @@ case when app115>0.5 and app234>0.5  then 1 else 0 end app_comb83,
 case when app51>0.5 and app106>0.5  then 1 else 0 end app_comb84,
 case when app169>0.5 and app294<=0.5  then 1 else 0 end app_comb85,
 case when app169>0.5 and app294>0.5  then 1 else 0 end app_comb86
-from $gender_feature_v2_part9 t1 where day=$insertday;
+from $gender_feature_v2_part9 t1 where day='$insertday';
 "
 
 #hive -e "alter table $gender_feature_v2_part10 drop partition(day<$p7);"

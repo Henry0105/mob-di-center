@@ -42,7 +42,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $gender_feature_v2_final partition(day=$day) 
+insert overwrite table $gender_feature_v2_final partition(day='$day')
 select t1.device, 
 case when cnt_cate_l1_index15 is null or cnt_cate_l1_index15=-99 then 3.0 else cnt_cate_l1_index15 end as cnt_cate_l1_index15,
 case when cnt_cate_l1_index8 is null or cnt_cate_l1_index8=-99 then 0.0 else cnt_cate_l1_index8 end as cnt_cate_l1_index8,
@@ -336,7 +336,7 @@ index12 cnt_cate_l1_index12,
 index13 cnt_cate_l1_index13,
 index5 cnt_cate_l1_index5,
 index16 cnt_cate_l1_index16
-from $gender_feature_v2_part1 where day=$day) t1 
+from $gender_feature_v2_part1 where day='$day') t1
 left join (
 select device, index102 cnt_cate_l2_index102,
 index91 cnt_cate_l2_index91,
@@ -360,7 +360,7 @@ index86 cnt_cate_l2_index86,
 index92 cnt_cate_l2_index92,
 index201 cnt_cate_l2_index201,
 index137 cnt_cate_l2_index137
-from $gender_feature_v2_part2 where day=$day) t2 on t1.device=t2.device
+from $gender_feature_v2_part2 where day='$day') t2 on t1.device=t2.device
 left join (
 select device, index19 rt_cate_l1_index19,
 index11 rt_cate_l1_index11,
@@ -368,7 +368,7 @@ index18 rt_cate_l1_index18,
 index12 rt_cate_l1_index12,
 index13 rt_cate_l1_index13,
 index5 rt_cate_l1_index5
-from $gender_feature_v2_part3 where day=$day
+from $gender_feature_v2_part3 where day='$day'
 ) t3 on t1.device=t3.device
 left join (
 select device, index44 rt_cate_l2_index44,
@@ -413,14 +413,14 @@ index65 rt_cate_l2_index65,
 index201 rt_cate_l2_index201,
 index137 rt_cate_l2_index137,
 index159 rt_cate_l2_index159
-from $gender_feature_v2_part4 where day=$day
+from $gender_feature_v2_part4 where day='$day'
 ) t4 on t1.device=t4.device
 left join (
 select device, tgi_male cnt_tgi5_tgi_male,
 tgi_female cnt_tgi5_tgi_female,
 tgi_female_high cnt_tgi5_tgi_female_high,
 tgi_male_high cnt_tgi5_tgi_male_high
-from $gender_feature_v2_part5 where day=$day
+from $gender_feature_v2_part5 where day='$day'
 ) t5 on t1.device=t5.device
 left join (
 select device, tgi_male rt_tgi5_tgi_male,
@@ -428,15 +428,15 @@ tgi_female rt_tgi5_tgi_female,
 tgi_female_high rt_tgi5_tgi_female_high,
 tgi_male_high rt_tgi5_tgi_male_high,
 tgi_normal rt_tgi5_tgi_normal
-from $gender_feature_v2_part6 where day=$day
+from $gender_feature_v2_part6 where day='$day'
 ) t6 on t1.device=t6.device
 left join (
 select device, tgi_male_female rt_tgi_male_female
-from $gender_feature_v2_part7 where day=$day
+from $gender_feature_v2_part7 where day='$day'
 ) t7 on t1.device=t7.device
 left join (
 select device, avg_tgi rt_avg_tgi
-from $gender_feature_v2_part8 where day=$day
+from $gender_feature_v2_part8 where day='$day'
 ) t8 on t1.device=t8.device
 left join (
 select device,app56 cnt_top_app56,
@@ -456,7 +456,7 @@ app120 cnt_top_app120,
 app386 cnt_top_app386,
 app350 cnt_top_app350,
 app61 cnt_top_app61
-from $gender_feature_v2_part9 where day=$day
+from $gender_feature_v2_part9 where day='$day'
 ) t9 on t1.device=t9.device
 left join (
 select device, cate11_avg_tgi rt_cate_mf_rt_avg_cate11_avg_tgi,
@@ -528,19 +528,19 @@ cate7_avg_tgi rt_cate_mf_rt_avg_cate7_avg_tgi,
 cate7_male_female rt_cate_mf_rt_avg_cate7_male_female,
 cate8_avg_tgi rt_cate_mf_rt_avg_cate8_avg_tgi,
 cate8_male_female rt_cate_mf_rt_avg_cate8_male_female
-from $gender_feature_v2_part13 where day=$day
+from $gender_feature_v2_part13 where day='$day'
 ) t13 on t1.device=t13.device
 left join (
 select device, edu cnt_cate_l2_union_mf_app_cnt_edu,
 female_high cnt_cate_l2_union_mf_app_cnt_female_high
-from $gender_feature_v2_part14 where day=$day
+from $gender_feature_v2_part14 where day='$day'
 ) t14 on t1.device=t14.device
 left join (
 select device, male_cnt cnt_cate_l2_union_mf_cate_cnt_male_cnt,
 tgi_male_female cnt_cate_l2_union_mf_cate_cnt_tgi_male_female,
 game cnt_cate_l2_union_mf_cate_cnt_game,
 female_cnt cnt_cate_l2_union_mf_cate_cnt_female_cnt
-from $gender_feature_v2_part15 where day=$day
+from $gender_feature_v2_part15 where day='$day'
 ) t15 on t1.device=t15.device
 left join (
 select device, index8 rt_cate_l1_cos_sim_index8,
@@ -560,7 +560,7 @@ index13_female rt_cate_l1_cos_sim_index13_female,
 index19_female rt_cate_l1_cos_sim_index19_female,
 index10_female rt_cate_l1_cos_sim_index10_female,
 index15_female rt_cate_l1_cos_sim_index15_female
-from $gender_feature_v2_part16 where day=$day
+from $gender_feature_v2_part16 where day='$day'
 ) t16 on t1.device=t16.device
 left join (
 select device, index102 rt_cate_l2_cos_sim_index102,
@@ -634,14 +634,14 @@ index92_female rt_cate_l2_cos_sim_index92_female,
 index94 rt_cate_l2_cos_sim_index94,
 index94_female rt_cate_l2_cos_sim_index94_female,
 index96_female rt_cate_l2_cos_sim_index96_female
-from $gender_feature_v2_part17 where day=$day
+from $gender_feature_v2_part17 where day='$day'
 ) t17 on t1.device=t17.device
 left join (
 select device, cos_sim_tgi_male rt_cos_sim_tgi_male,
 cos_sim_tgi_female_high rt_cos_sim_tgi_female_high,
 cos_sim_tgi_male_high rt_cos_sim_tgi_male_high,
 cos_sim_tgi_female rt_cos_sim_tgi_female
-from $gender_feature_v2_part18 where day=$day
+from $gender_feature_v2_part18 where day='$day'
 ) t18 on t1.device=t18.device
 left join (
 select device, topic11 rt_topic11,
@@ -654,7 +654,7 @@ topic19 rt_topic19,
 topic7 rt_topic7,
 topic14 rt_topic14,
 topic6 rt_topic6
-from $gender_feature_v2_part19 where day=$day
+from $gender_feature_v2_part19 where day='$day'
 ) t19 on t1.device=t19.device
 ;
 "

@@ -30,7 +30,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $age_new_active_recency_features partition (day=$insertday)
+insert overwrite table $age_new_active_recency_features partition (day='$insertday')
 select device
 ,datediff(date_dt,cate17_active_max_day) as cate17_active_max_day_diff
 ,datediff(date_dt,cate7001_002_active_max_day) as cate7001_002_active_max_day_diff

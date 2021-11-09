@@ -33,7 +33,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $age_new_ratio_features_12m partition(day=$insertday)
+insert overwrite table $age_new_ratio_features_12m partition(day='$insertday')
 select device
 ,cate2_12m_cnt
 ,cate7006_001_12m_cnt
@@ -317,7 +317,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $age_new_ratio_features_6m partition(day=$insertday)
+insert overwrite table $age_new_ratio_features_6m partition(day='$insertday')
 select
     device
     ,cate2_6m_cnt
@@ -447,7 +447,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $age_new_install_cnt_6mv12m partition (day=$insertday)
+insert overwrite table $age_new_install_cnt_6mv12m partition (day='$insertday')
 select a.device
 ,case when cate2_6m_cnt=-999 or cate2_12m_cnt=-999 then -999 when cate2_12m_cnt=0 then -9 else cate2_6m_cnt/cate2_12m_cnt end as cate2_6mv12m
 ,case when cate7006_001_6m_cnt=-999 or cate7006_001_12m_cnt=-999 then -999 when cate7006_001_12m_cnt=0 then -9 else cate7006_001_6m_cnt/cate7006_001_12m_cnt end as cate7006_001_6mv12m

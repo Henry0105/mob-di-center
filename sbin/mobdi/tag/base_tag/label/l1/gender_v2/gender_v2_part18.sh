@@ -89,7 +89,7 @@ set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
 
-insert overwrite table $gender_feature_v2_part18 partition(day=$insertday)
+insert overwrite table $gender_feature_v2_part18 partition(day='$insertday')
 select device, 
 max(cos_sim_tgi_male_high) cos_sim_tgi_male_high, 
 max(cos_sim_tgi_male) cos_sim_tgi_male,

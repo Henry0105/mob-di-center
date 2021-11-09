@@ -30,7 +30,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $age_new_pkg_install_12 partition (day=$insertday)
+insert overwrite table $age_new_pkg_install_12 partition (day='$insertday')
 select device
 ,max(case when cate_id='cate14' then cnt_1 else 0 end ) as cate14_12_12
 ,max(case when cate_id='cate26' then cnt_1 else 0 end ) as cate26_12_12

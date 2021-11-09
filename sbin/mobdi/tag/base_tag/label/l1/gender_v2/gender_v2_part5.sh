@@ -29,7 +29,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-insert overwrite table $gender_feature_v2_part5 partition(day=$insertday)
+insert overwrite table $gender_feature_v2_part5 partition(day='$insertday')
 select device,     
 sum(tgi_male_high) tgi_male_high,
 sum(tgi_male) tgi_male,
