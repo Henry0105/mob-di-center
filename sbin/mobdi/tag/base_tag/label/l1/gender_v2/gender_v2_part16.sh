@@ -45,7 +45,7 @@ avg(d98) as d98,avg(d99) as d99,avg(d100) as d100
 from seed x
 join (select * from $apppkg_app2vec_par_wi where day = '$last_par') y
 on x.pkg = y.apppkg
-join (select apppkg, cate_l1_id, cate_l1 from $app_category_mapping_par where version='1000' group by apppkg, cate_l1_id, cate_l1) z
+join (select apppkg, cate_l1_id, cate_l1 from $dim_app_category_mapping_par where version='1000' group by apppkg, cate_l1_id, cate_l1) z
 on x.pkg=z.apppkg
 group by device, cate_l1_id, cate_l1
 "

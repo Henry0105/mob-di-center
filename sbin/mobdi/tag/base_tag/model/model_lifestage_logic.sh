@@ -7,6 +7,8 @@ day="$1"
 实现功能: life_stage逻辑自洽
 !
 
+source /home/dba/mobdi_center/conf/hive-env.sh
+
 ##input
 confidence_logic="${label_l2_model_with_confidence_union_logic_di}"
 ##output

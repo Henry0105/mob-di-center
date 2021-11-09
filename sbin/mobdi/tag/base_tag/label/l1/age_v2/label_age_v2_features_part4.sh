@@ -75,7 +75,7 @@ insert overwrite table ${output_table} partition(day='${day}')
 select t1.device, if(t2.index is null,array(0),t2.index) as index,
        if(t2.cnt is null,array(0.0),cnt) as cnt
 from seed t1
-left join (select * from tmp_score_part4 where day='${day}') t2
+left join tmp_score_part4 t2
 on t1.device=t2.device;
 "
 

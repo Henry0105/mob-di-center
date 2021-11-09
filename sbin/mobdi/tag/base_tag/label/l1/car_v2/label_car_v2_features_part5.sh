@@ -111,7 +111,7 @@ left join
               lateral view explode(word_index) n as index_old
               where version = '1000'
             ) a
-            join $dim_car_word_index_chi
+            join $dim_car_word_index_chi b
             on a.index_old = b.index_before_chi
         ) y
         on x.pid = y.pid

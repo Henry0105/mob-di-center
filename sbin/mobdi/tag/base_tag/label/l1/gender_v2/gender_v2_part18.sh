@@ -42,7 +42,7 @@ avg(d90) as d90,avg(d91) as d91,avg(d92) as d92,avg(d93) as d93,avg(d94) as d94,
 avg(d98) as d98,avg(d99) as d99,avg(d100) as d100
 from seed x
 join (select * from $apppkg_app2vec_par_wi where day = '$last_par') y on x.pkg = y.apppkg
-join (select apppkg, tgi_level from $gender_app_tgi_level_5 group by apppkg, tgi_level) z on x.pkg=z.apppkg
+join (select apppkg, tgi_level from $dim_gender_app_tgi_level_5 group by apppkg, tgi_level) z on x.pkg=z.apppkg
 group by device, tgi_level
 "
 
