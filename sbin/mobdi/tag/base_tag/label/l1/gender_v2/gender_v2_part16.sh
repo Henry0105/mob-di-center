@@ -191,7 +191,7 @@ from
       group by device, cate_l1_id
     ) t2 
     on t1.device=t2.device and t1.cate_l1_id=t2.cate_l1_id
-    join $gender_app2vec_cate_l1_center_vec_m t3
+    join $dim_gender_app2vec_cate_l1_center_vec_m t3
     on t1.cate_l1_id=t3.cate_l1_id and t1.tag=t3.tag
   ) tz join (select cate_l1_id, index from $dim_gender_app_cate_index1) tx
   on tz.cate_l1_id = tx.cate_l1_id

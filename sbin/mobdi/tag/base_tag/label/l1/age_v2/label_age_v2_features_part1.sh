@@ -157,4 +157,4 @@ do
     echo "rm $old_version"
     hive -v -e "alter table ${output_table} drop if exists partition($old_version)"
 done
-}
+
