@@ -94,7 +94,7 @@ class EduScoreV2(@transient spark: SparkSession) {
       )
     ).toDF("device", "feature4")
 
-    val df_vec_base = spark.sql(app2vec_sql).na.fill(0)
+    val df_vec_base = spark.sql(app2vec_sql).drop("day").na.fill(0)
 
     var rdd_data5 = spark.sql(part5_sql)
 

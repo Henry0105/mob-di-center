@@ -33,6 +33,7 @@ class  AgeScoreV3(@transient spark: SparkSession) {
       s"""
          |   select device,index, cnt
          |   from ${testdb}.tmp_score_part1
+         |   where day='${day}'
       """.stripMargin)
 
     var rdd_val_1 = rdd_val1.map(r => (r.getString(0),
@@ -48,6 +49,7 @@ class  AgeScoreV3(@transient spark: SparkSession) {
       s"""
          |   select device,index, cnt
          |   from ${testdb}.tmp_score_part2_v3
+         |   where day='${day}'
       """.stripMargin)
 
     var rdd_train_2 = rdd_data2.map(r => (r.getString(0),
@@ -59,6 +61,7 @@ class  AgeScoreV3(@transient spark: SparkSession) {
       s"""
          |   select device,index, cnt
          |   from ${testdb}.tmp_score_part3
+         |   where day='${day}'
       """.stripMargin)
     var rdd_train_3 = rdd_data3.map(r => (r.getString(0),
       org.apache.spark.ml.linalg.Vectors.dense(org.apache.spark.mllib.linalg.Vectors.sparse(67,r.getAs[ArrayBuffer[Int]](1).toArray,r.getAs[ArrayBuffer[Double]](2).toArray).toArray).toSparse)
@@ -68,6 +71,7 @@ class  AgeScoreV3(@transient spark: SparkSession) {
       s"""
          |   select device,index, cnt
          |   from ${testdb}.tmp_score_part4
+         |   where day='${day}'
       """.stripMargin)
 
     var rdd_train_4 = rdd_data4.map(r => (r.getString(0),
@@ -78,12 +82,14 @@ class  AgeScoreV3(@transient spark: SparkSession) {
       s"""
          | select *
          | from ${testdb}.tmp_score_app2vec_v3
-      """.stripMargin).na.fill(0)
+         | where day='${day}'
+      """.stripMargin).drop("day").na.fill(0)
 
     var rdd_data5 = spark.sql(
       s"""
          |   select device,index, cnt
          |   from ${testdb}.tmp_score_part5_v3
+         |   where day='${day}'
       """.stripMargin)
     var rdd_train_5 = rdd_data5.map(r => (r.getString(0),
       org.apache.spark.ml.linalg.Vectors.dense(org.apache.spark.mllib.linalg.Vectors.sparse(20000,r.getAs[ArrayBuffer[Int]](1).toArray,r.getAs[ArrayBuffer[Double]](2).toArray).toArray).toSparse)
@@ -93,6 +99,7 @@ class  AgeScoreV3(@transient spark: SparkSession) {
       s"""
          |   select device,index, cnt
          |   from ${testdb}.tmp_score_part6
+         |   where day='${day}'
       """.stripMargin)
     var rdd_train_6 = rdd_data6.map(r => (r.getString(0),
       org.apache.spark.ml.linalg.Vectors.dense(org.apache.spark.mllib.linalg.Vectors.sparse(100,r.getAs[ArrayBuffer[Int]](1).toArray,r.getAs[ArrayBuffer[Double]](2).toArray).toArray).toSparse)
@@ -102,6 +109,7 @@ class  AgeScoreV3(@transient spark: SparkSession) {
       s"""
          |   select device,index, cnt
          |   from ${testdb}.tmp_score_part7
+         |   where day='${day}'
       """.stripMargin)
     var rdd_train_7 = rdd_data7.map(r => (r.getString(0),
       org.apache.spark.ml.linalg.Vectors.dense(org.apache.spark.mllib.linalg.Vectors.sparse(80571,r.getAs[ArrayBuffer[Int]](1).toArray,r.getAs[ArrayBuffer[Double]](2).toArray).toArray).toSparse)
@@ -111,6 +119,7 @@ class  AgeScoreV3(@transient spark: SparkSession) {
       s"""
          |   select device,index, cnt
          |   from ${testdb}.tmp_score_part8
+         |   where day='${day}'
       """.stripMargin)
     var rdd_train_8 = rdd_data8.map(r => (r.getString(0),
       org.apache.spark.ml.linalg.Vectors.dense(org.apache.spark.mllib.linalg.Vectors.sparse(50,r.getAs[ArrayBuffer[Int]](1).toArray,r.getAs[ArrayBuffer[Double]](2).toArray).toArray).toSparse)
@@ -153,20 +162,20 @@ class  AgeScoreV3(@transient spark: SparkSession) {
 
 
     predictions = predictions.join(whiteDF, predictions("device") === whiteDF("device"), "left_outer").select(
-        predictions("device")
-        , predictions("prediction")
-        , predictions("probability")
-        , predictions("features")
-        , whiteDF("device").alias("device2")
+      predictions("device")
+      , predictions("prediction")
+      , predictions("probability")
+      , predictions("features")
+      , whiteDF("device").alias("device2")
     )
 
     predictions.select("device", "prediction", "probability", "device2").map(r =>
       (
         r.getString(0)
         , if (r.get(3) != null | r.getDouble(1)==0) 0
-          else r.getDouble(1)
+      else r.getDouble(1)
         , if (r.get(3) != null) 1
-          else r.getAs[org.apache.spark.ml.linalg.Vector](2).apply(r.getDouble(1).toInt)
+      else r.getAs[org.apache.spark.ml.linalg.Vector](2).apply(r.getDouble(1).toInt)
       )
     ).toDF("device", "prediction", "probability").repartition(2000).createOrReplaceTempView("lr_scoring")
 

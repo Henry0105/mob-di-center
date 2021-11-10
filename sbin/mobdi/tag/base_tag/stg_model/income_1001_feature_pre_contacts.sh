@@ -134,7 +134,7 @@ from
          vec33_quantile,vec34_quantile,vec35_quantile,vec36_quantile,vec37_quantile,vec38_quantile,vec39_quantile,vec40_quantile,
          vec41_quantile,vec42_quantile,vec43_quantile,vec44_quantile,vec45_quantile,vec46_quantile,vec47_quantile,vec48_quantile,
          vec49_quantile,vec50_quantile
-  from $income_1001_pid_contacts_index a
+  from $income_1001_pid_contacts_index_sec a
   inner join
   $pid_contacts_word2vec_index_sec b on b.day='$pidContactsWord2vecIndexLastPar' and a.pid=b.pid
   where a.day='$day'

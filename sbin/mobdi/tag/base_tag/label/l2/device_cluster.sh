@@ -49,7 +49,7 @@ select device,concat(concat_ws(',',collect_list(tag)),'=',concat_ws(',',collect_
 from
 (
   select device,tag,tfidf
-  from $device_applist_new
+  from $label_l1_taglist_di
   lateral view explode_tags(tag_list) tag_tmp as tag,tfidf
   where day='${DATE}'
   and cast(tag as int)<=849

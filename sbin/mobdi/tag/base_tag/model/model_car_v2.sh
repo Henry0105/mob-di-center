@@ -21,7 +21,7 @@ fi
 day=$1
 source /home/dba/mobdi_center/conf/hive-env.sh
 
-tmpdb="$dw_mobdi_md"
+tmpdb=$dm_mobdi_tmp
 
 #input
 tmp_score_app2vec="${tmpdb}.tmp_car_pre_app2vec"
