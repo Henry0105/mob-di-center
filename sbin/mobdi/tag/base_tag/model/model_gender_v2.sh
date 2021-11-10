@@ -10,17 +10,17 @@ if [ $# -ne 1 ]; then
 fi
 
 day=$1
-
+insertday=${day}_muid
 source /home/dba/mobdi_center/conf/hive-env.sh
 
 # input
-label_gender_feature="$dm_mobdi_tmp.gender_feature_v2_final"
+label_gender_feature="${dm_mobdi_tmp}.gender_feature_v2_final"
 model_path="/dmgroup/dba/modelpath/20210730/gender/gender_xgb_model.pmml"
 
 # output
 outputTable=$gender_scoring_result_di
 
-tmp_sql="select * from  $label_gender_feature where day=${day}"
+tmp_sql="select * from  $label_gender_feature where day='${insertday}'"
 
 
 spark2-submit --master yarn --deploy-mode cluster \
