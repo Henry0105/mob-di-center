@@ -39,7 +39,6 @@ object ModelProfileTableMerge {
       colInfoMap += (col -> colIndex)
       colIndex = colIndex + 1
     }
-
     println(colInfoMap)
 
     // 3 mergefile with union all
@@ -62,7 +61,6 @@ object ModelProfileTableMerge {
          |) t
          |GROUP BY t.device
        """.stripMargin
-
     println(unionSql)
     val unionDF = spark.sql(unionSql)
     unionDF.createOrReplaceTempView("UNIONED_TABLE")
@@ -92,7 +90,6 @@ object ModelProfileTableMerge {
        """.stripMargin
     println(revisedR1Sql)
     spark.sql(revisedR1Sql).createOrReplaceTempView("REVISED_V1_TABLE")
-
     // reviseR2
     val reviseR2Seq = ConfigurationManager.getString("reviseR2").split(",").map(str => str.trim).toSeq
 
@@ -116,7 +113,6 @@ object ModelProfileTableMerge {
        """.stripMargin
     println(revisedR2Sql)
     spark.sql(revisedR2Sql).createOrReplaceTempView("REVISED_V2_TABLE")
-
     // reviseR3
     val reviseR3Seq = ConfigurationManager.getString("reviseR3").split(",").map(str => str.trim).toSeq
 
@@ -132,7 +128,6 @@ object ModelProfileTableMerge {
 
     val revisedR3Sql =
       s"""
-         |INSERT OVERWRITE TABLE $targetTable partition(day='$insertDay')
          |SELECT
          |REVISED_V2_TABLE.device,
          |${formatReviseCol("REVISED_V2_TABLE", allCols, reviseR3Seq, reviseMap, "reviseR3")}
@@ -140,13 +135,36 @@ object ModelProfileTableMerge {
          |${reviseR3JoinSql.toString()}
        """.stripMargin
     println(revisedR3Sql)
-    spark.sql(revisedR3Sql)
+    spark.sql(revisedR3Sql).createOrReplaceTempView("REVISED_V3_TABLE")
+    // reviseR4
+    val reviseR4Seq = ConfigurationManager.getString("reviseR4").split(",").map(str => str.trim).toSeq
+
+    val reviseR4JoinSql = StringBuilder.newBuilder
+    for (reviseCol <- reviseR4Seq) {
+      if (reviseMap.contains("reviseR4." + reviseCol)) {
+        reviseR4JoinSql.append(
+          s"""
+             |LEFT JOIN TEMPVIEW_TABLE_${reviseCol} ${reviseCol} ON (${reviseCol}.device=REVISED_V3_TABLE.device)\n
+           """.stripMargin)
+      }
+    }
+    val revisedR4Sql =
+      s"""
+         |INSERT OVERWRITE TABLE $targetTable partition(day='$insertDay')
+         |SELECT
+         |REVISED_V3_TABLE.device,
+         |${formatReviseCol("REVISED_V3_TABLE", allCols, reviseR4Seq, reviseMap, "reviseR4")}
+         |FROM REVISED_V3_TABLE
+         |${reviseR4JoinSql.toString()}
+       """.stripMargin
+    println(revisedR4Sql)
+    spark.sql(revisedR4Sql)
     spark.stop()
   }
 
   // 用于添加revise字段的内容
   def formatReviseCol(tableName: String, allCols: Seq[String], reviseCols: Seq[String],
-    reviseMap: Map[String, String], reviseLevel: String): String = {
+                      reviseMap: Map[String, String], reviseLevel: String): String = {
     val sb = StringBuilder.newBuilder
     for (col <- allCols) {
       if (reviseCols.contains(col) && reviseMap.contains(reviseLevel + "." + col)) {
