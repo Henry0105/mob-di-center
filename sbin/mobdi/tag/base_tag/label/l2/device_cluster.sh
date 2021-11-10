@@ -57,7 +57,7 @@ from
 group by device;
 "
 tfidfsql="SELECT * from $device_tfidf_incr_list"
-device_cluster_incr_Path=/dmgroup/dba/dailyrun/device_cluster_inc_mobdi
+device_cluster_incr_Path=/dmgroup/dba/dailyrun/device_cluster_inc_mobdi_muid
 model_path=/dmgroup/dba/modelpath/kmeans_model/report/device_cluster
 $cloudera_path/spark-submit --master yarn-cluster \
 --class com.youzu.mob.score.KMeansStdPCAScoring \
