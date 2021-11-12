@@ -32,6 +32,7 @@ top_1000_device_applist=${tmp}.top_1000_device_applist
 
 #output
 device_tag_tf=${tmp}.device_tag_tf
+tag_idf=${tmp}.tag_idf
 
 sql="show partitions $device_applist_new"; par=(`hive -e "$sql"`);
 last_par="${par[(${#par[*]}-1)]#*=}";
@@ -200,3 +201,25 @@ FROM
 			tag
 	) d";
 hive -e "$sql";
+
+
+sql="
+insert overwrite table $tag_idf
+select a.tag,a.tag_freq,b.count_dev,ln((b.count_dev+1)/(a.tag_freq+1)) idf
+from
+(
+  select tag,count(1) tag_freq
+  from $device_tag_tf
+  group by tag
+) a
+left join
+(
+  select count(1) count_dev
+  from
+  (
+    select device
+    from $device_tag_tf
+    group by device
+  )t
+) b";
+echo "$sql"; hive -e "$sql";

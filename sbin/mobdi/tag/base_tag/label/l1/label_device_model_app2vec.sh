@@ -123,6 +123,7 @@ FROM $tmp_label_app2vec
 WHERE day = '$day';
 "
 
+b7day=`date -d "$day -7 days" "+%Y%m%d"`
 #只保留最近7个分区
 hive -v -e "alter table ${tmp_label_app2vec} drop if exists partition(day='$b7day');"
 

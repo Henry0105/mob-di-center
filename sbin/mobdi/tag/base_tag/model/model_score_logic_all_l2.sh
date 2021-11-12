@@ -178,6 +178,8 @@ select device,gender,gender_cl,agebin,agebin_cl,edu,edu_cl,income,income_cl,kids
        income_1001_v2_cl,occupation_1002,occupation_1002_cl
 from $label_l2_model_with_confidence_union_logic_di
 where day = '$day'
+and gender <> -1
+and edu <> -1
 group by device,gender,gender_cl,agebin,agebin_cl,edu,edu_cl,income,income_cl,kids,kids_cl,
        car,car_cl,house,house_cl,married,married_cl,occupation,occupation_cl,industry,
        industry_cl,agebin_1001,agebin_1001_cl,city_level,special_time,consum_level,
