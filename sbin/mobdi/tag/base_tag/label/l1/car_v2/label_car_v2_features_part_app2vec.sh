@@ -111,4 +111,5 @@ do
     hive -v -e "alter table ${output_table} drop if exists partition($old_version);"
 done
 
+b7day=`date -d "$day -7 days" "+%Y%m%d"`
 hive -v -e "alter table ${tmp_part_car_app2vec} drop if exists partition(day='$b7day');"
