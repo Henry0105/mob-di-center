@@ -131,7 +131,7 @@ from
 doubleCheckSql="select * from $dim_app_category_mapping_par where version='1000' and (cate_l1_id is null or cate_l2_id is null)"
 
 spark2-submit --master yarn --deploy-mode cluster \
---class com.mob.mobdi.utils.sortsystem.SortingDbUtils \
+--class com.youzu.mob.sortsystem.SortingDbUtils \
 --driver-memory 6G \
 --conf spark.shuffle.service.enabled=true \
 --conf spark.dynamicAllocation.enabled=true \
@@ -143,4 +143,4 @@ spark2-submit --master yarn --deploy-mode cluster \
 --name "SortingAppCagtegoryUtils" \
 --conf spark.sql.shuffle.partitions=100 \
 --conf spark.sql.autoBroadcastJoinThreshold=519715200 \
-/home/dba/mobdi_center/lib/MobDI_Monitor-1.0-SNAPSHOT-jar-with-dependencies.jar "$mysqlInfoStr" "$mailList" "$insertTestTableSql" "$checkDataSqls" "$bakAndInsertSql" "$doubleCheckSql"
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$mysqlInfoStr" "$mailList" "$insertTestTableSql" "$checkDataSqls" "$bakAndInsertSql" "$doubleCheckSql"
