@@ -50,6 +50,23 @@
             <artifactId>jpmml-evaluator-spark</artifactId>
             <version>1.2.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.17</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.17</version>
+        </dependency>
+        <!--  send mail jar-->
+        <dependency>
+            <groupId>com.mob</groupId>
+            <artifactId>mailSender</artifactId>
+            <version>1.2.2</version>
+        </dependency>
 
         <dependency>
             <groupId>org.jpmml</groupId>
