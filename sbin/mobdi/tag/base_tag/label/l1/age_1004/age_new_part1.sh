@@ -475,8 +475,7 @@ from(
             ,tgi2_35_44_6_12m_cnt
             ,tgi2_45_54_0_12m_cnt
     from $age_new_ratio_features_12m
-    where day=$insertday
-    
+    where day='$insertday'
 )a 
 left join(
     select device,cate2_6m_cnt
@@ -492,7 +491,7 @@ left join(
         ,tgi2_35_44_6_6m_cnt
         ,tgi2_45_54_0_6m_cnt
     from $age_new_ratio_features_6m
-    where day=$insertday
+    where day='$insertday'
 )b 
 on a.device = b.device ;
 "
