@@ -44,29 +44,33 @@ set hive.merge.size.per.task=128000000;
 set hive.merge.smallfiles.avgsize=128000000;
 
 insert overwrite table $dim_mapping_apppkg_appkey_bydsign_par_df partition(version = '${new_ver}')
-select coalesce(t1.apppkg,t2.apppkg) as apppkg,
-       coalesce(t1.appkey,t2.appkey) as appkey
-from
-(
-    select trim(apppkg) as apppkg,
-           trim(appkey) as appkey
-    from $dim_mapping_apppkg_appkey_bydsign_par_df
-    where 1=1  ${lastPartStrA}
-) t1
-full join
-(
-    select trim(apppkg) as apppkg,
-           trim(appkey) as appkey
-    from $dwd_dsign_di
-    where day = '$day'
-    and apppkg is not null
-    and trim(apppkg) not in ('','null','NULL')
-    and trim(apppkg)=regexp_extract(trim(apppkg),'([a-zA-Z0-9\.\_-]+)',0)
-    and appkey is not null
-    and trim(appkey) not in ('','null','NULL')
-    and trim(appkey)=regexp_extract(appkey,'([0-9a-zA-Z]+)', 0)
-    group by trim(apppkg),trim(appkey) ) t2
-on t1.apppkg = t2.apppkg and t1.appkey=t2.appkey;
+select
+  coalesce(t1.apppkg,t2.apppkg) as apppkg,
+  coalesce(t1.appkey,t2.appkey) as appkey
+from ( select  trim(apppkg) apppkg,trim(appkey) appkey
+          from $dim_mapping_apppkg_appkey_bydsign_par_df
+          where 1=1  ${lastPartStrA}) t1
+full join ( select trim(apppkg) apppkg,trim(appkey) appkey
+              from $dwd_dsign_di
+              where day='$day'
+              and apppkg is not null
+              and trim(apppkg) not in ('','null','NULL')
+              and trim(apppkg)=regexp_extract(trim(apppkg),'([a-zA-Z0-9\.\_]+)',0)
+              and apppkg like '%.%' and apppkg not like '.%'
+              and regexp_replace(trim(apppkg),'1|a|\\\\.','')!=''
+              and regexp_replace(trim(apppkg),'x|\\\\.','')!=''
+              and length(trim(apppkg))>4 and length(trim(apppkg))<90
+              and appkey is not null
+              and trim(appkey) not in ('','null','NULL')
+              and trim(appkey)=regexp_extract(trim(appkey),'([0-9a-zA-Z]+)', 0)
+              and regexp_replace(trim(appkey),'1|a','')!=''
+              and regexp_replace(trim(appkey),'8','')!=''
+              and regexp_replace(trim(appkey),'b','')!=''
+              and regexp_replace(trim(appkey),'x|X','')!=''
+              and length(trim(appkey))>7 and length(trim(appkey))<100
+              group by trim(apppkg),trim(appkey) ) t2
+on t1.apppkg = t2.apppkg and t1.appkey=t2.appkey
+;
 "
 
 hive -v -e "
