@@ -154,9 +154,3 @@ from(
     group by device,date_dt
 )t2;
 "
-
-day_before_one_month=$(date -d "${day} -1 month" "+%Y%m%d")
-
-#hive -e "
-#alter table $age_new_active_recency_features drop partition(day< $day_before_one_month);
-#"

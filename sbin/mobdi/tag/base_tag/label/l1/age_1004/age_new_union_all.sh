@@ -556,7 +556,3 @@ left join(
 )p 
 on a.device = p.device
 "
-
-#hive -e "
-#alter table $age_new_age_features_all drop partition(day< $day_before_two_month);
-#"

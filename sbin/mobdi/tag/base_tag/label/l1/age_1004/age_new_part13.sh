@@ -61,7 +61,3 @@ inner join
 on a.pkg=b.pkg
 group by device;
 "
-
-#hive -e "
-#alter table $age_new_topic_wgt drop partition(day< $day_before_one_month);
-#"
