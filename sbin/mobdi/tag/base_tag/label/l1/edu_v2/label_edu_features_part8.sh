@@ -86,9 +86,3 @@ inner join
 on d.index = e.index
 group by d.device;
 "
-
-for old_version in `hive -e "show partitions ${tmp_edu_score_part8} " | grep -v '_bak' | sort | head -n -7`
-do
-    echo "rm $old_version"
-    hive -v -e "alter table ${tmp_edu_score_part8} drop if exists partition($old_version)"
-done

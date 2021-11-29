@@ -118,10 +118,3 @@ left join
 )b
 on a.device = b.device;
 "
-
-#只保留最近7个分区
-for old_version in `hive -e "show partitions ${output_table} " | grep -v '_bak' | sort | head -n -7`
-do
-    echo "rm $old_version"
-    hive -v -e "alter table ${output_table} drop if exists partition($old_version)"
-done

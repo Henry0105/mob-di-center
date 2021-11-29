@@ -149,12 +149,5 @@ from
 
   select device,index,cnt from $label_l1_apppkg_category_index where day = '${day}' and version = '1003.age.cate_l2'
 
-)t group by device
+)t group by device；
 "
-#只保留最近7个分区
-for old_version in `hive -e "show partitions ${output_table} " | grep -v '_bak' | sort | head -n -7`
-do
-    echo "rm $old_version"
-    hive -v -e "alter table ${output_table} drop if exists partition($old_version)"
-done
-
