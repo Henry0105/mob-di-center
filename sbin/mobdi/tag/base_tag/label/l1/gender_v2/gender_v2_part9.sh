@@ -874,4 +874,3 @@ on t1.apppkg=t2.apppkg
 ) t3
 group by t3.device;
 "
-#hive -e "alter table $gender_feature_v2_part9 drop partition(day<$p7);"

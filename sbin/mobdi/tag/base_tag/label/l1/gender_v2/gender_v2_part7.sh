@@ -36,5 +36,3 @@ when tgi_female+tgi_female_high=0 and tgi_male_high+tgi_male>0 then -1
 else (tgi_male_high+tgi_male)/(cast ((tgi_female+tgi_female_high) as float)) end tgi_male_female 
 from $gender_feature_v2_part5 where day='$insertday';
 "
-
-#hive -e "alter table $gender_feature_v2_part7 drop partition(day<$p7);"

@@ -54,4 +54,3 @@ group by t1.device, t2.tgi_level
 group by device;
 "
 
-#hive -e "alter table $gender_feature_v2_part5 drop partition(day<$p7);"

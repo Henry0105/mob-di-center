@@ -118,5 +118,3 @@ case when app169>0.5 and app294<=0.5  then 1 else 0 end app_comb85,
 case when app169>0.5 and app294>0.5  then 1 else 0 end app_comb86
 from $gender_feature_v2_part9 t1 where day='$insertday';
 "
-
-#hive -e "alter table $gender_feature_v2_part10 drop partition(day<$p7);"

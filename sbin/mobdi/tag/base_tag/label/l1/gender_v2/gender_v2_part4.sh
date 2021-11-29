@@ -251,5 +251,3 @@ join (select device,count(pkg) tot_install_apps from $dim_device_applist_new_di 
 on t1.device=t2.device
 where t1.day='$insertday';
 "
-
-#hive -e "alter table $gender_feature_v2_part4 drop partition(day<$p7);"

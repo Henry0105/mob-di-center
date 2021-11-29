@@ -37,4 +37,3 @@ case when index162>0.5 and (index152>0.5 or index20>1.5 ) then 1 else 0 end cate
 case when index87<=0.5 and (index120>0.5 or index115>0.5 ) then 1 else 0 end cate_l2_comb5
 from $gender_feature_v2_part2 t1 where day='$insertday';
 "
-#hive -e "alter table $gender_feature_v2_part12 drop partition(day<$p7);"

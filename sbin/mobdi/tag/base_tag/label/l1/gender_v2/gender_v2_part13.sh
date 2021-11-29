@@ -273,5 +273,3 @@ join (
 on t1.device=t2.device)tt
 group by device;
 "
-
-#hive -e "alter table $gender_feature_v2_part13 drop partition(day<$p7);"

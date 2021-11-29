@@ -35,5 +35,3 @@ join $dim_gender_app_tgi_level_5 t2
 on t1.apppkg=t2.apppkg
 group by t1.device;
 "
-
-hive -e "alter table $gender_feature_v2_part8 drop partition(day<$p7);"

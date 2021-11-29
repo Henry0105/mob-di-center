@@ -974,6 +974,3 @@ from
 ) z
 group by device;
 "
-
-#hive -e "alter table $gender_feature_v2_part17 drop partition(day<$p7);"
-hive -e "alter table $gender_device_cate_l2_app2vec_vec2_score drop partition(day<$p7);"
