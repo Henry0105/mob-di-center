@@ -118,7 +118,7 @@ object GraphHelper {
          |  FROM dm_mid_master.old_new_duid_mapping_par_tmp
          |  WHERE month =
          |)a
-         |FULL JOINmodel_age_v4
+         |FULL JOIN
          |(
          |  SELECT a.unid
          |       , IF(b.unid IS NULL,a.unid,b.unid_final) AS unid_final
