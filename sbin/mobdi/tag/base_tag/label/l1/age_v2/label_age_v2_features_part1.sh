@@ -149,5 +149,5 @@ from
 
   select device,index,cnt from $label_l1_apppkg_category_index where day = '${day}' and version = '1003.age.cate_l2'
 
-)t group by device；
+)t group by device;
 "

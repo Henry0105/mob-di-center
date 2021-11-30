@@ -51,5 +51,5 @@ from
   )t
   where index not in (67,473,378,238,783,379)
   group by device
-)x；
+)x;
 "
