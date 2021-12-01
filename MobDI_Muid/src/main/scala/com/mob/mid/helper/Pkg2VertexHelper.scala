@@ -75,15 +75,15 @@ object Pkg2VertexHelper {
 
     //3.将今天新的duid-unid信息更新进入duid_fsid_mapping
     spark.sql(
-      """
-        |INSERT INTO dm_mid_master.duid_unid_mapping PARTITION(version = '')
-        |SELECT duid
-        |     , unid AS sfid
-        |FROM duid_pkgit_version_unid_incr
-        |WHERE flag = 1
-        |""".stripMargin)
+      s"""
+         |INSERT OVERWRITE TABLE dm_mid_master.duid_unid_mapping PARTITION(version = '${defaultParam.day}')
+         |SELECT duid
+         |     , unid AS sfid
+         |FROM duid_pkgit_version_unid_incr
+         |WHERE flag = 1
+         |""".stripMargin)
 
-    //4.通过old_new_duid_mapping_par_tmp找到unid_final,并且与近一个月数据合并
+    //4.通过old_new_unid_mapping_par拿到图计算后的unid_final
     spark.sql(
       """
         |SELECT duid
@@ -151,6 +151,9 @@ object Pkg2VertexHelper {
          |WHERE cnt > ${defaultParam.pkgReinstallTimes}
          |GROUP BY duid
          |""".stripMargin).createOrReplaceTempView("black_duid")
+
+    //black_duid落表
+    spark.sql("""""")
 
     //6.去除异常数据后构造边
     spark.udf.register[Seq[(String, String, Int)], Seq[String]]("openid_resembled", openid_resembled)
