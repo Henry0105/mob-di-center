@@ -70,24 +70,34 @@ object GraphHelper {
          |
          |UNION ALL
          |
-         |SELECT c.duid
-         |     , c.pkg_it
-         |     , c.version
-         |     , c.unid
+         |SELECT duid
+         |     , pkg_it
+         |     , version
+         |     , unid
          |FROM
          |(
-         |  SELECT a.*
+         |  SELECT c.duid
+         |       , c.pkg_it
+         |       , c.version
+         |       , c.unid
+         |       , c.pkg_it_cnt
+         |       , COUNT(1) OVER(PARTITION BY duid) AS pkg_it_abnormal_cnt
          |  FROM
          |  (
-         |    SELECT *
-         |    FROM duid_info_unidfinal
-         |    WHERE flag = 0
-         |  ) a
-         |  LEFT ANTI JOIN black_duid b
-         |  ON a.duid = b.duid
-         |)c
-         |LEFT ANTI JOIN duid_info_month d
-         |ON c.pkg_it = d.pkg_it
+         |    SELECT a.*,COUNT(1) OVER(PARTITION BY duid) AS pkg_it_cnt
+         |    FROM
+         |    (
+         |      SELECT *
+         |      FROM duid_info_unidfinal
+         |      WHERE flag = 0
+         |    ) a
+         |    LEFT ANTI JOIN black_duid b
+         |    ON a.duid = b.duid
+         |  )c
+         |  LEFT ANTI JOIN normal_behavior_pkg_it d
+         |  ON c.pkg_it = d.pkg_it
+         |)e
+         |WHERE pkg_it_abnormal_cnt = pkg_it_cnt
          |
          |UNION ALL
          |
@@ -105,32 +115,27 @@ object GraphHelper {
          |ON a.unid = b.unid
          |""".stripMargin)
 
-    //更新dm_mid_master.old_new_duid_mapping_par_tmp
+    //只需把图计算后的数据更新进dm_mid_master.old_new_unid_mapping_par
     spark.sql(
       s"""
-         |INSERT OVERWRITE TABLE dm_mid_master.old_new_duid_mapping_par_tmp PARTITION(day = )
-         |SELECT COALESCE(a.oid_id,b.unid) AS oid_id
-         |     , COALESCE(a.new_id,b.unid_final) AS new_id
+         |INSERT OVERWRITE TABLE dm_mid_master.old_new_unid_mapping_par PARTITION(day = )
+         |SELECT oid_id
+         |     , new_id
          |FROM
          |(
          |  SELECT oid_id
          |       , new_id
-         |  FROM dm_mid_master.old_new_duid_mapping_par_tmp
+         |  FROM dm_mid_master.old_new_unid_mapping_par
          |  WHERE month =
-         |)a
-         |FULL JOIN
-         |(
-         |  SELECT a.unid
-         |       , IF(b.unid IS NULL,a.unid,b.unid_final) AS unid_final
-         |  FROM duid_pkgit_version_unid_incr x
-         |  LEFT JOIN tmp_ccgraph_result y
-         |  ON x.unid = y.unid
-         |)b
-         |ON a.oid_new = b.unid
          |
-         |换成 UNION ALL 再 GROUP BY
+         |  UNION ALL
+         |
+         |  SELECT unid AS oid_id
+         |       , unid_final AS new_id
+         |  FROM tmp_ccgraph_result
+         |)a
+         |GROUP BY oid_id,new_id
          |""".stripMargin)
-
 
   }
 
