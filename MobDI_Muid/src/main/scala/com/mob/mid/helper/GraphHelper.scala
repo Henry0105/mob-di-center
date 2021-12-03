@@ -45,7 +45,7 @@ object GraphHelper {
     //生成每日duid-unidfinal数据
     spark.sql(
       s"""
-         |INSERT OVERWRITE TABLE dm_mid_master.duid_unid_info_di PARTITION(day = '${defaultParam.day}')
+         |INSERT OVERWRITE TABLE ${defaultParam.outputTable} PARTITION(day = '${defaultParam.day}')
          |SELECT duid
          |     , pkg_it
          |     , version
@@ -118,15 +118,16 @@ object GraphHelper {
     //只需把图计算后的数据更新进dm_mid_master.old_new_unid_mapping_par
     spark.sql(
       s"""
-         |INSERT OVERWRITE TABLE dm_mid_master.old_new_unid_mapping_par PARTITION(day = )
+         |INSERT OVERWRITE TABLE ${defaultParam.unidFinalTable} PARTITION(month = '${defaultParam.day}',version = 'all')
          |SELECT oid_id
          |     , new_id
          |FROM
          |(
          |  SELECT oid_id
          |       , new_id
-         |  FROM dm_mid_master.old_new_unid_mapping_par
-         |  WHERE month =
+         |  FROM ${defaultParam.unidFinalTable}
+         |  WHERE month = '2019-2021'
+         |  AND version = 'all'
          |
          |  UNION ALL
          |
