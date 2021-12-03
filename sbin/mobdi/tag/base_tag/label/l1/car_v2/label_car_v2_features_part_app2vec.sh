@@ -103,13 +103,3 @@ SELECT \`(stage)?+.+\`
 FROM $tmp_part_car_app2vec
 WHERE day = '$day';
 "
-
-#只保留最近7个分区
-for old_version in `hive -e "show partitions ${output_table} " | grep -v '_bak' | sort | head -n -7`
-do
-    echo "rm $old_version"
-    hive -v -e "alter table ${output_table} drop if exists partition($old_version);"
-done
-
-b7day=`date -d "$day -7 days" "+%Y%m%d"`
-hive -v -e "alter table ${tmp_part_car_app2vec} drop if exists partition(day='$b7day');"

@@ -67,10 +67,3 @@ from (select device from seed group by device)t1
 left join tmp_car_pre_pre_app_tgi_feature_final t2
 on t1.device=t2.device;
 "
-
-#只保留最近7个分区
-for old_version in `hive -e "show partitions ${output_table_8} " | grep -v '_bak' | sort | head -n -7`
-do
-    echo "rm $old_version"
-    hive -v -e "alter table ${output_table_8} drop if exists partition($old_version)"
-done

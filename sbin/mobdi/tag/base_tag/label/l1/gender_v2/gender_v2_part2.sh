@@ -476,5 +476,3 @@ group by a.device, c.index
 )e
 group by device;
 "
-
-#hive -e "alter table $gender_feature_v2_part2 drop partition(day<$p7);"

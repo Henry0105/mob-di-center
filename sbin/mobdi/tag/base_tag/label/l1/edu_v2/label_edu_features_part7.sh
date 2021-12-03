@@ -116,10 +116,3 @@ on seed.device = t.device
 group by seed.device;
 "
 
-for old_version in `hive -e "show partitions ${tmp_edu_score_part7} " | grep -v '_bak' | sort | head -n -7`
-do
-    echo "rm $old_version"
-    hive -v -e "alter table ${tmp_edu_score_part7} drop if exists partition($old_version)"
-done
-
-

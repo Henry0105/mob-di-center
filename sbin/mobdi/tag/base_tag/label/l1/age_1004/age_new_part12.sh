@@ -279,9 +279,3 @@ from $age_new_uninstall_avg_embedding_cosin_temp
 where day='${insertday}'
 group by device
 "
-
-#hive -e "
-#alter table $age_new_uninstall_avg_embedding drop partition(day< $day_before_one_month);
-#alter table $age_new_uninstall_avg_embedding_cosin_temp drop partition(day< $day_before_one_month);
-#alter table $age_new_embedding_cosin_bycate drop partition(day< $day_before_one_month);
-#"

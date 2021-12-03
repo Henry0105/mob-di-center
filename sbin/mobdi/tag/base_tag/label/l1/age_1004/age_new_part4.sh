@@ -101,6 +101,3 @@ from
     group by device,date_dt
 )t3;
 "
-#hive -e "
-#alter table $age_new_newIns_recency_features drop partition (day< $day_before_one_month);
-#"

@@ -103,7 +103,3 @@ from
 )t
 group by device;
 "
-
-#hive -e "
-#alter table $age_new_pkg_install_12 drop partition (day< $day_before_one_month);
-#"

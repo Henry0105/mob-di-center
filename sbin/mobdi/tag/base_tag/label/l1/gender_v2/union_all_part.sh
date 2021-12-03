@@ -658,5 +658,3 @@ from $gender_feature_v2_part19 where day='$day'
 ) t19 on t1.device=t19.device
 ;
 "
-
-#hive -e "alter table $gender_feature_v2_final drop partition(day<$p7);"

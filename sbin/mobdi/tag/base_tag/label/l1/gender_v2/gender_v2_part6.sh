@@ -40,7 +40,5 @@ t1.tgi_female_high/(cast (tot_install_apps as float)) tgi_female_high
 from $gender_feature_v2_part5 t1 
 join (select device,cnt tot_install_apps from $label_l1_applist_refine_cnt_di where day = '$day') t2
 on t1.device=t2.device
-where t1.day='$insertday'
+where t1.day='$insertday';
 "
-
-#hive -e "alter table $gender_feature_v2_part6 drop partition(day<$p7);"

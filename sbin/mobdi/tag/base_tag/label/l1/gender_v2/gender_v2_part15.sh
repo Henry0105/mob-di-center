@@ -494,5 +494,3 @@ from(
 ) g
 ;
 "
-
-#hive -e "alter table $gender_feature_v2_part15 drop partition(day<$p7);"

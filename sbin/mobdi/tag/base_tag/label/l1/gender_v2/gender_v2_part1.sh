@@ -86,5 +86,3 @@ on b.cate_l1_id=c.cate_l1_id group by a.device, c.index
 ) d
 ) e group by device;
 "
-
-#hive -e "alter table $gender_feature_v2_part1 drop partition(day<$p7);"

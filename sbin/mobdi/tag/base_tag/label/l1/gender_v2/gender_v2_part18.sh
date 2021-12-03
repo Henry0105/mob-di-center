@@ -135,6 +135,3 @@ from (
 ) y
 group by device;
 "
-
-#hive -e "alter table $gender_feature_v2_part18 drop partition(day<$p7);"
-hive -e "alter table $gender_app2vec_device_tgi_vec2_score drop partition(day<$p7);"

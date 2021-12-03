@@ -6,7 +6,12 @@ if [ $# -ne 1 ]; then
     echo "USAGE: <day>"
     exit 1
 fi
+
+source /home/dba/mobdi_center/conf/hive-env.sh
+
 day=$1
+insertday=${day}_muid
+
 tmpdb=$dm_mobdi_tmp
 #input
 label_age_feature="${tmpdb}.age_new_features_all"
@@ -22,7 +27,7 @@ precisionTable6="${tmpdb}.age_beyond_54_pr_table"
 outputTable=$age_scoring_v4_result_di
 
 #source
-sourceData="select * from $label_age_feature where day=${day}"
+sourceData="select * from $label_age_feature where day='${insertday}'"
 
 
 spark2-submit --master yarn --deploy-mode cluster \

@@ -91,7 +91,3 @@ from(
 )b 
 group by device;
 "
-
-#hive -e "
-#alter table $age_new_applist_install_bycate_id_whether drop partition(day< $day_before_one_month);
-#"

@@ -51,12 +51,5 @@ from
   )t
   where index not in (67,473,378,238,783,379)
   group by device
-)x
+)x;
 "
-
-for old_version in `hive -e "show partitions ${output_table_v3} " | grep -v '_bak' | sort | head -n -7`
-do
-    echo "rm $old_version"
-    hive -v -e "alter table ${output_table_v3} drop if exists partition($old_version)"
-done
-

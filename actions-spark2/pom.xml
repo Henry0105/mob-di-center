@@ -396,6 +396,7 @@
                 <directory>src/main/resources</directory>
                 <includes>
                     <include>*.properties</include>
+                    <include>*.pmml</include>
                 </includes>
             </resource>
             <resource>

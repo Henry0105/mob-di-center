@@ -47,5 +47,3 @@ select t1.device,
 from $gender_feature_v2_part2 t1 where day='$insertday'
 ) t
 "
-
-#hive -e "alter table $gender_feature_v2_part14 drop partition(day<$p7);"

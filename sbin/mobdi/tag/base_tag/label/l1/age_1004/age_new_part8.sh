@@ -69,7 +69,3 @@ from
 )t2
 group by device;
 "
-
-#hive -e "
-#alter table $age_new_active_days_12 drop partition(day< $day_before_one_month);
-#"

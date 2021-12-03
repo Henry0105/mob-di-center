@@ -79,9 +79,3 @@ from
 )c
 group by device;
 "
-
-for old_version in `hive -e "show partitions ${tmp_edu_score_part2} " | grep -v '_bak' | sort | head -n -7`
-do
-    echo "rm $old_version"
-    hive -v -e "alter table ${tmp_edu_score_part2} drop if exists partition($old_version)"
-done

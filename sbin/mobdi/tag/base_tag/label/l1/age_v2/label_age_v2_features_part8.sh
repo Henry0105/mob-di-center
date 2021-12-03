@@ -81,10 +81,3 @@ age_pre_app_tgi_feature_final as
 insert overwrite table ${output_table_8} partition(day='${day}')
 select device,index,cnt from age_pre_app_tgi_feature_final;
 "
-
-#只保留最近7个分区
-for old_version in `hive -e "show partitions ${output_table_8} " | grep -v '_bak' | sort | head -n -7`
-do
-    echo "rm $old_version"
-    hive -v -e "alter table ${output_table_8} drop if exists partition($old_version)"
-done

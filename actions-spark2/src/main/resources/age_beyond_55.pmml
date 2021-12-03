@@ -1,0 +1,2275 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PMML xmlns="http://www.dmg.org/PMML-4_3" xmlns:data="http://jpmml.org/jpmml-model/InlineTable" version="4.3">
+	<Header>
+		<Application name="JPMML-SkLearn" version="1.6.18"/>
+		<Timestamp>2021-06-16T02:53:39Z</Timestamp>
+	</Header>
+	<MiningBuildTask>
+		<Extension>PMMLPipeline(steps=[('xgb', XGBClassifier(base_score=0.5, booster='gbtree', colsample_bylevel=1,
+              colsample_bynode=1, colsample_bytree=1, eval_metric='auc',
+              gamma=0, gpu_id=-1, importance_type='gain',
+              interaction_constraints='', learning_rate=0.25, max_delta_step=0,
+              max_depth=3, min_child_weight=85, missing=nan,
+              monotone_constraints='()', n_estimators=50, n_jobs=4,
+              num_parallel_tree=1, random_state=0, reg_alpha=0.3, reg_lambda=1,
+              scale_pos_weight=1, seed=0, subsample=0.9, tree_method='exact',
+              validate_parameters=1, verbosity=None))])</Extension>
+	</MiningBuildTask>
+	<DataDictionary>
+		<DataField name="label" optype="categorical" dataType="integer">
+			<Value value="0"/>
+			<Value value="1"/>
+		</DataField>
+		<DataField name="cate22_active_min_day_diff" optype="continuous" dataType="float"/>
+		<DataField name="cate7011_997_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7015_006_55_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_45_54_0_12m_cnt" optype="continuous" dataType="float"/>
+		<DataField name="cate8_35_44_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate26_12m_cnt" optype="continuous" dataType="float"/>
+		<DataField name="cate7006_001_12" optype="continuous" dataType="float"/>
+		<DataField name="cate7003_004_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7015_001_25_34_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7007_003_18_24_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate23_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7019_136_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="topic_8" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_18_7_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate3_18_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7015_007_35_44_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="topic_11" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_45_54_3_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7003_001_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7002_003_6m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7006_001_install_first_min_diff" optype="continuous" dataType="float"/>
+		<DataField name="cate7002_010_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7007_002_35_44_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_55_2_6m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_35_44_3_6m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7014_017_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7019_118_18_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_25_34_5_install_first_max_diff" optype="continuous" dataType="float"/>
+		<DataField name="cate7019_119_18_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate2_55_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="topic_6" optype="continuous" dataType="float"/>
+		<DataField name="cate7001_003_6m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_18_24_2_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7007_005_55_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7001_002_active_max_day_diff" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_18_24_2_12m_cnt" optype="continuous" dataType="float"/>
+		<DataField name="cate7002_008_18_24_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7011_993_18_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7016_002_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_55_7_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_25_34_3_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7019_117_18_24_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7019_126_18_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="fin_25_55_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7009_001_12m_cnt" optype="continuous" dataType="float"/>
+		<DataField name="cate7009_001_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7002_002_18_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7019_107_45_54_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="topic_0" optype="continuous" dataType="float"/>
+		<DataField name="tgi1_45_54_0_active_min_day_diff" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_55_4_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7017_001_55_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7013_001_25_34_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7014_014_45_54_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7008_010_12" optype="continuous" dataType="float"/>
+		<DataField name="cate7010_001_35_44_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_25_34_5_12" optype="continuous" dataType="float"/>
+		<DataField name="cate7015_004_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7019_109_18_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="tgi1_55_0_install_first_min_diff" optype="continuous" dataType="float"/>
+		<DataField name="topic_13" optype="continuous" dataType="float"/>
+		<DataField name="cate2_active_min_day_diff" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_35_44_5_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_55_5_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7_55_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_35_44_6_active_min_day_diff" optype="continuous" dataType="float"/>
+		<DataField name="tgi1_35_44_1_newins_first_min_diff" optype="continuous" dataType="float"/>
+		<DataField name="cate7014_008_18_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_25_34_3_6m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7002_003_25_34_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7012_007_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7014_007_12m_cnt" optype="continuous" dataType="float"/>
+		<DataField name="cate7008_001_55_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7016_004_18_24_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7014_007_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7006_003_6m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7010_001_active_max_day_diff" optype="continuous" dataType="float"/>
+		<DataField name="cate7019_128_18_24_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7002_005_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7006_001_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="topic_15" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_25_34_5_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_55_0_newins_first_max_diff" optype="continuous" dataType="float"/>
+		<DataField name="tgi1_25_34_4_12m_cnt" optype="continuous" dataType="float"/>
+		<DataField name="topic_9" optype="continuous" dataType="float"/>
+		<DataField name="cate7012_008_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7012_012_active_min_day_diff" optype="continuous" dataType="float"/>
+		<DataField name="cate7008_009_18_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7016_003_18_24_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_18_24_0_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_35_44_6_55_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7014_006_18_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_18_5_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7003_008_55_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate22_6m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_35_44_5_install_first_max_diff" optype="continuous" dataType="float"/>
+		<DataField name="cate7014_015_35_44_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7019_116_18_24_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7005_001_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7014_002_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7016_003_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_55_1_install_first_max_diff" optype="continuous" dataType="float"/>
+		<DataField name="cate7006_005_25_34_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7019_137_18_24_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7015_004_6m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="fin_43_55_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7005_005_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7001_002_install_first_max_diff" optype="continuous" dataType="float"/>
+		<DataField name="fin_31_55_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="tgi1_18_6_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_55_2_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7019_132_18_24_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_35_44_5_6m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="tgi1_18_6_active_min_day_diff" optype="continuous" dataType="float"/>
+		<DataField name="cate6_55_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_55_0_active_max_day_diff" optype="continuous" dataType="float"/>
+		<DataField name="cate7008_007_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7009_001_12" optype="continuous" dataType="float"/>
+		<DataField name="cate7012_012_18_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate24_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="topic_18" optype="continuous" dataType="float"/>
+		<DataField name="fin_50_18_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7002_007_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7019_102_25_34_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="tgi1_55_6_newins_first_min_diff" optype="continuous" dataType="float"/>
+		<DataField name="cate7011_999_18_24_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="tgi1_55_6_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate16_35_44_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="fin_31_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="topic_10" optype="continuous" dataType="float"/>
+		<DataField name="cate21_45_54_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7019_133_18_24_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7004_004_18_24_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7011_993_active_min_day_diff" optype="continuous" dataType="float"/>
+		<DataField name="cate7014_009_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7015_006_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7015_001_active_max_day_diff" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_18_24_4_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="tgi1_35_44_5_active_max_day_diff" optype="continuous" dataType="float"/>
+		<DataField name="cate7011_998_active_max_day_diff" optype="continuous" dataType="float"/>
+		<DataField name="cate7014_016_55_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate11_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_25_34_6_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="cate7008_006_55_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="topic_1" optype="continuous" dataType="float"/>
+		<DataField name="cate7019_130_45_54_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_45_54_5_12m_ratio" optype="continuous" dataType="float"/>
+		<DataField name="tgi2_35_44_5_active_max_day_diff" optype="continuous" dataType="float"/>
+		<DataField name="cate7014_002_35_44_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7019_135_45_54_install_trend" optype="continuous" dataType="float"/>
+		<DataField name="cate7007_001_18_24_install_trend" optype="continuous" dataType="float"/>
+	</DataDictionary>
+	<MiningModel functionName="classification" algorithmName="XGBoost (GBTree)" x-mathContext="float">
+		<MiningSchema>
+			<MiningField name="label" usageType="target"/>
+			<MiningField name="cate22_active_min_day_diff"/>
+			<MiningField name="cate7011_997_12m_ratio"/>
+			<MiningField name="cate7015_006_55_install_trend"/>
+			<MiningField name="tgi2_45_54_0_12m_cnt"/>
+			<MiningField name="cate8_35_44_install_trend"/>
+			<MiningField name="cate26_12m_cnt"/>
+			<MiningField name="cate7006_001_12"/>
+			<MiningField name="cate7003_004_install_trend"/>
+			<MiningField name="cate7015_001_25_34_install_trend"/>
+			<MiningField name="cate7007_003_18_24_install_trend"/>
+			<MiningField name="cate23_install_trend"/>
+			<MiningField name="cate7019_136_12m_ratio"/>
+			<MiningField name="topic_8"/>
+			<MiningField name="tgi2_18_7_12m_ratio"/>
+			<MiningField name="cate3_18_install_trend"/>
+			<MiningField name="cate7015_007_35_44_install_trend"/>
+			<MiningField name="topic_11"/>
+			<MiningField name="tgi2_45_54_3_12m_ratio"/>
+			<MiningField name="cate7003_001_12m_ratio"/>
+			<MiningField name="cate7002_003_6m_ratio"/>
+			<MiningField name="cate7006_001_install_first_min_diff"/>
+			<MiningField name="cate7002_010_install_trend"/>
+			<MiningField name="cate7007_002_35_44_install_trend"/>
+			<MiningField name="tgi2_55_2_6m_ratio"/>
+			<MiningField name="tgi2_35_44_3_6m_ratio"/>
+			<MiningField name="cate7014_017_12m_ratio"/>
+			<MiningField name="cate7019_118_18_install_trend"/>
+			<MiningField name="tgi2_25_34_5_install_first_max_diff"/>
+			<MiningField name="cate7019_119_18_install_trend"/>
+			<MiningField name="cate2_55_install_trend"/>
+			<MiningField name="topic_6"/>
+			<MiningField name="cate7001_003_6m_ratio"/>
+			<MiningField name="tgi2_18_24_2_12m_ratio"/>
+			<MiningField name="cate7007_005_55_install_trend"/>
+			<MiningField name="cate7001_002_active_max_day_diff"/>
+			<MiningField name="tgi2_18_24_2_12m_cnt"/>
+			<MiningField name="cate7002_008_18_24_install_trend"/>
+			<MiningField name="cate7011_993_18_install_trend"/>
+			<MiningField name="cate7016_002_12m_ratio"/>
+			<MiningField name="tgi2_55_7_12m_ratio"/>
+			<MiningField name="tgi2_25_34_3_12m_ratio"/>
+			<MiningField name="cate7019_117_18_24_install_trend"/>
+			<MiningField name="cate7019_126_18_install_trend"/>
+			<MiningField name="fin_25_55_install_trend"/>
+			<MiningField name="cate7009_001_12m_cnt"/>
+			<MiningField name="cate7009_001_12m_ratio"/>
+			<MiningField name="cate7002_002_18_install_trend"/>
+			<MiningField name="cate7019_107_45_54_install_trend"/>
+			<MiningField name="topic_0"/>
+			<MiningField name="tgi1_45_54_0_active_min_day_diff"/>
+			<MiningField name="tgi2_55_4_12m_ratio"/>
+			<MiningField name="cate7017_001_55_install_trend"/>
+			<MiningField name="cate7013_001_25_34_install_trend"/>
+			<MiningField name="cate7014_014_45_54_install_trend"/>
+			<MiningField name="cate7008_010_12"/>
+			<MiningField name="cate7010_001_35_44_install_trend"/>
+			<MiningField name="tgi2_25_34_5_12"/>
+			<MiningField name="cate7015_004_12m_ratio"/>
+			<MiningField name="cate7019_109_18_install_trend"/>
+			<MiningField name="tgi1_55_0_install_first_min_diff"/>
+			<MiningField name="topic_13"/>
+			<MiningField name="cate2_active_min_day_diff"/>
+			<MiningField name="tgi2_35_44_5_12m_ratio"/>
+			<MiningField name="tgi2_55_5_12m_ratio"/>
+			<MiningField name="cate7_55_install_trend"/>
+			<MiningField name="tgi2_35_44_6_active_min_day_diff"/>
+			<MiningField name="tgi1_35_44_1_newins_first_min_diff"/>
+			<MiningField name="cate7014_008_18_install_trend"/>
+			<MiningField name="tgi2_25_34_3_6m_ratio"/>
+			<MiningField name="cate7002_003_25_34_install_trend"/>
+			<MiningField name="cate7012_007_12m_ratio"/>
+			<MiningField name="cate7014_007_12m_cnt"/>
+			<MiningField name="cate7008_001_55_install_trend"/>
+			<MiningField name="cate7016_004_18_24_install_trend"/>
+			<MiningField name="cate7014_007_install_trend"/>
+			<MiningField name="cate7006_003_6m_ratio"/>
+			<MiningField name="cate7010_001_active_max_day_diff"/>
+			<MiningField name="cate7019_128_18_24_install_trend"/>
+			<MiningField name="cate7002_005_12m_ratio"/>
+			<MiningField name="cate7006_001_12m_ratio"/>
+			<MiningField name="topic_15"/>
+			<MiningField name="tgi2_25_34_5_12m_ratio"/>
+			<MiningField name="tgi2_55_0_newins_first_max_diff"/>
+			<MiningField name="tgi1_25_34_4_12m_cnt"/>
+			<MiningField name="topic_9"/>
+			<MiningField name="cate7012_008_install_trend"/>
+			<MiningField name="cate7012_012_active_min_day_diff"/>
+			<MiningField name="cate7008_009_18_install_trend"/>
+			<MiningField name="cate7016_003_18_24_install_trend"/>
+			<MiningField name="tgi2_18_24_0_12m_ratio"/>
+			<MiningField name="tgi2_35_44_6_55_install_trend"/>
+			<MiningField name="cate7014_006_18_install_trend"/>
+			<MiningField name="tgi2_18_5_12m_ratio"/>
+			<MiningField name="cate7003_008_55_install_trend"/>
+			<MiningField name="cate22_6m_ratio"/>
+			<MiningField name="tgi2_35_44_5_install_first_max_diff"/>
+			<MiningField name="cate7014_015_35_44_install_trend"/>
+			<MiningField name="cate7019_116_18_24_install_trend"/>
+			<MiningField name="cate7005_001_install_trend"/>
+			<MiningField name="cate7014_002_install_trend"/>
+			<MiningField name="cate7016_003_12m_ratio"/>
+			<MiningField name="tgi2_55_1_install_first_max_diff"/>
+			<MiningField name="cate7006_005_25_34_install_trend"/>
+			<MiningField name="cate7019_137_18_24_install_trend"/>
+			<MiningField name="cate7015_004_6m_ratio"/>
+			<MiningField name="fin_43_55_install_trend"/>
+			<MiningField name="cate7005_005_install_trend"/>
+			<MiningField name="cate7001_002_install_first_max_diff"/>
+			<MiningField name="fin_31_55_install_trend"/>
+			<MiningField name="tgi1_18_6_12m_ratio"/>
+			<MiningField name="tgi2_55_2_12m_ratio"/>
+			<MiningField name="cate7019_132_18_24_install_trend"/>
+			<MiningField name="tgi2_35_44_5_6m_ratio"/>
+			<MiningField name="tgi1_18_6_active_min_day_diff"/>
+			<MiningField name="cate6_55_install_trend"/>
+			<MiningField name="tgi2_55_0_active_max_day_diff"/>
+			<MiningField name="cate7008_007_install_trend"/>
+			<MiningField name="cate7009_001_12"/>
+			<MiningField name="cate7012_012_18_install_trend"/>
+			<MiningField name="cate24_install_trend"/>
+			<MiningField name="topic_18"/>
+			<MiningField name="fin_50_18_install_trend"/>
+			<MiningField name="cate7002_007_12m_ratio"/>
+			<MiningField name="cate7019_102_25_34_install_trend"/>
+			<MiningField name="tgi1_55_6_newins_first_min_diff"/>
+			<MiningField name="cate7011_999_18_24_install_trend"/>
+			<MiningField name="tgi1_55_6_12m_ratio"/>
+			<MiningField name="cate16_35_44_install_trend"/>
+			<MiningField name="fin_31_install_trend"/>
+			<MiningField name="topic_10"/>
+			<MiningField name="cate21_45_54_install_trend"/>
+			<MiningField name="cate7019_133_18_24_install_trend"/>
+			<MiningField name="cate7004_004_18_24_install_trend"/>
+			<MiningField name="cate7011_993_active_min_day_diff"/>
+			<MiningField name="cate7014_009_12m_ratio"/>
+			<MiningField name="cate7015_006_12m_ratio"/>
+			<MiningField name="cate7015_001_active_max_day_diff"/>
+			<MiningField name="tgi2_18_24_4_12m_ratio"/>
+			<MiningField name="tgi1_35_44_5_active_max_day_diff"/>
+			<MiningField name="cate7011_998_active_max_day_diff"/>
+			<MiningField name="cate7014_016_55_install_trend"/>
+			<MiningField name="cate11_install_trend"/>
+			<MiningField name="tgi2_25_34_6_12m_ratio"/>
+			<MiningField name="cate7008_006_55_install_trend"/>
+			<MiningField name="topic_1"/>
+			<MiningField name="cate7019_130_45_54_install_trend"/>
+			<MiningField name="tgi2_45_54_5_12m_ratio"/>
+			<MiningField name="tgi2_35_44_5_active_max_day_diff"/>
+			<MiningField name="cate7014_002_35_44_install_trend"/>
+			<MiningField name="cate7019_135_45_54_install_trend"/>
+			<MiningField name="cate7007_001_18_24_install_trend"/>
+		</MiningSchema>
+		<Segmentation multipleModelMethod="modelChain" missingPredictionTreatment="returnMissing">
+			<Segment id="1">
+				<True/>
+				<MiningModel functionName="regression" x-mathContext="float">
+					<MiningSchema>
+						<MiningField name="cate22_active_min_day_diff"/>
+						<MiningField name="cate7011_997_12m_ratio"/>
+						<MiningField name="cate7015_006_55_install_trend"/>
+						<MiningField name="tgi2_45_54_0_12m_cnt"/>
+						<MiningField name="cate8_35_44_install_trend"/>
+						<MiningField name="cate26_12m_cnt"/>
+						<MiningField name="cate7006_001_12"/>
+						<MiningField name="cate7003_004_install_trend"/>
+						<MiningField name="cate7015_001_25_34_install_trend"/>
+						<MiningField name="cate7007_003_18_24_install_trend"/>
+						<MiningField name="cate23_install_trend"/>
+						<MiningField name="cate7019_136_12m_ratio"/>
+						<MiningField name="topic_8"/>
+						<MiningField name="tgi2_18_7_12m_ratio"/>
+						<MiningField name="cate3_18_install_trend"/>
+						<MiningField name="cate7015_007_35_44_install_trend"/>
+						<MiningField name="topic_11"/>
+						<MiningField name="tgi2_45_54_3_12m_ratio"/>
+						<MiningField name="cate7003_001_12m_ratio"/>
+						<MiningField name="cate7002_003_6m_ratio"/>
+						<MiningField name="cate7006_001_install_first_min_diff"/>
+						<MiningField name="cate7002_010_install_trend"/>
+						<MiningField name="cate7007_002_35_44_install_trend"/>
+						<MiningField name="tgi2_55_2_6m_ratio"/>
+						<MiningField name="tgi2_35_44_3_6m_ratio"/>
+						<MiningField name="cate7014_017_12m_ratio"/>
+						<MiningField name="cate7019_118_18_install_trend"/>
+						<MiningField name="tgi2_25_34_5_install_first_max_diff"/>
+						<MiningField name="cate7019_119_18_install_trend"/>
+						<MiningField name="cate2_55_install_trend"/>
+						<MiningField name="topic_6"/>
+						<MiningField name="cate7001_003_6m_ratio"/>
+						<MiningField name="tgi2_18_24_2_12m_ratio"/>
+						<MiningField name="cate7007_005_55_install_trend"/>
+						<MiningField name="cate7001_002_active_max_day_diff"/>
+						<MiningField name="tgi2_18_24_2_12m_cnt"/>
+						<MiningField name="cate7002_008_18_24_install_trend"/>
+						<MiningField name="cate7011_993_18_install_trend"/>
+						<MiningField name="cate7016_002_12m_ratio"/>
+						<MiningField name="tgi2_55_7_12m_ratio"/>
+						<MiningField name="tgi2_25_34_3_12m_ratio"/>
+						<MiningField name="cate7019_117_18_24_install_trend"/>
+						<MiningField name="cate7019_126_18_install_trend"/>
+						<MiningField name="fin_25_55_install_trend"/>
+						<MiningField name="cate7009_001_12m_cnt"/>
+						<MiningField name="cate7009_001_12m_ratio"/>
+						<MiningField name="cate7002_002_18_install_trend"/>
+						<MiningField name="cate7019_107_45_54_install_trend"/>
+						<MiningField name="topic_0"/>
+						<MiningField name="tgi1_45_54_0_active_min_day_diff"/>
+						<MiningField name="tgi2_55_4_12m_ratio"/>
+						<MiningField name="cate7017_001_55_install_trend"/>
+						<MiningField name="cate7013_001_25_34_install_trend"/>
+						<MiningField name="cate7014_014_45_54_install_trend"/>
+						<MiningField name="cate7008_010_12"/>
+						<MiningField name="cate7010_001_35_44_install_trend"/>
+						<MiningField name="tgi2_25_34_5_12"/>
+						<MiningField name="cate7015_004_12m_ratio"/>
+						<MiningField name="cate7019_109_18_install_trend"/>
+						<MiningField name="tgi1_55_0_install_first_min_diff"/>
+						<MiningField name="topic_13"/>
+						<MiningField name="cate2_active_min_day_diff"/>
+						<MiningField name="tgi2_35_44_5_12m_ratio"/>
+						<MiningField name="tgi2_55_5_12m_ratio"/>
+						<MiningField name="cate7_55_install_trend"/>
+						<MiningField name="tgi2_35_44_6_active_min_day_diff"/>
+						<MiningField name="tgi1_35_44_1_newins_first_min_diff"/>
+						<MiningField name="cate7014_008_18_install_trend"/>
+						<MiningField name="tgi2_25_34_3_6m_ratio"/>
+						<MiningField name="cate7002_003_25_34_install_trend"/>
+						<MiningField name="cate7012_007_12m_ratio"/>
+						<MiningField name="cate7014_007_12m_cnt"/>
+						<MiningField name="cate7008_001_55_install_trend"/>
+						<MiningField name="cate7016_004_18_24_install_trend"/>
+						<MiningField name="cate7014_007_install_trend"/>
+						<MiningField name="cate7006_003_6m_ratio"/>
+						<MiningField name="cate7010_001_active_max_day_diff"/>
+						<MiningField name="cate7019_128_18_24_install_trend"/>
+						<MiningField name="cate7002_005_12m_ratio"/>
+						<MiningField name="cate7006_001_12m_ratio"/>
+						<MiningField name="topic_15"/>
+						<MiningField name="tgi2_25_34_5_12m_ratio"/>
+						<MiningField name="tgi2_55_0_newins_first_max_diff"/>
+						<MiningField name="tgi1_25_34_4_12m_cnt"/>
+						<MiningField name="topic_9"/>
+						<MiningField name="cate7012_008_install_trend"/>
+						<MiningField name="cate7012_012_active_min_day_diff"/>
+						<MiningField name="cate7008_009_18_install_trend"/>
+						<MiningField name="cate7016_003_18_24_install_trend"/>
+						<MiningField name="tgi2_18_24_0_12m_ratio"/>
+						<MiningField name="tgi2_35_44_6_55_install_trend"/>
+						<MiningField name="cate7014_006_18_install_trend"/>
+						<MiningField name="tgi2_18_5_12m_ratio"/>
+						<MiningField name="cate7003_008_55_install_trend"/>
+						<MiningField name="cate22_6m_ratio"/>
+						<MiningField name="tgi2_35_44_5_install_first_max_diff"/>
+						<MiningField name="cate7014_015_35_44_install_trend"/>
+						<MiningField name="cate7019_116_18_24_install_trend"/>
+						<MiningField name="cate7005_001_install_trend"/>
+						<MiningField name="cate7014_002_install_trend"/>
+						<MiningField name="cate7016_003_12m_ratio"/>
+						<MiningField name="tgi2_55_1_install_first_max_diff"/>
+						<MiningField name="cate7006_005_25_34_install_trend"/>
+						<MiningField name="cate7019_137_18_24_install_trend"/>
+						<MiningField name="cate7015_004_6m_ratio"/>
+						<MiningField name="fin_43_55_install_trend"/>
+						<MiningField name="cate7005_005_install_trend"/>
+						<MiningField name="cate7001_002_install_first_max_diff"/>
+						<MiningField name="fin_31_55_install_trend"/>
+						<MiningField name="tgi1_18_6_12m_ratio"/>
+						<MiningField name="tgi2_55_2_12m_ratio"/>
+						<MiningField name="cate7019_132_18_24_install_trend"/>
+						<MiningField name="tgi2_35_44_5_6m_ratio"/>
+						<MiningField name="tgi1_18_6_active_min_day_diff"/>
+						<MiningField name="cate6_55_install_trend"/>
+						<MiningField name="tgi2_55_0_active_max_day_diff"/>
+						<MiningField name="cate7008_007_install_trend"/>
+						<MiningField name="cate7009_001_12"/>
+						<MiningField name="cate7012_012_18_install_trend"/>
+						<MiningField name="cate24_install_trend"/>
+						<MiningField name="topic_18"/>
+						<MiningField name="fin_50_18_install_trend"/>
+						<MiningField name="cate7002_007_12m_ratio"/>
+						<MiningField name="cate7019_102_25_34_install_trend"/>
+						<MiningField name="tgi1_55_6_newins_first_min_diff"/>
+						<MiningField name="cate7011_999_18_24_install_trend"/>
+						<MiningField name="tgi1_55_6_12m_ratio"/>
+						<MiningField name="cate16_35_44_install_trend"/>
+						<MiningField name="fin_31_install_trend"/>
+						<MiningField name="topic_10"/>
+						<MiningField name="cate21_45_54_install_trend"/>
+						<MiningField name="cate7019_133_18_24_install_trend"/>
+						<MiningField name="cate7004_004_18_24_install_trend"/>
+						<MiningField name="cate7011_993_active_min_day_diff"/>
+						<MiningField name="cate7014_009_12m_ratio"/>
+						<MiningField name="cate7015_006_12m_ratio"/>
+						<MiningField name="cate7015_001_active_max_day_diff"/>
+						<MiningField name="tgi2_18_24_4_12m_ratio"/>
+						<MiningField name="tgi1_35_44_5_active_max_day_diff"/>
+						<MiningField name="cate7011_998_active_max_day_diff"/>
+						<MiningField name="cate7014_016_55_install_trend"/>
+						<MiningField name="cate11_install_trend"/>
+						<MiningField name="tgi2_25_34_6_12m_ratio"/>
+						<MiningField name="cate7008_006_55_install_trend"/>
+						<MiningField name="topic_1"/>
+						<MiningField name="cate7019_130_45_54_install_trend"/>
+						<MiningField name="tgi2_45_54_5_12m_ratio"/>
+						<MiningField name="tgi2_35_44_5_active_max_day_diff"/>
+						<MiningField name="cate7014_002_35_44_install_trend"/>
+						<MiningField name="cate7019_135_45_54_install_trend"/>
+						<MiningField name="cate7007_001_18_24_install_trend"/>
+					</MiningSchema>
+					<Output>
+						<OutputField name="xgbValue" optype="continuous" dataType="float" isFinalResult="false"/>
+					</Output>
+					<Segmentation multipleModelMethod="sum">
+						<Segment id="1">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7003_004_install_trend"/>
+									<MiningField name="cate2_55_install_trend"/>
+									<MiningField name="tgi2_55_7_12m_ratio"/>
+									<MiningField name="cate7013_001_25_34_install_trend"/>
+									<MiningField name="tgi2_55_2_12m_ratio"/>
+									<MiningField name="tgi2_55_0_active_max_day_diff"/>
+								</MiningSchema>
+								<Node score="-0.30057582">
+									<True/>
+									<Node score="-0.25787812">
+										<SimplePredicate field="tgi2_55_7_12m_ratio" operator="greaterOrEqual" value="0.0026865"/>
+										<Node score="0.09691839">
+											<SimplePredicate field="cate7013_001_25_34_install_trend" operator="greaterOrEqual" value="0.15995088"/>
+											<Node score="-0.061276082">
+												<SimplePredicate field="tgi2_55_2_12m_ratio" operator="greaterOrEqual" value="0.01363"/>
+											</Node>
+										</Node>
+										<Node score="-0.09365872">
+											<SimplePredicate field="tgi2_55_7_12m_ratio" operator="greaterOrEqual" value="0.0058620004"/>
+										</Node>
+									</Node>
+									<Node score="-0.38212153">
+										<SimplePredicate field="tgi2_55_0_active_max_day_diff" operator="greaterOrEqual" value="-97.0"/>
+										<Node score="-0.46300378">
+											<SimplePredicate field="cate2_55_install_trend" operator="greaterOrEqual" value="0.18854932"/>
+										</Node>
+									</Node>
+									<Node score="-0.18163209">
+										<SimplePredicate field="cate7003_004_install_trend" operator="greaterOrEqual" value="0.10593483"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="2">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7006_001_install_first_min_diff"/>
+									<MiningField name="tgi2_55_7_12m_ratio"/>
+									<MiningField name="cate7017_001_55_install_trend"/>
+									<MiningField name="tgi1_55_0_install_first_min_diff"/>
+									<MiningField name="tgi2_55_2_12m_ratio"/>
+									<MiningField name="tgi1_55_6_12m_ratio"/>
+									<MiningField name="fin_31_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.25382534">
+									<True/>
+									<Node score="-0.1348576">
+										<SimplePredicate field="tgi1_55_6_12m_ratio" operator="greaterOrEqual" value="0.0041795"/>
+										<Node score="0.04549432">
+											<SimplePredicate field="fin_31_install_trend" operator="greaterOrEqual" value="-0.19047093"/>
+											<Node score="-0.111725464">
+												<SimplePredicate field="tgi2_55_2_12m_ratio" operator="greaterOrEqual" value="0.0143174995"/>
+											</Node>
+										</Node>
+										<Node score="-0.25128555">
+											<SimplePredicate field="cate7006_001_install_first_min_diff" operator="greaterOrEqual" value="-49.0"/>
+										</Node>
+									</Node>
+									<Node score="-0.3696668">
+										<SimplePredicate field="tgi1_55_0_install_first_min_diff" operator="greaterOrEqual" value="-49.0"/>
+										<Node score="-0.30414405">
+											<SimplePredicate field="cate7017_001_55_install_trend" operator="greaterOrEqual" value="0.02184723"/>
+										</Node>
+									</Node>
+									<Node score="-0.10812967">
+										<SimplePredicate field="tgi2_55_7_12m_ratio" operator="greaterOrEqual" value="0.002251"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="3">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7003_001_12m_ratio"/>
+									<MiningField name="cate7019_118_18_install_trend"/>
+									<MiningField name="tgi2_55_7_12m_ratio"/>
+									<MiningField name="cate7009_001_12m_cnt"/>
+									<MiningField name="cate7013_001_25_34_install_trend"/>
+									<MiningField name="cate7016_003_18_24_install_trend"/>
+									<MiningField name="cate7008_007_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.10951747">
+									<True/>
+									<Node score="-0.14942284">
+										<SimplePredicate field="tgi2_55_7_12m_ratio" operator="greaterOrEqual" value="0.0021175002"/>
+										<Node score="0.1363579">
+											<SimplePredicate field="cate7003_001_12m_ratio" operator="greaterOrEqual" value="0.00587"/>
+											<Node score="-0.022091126">
+												<SimplePredicate field="cate7016_003_18_24_install_trend" operator="greaterOrEqual" value="0.016943585"/>
+											</Node>
+										</Node>
+										<Node score="0.0120571675">
+											<SimplePredicate field="cate7013_001_25_34_install_trend" operator="greaterOrEqual" value="0.19275053"/>
+										</Node>
+									</Node>
+									<Node score="-0.32565963">
+										<SimplePredicate field="cate7008_007_install_trend" operator="greaterOrEqual" value="0.07014593"/>
+										<Node score="-0.2783747">
+											<SimplePredicate field="cate7019_118_18_install_trend" operator="greaterOrEqual" value="-0.11571747"/>
+										</Node>
+									</Node>
+									<Node score="-0.23668338">
+										<SimplePredicate field="cate7009_001_12m_cnt" operator="greaterOrEqual" value="1.5"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="4">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="tgi2_55_7_12m_ratio"/>
+									<MiningField name="tgi2_55_5_12m_ratio"/>
+									<MiningField name="cate7016_004_18_24_install_trend"/>
+									<MiningField name="cate7012_008_install_trend"/>
+									<MiningField name="tgi2_55_2_12m_ratio"/>
+									<MiningField name="tgi2_55_0_active_max_day_diff"/>
+									<MiningField name="cate7008_007_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.026859008">
+									<True/>
+									<Node score="-0.22785656">
+										<SimplePredicate field="tgi2_55_0_active_max_day_diff" operator="greaterOrEqual" value="-97.0"/>
+										<Node score="-0.17389539">
+											<SimplePredicate field="tgi2_55_5_12m_ratio" operator="greaterOrEqual" value="0.0073835"/>
+											<Node score="-0.027398475">
+												<SimplePredicate field="tgi2_55_7_12m_ratio" operator="greaterOrEqual" value="0.0033995002"/>
+											</Node>
+										</Node>
+										<Node score="-0.28741127">
+											<SimplePredicate field="cate7008_007_install_trend" operator="greaterOrEqual" value="0.08936907"/>
+										</Node>
+									</Node>
+									<Node score="-0.09870736">
+										<SimplePredicate field="tgi2_55_2_12m_ratio" operator="greaterOrEqual" value="0.0164545"/>
+										<Node score="-0.20404391">
+											<SimplePredicate field="cate7016_004_18_24_install_trend" operator="greaterOrEqual" value="0.14644402"/>
+										</Node>
+									</Node>
+									<Node score="0.11277932">
+										<SimplePredicate field="cate7012_008_install_trend" operator="greaterOrEqual" value="0.24671173"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="5">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7003_004_install_trend"/>
+									<MiningField name="cate2_55_install_trend"/>
+									<MiningField name="tgi2_55_5_12m_ratio"/>
+									<MiningField name="cate7016_003_18_24_install_trend"/>
+									<MiningField name="tgi1_55_6_12m_ratio"/>
+									<MiningField name="cate7011_998_active_max_day_diff"/>
+									<MiningField name="cate7014_016_55_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.17409185">
+									<True/>
+									<Node score="-0.055830292">
+										<SimplePredicate field="tgi1_55_6_12m_ratio" operator="greaterOrEqual" value="0.003946"/>
+										<Node score="-0.02721357">
+											<SimplePredicate field="cate7003_004_install_trend" operator="greaterOrEqual" value="0.09880057"/>
+											<Node score="0.110626325">
+												<SimplePredicate field="cate7014_016_55_install_trend" operator="greaterOrEqual" value="0.22548717"/>
+											</Node>
+										</Node>
+										<Node score="-0.15978786">
+											<SimplePredicate field="cate7011_998_active_max_day_diff" operator="greaterOrEqual" value="-97.0"/>
+										</Node>
+									</Node>
+									<Node score="-0.14928076">
+										<SimplePredicate field="cate2_55_install_trend" operator="greaterOrEqual" value="0.20546354"/>
+										<Node score="-0.2629469">
+											<SimplePredicate field="cate7016_003_18_24_install_trend" operator="greaterOrEqual" value="-0.017135076"/>
+										</Node>
+									</Node>
+									<Node score="-0.04106441">
+										<SimplePredicate field="tgi2_55_5_12m_ratio" operator="greaterOrEqual" value="0.011332501"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="6">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7015_006_55_install_trend"/>
+									<MiningField name="tgi2_45_54_0_12m_cnt"/>
+									<MiningField name="cate7016_003_18_24_install_trend"/>
+									<MiningField name="cate7008_007_install_trend"/>
+									<MiningField name="cate7009_001_12"/>
+									<MiningField name="tgi1_55_6_12m_ratio"/>
+									<MiningField name="cate7011_998_active_max_day_diff"/>
+								</MiningSchema>
+								<Node score="-0.062701695">
+									<True/>
+									<Node score="-0.13954884">
+										<SimplePredicate field="cate7008_007_install_trend" operator="greaterOrEqual" value="0.067347735"/>
+										<Node score="-0.198306">
+											<SimplePredicate field="cate7016_003_18_24_install_trend" operator="greaterOrEqual" value="-0.012718039"/>
+											<Node score="-0.25106555">
+												<SimplePredicate field="tgi2_45_54_0_12m_cnt" operator="greaterOrEqual" value="0.5"/>
+											</Node>
+										</Node>
+										<Node score="0.004689527">
+											<SimplePredicate field="tgi1_55_6_12m_ratio" operator="greaterOrEqual" value="0.0013265"/>
+										</Node>
+									</Node>
+									<Node score="0.014005917">
+										<SimplePredicate field="cate7015_006_55_install_trend" operator="greaterOrEqual" value="0.07504782"/>
+										<Node score="-0.1136099">
+											<SimplePredicate field="cate7011_998_active_max_day_diff" operator="greaterOrEqual" value="-97.0"/>
+										</Node>
+									</Node>
+									<Node score="-0.1606373">
+										<SimplePredicate field="cate7009_001_12" operator="greaterOrEqual" value="0.125"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="7">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7006_001_12"/>
+									<MiningField name="cate2_55_install_trend"/>
+									<MiningField name="tgi2_18_24_2_12m_cnt"/>
+									<MiningField name="tgi2_55_7_12m_ratio"/>
+									<MiningField name="cate7014_015_35_44_install_trend"/>
+									<MiningField name="cate7011_998_active_max_day_diff"/>
+									<MiningField name="cate7014_016_55_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.048441097">
+									<True/>
+									<Node score="0.01797413">
+										<SimplePredicate field="tgi2_55_7_12m_ratio" operator="greaterOrEqual" value="0.0016825"/>
+										<Node score="0.12306828">
+											<SimplePredicate field="cate7014_016_55_install_trend" operator="greaterOrEqual" value="0.26483223"/>
+											<Node score="-0.075444855">
+												<SimplePredicate field="cate7011_998_active_max_day_diff" operator="greaterOrEqual" value="-97.0"/>
+											</Node>
+										</Node>
+										<Node score="-0.092710264">
+											<SimplePredicate field="cate7006_001_12" operator="greaterOrEqual" value="0.041666668"/>
+										</Node>
+									</Node>
+									<Node score="-0.2225729">
+										<SimplePredicate field="cate2_55_install_trend" operator="greaterOrEqual" value="0.21781063"/>
+										<Node score="-0.06841715">
+											<SimplePredicate field="cate7014_015_35_44_install_trend" operator="greaterOrEqual" value="0.17446539"/>
+										</Node>
+									</Node>
+									<Node score="-0.13416328">
+										<SimplePredicate field="tgi2_18_24_2_12m_cnt" operator="greaterOrEqual" value="9.5"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="8">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="tgi2_45_54_0_12m_cnt"/>
+									<MiningField name="cate7007_002_35_44_install_trend"/>
+									<MiningField name="cate7016_003_18_24_install_trend"/>
+									<MiningField name="cate6_55_install_trend"/>
+									<MiningField name="cate7008_007_install_trend"/>
+									<MiningField name="fin_50_18_install_trend"/>
+									<MiningField name="fin_31_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.12421093">
+									<True/>
+									<Node score="-0.123547755">
+										<SimplePredicate field="cate7008_007_install_trend" operator="greaterOrEqual" value="0.07971776"/>
+										<Node score="-0.1571354">
+											<SimplePredicate field="cate7016_003_18_24_install_trend" operator="greaterOrEqual" value="-0.008926056"/>
+											<Node score="-0.21686094">
+												<SimplePredicate field="tgi2_45_54_0_12m_cnt" operator="greaterOrEqual" value="0.5"/>
+											</Node>
+										</Node>
+										<Node score="0.025729349">
+											<SimplePredicate field="cate7007_002_35_44_install_trend" operator="greaterOrEqual" value="0.05155224"/>
+										</Node>
+									</Node>
+									<Node score="-0.031050682">
+										<SimplePredicate field="cate6_55_install_trend" operator="greaterOrEqual" value="0.059882093"/>
+										<Node score="0.11421">
+											<SimplePredicate field="fin_50_18_install_trend" operator="greaterOrEqual" value="0.098031014"/>
+										</Node>
+									</Node>
+									<Node score="-0.005774707">
+										<SimplePredicate field="fin_31_install_trend" operator="greaterOrEqual" value="-0.07630125"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="9">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="tgi2_55_7_12m_ratio"/>
+									<MiningField name="cate7009_001_12m_cnt"/>
+									<MiningField name="cate7013_001_25_34_install_trend"/>
+									<MiningField name="cate2_active_min_day_diff"/>
+									<MiningField name="topic_9"/>
+									<MiningField name="cate7005_001_install_trend"/>
+									<MiningField name="cate7008_007_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.046592295">
+									<True/>
+									<Node score="-0.15419906">
+										<SimplePredicate field="cate7008_007_install_trend" operator="greaterOrEqual" value="0.07971994"/>
+										<Node score="0.039177116">
+											<SimplePredicate field="cate7005_001_install_trend" operator="greaterOrEqual" value="0.08077654"/>
+											<Node score="-0.084682986">
+												<SimplePredicate field="topic_9" operator="greaterOrEqual" value="0.041310847"/>
+											</Node>
+										</Node>
+										<Node score="-0.21837354">
+											<SimplePredicate field="cate2_active_min_day_diff" operator="greaterOrEqual" value="-97.0"/>
+										</Node>
+									</Node>
+									<Node score="-0.11327096">
+										<SimplePredicate field="cate7009_001_12m_cnt" operator="greaterOrEqual" value="2.5"/>
+										<Node score="0.047746968">
+											<SimplePredicate field="tgi2_55_7_12m_ratio" operator="greaterOrEqual" value="0.0062729996"/>
+										</Node>
+									</Node>
+									<Node score="0.04999744">
+										<SimplePredicate field="cate7013_001_25_34_install_trend" operator="greaterOrEqual" value="0.13594818"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="10">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="tgi2_45_54_0_12m_cnt"/>
+									<MiningField name="cate7009_001_12m_cnt"/>
+									<MiningField name="tgi2_55_5_12m_ratio"/>
+									<MiningField name="tgi2_35_44_6_active_min_day_diff"/>
+									<MiningField name="cate7016_004_18_24_install_trend"/>
+									<MiningField name="tgi2_18_24_0_12m_ratio"/>
+									<MiningField name="cate7011_998_active_max_day_diff"/>
+								</MiningSchema>
+								<Node score="0.006150446">
+									<True/>
+									<Node score="0.035491515">
+										<SimplePredicate field="tgi2_55_5_12m_ratio" operator="greaterOrEqual" value="0.0062865"/>
+										<Node score="-0.07243186">
+											<SimplePredicate field="cate7016_004_18_24_install_trend" operator="greaterOrEqual" value="0.1773343"/>
+											<Node score="-0.17444499">
+												<SimplePredicate field="tgi2_35_44_6_active_min_day_diff" operator="greaterOrEqual" value="-97.0"/>
+											</Node>
+										</Node>
+										<Node score="-0.052358124">
+											<SimplePredicate field="cate7011_998_active_max_day_diff" operator="greaterOrEqual" value="-97.0"/>
+										</Node>
+									</Node>
+									<Node score="-0.19207662">
+										<SimplePredicate field="tgi2_45_54_0_12m_cnt" operator="greaterOrEqual" value="0.5"/>
+										<Node score="-0.12540354">
+											<SimplePredicate field="tgi2_18_24_0_12m_ratio" operator="greaterOrEqual" value="0.006561"/>
+										</Node>
+									</Node>
+									<Node score="-0.100644045">
+										<SimplePredicate field="cate7009_001_12m_cnt" operator="greaterOrEqual" value="1.5"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="11">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate26_12m_cnt"/>
+									<MiningField name="cate2_55_install_trend"/>
+									<MiningField name="cate7016_004_18_24_install_trend"/>
+									<MiningField name="cate7019_128_18_24_install_trend"/>
+									<MiningField name="tgi2_55_2_12m_ratio"/>
+									<MiningField name="cate7014_016_55_install_trend"/>
+								</MiningSchema>
+								<Node score="0.060525905">
+									<True/>
+									<Node score="-0.18055016">
+										<SimplePredicate field="cate2_55_install_trend" operator="greaterOrEqual" value="0.25715935"/>
+										<Node score="-0.04193669">
+											<SimplePredicate field="cate7014_016_55_install_trend" operator="greaterOrEqual" value="0.28934574"/>
+										</Node>
+										<Node score="-0.09441198">
+											<SimplePredicate field="cate7019_128_18_24_install_trend" operator="greaterOrEqual" value="0.20302084"/>
+										</Node>
+									</Node>
+									<Node score="-0.03434581">
+										<SimplePredicate field="tgi2_55_2_12m_ratio" operator="greaterOrEqual" value="0.0129545"/>
+										<Node score="-0.1298706">
+											<SimplePredicate field="cate7016_004_18_24_install_trend" operator="greaterOrEqual" value="0.19321978"/>
+										</Node>
+									</Node>
+									<Node score="-0.07486464">
+										<SimplePredicate field="cate26_12m_cnt" operator="greaterOrEqual" value="0.5"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="12">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7003_004_install_trend"/>
+									<MiningField name="cate7006_001_install_first_min_diff"/>
+									<MiningField name="cate7017_001_55_install_trend"/>
+									<MiningField name="cate7016_004_18_24_install_trend"/>
+									<MiningField name="tgi2_18_24_0_12m_ratio"/>
+									<MiningField name="cate7019_133_18_24_install_trend"/>
+									<MiningField name="cate7004_004_18_24_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.16818932">
+									<True/>
+									<Node score="0.045378372">
+										<SimplePredicate field="tgi2_18_24_0_12m_ratio" operator="greaterOrEqual" value="0.0061060004"/>
+										<Node score="-0.04983083">
+											<SimplePredicate field="cate7006_001_install_first_min_diff" operator="greaterOrEqual" value="-49.0"/>
+											<Node score="0.08226246">
+												<SimplePredicate field="cate7003_004_install_trend" operator="greaterOrEqual" value="0.1846105"/>
+											</Node>
+										</Node>
+										<Node score="-0.07597011">
+											<SimplePredicate field="cate7016_004_18_24_install_trend" operator="greaterOrEqual" value="0.18204212"/>
+										</Node>
+									</Node>
+									<Node score="-0.010268613">
+										<SimplePredicate field="cate7017_001_55_install_trend" operator="greaterOrEqual" value="0.026329614"/>
+										<Node score="-0.11375247">
+											<SimplePredicate field="cate7004_004_18_24_install_trend" operator="greaterOrEqual" value="0.10220337"/>
+										</Node>
+									</Node>
+									<Node score="-0.08942184">
+										<SimplePredicate field="cate7019_133_18_24_install_trend" operator="greaterOrEqual" value="-0.013929151"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="13">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7019_118_18_install_trend"/>
+									<MiningField name="tgi1_45_54_0_active_min_day_diff"/>
+									<MiningField name="tgi2_35_44_6_active_min_day_diff"/>
+									<MiningField name="cate7016_004_18_24_install_trend"/>
+									<MiningField name="tgi2_18_5_12m_ratio"/>
+									<MiningField name="cate7019_137_18_24_install_trend"/>
+									<MiningField name="cate7012_012_18_install_trend"/>
+								</MiningSchema>
+								<Node score="0.077670515">
+									<True/>
+									<Node score="-0.076424345">
+										<SimplePredicate field="tgi2_18_5_12m_ratio" operator="greaterOrEqual" value="0.002168"/>
+										<Node score="-0.045124933">
+											<SimplePredicate field="cate7019_118_18_install_trend" operator="greaterOrEqual" value="-0.11368826"/>
+											<Node score="0.094935976">
+												<SimplePredicate field="cate7012_012_18_install_trend" operator="greaterOrEqual" value="0.23806891"/>
+											</Node>
+										</Node>
+										<Node score="-0.14977834">
+											<SimplePredicate field="tgi1_45_54_0_active_min_day_diff" operator="greaterOrEqual" value="-97.0"/>
+										</Node>
+									</Node>
+									<Node score="-0.019571597">
+										<SimplePredicate field="cate7016_004_18_24_install_trend" operator="greaterOrEqual" value="0.14571866"/>
+										<Node score="-0.13498183">
+											<SimplePredicate field="tgi2_35_44_6_active_min_day_diff" operator="greaterOrEqual" value="-97.0"/>
+										</Node>
+									</Node>
+									<Node score="-0.0038389247">
+										<SimplePredicate field="cate7019_137_18_24_install_trend" operator="greaterOrEqual" value="0.033356436"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="14">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate26_12m_cnt"/>
+									<MiningField name="tgi2_55_7_12m_ratio"/>
+									<MiningField name="cate7014_007_12m_cnt"/>
+									<MiningField name="cate7019_128_18_24_install_trend"/>
+									<MiningField name="cate7016_003_18_24_install_trend"/>
+									<MiningField name="tgi2_18_24_0_12m_ratio"/>
+									<MiningField name="cate7004_004_18_24_install_trend"/>
+								</MiningSchema>
+								<Node score="3.5155495E-4">
+									<True/>
+									<Node score="-0.11936539">
+										<SimplePredicate field="cate26_12m_cnt" operator="greaterOrEqual" value="0.5"/>
+										<Node score="-0.09096809">
+											<SimplePredicate field="cate7019_128_18_24_install_trend" operator="greaterOrEqual" value="0.13747832"/>
+											<Node score="7.859117E-5">
+												<SimplePredicate field="tgi2_18_24_0_12m_ratio" operator="greaterOrEqual" value="0.008471"/>
+											</Node>
+										</Node>
+										<Node score="0.009878474">
+											<SimplePredicate field="tgi2_55_7_12m_ratio" operator="greaterOrEqual" value="0.0040535"/>
+										</Node>
+									</Node>
+									<Node score="-0.03241825">
+										<SimplePredicate field="cate7004_004_18_24_install_trend" operator="greaterOrEqual" value="0.06639947"/>
+										<Node score="-0.114621796">
+											<SimplePredicate field="cate7016_003_18_24_install_trend" operator="greaterOrEqual" value="0.11976069"/>
+										</Node>
+									</Node>
+									<Node score="0.07504734">
+										<SimplePredicate field="cate7014_007_12m_cnt" operator="greaterOrEqual" value="0.5"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="15">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7011_993_18_install_trend"/>
+									<MiningField name="tgi2_55_5_12m_ratio"/>
+									<MiningField name="cate22_6m_ratio"/>
+									<MiningField name="tgi1_18_6_12m_ratio"/>
+									<MiningField name="cate6_55_install_trend"/>
+									<MiningField name="cate7012_012_18_install_trend"/>
+									<MiningField name="tgi1_35_44_5_active_max_day_diff"/>
+								</MiningSchema>
+								<Node score="-0.053619653">
+									<True/>
+									<Node score="0.017878475">
+										<SimplePredicate field="tgi2_55_5_12m_ratio" operator="greaterOrEqual" value="0.009021999"/>
+										<Node score="0.14518265">
+											<SimplePredicate field="cate7012_012_18_install_trend" operator="greaterOrEqual" value="0.2149424"/>
+											<Node score="-0.04294586">
+												<SimplePredicate field="cate22_6m_ratio" operator="greaterOrEqual" value="0.001128"/>
+											</Node>
+										</Node>
+										<Node score="-0.094857045">
+											<SimplePredicate field="cate7011_993_18_install_trend" operator="greaterOrEqual" value="0.2531865"/>
+										</Node>
+									</Node>
+									<Node score="-0.11350653">
+										<SimplePredicate field="tgi1_18_6_12m_ratio" operator="greaterOrEqual" value="6.975E-4"/>
+										<Node score="-0.04783784">
+											<SimplePredicate field="tgi1_35_44_5_active_max_day_diff" operator="greaterOrEqual" value="-97.0"/>
+										</Node>
+									</Node>
+									<Node score="0.0139155965">
+										<SimplePredicate field="cate6_55_install_trend" operator="greaterOrEqual" value="0.024408735"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="16">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="tgi2_45_54_0_12m_cnt"/>
+									<MiningField name="topic_11"/>
+									<MiningField name="cate7007_002_35_44_install_trend"/>
+									<MiningField name="cate7016_002_12m_ratio"/>
+									<MiningField name="cate7009_001_12m_cnt"/>
+									<MiningField name="cate7014_008_18_install_trend"/>
+									<MiningField name="cate7014_016_55_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.002956864">
+									<True/>
+									<Node score="-0.053484134">
+										<SimplePredicate field="cate7009_001_12m_cnt" operator="greaterOrEqual" value="2.5"/>
+										<Node score="-0.10016674">
+											<SimplePredicate field="tgi2_45_54_0_12m_cnt" operator="greaterOrEqual" value="2.5"/>
+											<Node score="-0.18128149">
+												<SimplePredicate field="topic_11" operator="greaterOrEqual" value="0.053240098"/>
+											</Node>
+										</Node>
+										<Node score="0.06577478">
+											<SimplePredicate field="cate7014_008_18_install_trend" operator="greaterOrEqual" value="0.48466647"/>
+										</Node>
+									</Node>
+									<Node score="-0.009347653">
+										<SimplePredicate field="cate7014_016_55_install_trend" operator="greaterOrEqual" value="0.24804106"/>
+										<Node score="0.09448379">
+											<SimplePredicate field="cate7007_002_35_44_install_trend" operator="greaterOrEqual" value="0.038378708"/>
+										</Node>
+									</Node>
+									<Node score="-0.08318778">
+										<SimplePredicate field="cate7016_002_12m_ratio" operator="greaterOrEqual" value="7.4299995E-4"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="17">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="tgi2_55_7_12m_ratio"/>
+									<MiningField name="cate2_active_min_day_diff"/>
+									<MiningField name="cate7016_004_18_24_install_trend"/>
+									<MiningField name="cate7019_128_18_24_install_trend"/>
+									<MiningField name="cate7006_005_25_34_install_trend"/>
+									<MiningField name="topic_10"/>
+									<MiningField name="topic_1"/>
+								</MiningSchema>
+								<Node score="-0.02536717">
+									<True/>
+									<Node score="0.06569756">
+										<SimplePredicate field="topic_1" operator="greaterOrEqual" value="0.062328003"/>
+										<Node score="0.040325925">
+											<SimplePredicate field="topic_10" operator="greaterOrEqual" value="0.040784087"/>
+											<Node score="-0.083034344">
+												<SimplePredicate field="cate7016_004_18_24_install_trend" operator="greaterOrEqual" value="0.17478698"/>
+											</Node>
+										</Node>
+										<Node score="0.1918323">
+											<SimplePredicate field="cate7006_005_25_34_install_trend" operator="greaterOrEqual" value="0.06856139"/>
+										</Node>
+									</Node>
+									<Node score="0.1596366">
+										<SimplePredicate field="tgi2_55_7_12m_ratio" operator="greaterOrEqual" value="0.0057955002"/>
+										<Node score="0.017749839">
+											<SimplePredicate field="cate7019_128_18_24_install_trend" operator="greaterOrEqual" value="-0.0049524372"/>
+										</Node>
+									</Node>
+									<Node score="-0.10543467">
+										<SimplePredicate field="cate2_active_min_day_diff" operator="greaterOrEqual" value="-97.0"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="18">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7014_014_45_54_install_trend"/>
+									<MiningField name="cate7015_004_12m_ratio"/>
+									<MiningField name="cate7019_132_18_24_install_trend"/>
+									<MiningField name="cate6_55_install_trend"/>
+									<MiningField name="topic_10"/>
+									<MiningField name="cate7014_016_55_install_trend"/>
+									<MiningField name="tgi2_25_34_6_12m_ratio"/>
+								</MiningSchema>
+								<Node score="0.011017804">
+									<True/>
+									<Node score="-0.058096133">
+										<SimplePredicate field="topic_10" operator="greaterOrEqual" value="0.043677583"/>
+										<Node score="-0.019853631">
+											<SimplePredicate field="cate6_55_install_trend" operator="greaterOrEqual" value="0.0980653"/>
+											<Node score="0.04142748">
+												<SimplePredicate field="cate7015_004_12m_ratio" operator="greaterOrEqual" value="0.001448"/>
+											</Node>
+										</Node>
+										<Node score="0.016406214">
+											<SimplePredicate field="cate7019_132_18_24_install_trend" operator="greaterOrEqual" value="0.1387921"/>
+										</Node>
+									</Node>
+									<Node score="0.11523795">
+										<SimplePredicate field="cate7014_016_55_install_trend" operator="greaterOrEqual" value="0.26533592"/>
+										<Node score="0.007781726">
+											<SimplePredicate field="tgi2_25_34_6_12m_ratio" operator="greaterOrEqual" value="0.001596"/>
+										</Node>
+									</Node>
+									<Node score="-0.05384448">
+										<SimplePredicate field="cate7014_014_45_54_install_trend" operator="greaterOrEqual" value="0.105593"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="19">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7003_004_install_trend"/>
+									<MiningField name="tgi2_25_34_3_12m_ratio"/>
+									<MiningField name="cate7010_001_35_44_install_trend"/>
+									<MiningField name="cate7016_003_12m_ratio"/>
+									<MiningField name="topic_18"/>
+									<MiningField name="cate7014_016_55_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.02119783">
+									<True/>
+									<Node score="-0.05424436">
+										<SimplePredicate field="cate7016_003_12m_ratio" operator="greaterOrEqual" value="5.6149997E-4"/>
+										<Node score="-0.0">
+											<SimplePredicate field="tgi2_25_34_3_12m_ratio" operator="greaterOrEqual" value="0.029137"/>
+										</Node>
+										<Node score="-0.12455238">
+											<SimplePredicate field="topic_18" operator="greaterOrEqual" value="0.042539936"/>
+										</Node>
+									</Node>
+									<Node score="0.19451323">
+										<SimplePredicate field="cate7014_016_55_install_trend" operator="greaterOrEqual" value="0.4690668"/>
+										<Node score="-0.014176635">
+											<SimplePredicate field="cate7010_001_35_44_install_trend" operator="greaterOrEqual" value="0.40996426"/>
+										</Node>
+									</Node>
+									<Node score="0.021462044">
+										<SimplePredicate field="cate7003_004_install_trend" operator="greaterOrEqual" value="0.08640477"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="20">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate26_12m_cnt"/>
+									<MiningField name="cate7002_008_18_24_install_trend"/>
+									<MiningField name="tgi2_35_44_5_12m_ratio"/>
+									<MiningField name="tgi2_25_34_5_12m_ratio"/>
+									<MiningField name="cate7016_003_18_24_install_trend"/>
+									<MiningField name="cate7019_133_18_24_install_trend"/>
+								</MiningSchema>
+								<Node score="0.020236243">
+									<True/>
+									<Node score="-0.06909304">
+										<SimplePredicate field="tgi2_25_34_5_12m_ratio" operator="greaterOrEqual" value="0.0101285"/>
+										<Node score="-0.14246902">
+											<SimplePredicate field="tgi2_35_44_5_12m_ratio" operator="greaterOrEqual" value="0.013749"/>
+										</Node>
+										<Node score="0.027365336">
+											<SimplePredicate field="cate7002_008_18_24_install_trend" operator="greaterOrEqual" value="0.24206328"/>
+										</Node>
+									</Node>
+									<Node score="-0.05733779">
+										<SimplePredicate field="cate7016_003_18_24_install_trend" operator="greaterOrEqual" value="0.08609502"/>
+										<Node score="0.05227187">
+											<SimplePredicate field="cate7019_133_18_24_install_trend" operator="greaterOrEqual" value="-0.026114756"/>
+										</Node>
+									</Node>
+									<Node score="-0.06819721">
+										<SimplePredicate field="cate26_12m_cnt" operator="greaterOrEqual" value="1.5"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="21">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="tgi2_45_54_3_12m_ratio"/>
+									<MiningField name="cate7019_109_18_install_trend"/>
+									<MiningField name="tgi2_35_44_6_55_install_trend"/>
+									<MiningField name="fin_31_55_install_trend"/>
+									<MiningField name="tgi1_18_6_active_min_day_diff"/>
+									<MiningField name="cate6_55_install_trend"/>
+									<MiningField name="cate7019_133_18_24_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.06856707">
+									<True/>
+									<Node score="0.023501286">
+										<SimplePredicate field="cate6_55_install_trend" operator="greaterOrEqual" value="-0.023510206"/>
+										<Node score="-0.099275775">
+											<SimplePredicate field="tgi1_18_6_active_min_day_diff" operator="greaterOrEqual" value="2.5"/>
+											<Node score="0.010751828">
+												<SimplePredicate field="cate7019_133_18_24_install_trend" operator="greaterOrEqual" value="-0.031210572"/>
+											</Node>
+										</Node>
+										<Node score="-0.025309598">
+											<SimplePredicate field="tgi2_35_44_6_55_install_trend" operator="greaterOrEqual" value="0.38834742"/>
+										</Node>
+									</Node>
+									<Node score="-0.06544791">
+										<SimplePredicate field="cate7019_109_18_install_trend" operator="greaterOrEqual" value="0.18745254"/>
+										<Node score="0.10008982">
+											<SimplePredicate field="tgi2_45_54_3_12m_ratio" operator="greaterOrEqual" value="0.0181395"/>
+										</Node>
+									</Node>
+									<Node score="0.0838507">
+										<SimplePredicate field="fin_31_55_install_trend" operator="greaterOrEqual" value="0.1557461"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="22">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7002_010_install_trend"/>
+									<MiningField name="cate7010_001_35_44_install_trend"/>
+									<MiningField name="tgi2_35_44_5_12m_ratio"/>
+									<MiningField name="cate7008_009_18_install_trend"/>
+									<MiningField name="tgi2_18_24_0_12m_ratio"/>
+									<MiningField name="cate7014_016_55_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.04733802">
+									<True/>
+									<Node score="-0.00497012">
+										<SimplePredicate field="cate7008_009_18_install_trend" operator="greaterOrEqual" value="-0.057904392"/>
+										<Node score="0.089325085">
+											<SimplePredicate field="cate7014_016_55_install_trend" operator="greaterOrEqual" value="0.39879233"/>
+											<Node score="-0.055198755">
+												<SimplePredicate field="cate7010_001_35_44_install_trend" operator="greaterOrEqual" value="0.43596572"/>
+											</Node>
+										</Node>
+										<Node score="-0.052859653">
+											<SimplePredicate field="tgi2_35_44_5_12m_ratio" operator="greaterOrEqual" value="0.006197"/>
+										</Node>
+									</Node>
+									<Node score="0.14103028">
+										<SimplePredicate field="cate7002_010_install_trend" operator="greaterOrEqual" value="0.08842899"/>
+									</Node>
+									<Node score="0.041221302">
+										<SimplePredicate field="tgi2_18_24_0_12m_ratio" operator="greaterOrEqual" value="0.00773"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="23">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate22_active_min_day_diff"/>
+									<MiningField name="cate7007_002_35_44_install_trend"/>
+									<MiningField name="topic_6"/>
+									<MiningField name="cate7001_002_active_max_day_diff"/>
+									<MiningField name="cate7002_002_18_install_trend"/>
+									<MiningField name="cate7011_993_active_min_day_diff"/>
+								</MiningSchema>
+								<Node score="0.02954149">
+									<True/>
+									<Node score="-0.09259683">
+										<SimplePredicate field="cate7011_993_active_min_day_diff" operator="greaterOrEqual" value="-97.0"/>
+										<Node score="0.020197667">
+											<SimplePredicate field="cate7007_002_35_44_install_trend" operator="greaterOrEqual" value="0.09697931"/>
+										</Node>
+										<Node score="0.0018933093">
+											<SimplePredicate field="topic_6" operator="greaterOrEqual" value="0.046914384"/>
+										</Node>
+									</Node>
+									<Node score="0.08959853">
+										<SimplePredicate field="cate7001_002_active_max_day_diff" operator="greaterOrEqual" value="-97.0"/>
+										<Node score="-0.031994615">
+											<SimplePredicate field="cate22_active_min_day_diff" operator="greaterOrEqual" value="-97.0"/>
+										</Node>
+									</Node>
+									<Node score="-0.012034721">
+										<SimplePredicate field="cate7002_002_18_install_trend" operator="greaterOrEqual" value="-0.019957043"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="24">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="tgi2_55_4_12m_ratio"/>
+									<MiningField name="cate7015_004_12m_ratio"/>
+									<MiningField name="tgi2_35_44_5_12m_ratio"/>
+									<MiningField name="tgi2_25_34_3_6m_ratio"/>
+									<MiningField name="cate7019_128_18_24_install_trend"/>
+									<MiningField name="tgi2_35_44_6_55_install_trend"/>
+									<MiningField name="cate7014_016_55_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.05154368">
+									<True/>
+									<Node score="-6.381297E-4">
+										<SimplePredicate field="tgi2_55_4_12m_ratio" operator="greaterOrEqual" value="0.0081375"/>
+										<Node score="0.0118463645">
+											<SimplePredicate field="tgi2_35_44_5_12m_ratio" operator="greaterOrEqual" value="0.0053065"/>
+											<Node score="-0.04930799">
+												<SimplePredicate field="tgi2_35_44_6_55_install_trend" operator="greaterOrEqual" value="0.35030675"/>
+											</Node>
+										</Node>
+										<Node score="0.065152735">
+											<SimplePredicate field="cate7014_016_55_install_trend" operator="greaterOrEqual" value="0.22235832"/>
+										</Node>
+									</Node>
+									<Node score="0.12339279">
+										<SimplePredicate field="cate7019_128_18_24_install_trend" operator="greaterOrEqual" value="0.22016232"/>
+										<Node score="-0.02064089">
+											<SimplePredicate field="tgi2_25_34_3_6m_ratio" operator="greaterOrEqual" value="0.008350501"/>
+										</Node>
+									</Node>
+									<Node score="0.0020237714">
+										<SimplePredicate field="cate7015_004_12m_ratio" operator="greaterOrEqual" value="0.002637"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="25">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7015_001_25_34_install_trend"/>
+									<MiningField name="cate7001_003_6m_ratio"/>
+									<MiningField name="topic_0"/>
+									<MiningField name="cate7006_001_12m_ratio"/>
+									<MiningField name="cate6_55_install_trend"/>
+									<MiningField name="cate11_install_trend"/>
+								</MiningSchema>
+								<Node score="0.027972704">
+									<True/>
+									<Node score="-0.010498023">
+										<SimplePredicate field="cate7006_001_12m_ratio" operator="greaterOrEqual" value="7.135E-4"/>
+										<Node score="0.09854198">
+											<SimplePredicate field="cate6_55_install_trend" operator="greaterOrEqual" value="0.14411695"/>
+											<Node score="0.006766126">
+												<SimplePredicate field="cate7015_001_25_34_install_trend" operator="greaterOrEqual" value="0.0013458435"/>
+											</Node>
+										</Node>
+										<Node score="-0.058023125">
+											<SimplePredicate field="cate11_install_trend" operator="greaterOrEqual" value="0.17361552"/>
+										</Node>
+									</Node>
+									<Node score="0.13798521">
+										<SimplePredicate field="cate7001_003_6m_ratio" operator="greaterOrEqual" value="0.0114395"/>
+									</Node>
+									<Node score="-0.034528803">
+										<SimplePredicate field="topic_0" operator="greaterOrEqual" value="0.05838591"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="26">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7002_010_install_trend"/>
+									<MiningField name="tgi2_25_34_5_install_first_max_diff"/>
+									<MiningField name="tgi2_55_4_12m_ratio"/>
+									<MiningField name="cate7008_001_55_install_trend"/>
+									<MiningField name="cate7014_006_18_install_trend"/>
+									<MiningField name="cate7008_006_55_install_trend"/>
+								</MiningSchema>
+								<Node score="0.043050315">
+									<True/>
+									<Node score="0.1454445">
+										<SimplePredicate field="tgi2_55_4_12m_ratio" operator="greaterOrEqual" value="0.0223525"/>
+										<Node score="-0.03766696">
+											<SimplePredicate field="cate7008_001_55_install_trend" operator="greaterOrEqual" value="-0.0022147929"/>
+											<Node score="0.098453574">
+												<SimplePredicate field="cate7002_010_install_trend" operator="greaterOrEqual" value="0.11307211"/>
+											</Node>
+										</Node>
+									</Node>
+									<Node score="-0.0390747">
+										<SimplePredicate field="tgi2_25_34_5_install_first_max_diff" operator="greaterOrEqual" value="23.5"/>
+										<Node score="0.0037339716">
+											<SimplePredicate field="cate7008_006_55_install_trend" operator="greaterOrEqual" value="0.07106526"/>
+										</Node>
+									</Node>
+									<Node score="-0.004120543">
+										<SimplePredicate field="cate7014_006_18_install_trend" operator="greaterOrEqual" value="0.047014497"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="27">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7007_005_55_install_trend"/>
+									<MiningField name="tgi2_55_4_12m_ratio"/>
+									<MiningField name="fin_43_55_install_trend"/>
+									<MiningField name="tgi2_35_44_5_6m_ratio"/>
+								</MiningSchema>
+								<Node score="-0.013297448">
+									<True/>
+									<Node score="0.1531655">
+										<SimplePredicate field="cate7007_005_55_install_trend" operator="greaterOrEqual" value="0.3031124"/>
+									</Node>
+									<Node score="0.01659151">
+										<SimplePredicate field="tgi2_35_44_5_6m_ratio" operator="greaterOrEqual" value="0.010346"/>
+										<Node score="-0.092017375">
+											<SimplePredicate field="fin_43_55_install_trend" operator="greaterOrEqual" value="0.14304416"/>
+										</Node>
+									</Node>
+									<Node score="0.0203078">
+										<SimplePredicate field="tgi2_55_4_12m_ratio" operator="greaterOrEqual" value="0.0115105"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="28">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7011_997_12m_ratio"/>
+									<MiningField name="cate7019_136_12m_ratio"/>
+									<MiningField name="cate7007_005_55_install_trend"/>
+									<MiningField name="cate16_35_44_install_trend"/>
+									<MiningField name="cate7019_133_18_24_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.0056273052">
+									<True/>
+									<Node score="-0.0580009">
+										<SimplePredicate field="cate7011_997_12m_ratio" operator="greaterOrEqual" value="0.001275"/>
+										<Node score="-0.14357519">
+											<SimplePredicate field="cate7019_133_18_24_install_trend" operator="greaterOrEqual" value="-0.10034663"/>
+										</Node>
+									</Node>
+									<Node score="0.10994288">
+										<SimplePredicate field="cate7007_005_55_install_trend" operator="greaterOrEqual" value="0.22815937"/>
+										<Node score="-0.026357997">
+											<SimplePredicate field="cate16_35_44_install_trend" operator="greaterOrEqual" value="0.097961955"/>
+										</Node>
+									</Node>
+									<Node score="0.08542571">
+										<SimplePredicate field="cate7019_136_12m_ratio" operator="greaterOrEqual" value="0.002456"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="29">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="tgi2_18_24_2_12m_ratio"/>
+									<MiningField name="cate7009_001_12m_ratio"/>
+									<MiningField name="tgi2_55_5_12m_ratio"/>
+									<MiningField name="cate7016_003_18_24_install_trend"/>
+									<MiningField name="cate7003_008_55_install_trend"/>
+									<MiningField name="tgi2_55_1_install_first_max_diff"/>
+									<MiningField name="topic_1"/>
+								</MiningSchema>
+								<Node score="-0.034201648">
+									<True/>
+									<Node score="0.04533625">
+										<SimplePredicate field="cate7009_001_12m_ratio" operator="greaterOrEqual" value="0.0037214998"/>
+										<Node score="-0.028839355">
+											<SimplePredicate field="tgi2_55_1_install_first_max_diff" operator="greaterOrEqual" value="8.5"/>
+											<Node score="0.03282213">
+												<SimplePredicate field="tgi2_55_5_12m_ratio" operator="greaterOrEqual" value="0.0125485"/>
+											</Node>
+										</Node>
+										<Node score="-0.05920637">
+											<SimplePredicate field="cate7003_008_55_install_trend" operator="greaterOrEqual" value="0.19333017"/>
+										</Node>
+									</Node>
+									<Node score="0.0031014166">
+										<SimplePredicate field="cate7016_003_18_24_install_trend" operator="greaterOrEqual" value="0.10515921"/>
+										<Node score="-0.07722444">
+											<SimplePredicate field="tgi2_18_24_2_12m_ratio" operator="greaterOrEqual" value="0.021221"/>
+										</Node>
+									</Node>
+									<Node score="0.03604379">
+										<SimplePredicate field="topic_1" operator="greaterOrEqual" value="0.04938895"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="30">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="topic_11"/>
+									<MiningField name="tgi2_25_34_5_12"/>
+									<MiningField name="tgi2_55_0_newins_first_max_diff"/>
+									<MiningField name="cate7019_116_18_24_install_trend"/>
+									<MiningField name="cate7014_002_install_trend"/>
+									<MiningField name="cate16_35_44_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.0032614945">
+									<True/>
+									<Node score="-0.08488763">
+										<SimplePredicate field="cate16_35_44_install_trend" operator="greaterOrEqual" value="0.13648993"/>
+										<Node score="0.01865682">
+											<SimplePredicate field="topic_11" operator="greaterOrEqual" value="0.070523575"/>
+										</Node>
+										<Node score="0.0028711085">
+											<SimplePredicate field="tgi2_55_0_newins_first_max_diff" operator="greaterOrEqual" value="111.5"/>
+										</Node>
+									</Node>
+									<Node score="0.04191633">
+										<SimplePredicate field="cate7014_002_install_trend" operator="greaterOrEqual" value="0.07213392"/>
+										<Node score="-0.0044489447">
+											<SimplePredicate field="tgi2_25_34_5_12" operator="greaterOrEqual" value="0.125"/>
+										</Node>
+									</Node>
+									<Node score="-0.060379613">
+										<SimplePredicate field="cate7019_116_18_24_install_trend" operator="greaterOrEqual" value="0.12849422"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="31">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7019_136_12m_ratio"/>
+									<MiningField name="cate7014_017_12m_ratio"/>
+									<MiningField name="cate7014_007_12m_cnt"/>
+									<MiningField name="cate7016_004_18_24_install_trend"/>
+									<MiningField name="cate7010_001_active_max_day_diff"/>
+									<MiningField name="tgi2_18_24_0_12m_ratio"/>
+									<MiningField name="tgi2_55_1_install_first_max_diff"/>
+								</MiningSchema>
+								<Node score="0.0024363995">
+									<True/>
+									<Node score="0.014709741">
+										<SimplePredicate field="cate7016_004_18_24_install_trend" operator="greaterOrEqual" value="0.11648571"/>
+										<Node score="-0.13304919">
+											<SimplePredicate field="cate7010_001_active_max_day_diff" operator="greaterOrEqual" value="-47.0"/>
+											<Node score="-0.04250752">
+												<SimplePredicate field="cate7014_017_12m_ratio" operator="greaterOrEqual" value="0.0024675"/>
+											</Node>
+										</Node>
+										<Node score="-0.027390659">
+											<SimplePredicate field="tgi2_55_1_install_first_max_diff" operator="greaterOrEqual" value="23.5"/>
+										</Node>
+									</Node>
+									<Node score="0.016802015">
+										<SimplePredicate field="tgi2_18_24_0_12m_ratio" operator="greaterOrEqual" value="0.0059785"/>
+										<Node score="0.10840293">
+											<SimplePredicate field="cate7019_136_12m_ratio" operator="greaterOrEqual" value="0.001102"/>
+										</Node>
+									</Node>
+									<Node score="-0.06328175">
+										<SimplePredicate field="cate7014_007_12m_cnt" operator="greaterOrEqual" value="0.5"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="32">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7007_002_35_44_install_trend"/>
+									<MiningField name="cate7007_005_55_install_trend"/>
+									<MiningField name="cate7011_993_18_install_trend"/>
+									<MiningField name="cate7010_001_35_44_install_trend"/>
+									<MiningField name="cate7015_004_6m_ratio"/>
+									<MiningField name="fin_31_55_install_trend"/>
+									<MiningField name="cate7019_102_25_34_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.0075906483">
+									<True/>
+									<Node score="0.129645">
+										<SimplePredicate field="cate7015_004_6m_ratio" operator="greaterOrEqual" value="0.002052"/>
+										<Node score="-0.07458247">
+											<SimplePredicate field="cate7019_102_25_34_install_trend" operator="greaterOrEqual" value="-0.008860795"/>
+											<Node score="0.02122439">
+												<SimplePredicate field="fin_31_55_install_trend" operator="greaterOrEqual" value="-0.1074176"/>
+											</Node>
+										</Node>
+										<Node score="-0.0072633633">
+											<SimplePredicate field="cate7011_993_18_install_trend" operator="greaterOrEqual" value="0.26217338"/>
+										</Node>
+									</Node>
+									<Node score="-0.14511955">
+										<SimplePredicate field="cate7010_001_35_44_install_trend" operator="greaterOrEqual" value="0.4360357"/>
+										<Node score="-0.0011325368">
+											<SimplePredicate field="cate7007_002_35_44_install_trend" operator="greaterOrEqual" value="0.11945371"/>
+										</Node>
+									</Node>
+									<Node score="0.069138266">
+										<SimplePredicate field="cate7007_005_55_install_trend" operator="greaterOrEqual" value="0.22554193"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="33">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7007_003_18_24_install_trend"/>
+									<MiningField name="cate7019_117_18_24_install_trend"/>
+									<MiningField name="cate7019_126_18_install_trend"/>
+									<MiningField name="cate7008_009_18_install_trend"/>
+									<MiningField name="cate7012_012_18_install_trend"/>
+									<MiningField name="cate7019_133_18_24_install_trend"/>
+									<MiningField name="cate7011_998_active_max_day_diff"/>
+								</MiningSchema>
+								<Node score="-0.002588154">
+									<True/>
+									<Node score="0.0046274485">
+										<SimplePredicate field="cate7012_012_18_install_trend" operator="greaterOrEqual" value="0.2205742"/>
+										<Node score="-0.11488819">
+											<SimplePredicate field="cate7011_998_active_max_day_diff" operator="greaterOrEqual" value="-97.0"/>
+											<Node score="0.009782474">
+												<SimplePredicate field="cate7019_117_18_24_install_trend" operator="greaterOrEqual" value="0.11755975"/>
+											</Node>
+										</Node>
+										<Node score="0.091780916">
+											<SimplePredicate field="cate7007_003_18_24_install_trend" operator="greaterOrEqual" value="0.041563217"/>
+										</Node>
+									</Node>
+									<Node score="0.07076638">
+										<SimplePredicate field="cate7008_009_18_install_trend" operator="greaterOrEqual" value="0.049135827"/>
+										<Node score="-0.040303897">
+											<SimplePredicate field="cate7019_126_18_install_trend" operator="greaterOrEqual" value="-0.05515659"/>
+										</Node>
+									</Node>
+									<Node score="0.061589424">
+										<SimplePredicate field="cate7019_133_18_24_install_trend" operator="greaterOrEqual" value="-0.0016724891"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="34">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="tgi2_18_7_12m_ratio"/>
+									<MiningField name="cate7019_119_18_install_trend"/>
+									<MiningField name="cate7014_007_12m_cnt"/>
+									<MiningField name="cate7005_005_install_trend"/>
+									<MiningField name="tgi2_18_24_4_12m_ratio"/>
+									<MiningField name="cate7019_135_45_54_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.03579756">
+									<True/>
+									<Node score="0.12974489">
+										<SimplePredicate field="tgi2_18_7_12m_ratio" operator="greaterOrEqual" value="7.675E-4"/>
+										<Node score="-0.10591305">
+											<SimplePredicate field="cate7014_007_12m_cnt" operator="greaterOrEqual" value="0.5"/>
+											<Node score="-0.02434734">
+												<SimplePredicate field="cate7019_119_18_install_trend" operator="greaterOrEqual" value="0.054525528"/>
+											</Node>
+										</Node>
+										<Node score="-0.022673586">
+											<SimplePredicate field="cate7005_005_install_trend" operator="greaterOrEqual" value="0.024217803"/>
+										</Node>
+									</Node>
+									<Node score="0.05168394">
+										<SimplePredicate field="cate7014_007_12m_cnt" operator="greaterOrEqual" value="0.5"/>
+										<Node score="0.003215891">
+											<SimplePredicate field="tgi2_18_24_4_12m_ratio" operator="greaterOrEqual" value="0.005454"/>
+										</Node>
+									</Node>
+									<Node score="0.0035407615">
+										<SimplePredicate field="cate7019_135_45_54_install_trend" operator="greaterOrEqual" value="-0.07524353"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="35">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="tgi2_35_44_5_12m_ratio"/>
+									<MiningField name="cate7012_007_12m_ratio"/>
+									<MiningField name="cate7012_012_active_min_day_diff"/>
+									<MiningField name="cate7016_003_12m_ratio"/>
+									<MiningField name="tgi2_55_2_12m_ratio"/>
+									<MiningField name="cate7015_006_12m_ratio"/>
+								</MiningSchema>
+								<Node score="-0.010979017">
+									<True/>
+									<Node score="-0.093975216">
+										<SimplePredicate field="cate7016_003_12m_ratio" operator="greaterOrEqual" value="5.6149997E-4"/>
+										<Node score="0.015495763">
+											<SimplePredicate field="tgi2_55_2_12m_ratio" operator="greaterOrEqual" value="0.0213145"/>
+										</Node>
+										<Node score="-0.023961648">
+											<SimplePredicate field="tgi2_35_44_5_12m_ratio" operator="greaterOrEqual" value="0.003179"/>
+										</Node>
+									</Node>
+									<Node score="0.023370693">
+										<SimplePredicate field="cate7012_012_active_min_day_diff" operator="greaterOrEqual" value="-97.0"/>
+										<Node score="0.15578888">
+											<SimplePredicate field="cate7012_007_12m_ratio" operator="greaterOrEqual" value="0.005324"/>
+										</Node>
+									</Node>
+									<Node score="0.018109048">
+										<SimplePredicate field="cate7015_006_12m_ratio" operator="greaterOrEqual" value="0.0032215002"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="36">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7019_118_18_install_trend"/>
+									<MiningField name="cate7002_003_25_34_install_trend"/>
+									<MiningField name="tgi2_55_0_active_max_day_diff"/>
+									<MiningField name="cate21_45_54_install_trend"/>
+									<MiningField name="topic_1"/>
+								</MiningSchema>
+								<Node score="-0.025076183">
+									<True/>
+									<Node score="0.15515055">
+										<SimplePredicate field="cate7002_003_25_34_install_trend" operator="greaterOrEqual" value="0.25261942"/>
+										<Node score="0.007191514">
+											<SimplePredicate field="cate7019_118_18_install_trend" operator="greaterOrEqual" value="-0.09175799"/>
+										</Node>
+									</Node>
+									<Node score="0.017676046">
+										<SimplePredicate field="topic_1" operator="greaterOrEqual" value="0.0563927"/>
+										<Node score="-0.05721603">
+											<SimplePredicate field="tgi2_55_0_active_max_day_diff" operator="greaterOrEqual" value="35.5"/>
+										</Node>
+									</Node>
+									<Node score="0.010109823">
+										<SimplePredicate field="cate21_45_54_install_trend" operator="greaterOrEqual" value="0.0091824215"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="37">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate23_install_trend"/>
+									<MiningField name="tgi2_35_44_5_12m_ratio"/>
+									<MiningField name="cate7_55_install_trend"/>
+									<MiningField name="cate7002_005_12m_ratio"/>
+									<MiningField name="fin_31_55_install_trend"/>
+									<MiningField name="cate11_install_trend"/>
+								</MiningSchema>
+								<Node score="3.1656204E-4">
+									<True/>
+									<Node score="-0.14227606">
+										<SimplePredicate field="cate11_install_trend" operator="greaterOrEqual" value="0.24343307"/>
+										<Node score="0.022678375">
+											<SimplePredicate field="cate7_55_install_trend" operator="greaterOrEqual" value="0.17219156"/>
+											<Node score="-0.06767651">
+												<SimplePredicate field="tgi2_35_44_5_12m_ratio" operator="greaterOrEqual" value="0.0031275"/>
+											</Node>
+										</Node>
+									</Node>
+									<Node score="-0.062431775">
+										<SimplePredicate field="cate23_install_trend" operator="greaterOrEqual" value="-0.046620525"/>
+										<Node score="0.0019646762">
+											<SimplePredicate field="fin_31_55_install_trend" operator="greaterOrEqual" value="-0.10776354"/>
+										</Node>
+									</Node>
+									<Node score="0.11794632">
+										<SimplePredicate field="cate7002_005_12m_ratio" operator="greaterOrEqual" value="0.0075245"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="38">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="tgi2_35_44_3_6m_ratio"/>
+									<MiningField name="cate2_55_install_trend"/>
+									<MiningField name="cate7011_993_18_install_trend"/>
+									<MiningField name="cate7014_007_install_trend"/>
+									<MiningField name="cate7006_005_25_34_install_trend"/>
+									<MiningField name="cate7014_009_12m_ratio"/>
+								</MiningSchema>
+								<Node score="-0.0048275753">
+									<True/>
+									<Node score="-2.5899579E-5">
+										<SimplePredicate field="cate7006_005_25_34_install_trend" operator="greaterOrEqual" value="0.039666038"/>
+										<Node score="-0.07329991">
+											<SimplePredicate field="cate7011_993_18_install_trend" operator="greaterOrEqual" value="0.2905744"/>
+											<Node score="-0.0013248198">
+												<SimplePredicate field="cate2_55_install_trend" operator="greaterOrEqual" value="0.14051726"/>
+											</Node>
+										</Node>
+										<Node score="0.04631186">
+											<SimplePredicate field="cate7014_007_install_trend" operator="greaterOrEqual" value="0.21719569"/>
+										</Node>
+									</Node>
+									<Node score="-0.13529348">
+										<SimplePredicate field="cate7014_009_12m_ratio" operator="greaterOrEqual" value="0.0029435"/>
+									</Node>
+									<Node score="-0.07052603">
+										<SimplePredicate field="tgi2_35_44_3_6m_ratio" operator="greaterOrEqual" value="0.0432145"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="39">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate8_35_44_install_trend"/>
+									<MiningField name="cate7019_119_18_install_trend"/>
+									<MiningField name="cate7019_128_18_24_install_trend"/>
+									<MiningField name="tgi2_35_44_6_55_install_trend"/>
+									<MiningField name="cate24_install_trend"/>
+									<MiningField name="cate7014_016_55_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.02958431">
+									<True/>
+									<Node score="-0.1287655">
+										<SimplePredicate field="cate7019_119_18_install_trend" operator="greaterOrEqual" value="0.12318772"/>
+										<Node score="0.022317693">
+											<SimplePredicate field="tgi2_35_44_6_55_install_trend" operator="greaterOrEqual" value="0.33811188"/>
+										</Node>
+										<Node score="-0.035658933">
+											<SimplePredicate field="cate7014_016_55_install_trend" operator="greaterOrEqual" value="0.1601296"/>
+										</Node>
+									</Node>
+									<Node score="0.12007497">
+										<SimplePredicate field="cate7019_128_18_24_install_trend" operator="greaterOrEqual" value="0.21537216"/>
+										<Node score="0.011596723">
+											<SimplePredicate field="cate8_35_44_install_trend" operator="greaterOrEqual" value="0.04478419"/>
+										</Node>
+									</Node>
+									<Node score="0.0078081447">
+										<SimplePredicate field="cate24_install_trend" operator="greaterOrEqual" value="0.09715572"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="40">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate3_18_install_trend"/>
+									<MiningField name="cate7015_007_35_44_install_trend"/>
+									<MiningField name="tgi2_55_4_12m_ratio"/>
+									<MiningField name="cate7010_001_35_44_install_trend"/>
+									<MiningField name="cate7002_005_12m_ratio"/>
+									<MiningField name="tgi1_25_34_4_12m_cnt"/>
+								</MiningSchema>
+								<Node score="0.03157075">
+									<True/>
+									<Node score="0.079371214">
+										<SimplePredicate field="tgi2_55_4_12m_ratio" operator="greaterOrEqual" value="0.0048395"/>
+										<Node score="0.00579911">
+											<SimplePredicate field="cate7002_005_12m_ratio" operator="greaterOrEqual" value="0.0012455"/>
+											<Node score="-0.03203388">
+												<SimplePredicate field="tgi1_25_34_4_12m_cnt" operator="greaterOrEqual" value="8.5"/>
+											</Node>
+										</Node>
+										<Node score="-0.015751967">
+											<SimplePredicate field="cate7010_001_35_44_install_trend" operator="greaterOrEqual" value="0.38467294"/>
+										</Node>
+									</Node>
+									<Node score="-0.114736885">
+										<SimplePredicate field="cate7015_007_35_44_install_trend" operator="greaterOrEqual" value="0.0838819"/>
+									</Node>
+									<Node score="-0.036575347">
+										<SimplePredicate field="cate3_18_install_trend" operator="greaterOrEqual" value="-0.057746977"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="41">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="topic_11"/>
+									<MiningField name="fin_25_55_install_trend"/>
+									<MiningField name="cate7019_107_45_54_install_trend"/>
+									<MiningField name="cate24_install_trend"/>
+								</MiningSchema>
+								<Node score="0.0042582587">
+									<True/>
+									<Node score="0.055277422">
+										<SimplePredicate field="cate7019_107_45_54_install_trend" operator="greaterOrEqual" value="-0.07310937"/>
+										<Node score="0.08093809">
+											<SimplePredicate field="topic_11" operator="greaterOrEqual" value="0.08497773"/>
+										</Node>
+										<Node score="-0.007327342">
+											<SimplePredicate field="fin_25_55_install_trend" operator="greaterOrEqual" value="-0.057419606"/>
+										</Node>
+									</Node>
+									<Node score="0.13093641">
+										<SimplePredicate field="cate24_install_trend" operator="greaterOrEqual" value="0.1566374"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="42">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7015_001_25_34_install_trend"/>
+									<MiningField name="cate7012_008_install_trend"/>
+									<MiningField name="cate16_35_44_install_trend"/>
+									<MiningField name="cate7019_133_18_24_install_trend"/>
+									<MiningField name="cate7015_006_12m_ratio"/>
+									<MiningField name="cate7019_130_45_54_install_trend"/>
+								</MiningSchema>
+								<Node score="0.016044091">
+									<True/>
+									<Node score="-0.00571997">
+										<SimplePredicate field="cate16_35_44_install_trend" operator="greaterOrEqual" value="-0.038679995"/>
+										<Node score="0.08580249">
+											<SimplePredicate field="cate7015_006_12m_ratio" operator="greaterOrEqual" value="0.008313"/>
+											<Node score="-0.015418816">
+												<SimplePredicate field="cate7015_001_25_34_install_trend" operator="greaterOrEqual" value="0.07493639"/>
+											</Node>
+										</Node>
+										<Node score="0.030312978">
+											<SimplePredicate field="cate7019_133_18_24_install_trend" operator="greaterOrEqual" value="-0.034011267"/>
+										</Node>
+									</Node>
+									<Node score="-0.030668838">
+										<SimplePredicate field="cate7019_130_45_54_install_trend" operator="greaterOrEqual" value="-0.11928454"/>
+										<Node score="-0.12815852">
+											<SimplePredicate field="cate7012_008_install_trend" operator="greaterOrEqual" value="0.17270367"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="43">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="tgi2_55_5_12m_ratio"/>
+									<MiningField name="cate7006_003_6m_ratio"/>
+									<MiningField name="cate7006_005_25_34_install_trend"/>
+									<MiningField name="cate7019_132_18_24_install_trend"/>
+									<MiningField name="cate7011_999_18_24_install_trend"/>
+									<MiningField name="tgi2_18_24_4_12m_ratio"/>
+								</MiningSchema>
+								<Node score="-0.043189157">
+									<True/>
+									<Node score="6.526947E-4">
+										<SimplePredicate field="tgi2_55_5_12m_ratio" operator="greaterOrEqual" value="0.0033534998"/>
+										<Node score="0.0446387">
+											<SimplePredicate field="cate7006_005_25_34_install_trend" operator="greaterOrEqual" value="0.07273173"/>
+											<Node score="-0.010862768">
+												<SimplePredicate field="cate7011_999_18_24_install_trend" operator="greaterOrEqual" value="0.2174972"/>
+											</Node>
+										</Node>
+										<Node score="-0.062375337">
+											<SimplePredicate field="tgi2_18_24_4_12m_ratio" operator="greaterOrEqual" value="0.0089835"/>
+										</Node>
+									</Node>
+									<Node score="0.08709948">
+										<SimplePredicate field="cate7019_132_18_24_install_trend" operator="greaterOrEqual" value="0.1786254"/>
+									</Node>
+									<Node score="0.0447795">
+										<SimplePredicate field="cate7006_003_6m_ratio" operator="greaterOrEqual" value="0.002052"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="44">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="topic_13"/>
+									<MiningField name="cate7014_007_install_trend"/>
+									<MiningField name="topic_15"/>
+									<MiningField name="tgi2_25_34_5_12m_ratio"/>
+									<MiningField name="tgi2_35_44_6_55_install_trend"/>
+									<MiningField name="cate7014_002_install_trend"/>
+									<MiningField name="cate7001_002_install_first_max_diff"/>
+								</MiningSchema>
+								<Node score="-0.012221221">
+									<True/>
+									<Node score="-0.04334475">
+										<SimplePredicate field="tgi2_25_34_5_12m_ratio" operator="greaterOrEqual" value="0.0105604995"/>
+										<Node score="-0.1220808">
+											<SimplePredicate field="topic_13" operator="greaterOrEqual" value="0.04303784"/>
+											<Node score="-0.0369423">
+												<SimplePredicate field="topic_15" operator="greaterOrEqual" value="0.04961994"/>
+											</Node>
+										</Node>
+										<Node score="0.091747604">
+											<SimplePredicate field="cate7014_007_install_trend" operator="greaterOrEqual" value="0.23852354"/>
+										</Node>
+									</Node>
+									<Node score="0.025651092">
+										<SimplePredicate field="cate7014_002_install_trend" operator="greaterOrEqual" value="0.080305085"/>
+										<Node score="-0.027227627">
+											<SimplePredicate field="tgi2_35_44_6_55_install_trend" operator="greaterOrEqual" value="0.40062"/>
+										</Node>
+									</Node>
+									<Node score="0.100303896">
+										<SimplePredicate field="cate7001_002_install_first_max_diff" operator="greaterOrEqual" value="17.5"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="45">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate3_18_install_trend"/>
+									<MiningField name="topic_6"/>
+									<MiningField name="cate7014_006_18_install_trend"/>
+									<MiningField name="fin_31_install_trend"/>
+									<MiningField name="tgi2_18_24_4_12m_ratio"/>
+									<MiningField name="cate7007_001_18_24_install_trend"/>
+								</MiningSchema>
+								<Node score="0.019447789">
+									<True/>
+									<Node score="0.06389409">
+										<SimplePredicate field="cate7014_006_18_install_trend" operator="greaterOrEqual" value="0.11148608"/>
+										<Node score="0.07201324">
+											<SimplePredicate field="fin_31_install_trend" operator="greaterOrEqual" value="-0.051142603"/>
+											<Node score="-0.052619446">
+												<SimplePredicate field="cate3_18_install_trend" operator="greaterOrEqual" value="0.064745374"/>
+											</Node>
+										</Node>
+										<Node score="-0.043603804">
+											<SimplePredicate field="topic_6" operator="greaterOrEqual" value="0.040143803"/>
+										</Node>
+									</Node>
+									<Node score="0.11345662">
+										<SimplePredicate field="cate7007_001_18_24_install_trend" operator="greaterOrEqual" value="0.28340536"/>
+									</Node>
+									<Node score="-0.0084615">
+										<SimplePredicate field="tgi2_18_24_4_12m_ratio" operator="greaterOrEqual" value="0.005062"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="46">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="tgi2_55_2_6m_ratio"/>
+									<MiningField name="cate7002_002_18_install_trend"/>
+									<MiningField name="tgi2_35_44_5_install_first_max_diff"/>
+									<MiningField name="fin_43_55_install_trend"/>
+									<MiningField name="cate7015_001_active_max_day_diff"/>
+									<MiningField name="cate7014_016_55_install_trend"/>
+									<MiningField name="tgi2_35_44_5_active_max_day_diff"/>
+								</MiningSchema>
+								<Node score="-0.023375137">
+									<True/>
+									<Node score="0.05703303">
+										<SimplePredicate field="cate7014_016_55_install_trend" operator="greaterOrEqual" value="0.10669007"/>
+										<Node score="0.044342764">
+											<SimplePredicate field="tgi2_35_44_5_install_first_max_diff" operator="greaterOrEqual" value="23.5"/>
+											<Node score="-0.016224623">
+												<SimplePredicate field="fin_43_55_install_trend" operator="greaterOrEqual" value="0.05982993"/>
+											</Node>
+										</Node>
+										<Node score="0.009330412">
+											<SimplePredicate field="cate7002_002_18_install_trend" operator="greaterOrEqual" value="-0.0017028656"/>
+										</Node>
+									</Node>
+									<Node score="0.04939026">
+										<SimplePredicate field="tgi2_35_44_5_active_max_day_diff" operator="greaterOrEqual" value="3.5"/>
+										<Node score="-0.07558277">
+											<SimplePredicate field="tgi2_55_2_6m_ratio" operator="greaterOrEqual" value="0.020582"/>
+										</Node>
+									</Node>
+									<Node score="-0.089406416">
+										<SimplePredicate field="cate7015_001_active_max_day_diff" operator="greaterOrEqual" value="-97.0"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="47">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7019_126_18_install_trend"/>
+									<MiningField name="fin_25_55_install_trend"/>
+									<MiningField name="tgi1_35_44_1_newins_first_min_diff"/>
+									<MiningField name="fin_31_55_install_trend"/>
+									<MiningField name="tgi1_55_6_12m_ratio"/>
+									<MiningField name="tgi2_45_54_5_12m_ratio"/>
+								</MiningSchema>
+								<Node score="6.521984E-4">
+									<True/>
+									<Node score="-0.094111525">
+										<SimplePredicate field="fin_25_55_install_trend" operator="greaterOrEqual" value="0.12121817"/>
+										<Node score="0.089371055">
+											<SimplePredicate field="tgi1_35_44_1_newins_first_min_diff" operator="greaterOrEqual" value="312.5"/>
+										</Node>
+										<Node score="-0.017998144">
+											<SimplePredicate field="fin_31_55_install_trend" operator="greaterOrEqual" value="-0.063630104"/>
+										</Node>
+									</Node>
+									<Node score="0.07860782">
+										<SimplePredicate field="tgi1_55_6_12m_ratio" operator="greaterOrEqual" value="0.0016455"/>
+										<Node score="0.013420476">
+											<SimplePredicate field="cate7019_126_18_install_trend" operator="greaterOrEqual" value="-0.02263949"/>
+										</Node>
+									</Node>
+									<Node score="-0.038829055">
+										<SimplePredicate field="tgi2_45_54_5_12m_ratio" operator="greaterOrEqual" value="0.003465"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="48">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7011_997_12m_ratio"/>
+									<MiningField name="topic_8"/>
+									<MiningField name="topic_11"/>
+									<MiningField name="cate7019_118_18_install_trend"/>
+								</MiningSchema>
+								<Node score="0.0021539163">
+									<True/>
+									<Node score="-0.08921064">
+										<SimplePredicate field="cate7011_997_12m_ratio" operator="greaterOrEqual" value="0.0015485"/>
+									</Node>
+									<Node score="0.001208361">
+										<SimplePredicate field="cate7019_118_18_install_trend" operator="greaterOrEqual" value="0.053435832"/>
+										<Node score="-0.106697105">
+											<SimplePredicate field="topic_8" operator="greaterOrEqual" value="0.04873229"/>
+										</Node>
+									</Node>
+									<Node score="0.09993836">
+										<SimplePredicate field="topic_11" operator="greaterOrEqual" value="0.08701332"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="49">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7008_010_12"/>
+									<MiningField name="cate7014_007_12m_cnt"/>
+									<MiningField name="cate6_55_install_trend"/>
+									<MiningField name="cate7002_007_12m_ratio"/>
+									<MiningField name="tgi1_55_6_newins_first_min_diff"/>
+									<MiningField name="cate7014_002_35_44_install_trend"/>
+								</MiningSchema>
+								<Node score="-0.008444553">
+									<True/>
+									<Node score="0.06289946">
+										<SimplePredicate field="cate7002_007_12m_ratio" operator="greaterOrEqual" value="0.0011215"/>
+										<Node score="0.14074744">
+											<SimplePredicate field="cate7014_002_35_44_install_trend" operator="greaterOrEqual" value="0.22050528"/>
+										</Node>
+										<Node score="-0.03632964">
+											<SimplePredicate field="cate7014_007_12m_cnt" operator="greaterOrEqual" value="0.5"/>
+										</Node>
+									</Node>
+									<Node score="-0.013917199">
+										<SimplePredicate field="cate7008_010_12" operator="greaterOrEqual" value="0.041666668"/>
+										<Node score="-0.09506752">
+											<SimplePredicate field="tgi1_55_6_newins_first_min_diff" operator="greaterOrEqual" value="22.5"/>
+										</Node>
+									</Node>
+									<Node score="0.016954646">
+										<SimplePredicate field="cate6_55_install_trend" operator="greaterOrEqual" value="0.11131394"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="50">
+							<True/>
+							<TreeModel functionName="regression" noTrueChildStrategy="returnLastPrediction" x-mathContext="float">
+								<MiningSchema>
+									<MiningField name="cate7002_003_6m_ratio"/>
+									<MiningField name="cate7002_005_12m_ratio"/>
+									<MiningField name="cate7008_009_18_install_trend"/>
+									<MiningField name="tgi2_35_44_6_55_install_trend"/>
+								</MiningSchema>
+								<Node score="0.04252549">
+									<True/>
+									<Node score="0.0941109">
+										<SimplePredicate field="cate7002_003_6m_ratio" operator="greaterOrEqual" value="0.004215"/>
+									</Node>
+									<Node score="0.0257206">
+										<SimplePredicate field="cate7002_005_12m_ratio" operator="greaterOrEqual" value="0.001945"/>
+										<Node score="-0.01024095">
+											<SimplePredicate field="cate7008_009_18_install_trend" operator="greaterOrEqual" value="-0.07341872"/>
+										</Node>
+									</Node>
+									<Node score="-0.048772506">
+										<SimplePredicate field="tgi2_35_44_6_55_install_trend" operator="greaterOrEqual" value="0.36471796"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+					</Segmentation>
+				</MiningModel>
+			</Segment>
+			<Segment id="2">
+				<True/>
+				<RegressionModel functionName="classification" normalizationMethod="logit" x-mathContext="float">
+					<MiningSchema>
+						<MiningField name="label" usageType="target"/>
+						<MiningField name="xgbValue"/>
+					</MiningSchema>
+					<Output>
+						<OutputField name="probability(0)" optype="continuous" dataType="float" feature="probability" value="0"/>
+						<OutputField name="probability(1)" optype="continuous" dataType="float" feature="probability" value="1"/>
+					</Output>
+					<RegressionTable intercept="0.0" targetCategory="1">
+						<NumericPredictor name="xgbValue" coefficient="1.0"/>
+					</RegressionTable>
+					<RegressionTable intercept="0.0" targetCategory="0"/>
+				</RegressionModel>
+			</Segment>
+		</Segmentation>
+	</MiningModel>
+</PMML>
