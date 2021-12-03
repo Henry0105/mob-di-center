@@ -193,7 +193,7 @@ select a.device
 ,case when fin_46_active_min_day_diff >0 then fin_46_active_min_day_diff   when flag_12m_fin_46=0 then -99 when fin_46_active_min_day_diff  is null then -95 else fin_46_active_min_day_diff  end as fin_46_active_min_day_diff
 from(
     select *
-    from $applist_install_bycate_id_whether
+    from $income_new_applist_install_bycate_id_whether
     where day='$end_month'
 )a
 left join(
