@@ -109,22 +109,28 @@ object IncomeScoreV2 {
     spark.sql(
       s"""
          |insert overwrite table $output_table partition (day='${day}')
-         |select
-         |   device,
-         |   prob1
-         |   precision_bin1,
-         |   prob2,
-         |   precision_bin2,
-         |   prob3,
-         |   precision_bin3,
-         |   prob4,
-         |   precision_bin4,
-         |   prob5,
-         |   precision_bin5,
-         |   label_res,
-         |   label,
-         |   max_prob
-         |from res_final
+         |select device,prob1,precision_bin1,prob2,precision_bin2,prob3,precision_bin3,prob4,precision_bin4,prob5,precision_bin5,label_res,
+         |(case
+         |    when max = precision_bin1*0.6 then 0
+         |    when max = precision_bin2*0.8 then 1
+         |    when max = precision_bin3*1.1 then 2
+         |    when max = precision_bin4*1.25 then 3
+         |    when max = precision_bin5*0.9 then 4
+         |    else 5
+         |end) as label,
+         |(case
+         |    when max = precision_bin1*0.6 then precision_bin1
+         |    when max = precision_bin2*0.8 then precision_bin2
+         |    when max = precision_bin3*1.1 then precision_bin3
+         |    when max = precision_bin4*1.25 then precision_bin4
+         |    when max = precision_bin5*0.9 then precision_bin5
+         |    else 5
+         |end) as max_prob
+         |from
+         |(
+         |    select *, greatest(precision_bin1*0.6,precision_bin2*0.8,precision_bin3*1.1,precision_bin4*1.25,precision_bin5*0.9) max
+         |    from res_final
+         |) a
          |""".stripMargin)
 
     println("======================= 入库完成 ================================")
