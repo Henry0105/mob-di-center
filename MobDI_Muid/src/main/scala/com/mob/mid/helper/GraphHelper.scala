@@ -14,7 +14,7 @@ object GraphHelper {
     val vertex: DataFrame = spark.sql(
       s"""
          |SELECT id1,id2
-         |FROM dm_mid_master.duid_vertex_di
+         |FROM ${defaultParam.vertexTable}
          |WHERE day = '${defaultParam.day}'
          |AND id1 IS NOT NULL
          |AND id1 <> ''
@@ -45,7 +45,7 @@ object GraphHelper {
     //生成每日duid-unidfinal数据
     spark.sql(
       s"""
-         |INSERT OVERWRITE TABLE dm_mid_master.duid_unid_info_di PARTITION(day = '${defaultParam.day}')
+         |INSERT OVERWRITE TABLE ${defaultParam.outputTable} PARTITION(day = '${defaultParam.day}')
          |SELECT duid
          |     , pkg_it
          |     , version
@@ -94,8 +94,12 @@ object GraphHelper {
          |    LEFT ANTI JOIN black_duid b
          |    ON a.duid = b.duid
          |  )c
-         |  LEFT ANTI JOIN normal_behavior_pkg_it d
-         |  ON c.pkg_it = d.pkg_it
+         |  LEFT ANTI JOIN
+         |  (
+         |    SELECT pkg_it AS pi
+         |    FROM normal_behavior_pkg_it
+         |  )d
+         |  ON c.pkg_it = d.pi
          |)e
          |WHERE pkg_it_abnormal_cnt = pkg_it_cnt
          |
@@ -118,15 +122,16 @@ object GraphHelper {
     //只需把图计算后的数据更新进dm_mid_master.old_new_unid_mapping_par
     spark.sql(
       s"""
-         |INSERT OVERWRITE TABLE dm_mid_master.old_new_unid_mapping_par PARTITION(day = )
+         |INSERT OVERWRITE TABLE ${defaultParam.unidFinalTable} PARTITION(month = '${defaultParam.day}',version = 'all')
          |SELECT oid_id
          |     , new_id
          |FROM
          |(
          |  SELECT oid_id
          |       , new_id
-         |  FROM dm_mid_master.old_new_unid_mapping_par
-         |  WHERE month =
+         |  FROM ${defaultParam.unidFinalTable}
+         |  WHERE month = '2019-2021'
+         |  AND version = 'all'
          |
          |  UNION ALL
          |

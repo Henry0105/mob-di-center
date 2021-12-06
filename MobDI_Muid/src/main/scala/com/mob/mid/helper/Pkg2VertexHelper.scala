@@ -1,7 +1,7 @@
 package com.mob.mid.helper
 
 import com.mob.mid.bean.Param
-import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
 object Pkg2VertexHelper {
 
@@ -36,7 +36,7 @@ object Pkg2VertexHelper {
          |             , model
          |             , CONCAT(pkg,'_',version,'_',firstinstalltime) AS pkg_it
          |             , day
-         |        FROM dm_mobdi_master.dwd_log_device_install_app_all_info_sec_di
+         |        FROM ${defaultParam.inputTable}
          |        WHERE day = '${defaultParam.day}'
          |        AND firstinstalltime IS NOT NULL
          |        AND LENGTH(firstinstalltime) = 13
@@ -51,13 +51,12 @@ object Pkg2VertexHelper {
          |""".stripMargin).createOrReplaceTempView("duid_pkgit_version")
 
     //2.每日duid与duid_fsid_mapping匹配，找到对应雪花id，找不到则生成新的对应关系
-    spark.sql("create temporary function fsid as 'com.mob.udf.HistorySnowflakeUDF'")
-    val fsidDf: DataFrame = spark.sql(
+    spark.sql(
       s"""
          |SELECT a.duid
          |     , a.pkg_it
          |     , a.version
-         |     , IF(b.duid IS NULL,fsid(${defaultParam.day}),b.sfid) AS unid
+         |     , b.sfid AS unid
          |     , IF(b.duid IS NULL,1,0) AS flag
          |     , day
          |FROM duid_pkgit_version a
@@ -65,43 +64,64 @@ object Pkg2VertexHelper {
          |(
          |  SELECT duid
          |       , sfid
-         |  FROM dm_mid_master.duid_unid_mapping
+         |  FROM ${defaultParam.duidUnidTable}
          |  WHERE version = '2019-2021'
          |)b ON a.duid = b.duid
-         |""".stripMargin)
-    fsidDf.cache()
-    fsidDf.count()
-    fsidDf.createOrReplaceTempView("duid_pkgit_version_unid_incr")
+         |""".stripMargin).createOrReplaceTempView("duid_pkgit_version_unid_incr_tmp")
+
+    spark.sql("create temporary function fsid as 'com.mob.udf.HistorySnowflakeUDF'")
+    spark.sql(
+      s"""
+         |SELECT duid
+         |     , fsid('${defaultParam.day}') AS unid
+         |FROM
+         |(
+         |  SELECT duid
+         |  FROM duid_pkgit_version_unid_incr_tmp
+         |  WHERE flag = 1
+         |  GROUP BY duid
+         |)a
+         |""".stripMargin).createOrReplaceTempView("duid_fsid_incr")
+
+    spark.sql(
+      """
+        |SELECT a.duid
+        |     , a.pkg_it
+        |     , a.version
+        |     , IF(a.flag = 1,b.unid,a.unid) AS unid
+        |FROM duid_pkgit_version_unid_incr_tmp a
+        |LEFT JOIN duid_fsid_incr b
+        |ON a.duid = b.duid
+        |""".stripMargin).createOrReplaceTempView("duid_pkgit_version_unid_incr")
 
     //3.将今天新的duid-unid信息更新进入duid_fsid_mapping
     spark.sql(
       s"""
-         |INSERT OVERWRITE TABLE dm_mid_master.duid_unid_mapping PARTITION(version = '${defaultParam.day}')
+         |INSERT OVERWRITE TABLE ${defaultParam.duidUnidTable} PARTITION(version = '${defaultParam.day}')
          |SELECT duid
-         |     , unid AS sfid
-         |FROM duid_pkgit_version_unid_incr
-         |WHERE flag = 1
+         |     , unid
+         |FROM duid_fsid_incr
          |""".stripMargin)
 
     //4.通过old_new_unid_mapping_par拿到图计算后的unid_final
     spark.sql(
-      """
-        |SELECT duid
-        |     , pkg_it
-        |     , version
-        |     , IF(b.old_id IS NULL,unid,b.new_id) AS unid
-        |     , IF(b.old_id IS NULL,0,1) AS flag
-        |FROM duid_pkgit_version_unid_incr a
-        |LEFT JOIN
-        |(
-        |  SELECT old_id
-        |       , new_id
-        |  FROM dm_mid_master.old_new_unid_mapping_par
-        |  WHERE month = '2019-2021'
-        |  AND version = 'all'
-        |)b
-        |ON a.unid = b.old_id
-        |""".stripMargin).createOrReplaceTempView("duid_info_unidfinal")
+      s"""
+         |SELECT duid
+         |     , pkg_it
+         |     , version
+         |     , IF(b.old_id IS NULL,unid,b.new_id) AS unid
+         |     , IF(b.old_id IS NULL,0,1) AS flag
+         |FROM duid_pkgit_version_unid_incr a
+         |LEFT JOIN
+         |(
+         |  SELECT old_id
+         |       , new_id
+         |  FROM ${defaultParam.unidFinalTable}
+         |  WHERE month = '2019-2021'
+         |  AND version = 'all'
+         |)b
+         |ON a.unid = b.old_id
+         |""".stripMargin).createOrReplaceTempView("duid_info_unidfinal")
 
     val duid_info_month: DataFrame = spark.sql(
       s"""
@@ -114,12 +134,13 @@ object Pkg2VertexHelper {
          |
          |union all
          |
-         |SELECT duid,
+         |SELECT duid
          |     , pkg_it
          |     , version
          |     , unid
-         |FROM dm_mid_master.duid_unid_info_month
-         |WHERE day = '${defaultParam.day}'
+         |FROM ${defaultParam.unidMonthTable}
+         |WHERE day = '${defaultParam.pday}'
+         |AND pkg_it NOT LIKE '%000'
          |""".stripMargin)
     duid_info_month.cache()
     duid_info_month.count()
@@ -133,7 +154,8 @@ object Pkg2VertexHelper {
          |     , COUNT(1) AS cnt
          |FROM duid_info_month
          |GROUP BY pkg_it
-         |HAVING cnt > 1 AND cnt < ${defaultParam.pkgItLimit}
+         |HAVING cnt > 1
+         |AND cnt < ${defaultParam.pkgItLimit}
          |""".stripMargin).createOrReplaceTempView("normal_behavior_pkg_it")
 
     //5.2.找到各版本下安装量过多的duid
@@ -143,23 +165,20 @@ object Pkg2VertexHelper {
          |FROM
          |(
          |  SELECT duid
-         |       , SPLIT(pkg_it,'_')[1] AS version
+         |       , CONCAT(SPLIT(pkg_it,'_')[0],'_',SPLIT(pkg_it,'_')[1]) AS version
          |       , count(1) AS cnt
          |  FROM duid_info_month
-         |  GROUP BY duid,SPLIT(pkg_it,'_')[1]
+         |  GROUP BY duid,CONCAT(SPLIT(pkg_it,'_')[0],'_',SPLIT(pkg_it,'_')[1])
          |)a
          |WHERE cnt > ${defaultParam.pkgReinstallTimes}
          |GROUP BY duid
          |""".stripMargin).createOrReplaceTempView("black_duid")
 
-    //black_duid落表
-    spark.sql("""""")
-
     //6.去除异常数据后构造边
     spark.udf.register[Seq[(String, String, Int)], Seq[String]]("openid_resembled", openid_resembled)
     spark.sql(
       s"""
-         |INSERT OVERWRITE TABLE dm_mid_master.duid_vertex_di PARTITION(day = '${defaultParam.day}')
+         |INSERT OVERWRITE TABLE ${defaultParam.vertexTable} PARTITION(day = '${defaultParam.day}')
          |SELECT id1,id2
          |FROM
          |(
@@ -170,7 +189,7 @@ object Pkg2VertexHelper {
          |    SELECT openid_resembled(tids) AS tid_list
          |    FROM
          |    (
-         |      SELECT collect_set(unid) AS tids
+         |      SELECT collect_set(c.unid) AS tids
          |      FROM
          |      (
          |        SELECT *
@@ -178,8 +197,12 @@ object Pkg2VertexHelper {
          |        LEFT ANTI JOIN black_duid b
          |        ON a.duid = b.duid
          |      )c
-         |      INNER JOIN duid_info_month d
-         |      ON c.pkg_it = d.pkg_it
+         |      LEFT SEMI JOIN
+         |      (
+         |        SELECT pkg_it AS pi
+         |        FROM normal_behavior_pkg_it
+         |      )d
+         |      ON c.pkg_it = d.pi
          |      GROUP BY c.pkg_it
          |    )e
          |  )f
