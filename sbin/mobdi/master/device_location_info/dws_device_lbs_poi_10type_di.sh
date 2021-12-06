@@ -192,7 +192,7 @@ from
 where (c.blat is null
 and c.blon is null)
 "
-/opt/cloudera/parcels/CDH/bin/spark-submit --master yarn-cluster \
+spark2-submit --master yarn-cluster \
 --class com.youzu.mob.label.LbsPOITmp \
 --driver-memory 18G \
 --executor-memory 18G \
