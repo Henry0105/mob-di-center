@@ -209,7 +209,7 @@ and c.blon is null)
 --conf spark.yarn.executor.memoryOverhead=10240 \
 --conf spark.driver.maxResultSize=4g \
 --driver-java-options "-XX:MaxPermSize=1g" \
-/home/dba/lib/MobDI-spark-1.0-prod-jar-with-dependencies.jar "${day}" "${beforeNum}" "${lbs_tmp}" "${poi_tmp}" "${exceptsql}" "${tmp_sql}" "${add_poi}" $partitions "${insert_daily_sql}" "${insert_dinein_sql}" $isHbase "$filesnum" "$dropsql" "$dws_device_catering_dinein_di" "$dws_device_lbs_poi_10type_di" "$udf_tmp" "$dw_base_poi_l1_geohash"
+/home/dba/lib/MobDI-spark-1.0-SNAPSHOT-jar-with-dependencies.jar "${day}" "${beforeNum}" "${lbs_tmp}" "${poi_tmp}" "${exceptsql}" "${tmp_sql}" "${add_poi}" $partitions "${insert_daily_sql}" "${insert_dinein_sql}" $isHbase "$filesnum" "$dropsql" "$dws_device_catering_dinein_di" "$dws_device_lbs_poi_10type_di" "$udf_tmp" "$dw_base_poi_l1_geohash"
 
 # 合并小文件
 hive -e"

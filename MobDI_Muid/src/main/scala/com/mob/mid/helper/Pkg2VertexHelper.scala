@@ -104,7 +104,7 @@ object Pkg2VertexHelper {
          |""".stripMargin)
 
     //4.通过old_new_unid_mapping_par拿到图计算后的unid_final
-    spark.sql(
+    val duid_info_unidfinal: DataFrame = spark.sql(
       s"""
          |SELECT duid
          |     , pkg_it
@@ -121,7 +121,11 @@ object Pkg2VertexHelper {
          |  AND version = 'all'
          |)b
          |ON a.unid = b.old_id
-         |""".stripMargin).createOrReplaceTempView("duid_info_unidfinal")
+         |""".stripMargin)
+
+    duid_info_unidfinal.cache()
+    duid_info_unidfinal.count()
+    duid_info_unidfinal.createOrReplaceTempView("duid_info_unidfinal")
 
     val duid_info_month: DataFrame = spark.sql(
       s"""
