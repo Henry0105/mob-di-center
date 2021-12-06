@@ -11,7 +11,7 @@ insert_day=$1
 # 获取当前日期的下个月第一天
 nextmonth=$(date -d "${insert_day} +1 month" +%Y%m01)
 # 获取当前日期所在月的第一天
-start_month=$(date -d "${insert_day}  "+%Y%m01)
+start_month=$(date -d "${insert_day}  " +%Y%m01)
 # 获取当前日期所在月的最后一天
 end_month=$(date -d "$nextmonth last day" +%Y%m%d)
 
@@ -125,7 +125,7 @@ select * from $apppkg_app2vec_par_wi where day='20210418' and apppkg in ($skew_p
 create temporary table raw_table_small_$end_month as
 select device,pkg,update_day
 from $income_new_pre_uninstall_avg_embedding
-where day='${end_month}' and pkg not in ($skew_pkgs))
+where day='${end_month}' and pkg not in ($skew_pkgs)
 group by device,pkg,update_day;
 
 
