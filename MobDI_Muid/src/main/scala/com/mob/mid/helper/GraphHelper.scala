@@ -123,11 +123,11 @@ object GraphHelper {
     spark.sql(
       s"""
          |INSERT OVERWRITE TABLE ${defaultParam.unidFinalTable} PARTITION(month = '${defaultParam.day}',version = 'all')
-         |SELECT oid_id
+         |SELECT old_id
          |     , new_id
          |FROM
          |(
-         |  SELECT oid_id
+         |  SELECT old_id
          |       , new_id
          |  FROM ${defaultParam.unidFinalTable}
          |  WHERE month = '2019-2021'
@@ -135,7 +135,7 @@ object GraphHelper {
          |
          |  UNION ALL
          |
-         |  SELECT unid AS oid_id
+         |  SELECT unid AS old_id
          |       , unid_final AS new_id
          |  FROM tmp_ccgraph_result
          |)a
