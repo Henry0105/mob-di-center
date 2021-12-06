@@ -11,11 +11,11 @@ insert_day=$1
 # 获取当前日期的下个月第一天
 nextmonth=$(date -d "${insert_day} +1 month" +%Y%m01)
 # 获取当前日期所在月的第一天
-start_month=$(date -d "${insert_day}  "+%Y%m01)
+start_month=$(date -d "${insert_day}  " +%Y%m01)
 # 获取当前日期所在月的最后一天
 end_month=$(date -d "$nextmonth last day" +%Y%m%d)
 # 获取当前日期前一年
-pre_one_year=$(date -d "${insert_day} -1 year" "+%Y%m%d")
+pre_one_year=$(date -d "${insert_day} -1 year" +%Y%m%d)
 
 source /home/dba/mobdi_center/conf/hive-env.sh
 
@@ -32,13 +32,27 @@ income_new_active_recency_features="${tmpdb}.income_new_active_recency_features"
 
 
 HADOOP_USER_NAME=dba hive -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 set hive.exec.dynamic.partition=true;
 set hive.exec.dynamic.partition.mode=nostrict;
 set hive.exec.max.created.files=1000000;
 set mapreduce.reduce.memory.mb=5120;
 set mapreduce.map.memory.mb=5120;
 set mapreduce.map.java.opts=-Xmx4096m -XX:+UseConcMarkSweepGC;
+set mapred.max.split.size=256000000;
+set mapred.min.split.size.per.node=100000000;
+set mapred.min.split.size.per.rack=100000000;
+set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
+set hive.merge.mapredfiles = true;
+set hive.merge.size.per.task = 256000000;
+set hive.merge.smallfiles.avgsize=200000000;
+SET hive.exec.max.dynamic.partitions=100000;
+SET hive.exec.max.dynamic.partitions.pernode=100000;
+SET hive.map.aggr=true;
+set hive.groupby.skewindata=true;
+set hive.groupby.mapaggr.checkinterval=100000;
+set hive.skewjoin.key=100000;
+set hive.optimize.skewjoin=true;
 
 
 insert overwrite table $income_new_active_recency_features_tmp partition (day='$end_month')
@@ -111,13 +125,27 @@ from
 
 
 HADOOP_USER_NAME=dba hive -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 set hive.exec.dynamic.partition=true;
 set hive.exec.dynamic.partition.mode=nostrict;
 set hive.exec.max.created.files=1000000;
 set mapreduce.reduce.memory.mb=5120;
 set mapreduce.map.memory.mb=5120;
 set mapreduce.map.java.opts=-Xmx4096m -XX:+UseConcMarkSweepGC;
+set mapred.max.split.size=256000000;
+set mapred.min.split.size.per.node=100000000;
+set mapred.min.split.size.per.rack=100000000;
+set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
+set hive.merge.mapredfiles = true;
+set hive.merge.size.per.task = 256000000;
+set hive.merge.smallfiles.avgsize=200000000;
+SET hive.exec.max.dynamic.partitions=100000;
+SET hive.exec.max.dynamic.partitions.pernode=100000;
+SET hive.map.aggr=true;
+set hive.groupby.skewindata=true;
+set hive.groupby.mapaggr.checkinterval=100000;
+set hive.skewjoin.key=100000;
+set hive.optimize.skewjoin=true;
 
 
 insert overwrite table $income_new_applist_install_bycate_id_whether partition (day='$end_month')
@@ -168,13 +196,27 @@ group by device
 
 
 HADOOP_USER_NAME=dba hive -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
+set mapreduce.job.queuename=root.yarn_data_complianc2;
 set hive.exec.dynamic.partition=true;
 set hive.exec.dynamic.partition.mode=nostrict;
 set hive.exec.max.created.files=1000000;
 set mapreduce.reduce.memory.mb=5120;
 set mapreduce.map.memory.mb=5120;
 set mapreduce.map.java.opts=-Xmx4096m -XX:+UseConcMarkSweepGC;
+set mapred.max.split.size=256000000;
+set mapred.min.split.size.per.node=100000000;
+set mapred.min.split.size.per.rack=100000000;
+set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
+set hive.merge.mapredfiles = true;
+set hive.merge.size.per.task = 256000000;
+set hive.merge.smallfiles.avgsize=200000000;
+SET hive.exec.max.dynamic.partitions=100000;
+SET hive.exec.max.dynamic.partitions.pernode=100000;
+SET hive.map.aggr=true;
+set hive.groupby.skewindata=true;
+set hive.groupby.mapaggr.checkinterval=100000;
+set hive.skewjoin.key=100000;
+set hive.optimize.skewjoin=true;
 
 
 insert overwrite table $income_new_active_recency_features partition (day='$end_month')
