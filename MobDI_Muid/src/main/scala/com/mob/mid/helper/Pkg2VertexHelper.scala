@@ -140,6 +140,7 @@ object Pkg2VertexHelper {
          |     , unid
          |FROM ${defaultParam.unidMonthTable}
          |WHERE day = '${defaultParam.pday}'
+         |AND pkg_it NOT LIKE '%000'
          |""".stripMargin)
     duid_info_month.cache()
     duid_info_month.count()

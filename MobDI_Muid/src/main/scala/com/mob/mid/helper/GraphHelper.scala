@@ -14,7 +14,7 @@ object GraphHelper {
     val vertex: DataFrame = spark.sql(
       s"""
          |SELECT id1,id2
-         |FROM dm_mid_master.duid_vertex_di
+         |FROM ${defaultParam.vertexTable}
          |WHERE day = '${defaultParam.day}'
          |AND id1 IS NOT NULL
          |AND id1 <> ''
@@ -94,8 +94,12 @@ object GraphHelper {
          |    LEFT ANTI JOIN black_duid b
          |    ON a.duid = b.duid
          |  )c
-         |  LEFT ANTI JOIN normal_behavior_pkg_it d
-         |  ON c.pkg_it = d.pkg_it
+         |  LEFT ANTI JOIN
+         |  (
+         |    SELECT pkg_it AS pi
+         |    FROM normal_behavior_pkg_it
+         |  )d
+         |  ON c.pkg_it = d.pi
          |)e
          |WHERE pkg_it_abnormal_cnt = pkg_it_cnt
          |
