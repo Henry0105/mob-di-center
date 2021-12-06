@@ -4,7 +4,7 @@ set -e -x
 
 : '
 @owner:hushk
-@describe:
+@describe: 抽取模型代码
 @projectName:MOBDI
 @BusinessName:profile
 '
