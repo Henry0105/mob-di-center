@@ -72,7 +72,6 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 #dws_device_location_staying_di=dm_mobdi_topic.dws_device_location_staying_di
 #dim_lat_lon_poi_mapping=dim_mobdi_mapping.dim_lat_lon_poi_mapping
 #dim_catering_cate_mapping=dim_sdk_mapping.dim_catering_cate_mapping
-#需要将dw_mobdi_md.dw_base_poi_l1_geohash复制到dm_mobdi_tmp.dw_base_poi_l1_geohash
 dw_base_poi_l1_geohash=$dm_mobdi_tmp.dw_base_poi_l1_geohash
 
 #out spark生成
@@ -104,17 +103,17 @@ select s.device as device,s.lat,s.lon,s.start_time as time_start, s.end_time as 
 from
 (
   select *
-  from sdk_lbs_tmp
+  from sdk_lbs_tmp_muid
   where day ='#'
 ) s
 left join
-unionM_tmp u on (s.lon = u.lon and s.lat = u.lat)
+unionM_tmp_muid u on (s.lon = u.lon and s.lat = u.lat)
 "
 insert_daily_sql="
 select device,lat,lon,time_start,time_end,
        type_1,type_2,type_3,type_4,type_5,type_6,type_7,type_8,type_9,type_10,
        province, type, city, area, street, plat
-from daily_tmp t
+from daily_tmp_muid t
 cluster by device
 "
 insert_dinein_sql="
@@ -154,7 +153,7 @@ from
              when (time_start >= '17:00:00' and time_start < '20:00:00') then '晚餐'
              else '夜宵'
            end as time
-    from daily_tmp t
+    from daily_tmp_muid t
   ) dd
   group by dd.device,dd.name,time
   cluster by dd.device
@@ -166,9 +165,9 @@ add_poi="
 insert overwrite table $udf_tmp
 select u.geohash_center5,u.geohash_center6,u.geohash_center7,u.geohash_center8,
        e.lat,e.lon,u.type_1,u.type_2,u.type_3,u.type_4,u.type_5,u.type_6,u.type_7,u.type_8,u.type_9,u.type_10
-from except_tmp e
+from except_tmp_muid e
 left join
-udf_tmp u on (e.lat = u.lat
+udf_tmp_muid u on (e.lat = u.lat
              and e.lon=u.lon)
 "
 exceptsql="
@@ -179,21 +178,21 @@ from
   from
   (
     select lat,lon
-    from sdk_lbs_tmp
+    from sdk_lbs_tmp_muid
     group by lat,lon
   ) a
   left join
   (
     select lat,lon
-    from lbs_poi_tmp
+    from lbs_poi_tmp_muid
   ) b on (a.lat = b.lat
          and a.lon = b.lon)
 ) c
 where (c.blat is null
 and c.blon is null)
 "
-spark2-submit --master yarn-cluster \
---class com.youzu.mob.label.LbsPOITmp \
+/opt/cloudera/parcels/CDH/bin/spark-submit --master yarn-cluster \
+--class com.youzu.mob.label.LbsPOITmpMuid \
 --driver-memory 18G \
 --executor-memory 18G \
 --executor-cores 4 \
@@ -210,7 +209,7 @@ spark2-submit --master yarn-cluster \
 --conf spark.yarn.executor.memoryOverhead=10240 \
 --conf spark.driver.maxResultSize=4g \
 --driver-java-options "-XX:MaxPermSize=1g" \
-/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "${day}" "${beforeNum}" "${lbs_tmp}" "${poi_tmp}" "${exceptsql}" "${tmp_sql}" "${add_poi}" $partitions "${insert_daily_sql}" "${insert_dinein_sql}" $isHbase "$filesnum" "$dropsql"
+/home/dba/lib/MobDI-spark-1.0-prod-jar-with-dependencies.jar "${day}" "${beforeNum}" "${lbs_tmp}" "${poi_tmp}" "${exceptsql}" "${tmp_sql}" "${add_poi}" $partitions "${insert_daily_sql}" "${insert_dinein_sql}" $isHbase "$filesnum" "$dropsql" "$dws_device_catering_dinein_di" "$dws_device_lbs_poi_10type_di" "$udf_tmp" "$dw_base_poi_l1_geohash"
 
 # 合并小文件
 hive -e"
