@@ -50,7 +50,7 @@ function agebin_1004_sql() {
 # income_1002
 export income_1002_sql_union=""
 export income_1002_sql_join=""
-export income_1002_sql_select="coalesce(full.income_1002,-1) as income_1002,coalesce(full.income_1002_cl,-1) as income_1002_cl"
+export income_1002_sql_select=",coalesce(full.income_1002,-1) as income_1002,coalesce(full.income_1002_cl,-1) as income_1002_cl"
 function income_1002_sql() {
   day=$1
   dd=`date -d "$day" +%d`
