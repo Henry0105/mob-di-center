@@ -65,7 +65,6 @@ object Pkg2VertexHelper {
          |  SELECT duid
          |       , sfid
          |  FROM ${defaultParam.duidUnidTable}
-         |  WHERE version = '2019-2021'
          |)b ON a.duid = b.duid
          |""".stripMargin).createOrReplaceTempView("duid_pkgit_version_unid_incr_tmp")
 
@@ -117,7 +116,7 @@ object Pkg2VertexHelper {
          |  SELECT old_id
          |       , new_id
          |  FROM ${defaultParam.unidFinalTable}
-         |  WHERE month = '2019-2021'
+         |  WHERE month = '${defaultParam.pday}'
          |  AND version = 'all'
          |)b
          |ON a.unid = b.old_id
@@ -144,7 +143,6 @@ object Pkg2VertexHelper {
          |     , unid
          |FROM ${defaultParam.unidMonthTable}
          |WHERE day = '${defaultParam.pday}'
-         |AND pkg_it NOT LIKE '%000'
          |""".stripMargin)
     duid_info_month.cache()
     duid_info_month.count()
