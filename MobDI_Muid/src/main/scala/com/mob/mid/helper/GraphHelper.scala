@@ -57,65 +57,15 @@ object GraphHelper {
          |
          |SELECT a.duid
          |     , a.pkg_it
-         |     , a.version
          |     , a.unid
+         |     , COALESCE(b.unid_final,a.unid) AS unid
          |FROM
          |(
          |  SELECT *
          |  FROM duid_info_unidfinal
          |  WHERE flag = 0
-         |)a
-         |LEFT SEMI JOIN black_duid b
-         |ON a.duid = b.duid
-         |
-         |UNION ALL
-         |
-         |SELECT duid
-         |     , pkg_it
-         |     , version
-         |     , unid
-         |FROM
-         |(
-         |  SELECT c.duid
-         |       , c.pkg_it
-         |       , c.version
-         |       , c.unid
-         |       , c.pkg_it_cnt
-         |       , COUNT(1) OVER(PARTITION BY duid) AS pkg_it_abnormal_cnt
-         |  FROM
-         |  (
-         |    SELECT a.*,COUNT(1) OVER(PARTITION BY duid) AS pkg_it_cnt
-         |    FROM
-         |    (
-         |      SELECT *
-         |      FROM duid_info_unidfinal
-         |      WHERE flag = 0
-         |    ) a
-         |    LEFT ANTI JOIN black_duid b
-         |    ON a.duid = b.duid
-         |  )c
-         |  LEFT ANTI JOIN
-         |  (
-         |    SELECT pkg_it AS pi
-         |    FROM normal_behavior_pkg_it
-         |  )d
-         |  ON c.pkg_it = d.pi
-         |)e
-         |WHERE pkg_it_abnormal_cnt = pkg_it_cnt
-         |
-         |UNION ALL
-         |
-         |SELECT a.duid
-         |     , a.pkg_it
-         |     , a.version
-         |     , b.unid_final AS unid
-         |FROM
-         |(
-         |  SELECT *
-         |  FROM duid_info_unidfinal
-         |  WHERE flag = 0
-         |)a
-         |INNER JOIN tmp_ccgraph_result b
+         |) a
+         |LEFT JOIN tmp_ccgraph_result b
          |ON a.unid = b.unid
          |""".stripMargin)
 
@@ -139,7 +89,7 @@ object GraphHelper {
          |       , unid_final AS new_id
          |  FROM tmp_ccgraph_result
          |)a
-         |GROUP BY oid_id,new_id
+         |GROUP BY old_id,new_id
          |""".stripMargin)
 
   }
