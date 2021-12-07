@@ -18,7 +18,7 @@ day=$1
 day365=`date -d "$day -365 days" +%Y%m%d`
 
 source /home/dba/mobdi_center/conf/hive-env.sh
-source /home/dba/mobdi_center/tag/base_tag/full/l1/device_model_splice.sh
+source /home/dba/mobdi_center/tag/base_tag/full/device_model_splice.sh
 
 
 tmpdb=$dm_mobdi_tmp
