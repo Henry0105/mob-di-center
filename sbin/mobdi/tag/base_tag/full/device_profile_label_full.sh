@@ -18,6 +18,8 @@ day=$1
 day365=`date -d "$day -365 days" +%Y%m%d`
 
 source /home/dba/mobdi_center/conf/hive-env.sh
+source /home/dba/mobdi_center/tag/base_tag/full/l1/device_model_splice.sh
+
 
 tmpdb=$dm_mobdi_tmp
 appdb=$rp_mobdi_report
@@ -146,38 +148,56 @@ newVer=${day}.1000
 
 value=`hive -e "show partitions $device_profile_label_full"| grep -v 'monthly_bak'|awk -F '=' '{print $2}'|tail -n 1`
 
-dd=`date -d "$day" +%d`
-agebin_1004_sql_union=""
-agebin_1004_sql_join=""
-agebin_1004_sql_select="coalesce(full.agebin_1004,-1) as agebin_1004,coalesce(full.agebin_1004_cl,-1) as agebin_1004_cl"
-age_day=$(date -d "$day" +%Y%m01)
-age_day=$(date -d "$age_day -1 day" +%Y%m%d)
+#dd=`date -d "$day" +%d`
+#agebin_1004_sql_union=""
+#agebin_1004_sql_join=""
+#agebin_1004_sql_select="coalesce(full.agebin_1004,-1) as agebin_1004,coalesce(full.agebin_1004_cl,-1) as agebin_1004_cl"
+#age_day=$(date -d "$day" +%Y%m01)
+#age_day=$(date -d "$age_day -1 day" +%Y%m%d)
+#
+#if [ $dd -eq 10 ];then
+#hdfs dfs -test -d /user/hive/warehouse/dm_mobdi_report.db/age_scoring_v4_result_di/day=$age_day
+#agebin_1004_sql_union="union all
+#    select device
+#    from $age_scoring_v4_result_di
+#    where day='$age_day'
+#    and device rlike '[a-f0-9]{40}'
+#    and device!='0000000000000000000000000000000000000000'
+#"
+#agebin_1004_sql_join="left join
+#(
+#  select device,
+#  case when label=0 then 9 when label=1 then 8 when label=2 then 7 when label=3 then 6 when label>3 then 5 end as agebin_1004,
+#  maxpro agebin_1004_cl
+#  from $age_scoring_v4_result_di
+#  where day = '$age_day'
+#) agebin_1004_model on un.device=agebin_1004_model.device
+#"
+#agebin_1004_sql_select="
+#case when full.agebin_1004_cl=1 then full.agebin_1004 else
+# coalesce(agebin_1004_model.agebin_1004,full.agebin_1004,-1) end as agebin_1004,
+#case when full.agebin_1004_cl=1 then full.agebin_1004_cl else
+# coalesce(agebin_1004_model.agebin_1004_cl,full.agebin_1004_cl,-1) end as agebin_1004_cl
+#"
+#fi
 
-if [ $dd -eq 10 ];then
-hdfs dfs -test -d /user/hive/warehouse/dm_mobdi_report.db/age_scoring_v4_result_di/day=$age_day
-agebin_1004_sql_union="union all
-    select device
-    from $age_scoring_v4_result_di
-    where day='$age_day'
-    and device rlike '[a-f0-9]{40}'
-    and device!='0000000000000000000000000000000000000000'
-"
-agebin_1004_sql_join="left join
-(
-  select device,
-  case when label=0 then 9 when label=1 then 8 when label=2 then 7 when label=3 then 6 when label>3 then 5 end as agebin_1004,
-  maxpro agebin_1004_cl
-  from $age_scoring_v4_result_di
-  where day = '$age_day'
-) agebin_1004_model on un.device=agebin_1004_model.device
-"
-agebin_1004_sql_select="
-case when full.agebin_1004_cl=1 then full.agebin_1004 else
- coalesce(agebin_1004_model.agebin_1004,full.agebin_1004,-1) end as agebin_1004,
-case when full.agebin_1004_cl=1 then full.agebin_1004_cl else
- coalesce(agebin_1004_model.agebin_1004_cl,full.agebin_1004_cl,-1) end as agebin_1004_cl
-"
-fi
+
+agebin_1004_sql $day
+echo "=======================agebin_1004============================"
+echo "$agebin_1004_sql_union"
+echo "==================================================="
+echo "$agebin_1004_sql_join"
+echo "==================================================="
+echo "$agebin_1004_sql_select"
+
+income_1002_sql $day
+echo "=======================income_1002============================"
+echo "$income_1002_sql_union"
+echo "==================================================="
+echo "$income_1002_sql_join"
+echo "==================================================="
+echo "$income_1002_sql_select"
+
 
 hive -v -e "
 set hive.hadoop.supports.splittable.combineinputformat=true;
@@ -346,6 +366,7 @@ select un.device,
        case when full.gender_1001_cl=1 then 1 else
         coalesce(models.gender_1001_cl,full.gender_1001_cl,-1) end as gender_1001_cl,
        $agebin_1004_sql_select
+       $income_1002_sql_select
 from
 (
   select device
@@ -381,6 +402,8 @@ from
     and version = '${value}'
 
     $agebin_1004_sql_union
+
+    $income_1002_sql_union
   ) base
   group by device
 )un
@@ -448,6 +471,7 @@ left join
   and version = '${value}'
 ) day_365 on un.device=day_365.device
 $agebin_1004_sql_join
+$income_1002_sql_join
 ;
 "
 
@@ -469,7 +493,7 @@ select device,carrier,network,cell_factory,sysver,model,model_level,screensize,c
        gender_cl,agebin_cl,car_cl,married_cl,edu_cl,income_cl,house_cl,kids_cl,occupation_cl,industry_cl,agebin_1001_cl,cate_preference_list,
        income_1001_cl,occupation_1001_cl,consume_level_cl,update_time,agebin_1002,agebin_1002_cl,agebin_1003,agebin_1003_cl,
        factory_cn,factory_clean_subcompany,factory_cn_subcompany,sim_type,screen_size,cpu,occupation_1002,occupation_1002_cl,
-       sdcardstorage,ram,romimg,displayid,gender_1001,gender_1001_cl,agebin_1004,agebin_1004_cl
+       sdcardstorage,ram,romimg,displayid,gender_1001,gender_1001_cl,agebin_1004,agebin_1004_cl,income_1002,income_1002_cl
 from $device_profile_label_full
 where version='$newVer';
 "
@@ -673,7 +697,9 @@ SELECT device
           when agebin_1004_cl = 1 then rand()*0.19 + 0.8
           when agebin_1004_cl = 0 then rand()*0.09 + 0.01
         else agebin_1004_cl
-        end as agebin_1004_cl
+        end as agebin_1004_cl,
+      income_1002,
+      income_1002_cl
 FROM $device_profile_label_full_par
 WHERE version='${newVer}';
 "
