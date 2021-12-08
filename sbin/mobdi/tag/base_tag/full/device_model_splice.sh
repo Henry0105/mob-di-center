@@ -30,7 +30,7 @@ function agebin_1004_sql() {
     (
       select device,
       case when label=0 then 9 when label=1 then 8 when label=2 then 7 when label=3 then 6 when label>3 then 5 end as agebin_1004,
-      maxpro agebin_1004_cl
+      maxpro agebin_1004_cl,day
       from $age_scoring_v4_result_di
       where day = '$age_day'
     ) agebin_1004_model on un.device=agebin_1004_model.device
@@ -67,7 +67,7 @@ function income_1002_sql() {
     income_1002_sql_join="left join
     (
       select
-        device,label,max_prob
+        device,label,max_prob,day
       from $income_scoring_v2_result_di
       where day = '$income_day'
     ) income_1002_model on un.device=income_1002_model.device

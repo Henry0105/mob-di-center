@@ -64,6 +64,6 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.network.timeout=1000000 \
 --conf spark.executor.heartbeatInterval=60s \
 --conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
-/home/dba/lib/MobDI-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$input_table" "$model_path1" "$model_path2" \
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$input_table" "$model_path1" "$model_path2" \
 "$model_path3" "$model_path4" "$model_path5" "$model_path1_pre" "$model_path2_pre" "$model_path3_pre" \
 "$model_path4_pre" "$model_path5_pre" "$output_table" "$day"
