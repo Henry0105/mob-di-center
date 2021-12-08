@@ -33,7 +33,6 @@ set hive.mapjoin.smalltable.filesize=500000000;
 SET hive.exec.max.created.files=5000000;
 set mapreduce.job.queuename=root.yarn_data_compliance1;
 "
-:<<EOF
 hive -e "
 $sqlset
 insert overwrite table $pkg_it partition (day=$month)
@@ -65,16 +64,5 @@ $pkg_it a left join $factory_mapping b
 on a.factory = upper(trim(b.factory)) and a.model = upper(trim(b.model))
 where a.day=$month
 "
-EOF
-hive -e "
-$sqlset
-insert overwrite table $pkg_it_category partition(month,version)
-select pkg_it,a.duid,factory,model,category,sfid unid,month,a.version
-from $pkg_it_category a
-left join
-$duid_fsid_mapping b
-on a.duid=b.duid
-where month=$month
-and b.version='2019-2021'
-"
+
 

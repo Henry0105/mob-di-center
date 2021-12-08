@@ -14,14 +14,17 @@ set hive.support.quoted.identifiers=None;
 set hive.exec.dynamic.partition.mode=nonstrict;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-drop table if exists dm_mid_master.blacklist_duid;
-create table dm_mid_master.blacklist_duid stored as orc
-as select duid,concat(split(pkg_it,'_')[0],'_', split(pkg_it,'_')[1]) pkg_ver,count(*) cnt
-  from (
-    select * from dm_mid_master.pkg_it_duid_category_tmp
-    where unid is not null and pkg_it is not null
-    and duid is not null and trim(duid)<>''
- ) t
-  group by duid,concat(split(pkg_it,'_')[0],'_', split(pkg_it,'_')[1]);
-
+drop table if exists dm_mid_master.one_2_one_duid;
+create table dm_mid_master.one_2_one_duid stored as orc as
+select a.duid from
+dm_mid_master.duid_unid_mapping a
+left join
+(select duid from dm_mid_master.old_new_duid_mapping_par where duid is not null and trim(duid)<>''
+union all
+select duid from dm_mid_master.blacklist_duid where cnt > 100 and duid is not null and trim(duid)<>'' group by duid
+)b
+on a.duid=b.duid
+where a.version='2019-2021'
+and b.duid is null
+;
 "

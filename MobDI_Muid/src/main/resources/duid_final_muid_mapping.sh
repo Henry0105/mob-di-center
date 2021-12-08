@@ -24,6 +24,10 @@ set hive.support.quoted.identifiers=None;
 set hive.exec.dynamic.partition.mode=nonstrict;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
+set mapreduce.map.java.opts=-Xmx25000m;
+set mapreduce.map.memory.mb=24000;
+set mapreduce.reduce.java.opts=-Xmx25000m;
+set mapreduce.reduce.memory.mb=24000;
 "
 hive -e "
 create table if not exists $duid_final_muid_mapping (
@@ -38,10 +42,13 @@ day string
 
 $sqlset
 insert overwrite table $duid_final_muid_mapping partition(day=$end_date)
-select duid,duid_final,muid,'' muid_final,serdatetime from (
-select a.duid,duid_final,muid,serdatetime,row_number() over(partition by a.duid,duid_final,muid order by serdatetime) rn
-from $install_all a left join $old_new_duid_mapping_par b on a.duid=b.duid
-where b.version='2019-2021' and a.day>=$start_date and a.day<$end_date
-and a.duid is not null and trim(a.duid)<>''
-) t where rn = 1;
+select a.duid,duid_final,muid,'' muid_final,serdatetime from (
+select duid,muid,serdatetime from(
+select duid,muid,serdatetime,row_number() over(partition by duid,muid order by serdatetime) rn
+from $install_all where day>=$start_date and day<$end_date
+and duid is not null and trim(duid)<>''
+group by duid,muid,serdatetime
+) t where rn = 1) a
+left join $old_new_duid_mapping_par b on a.duid=b.duid
+where b.version='20211031' 
 "

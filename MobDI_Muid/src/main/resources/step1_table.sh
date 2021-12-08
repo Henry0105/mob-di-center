@@ -45,7 +45,7 @@ if [[ $step_all -eq 1 ]];then
 --deploy-mode cluster \
 --queue root.yarn_data_compliance1 \
 --name Step1Pkg2Vertex_$version \
---class com.mob.mid.Step1Pkg2Vertex \
+--class com.mob.mid_full.Step1Pkg2Vertex \
 --conf spark.dynamicAllocation.maxExecutors=80 \
 --conf spark.dynamicAllocation.minExecutors=10 \
 --executor-memory 25g \
@@ -66,7 +66,7 @@ fi
 --deploy-mode cluster \
 --queue root.yarn_data_compliance1 \
 --name Step2TokenConnectedComponents_$version \
---class com.mob.mid.Step2TokenConnectedComponents \
+--class com.mob.mid_full.Step2TokenConnectedComponents \
 --conf spark.dynamicAllocation.maxExecutors=150 \
 --conf spark.dynamicAllocation.minExecutors=10 \
 --conf spark.default.parallelism=300 \
