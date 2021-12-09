@@ -34,7 +34,7 @@ object IncomeScoreV2 {
 
     val fs = FileSystem.get(new Configuration())
     // 加载特征数据
-    val data = spark.sql(s"select * from ${input_table}")
+    val data = spark.sql(s"select * from ${input_table} where day='${day}")
 
     // 3k以下二分类模型
     getResult(spark, fs, data, model_path1, model_path1_pre).createOrReplaceTempView("result_1")
