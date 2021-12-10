@@ -78,7 +78,7 @@ function income_1002_sql() {
     ) income_1002_model on un.device=income_1002_model.device
     "
     income_1002_sql_select=",
-    (case
+    case
         when full.agebin_1004=9 then 3
         when full.city_level_1001=1 and full.edu=8 and income_1002_model.label=0 and conv(substr(full.device, 0, 4), 16 ,10)/65535 < 0.3 then 4
         when full.city_level_1001=1 and full.edu=8 and income_1002_model.label=0 and conv(substr(full.device, 0, 4), 16 ,10)/65535 < 0.8 and conv(substr(full.device, 0, 4), 16 ,10)/65535 >=0.3 then 5
@@ -88,9 +88,9 @@ function income_1002_sql() {
         when full.city_level_1001=2 and full.edu=8 and income_1002_model.label=0 and conv(substr(full.device, 0, 4), 16 ,10)/65535 < 0.5 and conv(substr(full.device, 0, 4), 16 ,10)/65535 >=0.2 then 5
         when full.city_level_1001=2 and full.edu=9 and income_1002_model.label=0 and conv(substr(full.device, 0, 4), 16 ,10)/65535 < 0.1 then 4
         when full.city_level_1001=2 and full.edu=9 and income_1002_model.label=0 and conv(substr(full.device, 0, 4), 16 ,10)/65535 < 0.6 and conv(substr(full.device, 0, 4), 16 ,10)/65535>=0.1 then 5
-        else -1
-    end) as income_1002,
-    (case
+        else coalesce(income_1002_model.label, full.income_1002, -1)
+    end as income_1002,
+    case
         when full.agebin_1004=9 then full.agebin_1004_cl
         when full.city_level_1001=1 and full.edu=8 and income_1002_model.label=0 and conv(substr(full.device, 0, 4), 16 ,10)/65535 < 0.3 then if(full.edu_cl/income_1002_model.max_prob>1,income_1002_model.max_prob,full.edu_cl)
         when full.city_level_1001=1 and full.edu=8 and income_1002_model.label=0 and conv(substr(full.device, 0, 4), 16 ,10)/65535 < 0.8 and conv(substr(full.device, 0, 4), 16 ,10)/65535 >= 0.3 then if(full.edu_cl/income_1002_model.max_prob>1,income_1002_model.max_prob,full.edu_cl)
@@ -100,8 +100,8 @@ function income_1002_sql() {
         when full.city_level_1001=2 and full.edu=8 and income_1002_model.label=0 and conv(substr(full.device, 0, 4), 16 ,10)/65535 < 0.5 and conv(substr(full.device, 0, 4), 16 ,10)/65535 >= 0.2 then if(full.edu_cl/income_1002_model.max_prob>1,income_1002_model.max_prob,full.edu_cl)
         when full.city_level_1001=2 and full.edu=9 and income_1002_model.label=0 and conv(substr(full.device, 0, 4), 16 ,10)/65535 < 0.1 then if(full.edu_cl/income_1002_model.max_prob>1,income_1002_model.max_prob,full.edu_cl)
         when full.city_level_1001=2 and full.edu=9 and income_1002_model.label=0 and conv(substr(full.device, 0, 4), 16 ,10)/65535 < 0.6 and conv(substr(full.device, 0, 4), 16 ,10)/65535 >= 0.1 then if(full.edu_cl/income_1002_model.max_prob>1,income_1002_model.max_prob,full.edu_cl)
-        else -1
-    end) as income_1002_cl
+        else coalesce(income_1002_model.max_prob, full.income_1002_cl, -1)
+    end as income_1002_cl
     "
     income_1002_sql_processtime_all="
       case when income_1002_model.day < full.processtime_all then null else income_1002_model.day end,
