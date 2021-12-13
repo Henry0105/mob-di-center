@@ -674,7 +674,11 @@ SELECT device
         else agebin_1004_cl
         end as agebin_1004_cl,
       income_1002,
-      income_1002_cl
+      case
+          when income_1002_cl = 1 then rand()*0.19 + 0.8
+          when income_1002_cl = 0 then rand()*0.09 + 0.01
+        else income_1002_cl
+        end as income_1002_cl
 FROM $device_profile_label_full_par
 WHERE version='${newVer}';
 "
