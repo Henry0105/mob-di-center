@@ -25,7 +25,7 @@ device_applist_new=${dim_device_applist_new_di}
 
 #output
 device_tfidf_incr_list=${mddb}.device_tfidf_incr_list
-device_cluster_incr=${mddb}.device_cluster_incr
+device_cluster_incr_tmp=${mddb}.device_cluster_incr
 
 :<<!
 实现功能:使用kmeans算法对设备聚类
@@ -85,7 +85,7 @@ $cloudera_path/spark-submit --master yarn-cluster \
 "${tfidfsql}" $model_path/std.txt $model_path/mean.txt $model_path/pc.csv $model_path/zhaox_cluster_40 $device_cluster_incr_Path $row_dim_num $col_dim_num
 
 
-$cloudera_path/hive -e "LOAD DATA INPATH '$device_cluster_incr_Path' OVERWRITE INTO TABLE $device_cluster_incr PARTITION(day='$DATE');"
-$cloudera_path/hive -e "insert overwrite table $device_cluster_incr partition(day='$DATE')  select device,cluster from $device_cluster_incr where day='$DATE'"
-$cloudera_path/hive -e "alter table $device_cluster_incr drop  partition(day='$DATE')"
+$cloudera_path/hive -e "LOAD DATA INPATH '$device_cluster_incr_Path' OVERWRITE INTO TABLE $device_cluster_incr_tmp PARTITION(day='$DATE');"
+$cloudera_path/hive -e "insert overwrite table $device_cluster_incr partition(day='$DATE')  select device,cluster from $device_cluster_incr_tmp where day='$DATE'"
+$cloudera_path/hive -e "alter table $device_cluster_incr_tmp drop  partition(day='$DATE')"
 
