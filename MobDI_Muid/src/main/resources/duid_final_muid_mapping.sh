@@ -47,7 +47,6 @@ select duid,muid,serdatetime from(
 select duid,muid,serdatetime,row_number() over(partition by duid,muid order by serdatetime) rn
 from $install_all where day>=$start_date and day<$end_date
 and duid is not null and trim(duid)<>''
-group by duid,muid,serdatetime
 ) t where rn = 1) a
 left join
 (select * from $old_new_duid_mapping_par where version='20211031') b on a.duid=b.duid

@@ -31,7 +31,7 @@ row_number() over (partition by duid,duid_final,muid order by serdatetime) rn
 from $dws_mid_duid_final_muid_mapping_detail
 ) t where rn=1
 "
-#前面没有匹配到duid_final的直接取duid
+#匹配一对一的duid_final
 hive -e "
 $sqlset
 insert overwrite table $dws_mid_duid_final_muid_mapping partition(day)
