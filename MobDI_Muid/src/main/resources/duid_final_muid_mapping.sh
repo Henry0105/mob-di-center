@@ -5,11 +5,11 @@ start_date=$1
 end_date=$2
 
 tmp_db=dm_mid_master
-install_all="dm_mobdi_master.dwd_log_device_install_app_all_info_sec_di"
+install_all="$tmp_db.dwd_log_device_install_app_all_info_sec_di"
 
-old_new_duid_mapping_par="dm_mid_master.old_new_duid_mapping_par"
+old_new_duid_mapping_par="$tmp_db.old_new_duid_mapping_par"
 
-duid_final_muid_mapping="dm_mid_master.dws_mid_duid_final_muid_mapping"
+duid_final_muid_mapping="$tmp_db.dws_mid_duid_final_muid_mapping_detail"
 
 sqlset="
 set mapred.max.split.size=256000000;
@@ -42,13 +42,13 @@ day string
 
 $sqlset
 insert overwrite table $duid_final_muid_mapping partition(day=$end_date)
-select a.duid,duid_final,muid,'' muid_final,serdatetime from (
+select a.duid,duid_final,muid,serdatetime from (
 select duid,muid,serdatetime from(
 select duid,muid,serdatetime,row_number() over(partition by duid,muid order by serdatetime) rn
 from $install_all where day>=$start_date and day<$end_date
 and duid is not null and trim(duid)<>''
 group by duid,muid,serdatetime
 ) t where rn = 1) a
-left join $old_new_duid_mapping_par b on a.duid=b.duid
-where b.version='20211031' 
+left join
+(select * from $old_new_duid_mapping_par where version='20211031') b on a.duid=b.duid
 "
