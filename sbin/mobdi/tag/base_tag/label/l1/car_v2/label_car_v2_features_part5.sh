@@ -41,6 +41,9 @@ pidPartition=`hive -e "show partitions $dim_device_pid_merge_df" | awk -v day=${
 
 ##v3版的part5通讯录特征
 hive -v -e "
+set mapreduce.map.memory.mb=8192;
+set mapreduce.map.java.opts='-Xmx7300m';
+set mapreduce.child.map.java.opts='-Xmx7300m';
 with seed as
 (
   select device
