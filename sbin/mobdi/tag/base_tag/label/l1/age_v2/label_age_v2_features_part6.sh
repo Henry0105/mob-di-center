@@ -107,8 +107,9 @@ left join
             )x
             inner join
             (
-                select concat_ws(',',pid_encrypt_array(split(trim(phone),','))) as pid,w2v_100
-                from $mapping_contacts_word2vec2_view
+                select pid,w2v_100
+                from $mapping_contacts_word2vec2_sec
+                where version = '1000'
             )y
             on x.pid = y.pid
         )xx
