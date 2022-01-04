@@ -86,6 +86,7 @@ left join
                                     select device,pid,pid_ltm
                                     from $dim_device_pid_merge_df
                                     where $pidPartition
+                                    and pid <> ''
                                 ) b
                                 on a.device = b.device
                             )c
