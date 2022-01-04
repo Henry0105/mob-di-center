@@ -25,14 +25,22 @@ object Step2TokenConnectedComponents {
     val outputTable = args(4)
 
 
-    // 单个app同版本相同安装时间的 token数
-    val df: DataFrame = spark.sql(
+    val df: DataFrame = if (month.isEmpty || version.isEmpty) {
+      spark.sql(
+        s"""
+           |select id1,id2 from $inputTable
+           |where id2 is not null and id1 is not null and id1 <>'' and id2<>''
+           |""".stripMargin
+      )
+    } else {
+      spark.sql(
       s"""
          |select id1,id2 from $inputTable
          |where version='$version' and month='$month'
          |and id2 is not null and id1 is not null and id1 <>'' and id2<>''
          |""".stripMargin
-    )
+      )
+    }
 
     val edgeRdd: RDD[Edge[String]] = df.rdd
       .filter(raw => isIntByRegex(raw.getAs[String](0)) && isIntByRegex(raw.getAs[String](1)))
@@ -44,11 +52,18 @@ object Step2TokenConnectedComponents {
         })
 
 
-    val df2 = spark.sql(
-      s"""
-         |select id1 from $inputTable where version='$version' and month='$month'
-         | group by id1
-         |""".stripMargin)
+    val df2 = if (month.isEmpty || version.isEmpty) {
+      spark.sql(
+        s"""
+           |select id1 from $inputTable group by id1
+           |""".stripMargin)
+    } else {
+      spark.sql(
+        s"""
+           |select id1 from $inputTable where version='$version' and month='$month'
+           | group by id1
+           |""".stripMargin)
+    }
     // 顶点token
     val verticexRdd: RDD[(Long, String)] = df2.rdd.filter(raw => isIntByRegex(raw.getAs[String](0)))
       .mapPartitions(
@@ -66,14 +81,20 @@ object Step2TokenConnectedComponents {
     ccGraph.vertices.map(
       x => (x._1.toString, x._2.toString)
     ).toDF("old_id", "new_id").createOrReplaceTempView("tmp_ccgraph_result")
-
-    spark.sql(
-      s"""
-         |insert overwrite table $outputTable partition(month='$month', version='$version')
-         |select old_id,new_id from tmp_ccgraph_result
-         |""".stripMargin)
-
-    spark.stop()
+    if (month.isEmpty || version.isEmpty) {
+      spark.sql(
+        s"""
+           |insert overwrite table $outputTable
+           |select old_id,new_id from tmp_ccgraph_result
+           |""".stripMargin)
+    } else {
+      spark.sql(
+        s"""
+           |insert overwrite table $outputTable partition(month='$month', version='$version')
+           |select old_id,new_id from tmp_ccgraph_result
+           |""".stripMargin)
+    }
+      spark.stop()
   }
 
 
