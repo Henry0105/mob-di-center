@@ -5,7 +5,7 @@ start_date=$1
 end_date=$2
 
 tmp_db=dm_mid_master
-install_all="$tmp_db.dwd_log_device_install_app_all_info_sec_di"
+install_all="dm_mobdi_master.dwd_log_device_install_app_all_info_sec_di"
 
 old_new_duid_mapping_par="$tmp_db.old_new_duid_mapping_par"
 
@@ -34,7 +34,6 @@ create table if not exists $duid_final_muid_mapping (
 duid string,
 duid_final string,
 muid string,
-muid_final string,
 serdatetime string
 ) partitioned by (
 day string
