@@ -47,7 +47,7 @@ CASE
     WHEN factory IS NULL OR trim(upper(factory)) in ('','NULL','NONE','NA','OTHER','未知','UNKNOWN') THEN 'unknown'
     ELSE coalesce(upper(trim(b.clean_brand_origin)), 'other')
     end AS factory,
-    a.model model,
+    a.model model
 from(
 select duid,oiid,ieid,muid,serdatetime,factory,model
 from $install_all where day>=$start_date and day<$end_date
@@ -57,7 +57,7 @@ and ((duid is not null and trim(duid)<>'')
 group by duid,oiid,ieid,muid,serdatetime,factory,model
 ) a
 left join $brand_mapping b
-   on brand_mapping.version='1000'
+   on b.version='1000'
        and upper(trim(b.brand)) = upper(trim(a.factory))
        and upper(trim(b.model)) = upper(trim(a.model))
 
