@@ -69,27 +69,12 @@ where a.day='unid_final';
 #一个duid_final对应多个muid的取最早的muid作为muid_final
 hive -e "
 $sqlset
-with tmp_table as (
-select duid_final,muid muid_final from (
-select duid_final,muid,row_number() over (partition by duid_final order by serdatetime) rn from
-(select duid_final,muid
-    from $dws_mid_ids_mapping where day='normal'
-    and muid is not null and muid<>''
-    and duid_final is not null and duid_final<>''
-    group by duid_final,muid
-    ) t
-  )tt where rn=1
-)
 create table $ids_duid_final_muid_final stored as orc as
-select a.duid_final,muid,muid_final from
-    (
-      select duid_final,muid
-      from $dws_mid_ids_mapping where day='normal'
-      and muid is not null and muid<>''
-      and duid_final is not null and duid_final<>''
-      group by duid_final,muid
-    ) a
-    left join tmp_table b on a.duid_final=b.duid_final
+select duid_final,muid,muid_final from (
+    select duid_final,muid,
+    first_value(muid) over (partition by duid_final order by serdatetime) muid_final
+    from $dws_mid_ids_mapping where day='normal' and muid is not null
+  )t group by duid_final,muid,muid_final
 "
 
 #把muid_final根据duid_final映射会原表的20211101分区
