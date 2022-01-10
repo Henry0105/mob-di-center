@@ -4,8 +4,6 @@ set -x -e
 mid_db="dm_mid_master"
 dws_mid_ids_mapping="$mid_db.dws_mid_ids_mapping"
 dws_mid_duid_final_muid_mapping_detail="$mid_db.dws_mid_ids_mapping_detail"
-blacklist_muid="$mid_db.blacklist_muid"
-one_2_one_duid="$mid_db.one_2_one_duid"
 duid_fsid_mapping="$mid_db.duid_unid_mapping"
 
 app_unid_final_mapping="$mid_db.old_new_unid_mapping_par"
@@ -238,7 +236,7 @@ select old_id id1,new_id id2 from (
 select old_id,new_id from $app_unid_final_mapping where month='2019-2021'
 union  all
 select old_id,new_id from $ids_unid_final_mapping
-) t group by id1,id2
+) t group by old_id,new_id
 "
 
 
@@ -266,7 +264,7 @@ new_id string
 --conf spark.driver.maxResultSize=1024m \
 --conf spark.network.maxRemoteBlockSizeFetchToMem=256m \
 --conf spark.shuffle.accurateBlockThreshold=256m \
-./muid.jar '' '' 10 $ids_vertex_par $all_unid_final_mapping
+./muid.jar '' '' 10 $all_vertex_par $all_unid_final_mapping
 
 #使用unid-unid_final匹配duid,得到duid-duid_final的mapping并匹配回dws_mid_duid_final_muid_mapping表
 hive -e "

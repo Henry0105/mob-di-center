@@ -82,6 +82,5 @@ select pkg_it,a.duid,factory,model,category,sfid unid,month,a.version
 from $pkg_it_category a
 left join
 $duid_fsid_mapping b
-on a.duid=b.duid
-where b.version='2019-2021'
+on a.duid=b.duid and b.version='2019-2021'
 "
