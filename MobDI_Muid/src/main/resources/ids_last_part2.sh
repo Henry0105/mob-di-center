@@ -24,7 +24,9 @@ device_muid_mapping_full_fixed_step1="$mid_db.device_muid_mapping_full_fixed_ste
 device_muid_mapping_full_fixed="$mid_db.device_muid_mapping_full_fixed"
 
 duid_mid_with_id="$mid_db.duid_mid_with_id"
+duid_mid_with_id_final="$mid_db.duid_mid_with_id_final"
 duid_mid_without_id="$mid_db.duid_mid_without_id"
+duid_mid_with_id_explode="$mid_db.duid_mid_with_id_explode"
 
 sqlset="
 set mapred.max.split.size=256000000;
@@ -101,17 +103,30 @@ from $dws_mid_ids_mapping
 where day='normal' and (muid is null or muid='')
 "
 
+#4、将表E中没有设备id（ieid，oiid）的数据，提取duid和duid_final的关系，记为表H，并对duid_final做sha1操作，作为mid
+hive -e "
+$sqlset
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
+create temporary function sha as 'com.youzu.mob.java.udf.SHA1Hashing';
+drop table if exists $duid_mid_without_id;
+create table $duid_mid_without_id stored as orc as
+select duid,duid_final,sha1(duid_final) mid
+from $dws_mid_ids_mapping where day='20211101' and (oiid is null or oiid='') and (ieid is null or ieid='')
+group by duid,duid_final
+"
+
 #1.一个muid对应多个duid_final的记录置空flag=0
 #2.其余的取最早的muid作为muid_final flage=1
-#3.不符合1和2的,有oiid的flag=2,无oiid有ieid的flag=3,oiid和ieid都没有的flag=4
+#3.不符合1和2的,有oiid的flag=2,无oiid有ieid的flag=3
+#oiid和ieid都没有的flag=4
 
 hive -e "
 $sqlset
 drop table if exists $device_muid_mapping_full_fixed_step1;
 create table $device_muid_mapping_full_fixed_step1 as
 select device_old,device_token,
-case when b.muid is not null then '' else a.muid end as muid,
-token,ieid,mcid,snid,oiid,asid,sysver,factory,serdatetime,muid_final,
+case when b.muid is not null then '' else coalesce(muid_final,a.muid) end as muid,
+token,ieid,mcid,snid,oiid,asid,sysver,factory,serdatetime,
 case when b.muid is not null then 0 when muid_final is not null then 1
 when oiid is not null and oiid<>'' then 2
 when ieid is not null and ieid<>'' then 3
@@ -147,7 +162,8 @@ CREATE TABLE if not exists $device_muid_mapping_full_fixed (
   `flag` int)
   stored as orc;
 $sqlset
-with tmp_black_oiid as (
+with
+tmp_black_oiid as (
   select muid from (
     select muid,oiid,factory from $device_muid_mapping_full_fixed_step1 where flag=2 group by muid,oiid,factory
   ) t group by muid having count(*) > 2
@@ -183,36 +199,72 @@ where flag in(2,3)
 
 hive -e "
 $sqlset
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
+create temporary function sha as 'com.youzu.mob.java.udf.SHA1Hashing';
 drop table if exists $duid_mid_with_id;
 create table $duid_mid_with_id stored as orc as
-select a.duid,a.oiid,a.ieid,a.duid_final,a.muid,muid_final,factory,model,serdatetime,
-b.muid oiid_mid,c.muid ieid_mid,adsid,
-case when b.muid is not null and b.muid <> '' or c.muid is not null and c.muid <> '' then d.muid
-     else sha1(a.duid_final)
-end as mid
+select duid,a.oiid,ieid,duid_final,a.factory,model,serdatetime,
+b.muid oiid_mid,oiid_asid
 from
 (
-  select duid,oiid,ieid,unid,unid_ieid,unid_oiid,unid_final,duid_final,muid,muid_final,serdatetime
-  from $dws_mid_ids_mapping where day='20211101' and !((oiid is null or oiid='') and (ieid is null or ieid=''))
+  select duid,oiid,ieid,duid_final,factory,model,
+  min(case when serdatetime is null or serdatetime='' then null else serdatetime end) serdatetime
+  from $dws_mid_ids_mapping
+  where day='20211101' and oiid is not null and  oiid<>''
+  group by duid,oiid,ieid,duid_final,muid,muid_final,factory,model
 ) a
 left join
-(select oiid,factory from $device_muid_mapping_full_fixed group by oiid,factory) b
+(select oiid,muid,factory,collect_set(asid) oiid_asid
+from $device_muid_mapping_full_fixed
+where oiid is not null
+group by oiid,muid,factory) b
 on a.oiid=b.oiid and a.factory=b.factory
-left join
-(select ieid from $device_muid_mapping_full_fixed group by ieid) c
-on a.ieid=c.ieid
-left join
-(select duid_final,muid from $device_muid_mapping_full_fixed group by duid_final,muid) d
-on a.duid_final=d.duid_final
 
+union all
+
+select duid,oiid,ieid,duid_final,factory,model,serdatetime,'' oiid_mid,array() oiid_asid
+from $dws_mid_ids_mapping
+where day='20211101' and (oiid is null or oiid='')
 "
 
-#4、将表E中没有设备id（ieid，oiid）的数据，提取duid和duid_final的关系，记为表H，并对duid_final做sha1操作，作为mid
 hive -e "
 $sqlset
-drop table if exists $duid_mid_without_id;
-create table $duid_mid_without_id stored as orc as
-select duid,duid_final,sha1(duid_final) mid
-from $dws_mid_ids_mapping where day='20211101' and (oiid is null or oiid='') and (ieid is null or ieid='')
-group by duid,duid_final
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
+create temporary function sha as 'com.youzu.mob.java.udf.SHA1Hashing';
+drop table if exists $duid_mid_with_id_final;
+create table $duid_mid_with_id_final stored as orc as
+select duid,oiid,a.ieid,duid_final,
+case when oiid_asid is null then ieid_asid
+case when ieid_asid is null then oiid_asid
+else array_distinct(split(concat_ws(',',oiid_asid,ieid_asid),',')) end asid,
+case when oiid_mid is not null and oiid_mid <> '' then oiid_mid
+      when (b.muid is not null and b.muid <> '') then b.muid
+     else sha1(a.duid_final)
+end as mid,
+factory,model,serdatetime
+from $duid_mid_with_id a
+left join
+(
+  select ieid,muid,collect_set(asid) ieid_asid
+  from $device_muid_mapping_full_fixed
+  group by ieid,muid
+) b on a.ieid=b.ieid
+where a,ieid is not null and a.ieid<>''
+
+union all
+
+select duid,oiid,ieid,duid_final,oiid_asid asid,
+case when (oiid_mid is not null and oiid_mid <> '') then oiid_mid else sha1(a.duid_final) end as mid
+,factory,model,serdatetime
+from $duid_mid_with_id
+where ieid is null or ieid=''
 "
+
+hive -e "
+$sqlset
+drop table if exists $duid_mid_with_id_explode;
+create table $duid_mid_with_id_explode stored as orc as
+select duid,oiid,ieid,duid_final,explode(coalesce(adsid,array())) adsid,mid,
+factory,model,serdatetime from $duid_mid_with_id_final
+"
+
