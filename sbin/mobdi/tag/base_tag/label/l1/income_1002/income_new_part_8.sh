@@ -136,7 +136,7 @@ where day='${end_month}' and pkg in ($skew_pkgs)
 group by device,pkg,update_day;
 
 
-create temporary table cate_embedding_$end_month as(
+create temporary table cate_embedding_$end_month as
 select
     cate_id,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24,d25,d26,d27,
     d28,d29,d30,d31,d32,d33,d34,d35,d36,d37,d38,d39,d40,d41,d42,d43,d44,d45,d46,d47,d48,d49,d50,d51,d52,d53,d54,
@@ -149,8 +149,7 @@ where cate_id in (
 'a20_12','a20_5','a20_6','a20_7','a20','a4_1','a4_3','a5_3','a5','a6_3','a7_2','a7_3','a8_3','a8','a9_2'
 ,'b1','b3','b4','b6_4','b6','b7_1','b7_2','b8_1','b8','fin_10','fin_13','fin_14','fin_17','fin_18'
 ,'fin_2','fin_21','fin_22','fin_26','fin_28','fin_31','fin_33','fin_41','fin_42','fin_48','fin_50'
-,'fin_51','fin_52','fin_6','tgi1_1_2','tgi1_1_3','tgi1_2_0','tgi1_2_3','tgi1_3_0','tgi1_3_1','tgi1_3_2','tgi1_4_2')
-)
+,'fin_51','fin_52','fin_6','tgi1_1_2','tgi1_1_3','tgi1_2_0','tgi1_2_3','tgi1_3_0','tgi1_3_1','tgi1_3_2','tgi1_4_2');
 
 
 
