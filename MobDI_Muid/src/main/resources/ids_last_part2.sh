@@ -22,6 +22,8 @@ device_muid_mapping_par="20211202"
 
 device_muid_mapping_full_fixed_step1="$mid_db.device_muid_mapping_full_fixed_step1"
 device_muid_mapping_full_fixed="$mid_db.device_muid_mapping_full_fixed"
+device_muid_mapping_full_fixed_ieid="$mid_db.device_muid_mapping_full_fixed_ieid"
+device_muid_mapping_full_fixed_final="$mid_db.device_muid_mapping_full_fixed_final"
 
 duid_mid_with_id="$mid_db.duid_mid_with_id"
 duid_mid_with_id_final="$mid_db.duid_mid_with_id_final"
@@ -147,19 +149,19 @@ on a.muid=c.muid
 hive -e "
 drop table if exists $device_muid_mapping_full_fixed;
 CREATE TABLE if not exists $device_muid_mapping_full_fixed (
-  `device_old` string,
-  `device_token` string,
-  `muid` string,
-  `token` string,
-  `ieid` string,
-  `mcid` string,
-  `snid` string,
-  `oiid` string,
-  `asid` string,
-  `sysver` string,
-  `factory` string,
-  `serdatetime` string,
-  `flag` int)
+  device_old string,
+  device_token string,
+  muid string,
+  token string,
+  ieid string,
+  mcid string,
+  snid string,
+  oiid string,
+  asid string,
+  sysver string,
+  factory string,
+  serdatetime string,
+  flag int)
   stored as orc;
 $sqlset
 with
@@ -188,6 +190,73 @@ select device_old,device_token,case when b.muid is null then a.muid else '' end 
 token,ieid,mcid,snid,oiid,asid,sysver,factory,serdatetime,flag
 from $device_muid_mapping_full_fixed_step1 a left join tmp_black_muid b on a.muid=b.muid
 where flag in(2,3)
+"
+
+
+hive -e "
+drop table if exists $device_muid_mapping_full_fixed_ieid;
+CREATE TABLE if not exists $device_muid_mapping_full_fixed_ieid (
+  device_old string,
+  device_token string,
+  muid string,
+  token string,
+  ieid string,
+  mcid string,
+  snid string,
+  oiid string,
+  asid string,
+  sysver string,
+  factory string,
+  serdatetime string,
+  flag int)
+  stored as orc;
+$sqlset
+with tmp_ieid_muid as(
+  select ieid,muid from(
+    select ieid,muid,
+    row_number() over(partition by ieid order by serdatetime) rn
+    from $device_muid_mapping_full_fixed
+    where coalesce(ieid,'') <> '' and coalesce(muid,'') <> '' and coalesce(serdatetime,'') <> ''
+  ) t where rn = 1
+)
+insert overwrite table $device_muid_mapping_full_fixed_ieid
+select device_old,device_token,coalesce(b.muid, a.muid),
+token,a.ieid,mcid,snid,oiid,asid,sysver,factory,serdatetime,flag
+from $device_muid_mapping_full_fixed a
+left join tmp_ieid_muid b on a.ieid=b.ieid
+"
+
+hive -e "
+drop table if exists $device_muid_mapping_full_fixed_final;
+CREATE TABLE if not exists $device_muid_mapping_full_fixed_final (
+  device_old string,
+  device_token string,
+  muid string,
+  token string,
+  ieid string,
+  mcid string,
+  snid string,
+  oiid string,
+  asid string,
+  sysver string,
+  factory string,
+  serdatetime string,
+  flag int)
+  stored as orc;
+$sqlset
+with tmp_oiid_muid as(
+  select oiid,muid from(
+    select oiid,muid,
+    row_number() over(partition by oiid order by serdatetime) rn
+    from $device_muid_mapping_full_fixed_ieid
+    where coalesce(oiid,'') <> '' and coalesce(muid,'') <> '' and coalesce(serdatetime,'') <> ''
+  ) t where rn = 1
+)
+insert overwrite table $device_muid_mapping_full_fixed_final
+select device_old,device_token,coalesce(b.muid, a.muid),
+token,ieid,mcid,snid,a.oiid,asid,sysver,factory,serdatetime,flag
+from $device_muid_mapping_full_fixed_ieid a
+left join tmp_oiid_muid b on a.oiid=b.oiid
 "
 
 #表E=$dws_mid_ids_mapping partition(day='20211101')

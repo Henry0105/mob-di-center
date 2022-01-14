@@ -113,13 +113,13 @@ drop table if exists $duid_blacklist;
 create table $duid_blacklist stored as orc as
 select duid from(
   select duid from(
-    select duid,count(distinct ieid) cnt from dm_mid_master.dws_mid_ids_mapping
+    select duid,count(distinct ieid) cnt from $dws_mid_ids_mapping
     where day='unid' and ieid is not null and trim(ieid)<>''
     group by duid
   ) t where cnt > 3
 union all
   select duid from(
-    select duid,count(distinct oiid) cnt from dm_mid_master.dws_mid_ids_mapping
+    select duid,count(distinct oiid) cnt from $dws_mid_ids_mapping
     where day='unid' and oiid is not null and trim(oiid)<>''
     group by duid
   ) t where cnt > 3
