@@ -3,18 +3,11 @@ set -x -e
 
 mid_db="dm_mid_master"
 dws_mid_ids_mapping="$mid_db.dws_mid_ids_mapping"
-dws_mid_duid_final_muid_mapping_detail="$mid_db.dws_mid_ids_mapping_detail"
+
+asid_black="$mid_db.asid_blacklist_full"
+
 blacklist_muid="$mid_db.blacklist_muid"
-one_2_one_duid="$mid_db.one_2_one_duid"
-duid_fsid_mapping="$mid_db.duid_unid_mapping"
 
-app_unid_final_mapping="$mid_db.old_new_unid_mapping_par"
-
-ids_vertex_par="$mid_db.duid_vertex_par_ids"
-ids_unid_final_mapping="$mid_db.ids_old_new_unid_mapping_par"
-
-all_vertex_par="$mid_db.duid_vertex_par_all"
-all_unid_final_mapping="$mid_db.all_old_new_unid_mapping_par"
 ids_duid_final_muid_final="$mid_db.duid_final_muid_final_mapping"
 
 device_muid_mapping_full="dm_mobdi_mapping.device_muid_mapping_full"
@@ -128,7 +121,9 @@ drop table if exists $device_muid_mapping_full_fixed_step1;
 create table $device_muid_mapping_full_fixed_step1 as
 select device_old,device_token,
 case when b.muid is not null then '' else coalesce(muid_final,a.muid) end as muid,
-token,ieid,mcid,snid,oiid,asid,sysver,factory,serdatetime,
+token,ieid,mcid,snid,oiid,
+case when coalesce(b.asid)<>'' then '' else asid end asid,
+sysver,factory,serdatetime,
 case when b.muid is not null then 0 when muid_final is not null then 1
 when oiid is not null and oiid<>'' then 2
 when ieid is not null and ieid<>'' then 3
@@ -138,6 +133,7 @@ select device_old,device_token,muid,token,ieid,mcid,snid,oiid,asid,sysver,factor
 from $device_muid_mapping_full where day='$device_muid_mapping_par'
 ) a
 left join $blacklist_muid b on a.muid = b.muid
+left join $asid_black b on a.asid = b.asid
 left join
 (select muid,muid_final from $ids_duid_final_muid_final group by muid,muid_final) c
 on a.muid=c.muid
@@ -283,10 +279,10 @@ from
   group by duid,oiid,ieid,duid_final,muid,muid_final,factory,model
 ) a
 left join
-(select oiid,muid,factory,collect_set(asid) oiid_asid
+(select oiid,muid,factory,asid oiid_asid
 from $device_muid_mapping_full_fixed
 where oiid is not null
-group by oiid,muid,factory) b
+group by oiid,muid,factory,asid) b
 on a.oiid=b.oiid and a.factory=b.factory
 
 union all
@@ -318,7 +314,7 @@ left join
   from $device_muid_mapping_full_fixed
   group by ieid,muid
 ) b on a.ieid=b.ieid
-where a,ieid is not null and a.ieid<>''
+where a.ieid is not null and a.ieid<>''
 
 union all
 
