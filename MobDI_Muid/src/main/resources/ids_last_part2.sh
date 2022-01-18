@@ -8,6 +8,9 @@ asid_black="$mid_db.asid_blacklist_full"
 
 blacklist_muid="$mid_db.blacklist_muid"
 
+ieid_black="$mid_db.ieid_blacklist_full"
+oiid_black="$mid_db.oiid_blacklist_full"
+
 ids_duid_final_muid_final="$mid_db.duid_final_muid_final_mapping"
 
 device_muid_mapping_full="dm_mobdi_mapping.device_muid_mapping_full"
@@ -17,6 +20,7 @@ device_muid_mapping_full_fixed_step1="$mid_db.device_muid_mapping_full_fixed_ste
 device_muid_mapping_full_fixed="$mid_db.device_muid_mapping_full_fixed"
 device_muid_mapping_full_fixed_ieid="$mid_db.device_muid_mapping_full_fixed_ieid"
 device_muid_mapping_full_fixed_final="$mid_db.device_muid_mapping_full_fixed_final"
+device_muid_mapping_full_fixed_final_without_blacklist="$mid_db.device_muid_mapping_full_fixed_final_without_blacklist"
 
 duid_mid_with_id="$mid_db.duid_mid_with_id"
 duid_mid_with_id_final="$mid_db.duid_mid_with_id_final"
@@ -255,6 +259,29 @@ from $device_muid_mapping_full_fixed_ieid a
 left join tmp_oiid_muid b on a.oiid=b.oiid
 "
 
+hive -e "
+$sqlset
+drop table if exists $device_muid_mapping_full_fixed_final_without_blacklist;
+create table $device_muid_mapping_full_fixed_final_without_blacklist stored as orc as
+select device_old,device_token,muid,token,a.ieid,mcid,snid,a.oiid,a.asid,sysver,factory,serdatetime,flag
+from $device_muid_mapping_full_fixed_final a
+left join $ieid_black b on a.ieid=b.ieid
+left join $oiid_black c on a.oiid=c.oiid
+left join $asid_black d on a.asid=d.asid
+where b.ieid is null and c.oiid is null and d.asid is null
+"
+
+hive -e "
+$sqlset
+insert overwrite table $dws_mid_ids_mapping partition(day='final')
+select duid,a.oiid,a.ieid,factory,model,unid,unid_ieid,unid_oiid,unid_final,
+duid_final,muid,muid_final,serdatetime
+from $dws_mid_ids_mapping a
+left join $ieid_black b on a.ieid=b.ieid
+left join $oiid_black c on a.oiid=c.oiid
+where a.day=20211101 and b.ieid is null and c.oiid is null
+"
+
 #表E=$dws_mid_ids_mapping partition(day='20211101')
 #表F=$device_muid_mapping_full_fixed
 #3、将表E中有设备id（ieid，oiid）的数据和表F进行合并，记为表G，按如下操作进行
@@ -275,12 +302,12 @@ from
   select duid,oiid,ieid,duid_final,factory,model,
   min(case when serdatetime is null or serdatetime='' then null else serdatetime end) serdatetime
   from $dws_mid_ids_mapping
-  where day='20211101' and oiid is not null and  oiid<>''
+  where day='final' and oiid is not null and  oiid<>''
   group by duid,oiid,ieid,duid_final,muid,muid_final,factory,model
 ) a
 left join
 (select oiid,muid,factory,asid oiid_asid
-from $device_muid_mapping_full_fixed
+from $device_muid_mapping_full_fixed_final_without_blacklist
 where oiid is not null
 group by oiid,muid,factory,asid) b
 on a.oiid=b.oiid and a.factory=b.factory
@@ -289,7 +316,7 @@ union all
 
 select duid,oiid,ieid,duid_final,factory,model,serdatetime,'' oiid_mid,array() oiid_asid
 from $dws_mid_ids_mapping
-where day='20211101' and (oiid is null or oiid='')
+where day='final' and (oiid is null or oiid='')
 "
 
 hive -e "
@@ -311,7 +338,7 @@ from $duid_mid_with_id a
 left join
 (
   select ieid,muid,collect_set(asid) ieid_asid
-  from $device_muid_mapping_full_fixed
+  from $device_muid_mapping_full_fixed_final_without_blacklist
   group by ieid,muid
 ) b on a.ieid=b.ieid
 where a.ieid is not null and a.ieid<>''

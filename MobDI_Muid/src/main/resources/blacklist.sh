@@ -96,25 +96,25 @@ select oiid from (
 
 " &
 #一个adsid对应3个以上imei或5个以上oaid
-#hive -e "
-#$sqlset
-#drop table if exists $asid_blacklist;
-#create table $asid_blacklist stored as orc as
-#select asid from(
-#    select asid from (
-#        select asid,ieid from $device_muid_mapping_full_fixed_final
-#        where coalesce(asid)<>'' and coalesce(ieid)<>''
-#    group by asid,ieid
-#) a group by asid having count(ieid)>10
-#
-#union all
-#
-#select asid from (
-#    select asid,oiid from $device_muid_mapping_full_fixed_final
-#        where coalesce(asid)<>'' and coalesce(oiid)<>''
-#        group by asid,oiid
-#    ) b group by asid having count(oiid)>5
-#" &
+hive -e "
+$sqlset
+drop table if exists $asid_blacklist;
+create table $asid_blacklist stored as orc as
+select asid from(
+    select asid from (
+        select asid,ieid from $device_muid_mapping_full_fixed_final
+        where coalesce(asid)<>'' and coalesce(ieid)<>''
+    group by asid,ieid
+) a group by asid having count(ieid)>10
+
+union all
+
+select asid from (
+    select asid,oiid from $device_muid_mapping_full_fixed_final
+        where coalesce(asid)<>'' and coalesce(oiid)<>''
+        group by asid,oiid
+    ) b group by asid having count(oiid)>5
+" &
 
 wait
 
