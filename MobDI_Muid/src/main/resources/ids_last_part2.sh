@@ -109,7 +109,7 @@ add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
 create temporary function sha as 'com.youzu.mob.java.udf.SHA1Hashing';
 drop table if exists $duid_mid_without_id;
 create table $duid_mid_without_id stored as orc as
-select duid,duid_final,sha1(duid_final) mid
+select duid,duid_final,coalesce(sha1(duid_final),'') mid
 from $dws_mid_ids_mapping where day='20211101' and (oiid is null or oiid='') and (ieid is null or ieid='')
 group by duid,duid_final
 "
@@ -329,10 +329,10 @@ select duid,oiid,a.ieid,duid_final,
 case when oiid_asid is null then ieid_asid
 case when ieid_asid is null then oiid_asid
 else array_distinct(split(concat_ws(',',oiid_asid,ieid_asid),',')) end asid,
-case when oiid_mid is not null and oiid_mid <> '' then oiid_mid
+coalesce(case when oiid_mid is not null and oiid_mid <> '' then oiid_mid
       when (b.muid is not null and b.muid <> '') then b.muid
      else sha1(a.duid_final)
-end as mid,
+end,'') as mid,
 factory,model,serdatetime
 from $duid_mid_with_id a
 left join
@@ -346,7 +346,7 @@ where a.ieid is not null and a.ieid<>''
 union all
 
 select duid,oiid,ieid,duid_final,oiid_asid asid,
-case when (oiid_mid is not null and oiid_mid <> '') then oiid_mid else sha1(a.duid_final) end as mid
+coalesce(case when (oiid_mid is not null and oiid_mid <> '') then oiid_mid else sha1(a.duid_final) end,'') as mid
 ,factory,model,serdatetime
 from $duid_mid_with_id
 where ieid is null or ieid=''
