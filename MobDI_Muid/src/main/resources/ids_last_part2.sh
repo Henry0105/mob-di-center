@@ -26,6 +26,7 @@ duid_mid_with_id="$mid_db.duid_mid_with_id"
 duid_mid_with_id_final="$mid_db.duid_mid_with_id_final"
 duid_mid_without_id="$mid_db.duid_mid_without_id"
 duid_mid_with_id_explode="$mid_db.duid_mid_with_id_explode"
+duid_mid_with_id_explode_final="$mid_db.duid_mid_with_id_explode_final"
 
 sqlset="
 set mapred.max.split.size=256000000;
@@ -40,6 +41,7 @@ set hive.support.quoted.identifiers=None;
 set hive.exec.dynamic.partition.mode=nonstrict;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
+SET hive.exec.parallel=true;
 "
 
 ####################################part2####################################
@@ -106,7 +108,7 @@ where day='normal' and (muid is null or muid='')
 hive -e "
 $sqlset
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
-create temporary function sha as 'com.youzu.mob.java.udf.SHA1Hashing';
+create temporary function sha1 as 'com.youzu.mob.java.udf.SHA1Hashing';
 drop table if exists $duid_mid_without_id;
 create table $duid_mid_without_id stored as orc as
 select duid,duid_final,coalesce(sha1(duid_final),'') mid
@@ -291,8 +293,6 @@ where a.day=20211101 and b.ieid is null and c.oiid is null
 
 hive -e "
 $sqlset
-add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
-create temporary function sha as 'com.youzu.mob.java.udf.SHA1Hashing';
 drop table if exists $duid_mid_with_id;
 create table $duid_mid_with_id stored as orc as
 select duid,a.oiid,ieid,duid_final,a.factory,model,serdatetime,
@@ -322,7 +322,7 @@ where day='final' and (oiid is null or oiid='')
 hive -e "
 $sqlset
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
-create temporary function sha as 'com.youzu.mob.java.udf.SHA1Hashing';
+create temporary function sha1 as 'com.youzu.mob.java.udf.SHA1Hashing';
 drop table if exists $duid_mid_with_id_final;
 create table $duid_mid_with_id_final stored as orc as
 select duid,oiid,a.ieid,duid_final,
@@ -360,3 +360,42 @@ select duid,oiid,ieid,duid_final,explode(coalesce(adsid,array())) adsid,mid,
 factory,model,serdatetime from $duid_mid_with_id_final
 "
 
+
+hive -e "
+$sqlset
+drop table if exists $duid_mid_with_id_explode_final;
+
+create table $duid_mid_with_id_explode_final like $duid_mid_with_id_explode;
+
+with without_ieid as (
+  select '' duid,oiid,a.ieid,'' duid_final,asid,muid mid,factory,null model,serdatetime
+  from $device_muid_mapping_full_fixed_final_without_blacklist a
+  left join
+  (select ieid from $dws_mid_ids_mapping where day='final' group by ieid) b
+  on a.ieid = b.ieid
+  where coalesce(a.ieid) <>'' and b.ieid is null
+
+  union all
+
+  select '' duid,oiid,ieid,'' duid_final,asid,muid mid,factory,null model,serdatetime
+  from $device_muid_mapping_full_fixed_final_without_blacklist
+  where coalesce(ieid) =''
+),
+without_oiid as (
+  select duid,a.oiid,ieid,duid_final,asid,mid,factory,model,serdatetime
+  from without_ieid a
+  left join
+  (select oiid from $dws_mid_ids_mapping where day='final' group by oiid) b
+  on a.oiid=b.oiid
+  where coalesce(a.oiid) <>'' and b.oiid is null
+
+  union all
+
+  select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime
+  from without_ieid where coalesce(oiid) =''
+)
+insert overwrite table $duid_mid_with_id_explode_final
+select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from $duid_mid_with_id_explode
+union all
+select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from without_oiid
+"
