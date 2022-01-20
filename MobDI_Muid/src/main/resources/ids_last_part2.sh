@@ -3,18 +3,14 @@ set -x -e
 
 mid_db="dm_mid_master"
 dws_mid_ids_mapping="$mid_db.dws_mid_ids_mapping"
-dws_mid_duid_final_muid_mapping_detail="$mid_db.dws_mid_ids_mapping_detail"
+
+asid_black="$mid_db.asid_blacklist_full"
+
 blacklist_muid="$mid_db.blacklist_muid"
-one_2_one_duid="$mid_db.one_2_one_duid"
-duid_fsid_mapping="$mid_db.duid_unid_mapping"
 
-app_unid_final_mapping="$mid_db.old_new_unid_mapping_par"
+ieid_black="$mid_db.ieid_blacklist_full"
+oiid_black="$mid_db.oiid_blacklist_full"
 
-ids_vertex_par="$mid_db.duid_vertex_par_ids"
-ids_unid_final_mapping="$mid_db.ids_old_new_unid_mapping_par"
-
-all_vertex_par="$mid_db.duid_vertex_par_all"
-all_unid_final_mapping="$mid_db.all_old_new_unid_mapping_par"
 ids_duid_final_muid_final="$mid_db.duid_final_muid_final_mapping"
 
 device_muid_mapping_full="dm_mobdi_mapping.device_muid_mapping_full"
@@ -24,11 +20,13 @@ device_muid_mapping_full_fixed_step1="$mid_db.device_muid_mapping_full_fixed_ste
 device_muid_mapping_full_fixed="$mid_db.device_muid_mapping_full_fixed"
 device_muid_mapping_full_fixed_ieid="$mid_db.device_muid_mapping_full_fixed_ieid"
 device_muid_mapping_full_fixed_final="$mid_db.device_muid_mapping_full_fixed_final"
+device_muid_mapping_full_fixed_final_without_blacklist="$mid_db.device_muid_mapping_full_fixed_final_without_blacklist"
 
 duid_mid_with_id="$mid_db.duid_mid_with_id"
 duid_mid_with_id_final="$mid_db.duid_mid_with_id_final"
 duid_mid_without_id="$mid_db.duid_mid_without_id"
 duid_mid_with_id_explode="$mid_db.duid_mid_with_id_explode"
+duid_mid_with_id_explode_final="$mid_db.duid_mid_with_id_explode_final"
 
 sqlset="
 set mapred.max.split.size=256000000;
@@ -43,6 +41,7 @@ set hive.support.quoted.identifiers=None;
 set hive.exec.dynamic.partition.mode=nonstrict;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
+SET hive.exec.parallel=true;
 "
 
 ####################################part2####################################
@@ -109,10 +108,10 @@ where day='normal' and (muid is null or muid='')
 hive -e "
 $sqlset
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
-create temporary function sha as 'com.youzu.mob.java.udf.SHA1Hashing';
+create temporary function sha1 as 'com.youzu.mob.java.udf.SHA1Hashing';
 drop table if exists $duid_mid_without_id;
 create table $duid_mid_without_id stored as orc as
-select duid,duid_final,sha1(duid_final) mid
+select duid,duid_final,coalesce(sha1(duid_final),'') mid
 from $dws_mid_ids_mapping where day='20211101' and (oiid is null or oiid='') and (ieid is null or ieid='')
 group by duid,duid_final
 "
@@ -128,7 +127,9 @@ drop table if exists $device_muid_mapping_full_fixed_step1;
 create table $device_muid_mapping_full_fixed_step1 as
 select device_old,device_token,
 case when b.muid is not null then '' else coalesce(muid_final,a.muid) end as muid,
-token,ieid,mcid,snid,oiid,asid,sysver,factory,serdatetime,
+token,ieid,mcid,snid,oiid,
+case when coalesce(b.asid)<>'' then '' else asid end asid,
+sysver,factory,serdatetime,
 case when b.muid is not null then 0 when muid_final is not null then 1
 when oiid is not null and oiid<>'' then 2
 when ieid is not null and ieid<>'' then 3
@@ -138,6 +139,7 @@ select device_old,device_token,muid,token,ieid,mcid,snid,oiid,asid,sysver,factor
 from $device_muid_mapping_full where day='$device_muid_mapping_par'
 ) a
 left join $blacklist_muid b on a.muid = b.muid
+left join $asid_black b on a.asid = b.asid
 left join
 (select muid,muid_final from $ids_duid_final_muid_final group by muid,muid_final) c
 on a.muid=c.muid
@@ -259,6 +261,29 @@ from $device_muid_mapping_full_fixed_ieid a
 left join tmp_oiid_muid b on a.oiid=b.oiid
 "
 
+hive -e "
+$sqlset
+drop table if exists $device_muid_mapping_full_fixed_final_without_blacklist;
+create table $device_muid_mapping_full_fixed_final_without_blacklist stored as orc as
+select device_old,device_token,muid,token,a.ieid,mcid,snid,a.oiid,a.asid,sysver,factory,serdatetime,flag
+from $device_muid_mapping_full_fixed_final a
+left join $ieid_black b on a.ieid=b.ieid
+left join $oiid_black c on a.oiid=c.oiid
+left join $asid_black d on a.asid=d.asid
+where b.ieid is null and c.oiid is null and d.asid is null
+"
+
+hive -e "
+$sqlset
+insert overwrite table $dws_mid_ids_mapping partition(day='final')
+select duid,a.oiid,a.ieid,factory,model,unid,unid_ieid,unid_oiid,unid_final,
+duid_final,muid,muid_final,serdatetime
+from $dws_mid_ids_mapping a
+left join $ieid_black b on a.ieid=b.ieid
+left join $oiid_black c on a.oiid=c.oiid
+where a.day=20211101 and b.ieid is null and c.oiid is null
+"
+
 #表E=$dws_mid_ids_mapping partition(day='20211101')
 #表F=$device_muid_mapping_full_fixed
 #3、将表E中有设备id（ieid，oiid）的数据和表F进行合并，记为表G，按如下操作进行
@@ -268,8 +293,6 @@ left join tmp_oiid_muid b on a.oiid=b.oiid
 
 hive -e "
 $sqlset
-add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
-create temporary function sha as 'com.youzu.mob.java.udf.SHA1Hashing';
 drop table if exists $duid_mid_with_id;
 create table $duid_mid_with_id stored as orc as
 select duid,a.oiid,ieid,duid_final,a.factory,model,serdatetime,
@@ -279,51 +302,51 @@ from
   select duid,oiid,ieid,duid_final,factory,model,
   min(case when serdatetime is null or serdatetime='' then null else serdatetime end) serdatetime
   from $dws_mid_ids_mapping
-  where day='20211101' and oiid is not null and  oiid<>''
+  where day='final' and oiid is not null and  oiid<>''
   group by duid,oiid,ieid,duid_final,muid,muid_final,factory,model
 ) a
 left join
-(select oiid,muid,factory,collect_set(asid) oiid_asid
-from $device_muid_mapping_full_fixed
+(select oiid,muid,factory,asid oiid_asid
+from $device_muid_mapping_full_fixed_final_without_blacklist
 where oiid is not null
-group by oiid,muid,factory) b
+group by oiid,muid,factory,asid) b
 on a.oiid=b.oiid and a.factory=b.factory
 
 union all
 
 select duid,oiid,ieid,duid_final,factory,model,serdatetime,'' oiid_mid,array() oiid_asid
 from $dws_mid_ids_mapping
-where day='20211101' and (oiid is null or oiid='')
+where day='final' and (oiid is null or oiid='')
 "
 
 hive -e "
 $sqlset
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
-create temporary function sha as 'com.youzu.mob.java.udf.SHA1Hashing';
+create temporary function sha1 as 'com.youzu.mob.java.udf.SHA1Hashing';
 drop table if exists $duid_mid_with_id_final;
 create table $duid_mid_with_id_final stored as orc as
 select duid,oiid,a.ieid,duid_final,
 case when oiid_asid is null then ieid_asid
 case when ieid_asid is null then oiid_asid
 else array_distinct(split(concat_ws(',',oiid_asid,ieid_asid),',')) end asid,
-case when oiid_mid is not null and oiid_mid <> '' then oiid_mid
+coalesce(case when oiid_mid is not null and oiid_mid <> '' then oiid_mid
       when (b.muid is not null and b.muid <> '') then b.muid
      else sha1(a.duid_final)
-end as mid,
+end,'') as mid,
 factory,model,serdatetime
 from $duid_mid_with_id a
 left join
 (
   select ieid,muid,collect_set(asid) ieid_asid
-  from $device_muid_mapping_full_fixed
+  from $device_muid_mapping_full_fixed_final_without_blacklist
   group by ieid,muid
 ) b on a.ieid=b.ieid
-where a,ieid is not null and a.ieid<>''
+where a.ieid is not null and a.ieid<>''
 
 union all
 
 select duid,oiid,ieid,duid_final,oiid_asid asid,
-case when (oiid_mid is not null and oiid_mid <> '') then oiid_mid else sha1(a.duid_final) end as mid
+coalesce(case when (oiid_mid is not null and oiid_mid <> '') then oiid_mid else sha1(a.duid_final) end,'') as mid
 ,factory,model,serdatetime
 from $duid_mid_with_id
 where ieid is null or ieid=''
@@ -333,7 +356,50 @@ hive -e "
 $sqlset
 drop table if exists $duid_mid_with_id_explode;
 create table $duid_mid_with_id_explode stored as orc as
-select duid,oiid,ieid,duid_final,explode(coalesce(adsid,array())) adsid,mid,
+select duid,oiid,ieid,duid_final,asid_tmp asid,mid,
 factory,model,serdatetime from $duid_mid_with_id_final
+LATERAL VIEW explode(coalesce(asid,array())) tmpTable as asid_tmp
 "
 
+
+hive -e "
+$sqlset
+drop table if exists $duid_mid_with_id_explode_final;
+
+create table $duid_mid_with_id_explode_final like $duid_mid_with_id_explode;
+
+with without_ieid as (
+  select '' duid,oiid,a.ieid,'' duid_final,asid,muid mid,factory,null model,serdatetime
+  from $device_muid_mapping_full_fixed_final_without_blacklist a
+  left join
+  (select ieid from $dws_mid_ids_mapping where day='final' group by ieid) b
+  on a.ieid = b.ieid
+  where coalesce(a.ieid) <>'' and b.ieid is null
+
+  union all
+
+  select '' duid,oiid,ieid,'' duid_final,asid,muid mid,factory,null model,serdatetime
+  from $device_muid_mapping_full_fixed_final_without_blacklist
+  where coalesce(ieid) =''
+),
+without_oiid as (
+  select duid,a.oiid,ieid,duid_final,asid,mid,factory,model,serdatetime
+  from without_ieid a
+  left join
+  (select oiid from $dws_mid_ids_mapping where day='final' group by oiid) b
+  on a.oiid=b.oiid
+  where coalesce(a.oiid) <>'' and b.oiid is null
+
+  union all
+
+  select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime
+  from without_ieid where coalesce(oiid) =''
+)
+insert overwrite table $duid_mid_with_id_explode_final
+select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from $duid_mid_with_id_explode
+union all
+select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from without_oiid
+union all
+select duid,oiid,ieid,duid_final,'' asid,mid,factory,model,serdatetime from $duid_mid_with_id_final
+where asid is null or size(asid)=0
+"

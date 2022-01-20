@@ -3,6 +3,7 @@ package com.mob.mid_full
 import org.apache.spark.graphx.{Edge, Graph, VertexId}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.storage.StorageLevel
 
 object Step2TokenConnectedComponents {
 
@@ -72,7 +73,8 @@ object Step2TokenConnectedComponents {
         }
       )
 
-    val graph = Graph(verticexRdd, edgeRdd)
+    val m = StorageLevel.MEMORY_AND_DISK_2
+    val graph = Graph(verticexRdd, edgeRdd, null.asInstanceOf[String], edgeStorageLevel = m, vertexStorageLevel = m)
 
     val ccGraph: Graph[VertexId, String] = graph.connectedComponents(maxValue)
 

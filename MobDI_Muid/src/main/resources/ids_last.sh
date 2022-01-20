@@ -14,9 +14,8 @@ ids_unid_final_mapping="$mid_db.ids_old_new_unid_mapping_par"
 all_vertex_par="$mid_db.duid_vertex_par_all"
 all_unid_final_mapping="$mid_db.all_old_new_unid_mapping_par"
 
-ieid_black="$mid_db.ieid_blacklist"
-
-oiid_black="$mid_db.oiid_blacklist"
+ieid_black="$mid_db.ieid_blacklist_full"
+oiid_black="$mid_db.oiid_blacklist_full"
 
 ieid_unid_tmp="$mid_db.ieid_unid_tmp"
 oiid_unid_tmp="$mid_db.oiid_unid_tmp"
@@ -68,14 +67,14 @@ case when b.ieid is null then coalesce(a.ieid,'') else '' end as ieid,
 factory,model,
 '' unid,'' unid_ieid,'' unid_oiid,'' unid_final,'' duid_final,muid,'' muid_final,serdatetime
 from(
-select duid,oiid,ieid,muid,factory,model,serdatetime,
-row_number() over (partition by duid,oiid,ieid,muid,factory,model order by serdatetime) rn
+select duid,oiid,ieid,muid,factory,model,
+min(case when serdatetime is null or serdatetime='' then null else serdatetime end) serdatetime
 from $dws_mid_duid_final_muid_mapping_detail
 where duid is not null and duid<>''
+group by duid,oiid,ieid,muid,factory,model
 ) a
 left join $ieid_black b on a.ieid=b.ieid
 left join $oiid_black c on a.oiid=c.oiid
-where rn=1
 "
 
 #unid缺失的重新生成(覆盖之前过滤掉的8亿duid)
