@@ -356,8 +356,9 @@ hive -e "
 $sqlset
 drop table if exists $duid_mid_with_id_explode;
 create table $duid_mid_with_id_explode stored as orc as
-select duid,oiid,ieid,duid_final,explode(coalesce(adsid,array())) adsid,mid,
+select duid,oiid,ieid,duid_final,asid_tmp asid,mid,
 factory,model,serdatetime from $duid_mid_with_id_final
+LATERAL VIEW explode(coalesce(asid,array())) tmpTable as asid_tmp
 "
 
 
@@ -398,4 +399,7 @@ insert overwrite table $duid_mid_with_id_explode_final
 select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from $duid_mid_with_id_explode
 union all
 select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from without_oiid
+union all
+select duid,oiid,ieid,duid_final,'' asid,mid,factory,model,serdatetime from $duid_mid_with_id_final
+where asid is null or size(asid)=0
 "
