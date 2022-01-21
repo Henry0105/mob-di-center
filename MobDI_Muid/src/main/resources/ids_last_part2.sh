@@ -394,6 +394,7 @@ select duid,oiid,ieid,duid_final,'' asid,mid,factory,model,serdatetime from $dui
 where asid is null or size(asid)=0
 "
 #根据duid聚合取最老的一条mid作为最终mid
+#mid为空的,是从图计算到后续计算都没有关联到的,算是一对一的数据,直接取duid为duid_final
 hive -e "
 $sqlset
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
@@ -410,7 +411,7 @@ with duid_mid as (
   ) t group by duid,mid_final
 )
 insert overwrite table $duid_mid_with_id_explode_final_fixed
-select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from(
+select duid,oiid,ieid,duid_final,asid,if(coalesce(mid)='',sha1(duid),mid) mid,factory,model,serdatetime from(
   select a.duid,oiid,ieid,duid_final,asid,mid_final mid,factory,model,serdatetime
   from $duid_mid_with_id_explode_final a
   left join duid_mid b on a.duid=b.duid
@@ -434,7 +435,7 @@ add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
 create temporary function sha1 as 'com.youzu.mob.java.udf.SHA1Hashing';
 drop table if exists $duid_mid_without_id;
 create table $duid_mid_without_id stored as orc as
-select a.duid,duid_final,coalesce(sha1(duid_final),'') mid
+select a.duid,duid_final,if(coalesce(duid_final)='',sha1(duid),sha1(duid_final)) mid
 from $dws_mid_ids_mapping a
 left join
 (select duid from $duid_mid_with_id_explode_final_fixed where coalesce(mid)<>'' and coalesce(duid)<>'' group by duid) b
