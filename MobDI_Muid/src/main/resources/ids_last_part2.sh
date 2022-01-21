@@ -27,6 +27,7 @@ duid_mid_with_id_final="$mid_db.duid_mid_with_id_final"
 duid_mid_without_id="$mid_db.duid_mid_without_id"
 duid_mid_with_id_explode="$mid_db.duid_mid_with_id_explode"
 duid_mid_with_id_explode_final="$mid_db.duid_mid_with_id_explode_final"
+duid_mid_with_id_explode_final_fixed="$mid_db.duid_mid_with_id_explode_final_fixed"
 
 sqlset="
 set mapred.max.split.size=256000000;
@@ -104,17 +105,6 @@ from $dws_mid_ids_mapping
 where day='normal' and (muid is null or muid='')
 "
 
-#4、将表E中没有设备id（ieid，oiid）的数据，提取duid和duid_final的关系，记为表H，并对duid_final做sha1操作，作为mid
-hive -e "
-$sqlset
-add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
-create temporary function sha1 as 'com.youzu.mob.java.udf.SHA1Hashing';
-drop table if exists $duid_mid_without_id;
-create table $duid_mid_without_id stored as orc as
-select duid,duid_final,coalesce(sha1(duid_final),'') mid
-from $dws_mid_ids_mapping where day='20211101' and (oiid is null or oiid='') and (ieid is null or ieid='')
-group by duid,duid_final
-"
 
 #1.一个muid对应多个duid_final的记录置空flag=0
 #2.其余的取最早的muid作为muid_final flage=1
@@ -402,4 +392,54 @@ select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from without
 union all
 select duid,oiid,ieid,duid_final,'' asid,mid,factory,model,serdatetime from $duid_mid_with_id_final
 where asid is null or size(asid)=0
+"
+#根据duid聚合取最老的一条mid作为最终mid
+hive -e "
+$sqlset
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
+create temporary function sha1 as 'com.youzu.mob.java.udf.SHA1Hashing';
+
+drop table if exists $duid_mid_with_id_explode_final_fixed;
+
+create table $duid_mid_with_id_explode_final_fixed like $duid_mid_with_id_explode;
+with duid_mid as (
+  select duid,mid_final from
+  (
+    select duid,first_value(mid) over (partition by duid_final order by serdatetime) mid_final
+    from $duid_mid_with_id_explode_final where coalesce(duid)<>''
+  ) t
+)
+
+select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from(
+  select a.duid,oiid,ieid,duid_final,asid,mid_final mid,factory,model,serdatetime
+  from $duid_mid_with_id_explode_final a
+  left join duid_mid b on a.duid=b.duid
+  where coalesce(a.duid)<>''
+
+  union all
+
+  select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime
+  from $duid_mid_with_id_explode_final
+  where coalesce(duid)=''
+) t where coalesce(ieid)<>'' or coalesce(oiid)<>''
+group by duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime
+"
+
+
+#4、将表E中没有设备id（ieid，oiid）的数据，提取duid和duid_final的关系，记为表H，并对duid_final做sha1操作，作为mid
+#如果duid有的行有ieid或oiid并且有mid,那么这个duid不应该出现在该结果表
+hive -e "
+$sqlset
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
+create temporary function sha1 as 'com.youzu.mob.java.udf.SHA1Hashing';
+drop table if exists $duid_mid_without_id;
+create table $duid_mid_without_id stored as orc as
+select duid,duid_final,coalesce(sha1(duid_final),'') mid
+from $dws_mid_ids_mapping a
+left join
+(select duid from $duid_mid_with_id_explode_final_fixed where coalesce(mid)<>''  group by duid) b
+on a.duid=b.duid
+where day='20211101' and (oiid is null or oiid='') and (ieid is null or ieid='')
+and b.duid is null
+group by duid,duid_final
 "
