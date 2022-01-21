@@ -26,17 +26,15 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 ## 目标表
 #dws_device_active_di=dm_mobdi_topic.dws_device_active_di
 
-hive -v -e "
-SET hive.exec.dynamic.partition=true;  
-SET hive.exec.dynamic.partition.mode=nonstrict; 
+HADOOP_USER_NAME=dba hive -v -e "
+SET hive.exec.dynamic.partition=true;
+SET hive.exec.dynamic.partition.mode=nonstrict;
 SET hive.exec.max.dynamic.partitions.pernode = 1000;
 SET hive.exec.max.dynamic.partitions=1000;
 SET mapreduce.map.memory.mb=4096;
-set mapreduce.map.java.opts='-Xmx3g';
-set mapreduce.child.map.java.opts='-Xmx3g';
+set mapreduce.map.java.opts=-Xmx3g -XX:+UseG1GC;
 set mapreduce.reduce.memory.mb=10240;
 SET mapreduce.reduce.java.opts='-Xmx9g';
-SET mapreduce.child.reduce.java.opts='-Xmx3g';
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;
@@ -44,9 +42,10 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
+set mapreduce.job.queuename=root.yarn_data_compliance1;
 
 INSERT OVERWRITE TABLE $dws_device_active_di PARTITION (day = '$day', plat, source)
-select muid as device,
+select if(plat=1,muid,deviceid) as device,
        trim(packagename) as pkg,
        trim(apppkg) AS apppkg,
        if(appkey is null
@@ -65,12 +64,13 @@ select muid as device,
        'xm' as source
 FROM $dwd_xm_device_app_runtimes_sec_di
 WHERE day = '$day'
-and trim(lower(muid)) rlike '^[a-f0-9]{40}$'
+and trim(lower(if(plat=1,muid,deviceid))) rlike '^[a-f0-9]{40}$'
+and trim(if(plat=1,muid,deviceid)) != '0000000000000000000000000000000000000000'
 and packagename is not null
 and trim(packagename) not in ('','null','NULL')
 and trim(packagename)=regexp_extract(trim(packagename),'([a-zA-Z0-9\.\_-]+)',0)
 and plat in (1, 2)
-group by muid,
+group by if(plat=1,muid,deviceid),
          trim(packagename),
          trim(apppkg),
          if(appkey is null

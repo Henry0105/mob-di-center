@@ -1,13 +1,14 @@
 package com.mob.deviceid.gen
 
-import com.mob.deviceid.config.HiveProps._
+import com.mob.deviceid.config.HiveProps
 import com.mob.deviceid.udf._
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.slf4j.{Logger, LoggerFactory}
 import org.apache.spark.storage.StorageLevel
 
 object GenDeviceIdInc {
-  private val LOGGER: Logger = LoggerFactory.getLogger("GenDeviceIdInc")
+  private val LOGGER: Logger = LoggerFactory.getLogger("GenDeviceIdIncOld")
+
 
 
   def sql(spark: SparkSession, s: String): DataFrame = {
@@ -31,6 +32,7 @@ object GenDeviceIdInc {
   }
 
   def main(args: Array[String]): Unit = {
+    import HiveProps._
     val spark: SparkSession = SparkSession.builder().enableHiveSupport().appName("unique_id").getOrCreate()
 
     val day = args(0)
@@ -94,8 +96,8 @@ object GenDeviceIdInc {
          |   (
          |     select device,token,imei,mac,serialno,oaid,adsid,sysver,factory,serdatetime,
          |     row_number() over(partition by device,token,imei,mac,serialno,oaid,adsid,sysver,factory order by serdatetime desc) as rank
-         |     from $GEN_ID_TABLE
-         |     where dt='$day' and plat=1
+         |     from dw_sdk_log.log_device_info_jh
+         |     where dt='${day}' and plat=1
          |           and device is not null
          |           and device rlike '[a-f0-9]{40}'
          |           and device!='0000000000000000000000000000000000000000'
@@ -105,13 +107,13 @@ object GenDeviceIdInc {
          |  ) t
          |) a
          |left join
-         |(select value from $BLACKLIST_VIEW where type='imei' and value is not null and value!='') b1
+         |(select value from dm_sdk_mapping.blacklist_view where type='imei' and value is not null and value!='') b1
          |on a.imei=b1.value
          |left join
-         |(select value from $BLACKLIST_VIEW where type='mac' and value is not null and value!='') b2
+         |(select value from dm_sdk_mapping.blacklist_view where type='mac' and value is not null and value!='') b2
          |on a.mac=b2.value
          |left join
-         |(select value from $BLACKLIST_VIEW where type='serialno' and value is not null and value!='') b3
+         |(select value from dm_sdk_mapping.blacklist_view where type='serialno' and value is not null and value!='') b3
          |on a.serialno=b3.value
          |""".stripMargin).createOrReplaceTempView("muid_incr_source_table")
 
@@ -167,12 +169,18 @@ object GenDeviceIdInc {
     val gen_id_raw = "jh_table_remove_exception_value"
     genIdRawDF.createOrReplaceTempView(gen_id_raw)
     // newTable(spark, gen_id_raw, genIdRawSql)
-
     // 增量黑名单逻辑
+    val muid_ieid_mcid_mapping = "dm_mobdi_mapping.muid_ieid_mcid_mapping_incr"
+    val muid_ieid_snid_mapping = "dm_mobdi_mapping.muid_ieid_snid_mapping_incr"
+    val muid_mcid_snid_mapping = "dm_mobdi_mapping.muid_mcid_snid_mapping_incr"
+
+    //这个分区是全量分区
+    val mappingPar = "20210329"
     // 更新黑名单映射mapping表
+
     spark.sql(
       s"""
-         |insert overwrite table $MUID_IEID_MCID_MAPPING_INCR partition(day='$day')
+         |insert overwrite table $muid_ieid_mcid_mapping partition(day='$day')
          |select ieid, mcid from $gen_id_raw
          |where ieid != '' and mcid != ''
          |group by ieid, mcid
@@ -180,7 +188,7 @@ object GenDeviceIdInc {
     )
     spark.sql(
       s"""
-         |insert overwrite table $MUID_IEID_SNID_MAPPING_INCR partition(day='$day')
+         |insert overwrite table $muid_ieid_snid_mapping partition(day='$day')
          |select ieid, snid from $gen_id_raw
          |where ieid != '' and snid != ''
          |group by ieid, snid
@@ -188,12 +196,13 @@ object GenDeviceIdInc {
     )
     spark.sql(
       s"""
-         |insert overwrite table $MUID_MCID_SNID_MAPPING_INCR partition(day='$day')
+         |insert overwrite table $muid_mcid_snid_mapping partition(day='$day')
          |select mcid, snid from $gen_id_raw
-         |where mcid != '' and snid != ''
+         |where  mcid != '' and snid != ''
          |group by mcid, snid
          |""".stripMargin
     )
+
     // 黑名单匹配
     val ieid_blacklist =
       s"""
@@ -204,8 +213,8 @@ object GenDeviceIdInc {
          |        select ieid, count(1)
          |        from (
          |            select ieid, mcid
-         |            from $MUID_IEID_MCID_MAPPING_INCR
-         |            where day>= '$MUID_MAPPING_INCR_PARTITION'
+         |            from $muid_ieid_mcid_mapping
+         |            where day>= '$mappingPar'
          |            group by ieid, mcid
          |        )t
          |        group by ieid
@@ -219,8 +228,8 @@ object GenDeviceIdInc {
          |        select ieid, count(1)
          |        from (
          |            select ieid, snid
-         |            from $MUID_IEID_SNID_MAPPING_INCR
-         |            where day>= '$MUID_MAPPING_INCR_PARTITION'
+         |            from $muid_ieid_snid_mapping
+         |            where day>= '$mappingPar'
          |            group by ieid, snid
          |        )t
          |        group by ieid
@@ -239,8 +248,8 @@ object GenDeviceIdInc {
          |        select mcid, count(1)
          |        from (
          |            select ieid, mcid
-         |            from $MUID_IEID_MCID_MAPPING_INCR
-         |            where day>= '$MUID_MAPPING_INCR_PARTITION'
+         |            from $muid_ieid_mcid_mapping
+         |            where day>= '$mappingPar'
          |            group by ieid, mcid
          |        )t
          |        group by mcid
@@ -254,8 +263,8 @@ object GenDeviceIdInc {
          |        select mcid, count(1)
          |        from (
          |            select mcid, snid
-         |            from $MUID_MCID_SNID_MAPPING_INCR
-         |            where day>= '$MUID_MAPPING_INCR_PARTITION'
+         |            from $muid_mcid_snid_mapping
+         |            where day>= '$mappingPar'
          |            group by mcid, snid
          |        )t
          |        group by mcid
@@ -274,8 +283,8 @@ object GenDeviceIdInc {
          |        select snid, count(1)
          |        from (
          |            select ieid, snid
-         |            from $MUID_IEID_SNID_MAPPING_INCR
-         |            where day>= '$MUID_MAPPING_INCR_PARTITION'
+         |            from $muid_ieid_snid_mapping
+         |            where day>= '$mappingPar'
          |            group by ieid, snid
          |        )t
          |        group by snid
@@ -289,8 +298,8 @@ object GenDeviceIdInc {
          |        select snid, count(1)
          |        from (
          |            select mcid, snid
-         |            from $MUID_MCID_SNID_MAPPING_INCR
-         |            where day>= '$MUID_MAPPING_INCR_PARTITION'
+         |            from $muid_mcid_snid_mapping
+         |            where day>= '$mappingPar'
          |            group by mcid, snid
          |        )t
          |        group by snid
@@ -300,7 +309,6 @@ object GenDeviceIdInc {
          |group by snid
          |""".stripMargin
     newTable(spark, "snid_blacklist", snid_blacklist)
-
 
 
     newTable(spark, "snid_bl",
@@ -313,11 +321,7 @@ object GenDeviceIdInc {
 
     // STEP1: 生成黑名单数据
     // 集群对于数据量有些大且长链路的Stage必失败，只能采取这样落地到临时表
-    val blacklistStep1Table = s"$DW_MOBDI_MD.source_left_join_snid_blacklist_p1"
-    val blacklistStep2Table = s"$DW_MOBDI_MD.source_left_join_snid_blacklist_p2"
-    val blacklistStep3Table = s"$DW_MOBDI_MD.source_left_join_blacklist_day"
-
-
+    val blacklistStep1Table = "dw_mobdi_md.source_left_join_snid_blacklist_p1"
     spark.sql(s"drop table if exists $blacklistStep1Table")
     spark.sql(
       s"""
@@ -338,6 +342,7 @@ object GenDeviceIdInc {
     // blacklistStep1DF.createOrReplaceTempView(blacklistStep1Table)
 
 
+    val blacklistStep2Table = "dw_mobdi_md.source_left_join_snid_blacklist_p2"
     spark.sql(s"drop table if exists $blacklistStep2Table")
     spark.sql(
       s"""
@@ -359,6 +364,7 @@ object GenDeviceIdInc {
 
 
 
+    val blacklistStep3Table = "dw_mobdi_md.source_left_join_blacklist_day"
     spark.sql(s"drop table if exists $blacklistStep3Table")
     spark.sql(
       s"""
@@ -376,7 +382,7 @@ object GenDeviceIdInc {
          |where mcid is null or mcid='unknown'
          |""".stripMargin
     )
-    // blacklistStep3DF.createOrReplaceTempView(blacklistStep3Table)
+    //blacklistStep3DF.createOrReplaceTempView(blacklistStep3Table)
 
     // 原始数据跟各个黑名单表进行join,新增一个flag,join上黑名单里的任意一个,就把flag置为1,否则为0
     val joinWithBl = spark.sql(
@@ -398,14 +404,15 @@ object GenDeviceIdInc {
     val oaidNull = normalRaw.where("is_blank(oaid)")
 
     val muidFullMapping = "muid_full_mapping"
+    val mappingFullPartition = "20210323"
 
     val muidFullMappingDF = spark.sql(
       s"""
          |select muid,ieid,oiid,asid,factory,serdatetime
-         |from $DEVICEID_NEW_IDS_MAPPING_FULL where day='$MAPPING_FULL_PARTITION'
+         |from $DEVICEID_NEW_IDS_MAPPING_FULL where day='$mappingFullPartition'
          |union all
          |select muid,ieid,oiid,asid,factory,serdatetime
-         |from $DEVICEID_NEW_IDS_MAPPING_INCR where day>'$MAPPING_FULL_PARTITION'
+         |from $DEVICEID_NEW_IDS_MAPPING_INCR where day>'20210323'
          |""".stripMargin)
     //muidFullMappingDF.persist(StorageLevel.MEMORY_AND_DISK)
     muidFullMappingDF.createOrReplaceTempView(muidFullMapping)
@@ -534,7 +541,6 @@ object GenDeviceIdInc {
 
     val rawWithDeviceIdNewByImei = sql(spark, rawWithDeviceIdNewByImeiSql)
     rawWithDeviceIdNewByImei.persist(StorageLevel.MEMORY_AND_DISK)
-    // muidFullMappingDF.unpersist()
     // 使用imei匹到的记录
     val rawWithImeiDeviceidFinal = rawWithDeviceIdNewByImei.where("muid is not null")
     val rawNoDeviceIdNewByImei = rawWithDeviceIdNewByImei.where("muid is null")
@@ -570,7 +576,7 @@ object GenDeviceIdInc {
          |else 'unknown' end as sysver_clean
          |from jh_matched_records a
          |left join
-         |(select sysver,vernum from $SYSVER_MAPPING_PAR where version='1004') b
+         |(select sysver,vernum from dm_sdk_mapping.sysver_mapping_par where version='1004') b
          |on a.sysver=b.vernum
          |) t
          |""".stripMargin).createOrReplaceTempView("jh_matched_records_sysver_etl")
@@ -603,7 +609,7 @@ object GenDeviceIdInc {
          |else 'unknown' end as sysver_clean
          |from jh_new_incr_records a
          |left join
-         |(select sysver,vernum from $SYSVER_MAPPING_PAR where version='1004') b
+         |(select sysver,vernum from dm_sdk_mapping.sysver_mapping_par where version='1004') b
          |on a.sysver=b.vernum
          |) t
          |""".stripMargin).createOrReplaceTempView("jh_new_incr_records_sysver_etl")
@@ -660,7 +666,6 @@ object GenDeviceIdInc {
          |  serdatetime
          |from result_union_table
          |""".stripMargin)
-
   }
 }
 

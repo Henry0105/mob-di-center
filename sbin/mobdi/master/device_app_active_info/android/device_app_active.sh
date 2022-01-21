@@ -24,17 +24,16 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 #dws_device_active_di=dm_mobdi_topic.dws_device_active_di
 
 #mapping
-#app_pkg_mapping_par=dm_sdk_mapping.app_pkg_mapping_par
-#dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
+app_pkg_mapping_par=dm_sdk_mapping.app_pkg_mapping_par
 
 #output
-#dws_device_app_runtimes_di=dm_mobdi_topic.dws_device_app_runtimes_di
-#app_active_daily=dm_mobdi_report.app_active_daily
-#app_active_weekly=dm_mobdi_report.app_active_weekly
-#app_active_monthly=dm_mobdi_report.app_active_monthly
+dws_device_app_runtimes_di=dm_mobdi_topic.dws_device_app_runtimes_di
+app_active_daily=dm_mobdi_report.app_active_daily
+app_active_weekly=dm_mobdi_report.app_active_weekly
+app_active_monthly=dm_mobdi_report.app_active_monthly
 
 
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
 set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
@@ -43,6 +42,7 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
+set mapreduce.job.queuename=root.yarn_data_compliance1;
 
 insert overwrite table $dws_device_app_runtimes_di partition(day='$day')
 select device,
@@ -68,7 +68,7 @@ cluster by device;
 修改：202103波纹项目将 rp_mobdi_app库换为dm_mobdi_report库
 '
 
-hive -e"
+HADOOP_USER_NAME=dba hive -e"
 set mapred.max.split.size=125000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -81,6 +81,7 @@ set hive.exec.parallel=true;
 set hive.exec.parallel.thread.number=10;
 set hive.map.aggr=true;
 set hive.auto.convert.join=true;
+set mapreduce.job.queuename=root.yarn_data_compliance1;
 
 insert overwrite table $app_active_daily PARTITION(day=${day})
 select device, apppkg
@@ -96,7 +97,7 @@ from
   left outer join
   (
     select *
-    from $dim_app_pkg_mapping_par
+    from $app_pkg_mapping_par
     where version='1000'
   ) b on (a.pkg=b.pkg)
   where COALESCE(b.apppkg,a.pkg) is not null
@@ -106,7 +107,7 @@ group by device, apppkg;
 "
 
 b7day=`date -d "$day -7 days" "+%Y%m%d"`
-hive -e"
+HADOOP_USER_NAME=dba hive -e"
 set mapred.max.split.size=125000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -119,6 +120,7 @@ set hive.exec.parallel=true;
 set hive.exec.parallel.thread.number=10;
 set hive.map.aggr=true;
 set hive.auto.convert.join=true;
+set mapreduce.job.queuename=root.yarn_data_compliance1;
 
 insert overwrite table $app_active_weekly partition(par_time=${day})
 select device,
@@ -141,7 +143,7 @@ if [ $DAY -eq 3 ];then
 startdate=`date -d"$nowdate last month" +%Y%m%d`
 enddate=`date -d"$nowdate last day" +%Y%m%d`
 month=`date -d"$nowdate last month" +%Y%m`
-hive -e"
+HADOOP_USER_NAME=dba hive -e"
 set mapred.max.split.size=125000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -154,6 +156,7 @@ set hive.exec.parallel=true;
 set hive.exec.parallel.thread.number=10;
 set hive.map.aggr=true;
 set hive.auto.convert.join=true;
+set mapreduce.job.queuename=root.yarn_data_compliance1;
 
 insert overwrite table $app_active_monthly PARTITION(month=$month)
 select device,
@@ -171,34 +174,34 @@ group by device,apppkg;
 fi
 
 
-: '
-@part_3 清除历史过期的数据
-功能描述：1.清除历史过期的数据, 保留周活近15天或者是周日的分区、保留日活近100天的分区、保留所有自然月活跃信息
-'
+#: '
+#@part_3 清除历史过期的数据
+#功能描述：1.清除历史过期的数据, 保留周活近15天或者是周日的分区、保留日活近100天的分区、保留所有自然月活跃信息
+#'
 
-b40day=`date -d "$day -100 days" +%Y%m%d`
-dpart=` hive -e "set hive.cli.print.header=flase; show partitions $app_active_daily;"`
-for var1 in $dpart;
- do  
-	 dayarr=(${var1//=/ })
-	 if [ $b40day -eq ${dayarr[1]} ]; then
-		  hive -e "alter table $app_active_daily drop IF EXISTS partition($var1);"
-	 fi
- done
+#b40day=`date -d "$day -100 days" +%Y%m%d`
+#dpart=` hive -e "set hive.cli.print.header=flase; show partitions $app_active_daily;"`
+#for var1 in $dpart;
+# do
+#	 dayarr=(${var1//=/ })
+#	 if [ $b40day -eq ${dayarr[1]} ]; then
+#		  HADOOP_USER_NAME=dba hive -e "alter table $app_active_daily drop IF EXISTS partition($var1);"
+#	 fi
+# done
 
-wait
+#wait
 
-b15day=`date -d "$day -15 days" +%Y%m%d`
-part=` hive -e "set hive.cli.print.header=flase; show partitions $app_active_weekly;"`
-for var in $part;
-do
- weekarr=(${var//=/ });
- weekDay=`date -d "${weekarr[1]}" +%w`
- if [ $weekDay -ne 0 ] && [ $b15day -gt ${weekarr[1]} ]; then
-    hive -e "alter table $app_active_weekly drop IF EXISTS partition($var);"
- fi
-done
+#b15day=`date -d "$day -15 days" +%Y%m%d`
+#part=` hive -e "set hive.cli.print.header=flase; show partitions $app_active_weekly;"`
+#for var in $part;
+#do
+# weekarr=(${var//=/ });
+# weekDay=`date -d "${weekarr[1]}" +%w`
+# if [ $weekDay -ne 0 ] && [ $b15day -gt ${weekarr[1]} ]; then
+#   HADOOP_USER_NAME=dba hive -e "alter table $app_active_weekly drop IF EXISTS partition($var);"
+# fi
+#done
 
-wait
+#wait
 
-echo "device_app_active handle over"
+#echo "device_app_active handle over"

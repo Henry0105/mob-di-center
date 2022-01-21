@@ -25,16 +25,12 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 #dws_device_active_di=dm_mobdi_topic.dws_device_active_di
 
 #mapping表
-#mapping_ip_attribute_code=dim_sdk_mapping.mapping_ip_attribute_code
-#dim_mapping_ip_attribute_code=dim_sdk_mapping.dim_mapping_ip_attribute_code
-
-dim_mapping_ip_attribute_code_db=${dim_mapping_ip_attribute_code%.*}
-dim_mapping_ip_attribute_code_tb=${dim_mapping_ip_attribute_code#*.}
+mapping_ip_attribute_code=dm_sdk_mapping.mapping_ip_attribute_code
 
 #目标表
 #dws_device_sdk_run_master_di=dm_mobdi_topic.dws_device_sdk_run_master_di
 
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
 SET mapreduce.map.memory.mb=8192;
 set mapreduce.map.java.opts='-Xmx8192M';
 set mapreduce.child.map.java.opts='-Xmx8192M';
@@ -50,6 +46,7 @@ set hive.merge.size.per.task = 256000000;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.map.aggr=true;
 set hive.auto.convert.join=true;
+set mapreduce.job.queuename=root.yarn_data_compliance1;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function get_min_ip as 'com.youzu.mob.java.udf.GetIpAttribute';
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
@@ -108,8 +105,8 @@ left join
          country,
          province,
          city
-  from $dim_mapping_ip_attribute_code
-  where day=GET_LAST_PARTITION ('$dim_mapping_ip_attribute_code_db','$dim_mapping_ip_attribute_code_tb')
+  from $mapping_ip_attribute_code
+  where day=GET_LAST_PARTITION ('dm_sdk_mapping','mapping_ip_attribute_code')
 ) ip_info on b.minip=ip_info.minip
 cluster by device;
 "
