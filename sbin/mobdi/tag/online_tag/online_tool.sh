@@ -8,10 +8,12 @@ type=$3
 computer_type=$4
 pdays=`date -d "$day -$timewindow days" +%Y%m%d`
 
-max_executor=50
+max_executor=200
 
 source /home/dba/mobdi_center/conf/hive-env.sh
 
+online_category_mapping_par_replace="dm_sdk_mapping.online_category_mapping_par_replace"
+app_mapping_table="dm_sdk_mapping.app_pkg_mapping_par"
 : '
 inPutTable:
     dm_sdk_mapping.online_category_mapping_par_replace
@@ -19,7 +21,7 @@ inPutTable:
     rp_mobdi_app.app_active_daily
     rp_mobdi_app.app_active_monthly
     dm_mobdi_topic.dws_device_install_app_re_status_di
-    dm_mobdi_topic.dws_device_install_app_status_40d_di
+    dm_mobdi_topic.dws_device_install_app_re_status_40d_di
 outPutTable:
     rp_mobdi_app.timewindow_online_profile_v2
 '
@@ -63,7 +65,7 @@ function gen_source_sql(){
       varSql="select device,apppkg as relation,day from ${app_active_daily}
               where day<=${day} and day>=${nowDateMonthFirstDate} union all "
       #90天前
-      before90Date=`date -d "$date -89 day" +%Y%m%d`
+      before90Date=`date -d "$day -89 day" +%Y%m%d`
       #90天前的月初第一天
       before90MonthFirstDate=`date -d "$before90Date" +%Y%m01`
       #90天前的月末最后一天
@@ -75,7 +77,7 @@ function gen_source_sql(){
       do
         varMonth=`date -d "${varFirstDate}" "+%Y%m"`
         #去rp_mobdi_app.app_active_monthly查看月度文件是否存在,这里不能退出
-        findHdfs=`hadoop fs -ls hdfs://ShareSdkHadoop/user/hive/warehouse/rp_mobdi_app.db/app_active_monthly/month=${varMonth} | wc -l`
+        findHdfs=`hadoop fs -ls hdfs://ShareSdkHadoop/user/hive/warehouse/rp_mobdi_report.db/app_active_monthly/month=${varMonth} | wc -l`
         if [ $findHdfs -gt 0 ] ;then
           #存在
           varSql=${varSql}"select device,apppkg as relation,day from ${app_active_monthly}
@@ -96,6 +98,8 @@ function gen_source_sql(){
   echo ${source_sql}
 }
 
+
+
 #判断refine_final_flag条件,以及根据timewindow，筛选需要的cate_id
 if [ ${type} -eq 0 ]; then
   flagCondition="refine_final_flag = 1"
@@ -104,7 +108,7 @@ if [ ${type} -eq 0 ]; then
     cate_id_regx="cate_id in (1,2,3,4,5,6) or cate_id like '7019%'"
   elif [ ${timewindow} -eq 90 ];then
     cate_id_regx="cate_id in (1,2,3,4,5,6)"
-    max_executor=70
+    max_executor=200
   else
     cate_id_regx="1=1"
   fi
@@ -130,13 +134,13 @@ elif [ ${type} -eq 3 ]; then
     cate_id_regx="cate_id in (1,2,3,4,5,6)"
   elif [ ${timewindow} -eq 90 ];then
     cate_id_regx="cate_id in (1,2,3,4,5,6,598) or cate_id like 'fin%' or cate_id='7005010' or cate_id='my01'"
-    max_executor=70
+    max_executor=200
   else
     cate_id_regx="1=1"
   fi
 elif [ ${type} -eq 4 ]; then
   flagCondition="refine_final_flag in (1,0,-1,2)"
-  max_executor=80
+  max_executor=200
   if [ ${timewindow} -eq 1 ];then
     cate_id_regx="cate_id =598 or cate_id like 'pay%'"
   elif [ ${timewindow} -eq 14 ];then
@@ -160,20 +164,22 @@ elif [ ${type} -eq 5 ]; then
 elif [ ${type} -eq 6 ];then
   bday=`date -d "$day -1 days" "+%Y%m%d"`
   # 计算前需要先check数据是否存在
-  count=`hadoop fs -ls /user/hive/warehouse/rp_mobdi_app.db/timewindow_online_profile_v2/flag=3/day=${day}/timewindow=7|wc -l`
+  count=`hadoop fs -ls /user/hive/warehouse/rp_mobdi_report.db/timewindow_online_profile_v2/flag=3/day=${day}/timewindow=7|wc -l`
   if [ ${count} -eq 0 ];then
     echo "day=${day} partition of table ${timewindow_online_profile_v2} is not found !!"
   fi
   # 计算前需要先check数据是否存在
-  count=`hadoop fs -ls /user/hive/warehouse/rp_mobdi_app.db/timewindow_online_profile_v2/flag=3/day=${bday}/timewindow=7|wc -l`
+  count=`hadoop fs -ls /user/hive/warehouse/rp_mobdi_report.db/timewindow_online_profile_v2/flag=3/day=${bday}/timewindow=7|wc -l`
   if [ ${count} -eq 0 ];then
     echo "day=${day} partition of table ${timewindow_online_profile_v2} is not found !!"
   fi
 
-  mapping_version=`hive -e"select max(version)
+  mapping_version=`hive -e"
+set mapreduce.job.queuename=root.yarn_data_compliance1;
+select max(version)
                  from ${online_category_mapping_par_replace}
                  where type = ${type}"`
-  hive -e "
+  HADOOP_USER_NAME=dba hive -e "
   SET hive.exec.compress.output=true;
   SET mapred.output.compression.codec=com.hadoop.compression.lzo.LzopCodec;
   set mapred.output.compression.type=BLOCK;
@@ -182,6 +188,7 @@ elif [ ${type} -eq 6 ];then
   set hive.exec.compress.intermediate=true;
   set hive.intermediate.compression.codec=org.apache.hadoop.io.compress.SnappyCodec;
   set hive.intermediate.compression.type=BLOCK;
+  set mapreduce.job.queuename=root.yarn_data_compliance1;
 
   insert overwrite table ${timewindow_online_profile_v2} partition(flag=${type},day=${day},timewindow=${timewindow})
   SELECT NVL(now_rp.device,bef_rp.device) as device,NVL(now_rp.feature,bef_rp.feature) as feature,
@@ -312,7 +319,9 @@ else
 fi
 
 # 两个mapping表
-mapping_version=`hive -e"select max(version)
+mapping_version=`hive -e"
+                 set mapreduce.job.queuename=root.yarn_data_compliance1;
+                 select max(version)
                  from ${online_category_mapping_par_replace}
                  where type = '${type}'"`
 
@@ -326,17 +335,20 @@ category_mapping="select relation,cate_id,total,percent
 
 apppkg_mapping="
    select apppkg,pkg
-   from ${app_pkg_mapping_par}
+   from ${app_mapping_table}
    where version='1000'
 "
 
 echo ${source_sql}
 
-spark2-submit --master yarn --deploy-mode client \
+HADOOP_USER_NAME=dba /opt/mobdata/sbin/spark-submit \
+--master yarn \
+--deploy-mode cluster \
 --class com.mob.Online \
 --driver-memory 12G \
 --executor-memory 9G \
---executor-cores 3 \
+--executor-cores 4 \
+--queue root.yarn_data_compliance1 \
 --conf spark.network.timeout=300 \
 --conf spark.sql.shuffle.partitions=3000 \
 --conf spark.yarn.executor.memoryOverhead=2048 \
@@ -352,7 +364,7 @@ spark2-submit --master yarn --deploy-mode client \
 --conf spark.sql.autoBroadcastJoinThreshold=104857600 \
 --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
 --driver-java-options "-XX:MaxPermSize=1024m" \
-/home/dba/mobdi_center/lib/OnlineUniversalTool-v0.1.0-jar-with-dependencies.jar \
+/home/mobdi_test/hugl/muid/online_tag/OnlineUniversalTool-v0.1.0-jar-with-dependencies.jar \
 "
 {
 	\"category_mapping\":\"${category_mapping}\",
@@ -366,7 +378,8 @@ spark2-submit --master yarn --deploy-mode client \
 }
 "
 # 合并小文件
-hive -e"
+HADOOP_USER_NAME=dba hive -e"
+set mapreduce.job.queuename=root.yarn_data_compliance1;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;

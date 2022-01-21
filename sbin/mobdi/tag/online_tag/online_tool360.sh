@@ -10,13 +10,13 @@ test_flag=$5
 pdays=`date -d "$day -$timewindow days" +%Y%m%d`
 
 source /home/dba/mobdi_center/conf/hive-env.sh
-tmpdb=$dm_mobdi_tmp
 
-tmp_table="$tmpdb.timewindow_tmp"
-tmp_table_total="$tmpdb.timewindow_total"
-output_table="$tmpdb.timewindow_online_profile"
-#device_install_app_master=dm_mobdi_master.device_install_app_master
-
+tmp_table="dm_mobdi_tmp.timewindow_tmp"
+tmp_table_total="dm_mobdi_tmp.timewindow_total"
+output_table="dm_mobdi_tmp.timewindow_online_profile"
+device_install_app_master="dm_mobdi_master.device_install_app_master"
+online_category_mapping_par_replace=dm_sdk_mapping.online_category_mapping_par_replace
+app_pkg_mapping_par=dm_sdk_mapping.app_pkg_mapping_par
 : '
 inPutTable:
     dm_sdk_mapping.online_category_mapping_par_replace
@@ -137,6 +137,7 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
+set mapreduce.job.queuename=root.yarn_data_compliance1;
 
 insert overwrite table ${output_table} partition(flag=${type},day=${day},timewindow=${timewindow})
 SELECT NVL(now_rp.device,bef_rp.device) as device,NVL(now_rp.feature,bef_rp.feature) as feature,
@@ -256,7 +257,9 @@ echo "timewindow:"$timewindow
 echo "map_type:"$map_type
 echo "source_type:"$source_type
 
-mapping_version=`hive -e"select max(version)
+mapping_version=`hive -e"
+                 set mapreduce.job.queuename=root.yarn_data_compliance1;
+                 select max(version)
                  from ${online_category_mapping_par_replace}
                  where type = ${map_type}"`
 #mapping_version=20181205
@@ -398,6 +401,7 @@ function gen_tmp_table(){
       set hive.exec.dynamic.partition=true;
       set hive.exec.dynamic.partition.mode=nonstrict;
       set hive.exec.max.dynamic.partitions.pernode=400;
+      set mapreduce.job.queuename=root.yarn_data_compliance1;
 
       insert overwrite table ${tmp_table} partition(type=${source_type},cate_id,day)
       select device_info.device,device_info.relation,mapping.percent,mapping.total,device_info.num,mapping.cate_id,${theday} as day from
@@ -502,6 +506,8 @@ function gen_timewindow_total(){
         if [ $type -eq 4 ];then
 
           hive -v -e "
+          set mapreduce.job.queuename=root.yarn_data_compliance1;
+
           insert overwrite table ${tmp_table_total} partition(type=${type},timewindow=${timewindow},day=${day})
           select device,relation,percent,total,cate_id,sum(num) as num
           from
@@ -536,6 +542,7 @@ function gen_timewindow_total(){
         SET mapreduce.map.memory.mb=4096;
         set mapreduce.map.java.opts='-Xmx4096M';
         set mapreduce.child.map.java.opts='-Xmx4096M';
+        set mapreduce.job.queuename=root.yarn_data_compliance1;
         insert overwrite table ${tmp_table_total} partition(type=${type},timewindow=${timewindow},day=${day})
         select device,relation,percent,total,cate_id,sum(num) as num
         from ${tmp_table}
@@ -552,6 +559,8 @@ function gen_timewindow_total(){
         SET mapreduce.map.memory.mb=4096;
         set mapreduce.map.java.opts='-Xmx4096M';
         set mapreduce.child.map.java.opts='-Xmx4096M';
+        set mapreduce.job.queuename=root.yarn_data_compliance1;
+
         insert overwrite table ${tmp_table_total} partition(type=${type},timewindow=${timewindow},day=${day})
         select device,day,percent,total,cate_id,count(1) as num
         from ${tmp_table}
@@ -575,7 +584,8 @@ function gen_timewindow_total2(){
 	--driver-memory 9G \
 	--executor-memory 9G \
 	--executor-cores 3 \
-	--conf spark.network.timeout=300 \
+	--queue root.yarn_data_compliance1 \
+        --conf spark.network.timeout=300 \
 	--conf spark.default.parallelism=2000 \
 	--conf spark.sql.shuffle.partitions=3000 \
 	--conf spark.yarn.executor.memoryOverhead=2048 \
@@ -615,6 +625,7 @@ function iter_gen_timewindow_total(){
     SET mapreduce.map.memory.mb=4096;
     set mapreduce.map.java.opts='-Xmx4096M';
     set mapreduce.child.map.java.opts='-Xmx4096M';
+    set mapreduce.job.queuename=root.yarn_data_compliance1;
 
     insert overwrite table ${tmp_table_total} partition(type=${type},timewindow=${timewindow},day=${day})
     select device,relation,percent,total,cate_id,sum(num) as num from
@@ -633,6 +644,7 @@ function iter_gen_timewindow_total(){
     SET mapreduce.map.memory.mb=4096;
     set mapreduce.map.java.opts='-Xmx4096M';
     set mapreduce.child.map.java.opts='-Xmx4096M';
+    set mapreduce.job.queuename=root.yarn_data_compliance1;
 
     insert overwrite table ${tmp_table_total} partition(type=${type},timewindow=${timewindow},day=${day})
     select device,relation,percent,total,cate_id,sum(num) as num from
@@ -664,6 +676,7 @@ function gen_timewindow_profile(){
     set mapred.min.split.size.per.rack=128000000;
     set hive.merge.smallfiles.avgsize=250000000;
     set hive.merge.size.per.task = 250000000;
+    set mapreduce.job.queuename=root.yarn_data_compliance1;
 
     insert overwrite table ${output_table} partition(flag=${type},day='${day}',timewindow=${timewindow})
     select device,concat(cate_id,'_',${type},'_',${timewindow}) as feature,
@@ -711,6 +724,7 @@ function gen_timewindow_profile(){
    set mapred.min.split.size.per.rack=128000000;
    set hive.merge.smallfiles.avgsize=250000000;
    set hive.merge.size.per.task = 250000000;
+   set mapreduce.job.queuename=root.yarn_data_compliance1;
 
     insert overwrite table ${output_table} partition(flag=${type},day='${day}',timewindow=${timewindow})
     select device,feature,count(1) as cnt
@@ -796,7 +810,7 @@ spark2-submit --master yarn --deploy-mode client \
 --conf spark.sql.autoBroadcastJoinThreshold=104857600 \
 --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
 --driver-java-options "-XX:MaxPermSize=1024m" \
-/home/dba/mobdi_center/lib/OnlineUniversalTool-v0.1.0-jar-with-dependencies.jar \
+/home/dba/lib/OnlineUniversalTool-v0.1.0-jar-with-dependencies.jar \
 "
 {
 	\"category_mapping\":\"${category_mapping}\",
