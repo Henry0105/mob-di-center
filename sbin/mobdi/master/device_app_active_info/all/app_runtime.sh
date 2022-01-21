@@ -33,13 +33,13 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 #dws_device_active_di=dm_mobdi_topic.dws_device_active_di
 
 #mapping
-#dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
+app_pkg_mapping_par=dm_sdk_mapping.app_pkg_mapping_par
 
 #output
 #dws_device_active_applist_di=dm_mobdi_topic.dws_device_active_applist_di
 #device_active_applist_full=dm_mobdi_report.device_active_applist_full
 
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
 SET mapreduce.map.memory.mb=10240;
 set mapreduce.map.java.opts='-Xmx10g';
 set mapreduce.child.map.java.opts='-Xmx10g';
@@ -54,6 +54,7 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
+set mapreduce.job.queuename=root.yarn_data_compliance1;
 
 ADD jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 CREATE TEMPORARY FUNCTION clean_client_time as 'com.youzu.mob.java.udf.ClientTimeCleanUDF';
@@ -93,13 +94,14 @@ from
 left join
 (
     select pkg,apppkg
-    from $dim_app_pkg_mapping_par
+    from $app_pkg_mapping_par
     where version='1000'
 ) a2
 on a1.pkg = a2.pkg;
 "
 
-hive -e "
+HADOOP_USER_NAME=dba hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 INSERT overwrite TABLE $device_active_applist_full PARTITION (day = ${day})
 SELECT device,
        plat,
@@ -139,10 +141,4 @@ WHERE rk = 1
 cluster by device;
 "
 
-#保留最新3个分区
-for old_version in `hive -e "show partitions $device_active_applist_full " | sort | head -n -3`
-do 
-	echo "rm $old_version"
-	hive -v -e "alter table $device_active_applist_full drop if exists partition($old_version)"
-done
 

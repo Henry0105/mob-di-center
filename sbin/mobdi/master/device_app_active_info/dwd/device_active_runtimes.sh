@@ -26,9 +26,9 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 ## 目标表
 #dws_device_active_di=dm_mobdi_topic.dws_device_active_di
 
-hive -v -e  "
-SET hive.exec.dynamic.partition=true;  
-SET hive.exec.dynamic.partition.mode=nonstrict; 
+HADOOP_USER_NAME=dba hive -v -e  "
+SET hive.exec.dynamic.partition=true;
+SET hive.exec.dynamic.partition.mode=nonstrict;
 SET hive.exec.max.dynamic.partitions.pernode = 1000;
 SET hive.exec.max.dynamic.partitions=1000;
 SET hive.merge.mapfiles=true;
@@ -38,9 +38,14 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
+set mapreduce.job.queuename=root.yarn_data_compliance1;
+SET mapreduce.map.memory.mb=8192;
+SET mapreduce.map.java.opts=-Xmx6g -XX:+UseG1GC;
+SET mapreduce.reduce.memory.mb=10240;
+SET mapreduce.reduce.java.opts='-Xmx8g';
 
 INSERT OVERWRITE TABLE $dws_device_active_di PARTITION (day = '$day', plat, source)
-SELECT muid AS device,
+SELECT if(plat=1,muid,device) as device,
        trim(pkg) AS pkg,
        trim(apppkg) as apppkg,
        if(appkey is null
@@ -62,13 +67,14 @@ SELECT muid AS device,
        'runtimes' AS source
 FROM $dwd_device_app_runtimes_sec_di
 WHERE day = '$day'
-and trim(lower(muid)) rlike '^[a-f0-9]{40}$'
+and trim(lower(if(plat=1,muid,device))) rlike '^[a-f0-9]{40}$'
+and trim(device) != '0000000000000000000000000000000000000000'
 and pkg is not null
 and trim(pkg) not in ('','null','NULL')
 and trim(pkg)=regexp_extract(trim(pkg),'([a-zA-Z0-9\.\_-]+)',0)
-and length(trim(device)) = 40
+and length(trim(if(plat=1,muid,device))) = 40
 and plat in (1, 2)
-GROUP BY muid,
+GROUP BY if(plat=1,muid,device),
          trim(pkg),
          trim(apppkg),
          trim(ipaddr),
