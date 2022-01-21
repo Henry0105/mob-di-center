@@ -405,11 +405,11 @@ create table $duid_mid_with_id_explode_final_fixed like $duid_mid_with_id_explod
 with duid_mid as (
   select duid,mid_final from
   (
-    select duid,first_value(mid) over (partition by duid_final order by serdatetime) mid_final
+    select duid,first_value(mid) over (partition by duid order by serdatetime) mid_final
     from $duid_mid_with_id_explode_final where coalesce(duid)<>''
-  ) t
+  ) t group by duid,mid_final
 )
-
+insert overwrite table $duid_mid_with_id_explode_final_fixed
 select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from(
   select a.duid,oiid,ieid,duid_final,asid,mid_final mid,factory,model,serdatetime
   from $duid_mid_with_id_explode_final a
@@ -434,12 +434,11 @@ add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
 create temporary function sha1 as 'com.youzu.mob.java.udf.SHA1Hashing';
 drop table if exists $duid_mid_without_id;
 create table $duid_mid_without_id stored as orc as
-select duid,duid_final,coalesce(sha1(duid_final),'') mid
+select a.duid,duid_final,coalesce(sha1(duid_final),'') mid
 from $dws_mid_ids_mapping a
 left join
-(select duid from $duid_mid_with_id_explode_final_fixed where coalesce(mid)<>''  group by duid) b
+(select duid from $duid_mid_with_id_explode_final_fixed where coalesce(mid)<>'' and coalesce(duid)<>'' group by duid) b
 on a.duid=b.duid
-where day='20211101' and (oiid is null or oiid='') and (ieid is null or ieid='')
-and b.duid is null
-group by duid,duid_final
+where day='20211101' and coalesce(a.duid)<>'' and coalesce(a.ieid)='' and coalesce(a.oiid)='' and b.duid is null
+group by a.duid,duid_final
 "
