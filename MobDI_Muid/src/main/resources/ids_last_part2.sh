@@ -317,7 +317,7 @@ drop table if exists $duid_mid_with_id_final;
 create table $duid_mid_with_id_final stored as orc as
 select duid,oiid,a.ieid,duid_final,
 case when oiid_asid is null then ieid_asid
-case when ieid_asid is null then oiid_asid
+when ieid_asid is null then oiid_asid
 else array_distinct(split(concat_ws(',',oiid_asid,ieid_asid),',')) end asid,
 coalesce(case when oiid_mid is not null and oiid_mid <> '' then oiid_mid
       when (b.muid is not null and b.muid <> '') then b.muid
