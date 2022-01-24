@@ -212,10 +212,16 @@ with tmp_ieid_muid as(
   ) t where rn = 1
 )
 insert overwrite table $device_muid_mapping_full_fixed_ieid
-select device_old,device_token,coalesce(b.muid, a.muid),
+select device_old,device_token,coalesce(b.muid, a.muid) muid,
 token,a.ieid,mcid,snid,oiid,asid,sysver,factory,serdatetime,flag
 from $device_muid_mapping_full_fixed a
 left join tmp_ieid_muid b on a.ieid=b.ieid
+where coalesce(a.ieid,'') <> ''
+
+union all
+
+select device_old,device_token,muid,token,ieid,mcid,snid,oiid,asid,sysver,factory,serdatetime,flag
+from $device_muid_mapping_full_fixed where coalesce(ieid,'') = ''
 "
 
 hive -e "
@@ -245,10 +251,16 @@ with tmp_oiid_muid as(
   ) t where rn = 1
 )
 insert overwrite table $device_muid_mapping_full_fixed_final
-select device_old,device_token,coalesce(b.muid, a.muid),
+select device_old,device_token,coalesce(b.muid, a.muid) muid,
 token,ieid,mcid,snid,a.oiid,asid,sysver,factory,serdatetime,flag
 from $device_muid_mapping_full_fixed_ieid a
 left join tmp_oiid_muid b on a.oiid=b.oiid
+where coalesce(a.oiid,'') <> ''
+
+union all
+
+select device_old,device_token,muid,token,ieid,mcid,snid,oiid,asid,sysver,factory,serdatetime,flag
+from $device_muid_mapping_full_fixed where coalesce(oiid,'') = ''
 "
 
 hive -e "
@@ -296,10 +308,10 @@ from
   group by duid,oiid,ieid,duid_final,muid,muid_final,factory,model
 ) a
 left join
-(select oiid,muid,factory,asid oiid_asid
+(select oiid,muid,factory,collect_set(asid) oiid_asid
 from $device_muid_mapping_full_fixed_final_without_blacklist
-where oiid is not null
-group by oiid,muid,factory,asid) b
+where coalesce(oiid)<>''
+group by oiid,muid,factory) b
 on a.oiid=b.oiid and a.factory=b.factory
 
 union all
@@ -319,16 +331,17 @@ select duid,oiid,a.ieid,duid_final,
 case when oiid_asid is null then ieid_asid
 when ieid_asid is null then oiid_asid
 else array_distinct(split(concat_ws(',',oiid_asid,ieid_asid),',')) end asid,
-coalesce(case when oiid_mid is not null and oiid_mid <> '' then oiid_mid
+case when oiid_mid is not null and oiid_mid <> '' then oiid_mid
       when (b.muid is not null and b.muid <> '') then b.muid
      else sha1(a.duid_final)
-end,'') as mid,
+end as mid,
 factory,model,serdatetime
 from $duid_mid_with_id a
 left join
 (
   select ieid,muid,collect_set(asid) ieid_asid
   from $device_muid_mapping_full_fixed_final_without_blacklist
+  where coalesce(ieid)<>''
   group by ieid,muid
 ) b on a.ieid=b.ieid
 where a.ieid is not null and a.ieid<>''
@@ -336,7 +349,7 @@ where a.ieid is not null and a.ieid<>''
 union all
 
 select duid,oiid,ieid,duid_final,oiid_asid asid,
-coalesce(case when (oiid_mid is not null and oiid_mid <> '') then oiid_mid else sha1(a.duid_final) end,'') as mid
+case when (oiid_mid is not null and oiid_mid <> '') then oiid_mid else sha1(duid_final) end as mid
 ,factory,model,serdatetime
 from $duid_mid_with_id
 where ieid is null or ieid=''
