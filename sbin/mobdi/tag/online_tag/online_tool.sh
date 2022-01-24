@@ -364,7 +364,7 @@ HADOOP_USER_NAME=dba /opt/mobdata/sbin/spark-submit \
 --conf spark.sql.autoBroadcastJoinThreshold=104857600 \
 --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
 --driver-java-options "-XX:MaxPermSize=1024m" \
-/home/mobdi_test/hugl/muid/online_tag/OnlineUniversalTool-v0.1.0-jar-with-dependencies.jar \
+/home/dba/lib/online_tag/OnlineUniversalTool-v0.1.0-jar-with-dependencies.jar \
 "
 {
 	\"category_mapping\":\"${category_mapping}\",
