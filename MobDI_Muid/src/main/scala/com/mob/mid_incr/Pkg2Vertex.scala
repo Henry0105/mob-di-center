@@ -112,7 +112,7 @@ object Pkg2Vertex {
          |  LATERAL VIEW EXPLODE(tid_list) tmp AS tid_info
          |)g
          |GROUP BY id1,id2
-         |HAVING COUNT(1) > 7
+         |HAVING COUNT(1) >= 7
          |""".stripMargin)
   }
 
