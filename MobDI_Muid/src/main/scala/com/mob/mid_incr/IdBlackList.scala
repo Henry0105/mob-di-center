@@ -98,9 +98,9 @@ object IdBlackList {
            |""".stripMargin).createOrReplaceTempView(s"${id}_tmp")
 
       id match {
-        case "ieid" => generateBlacklist(spark, "ieid,oiid,asid", 5, 10, day)
-        case "oiid" => generateBlacklist(spark, "oiid,ieid,asid", 3, 10, day)
-        case "asid" => generateBlacklist(spark, "asid,ieid,oiid", 3, 5, day)
+        case "ieid" => generateBlacklist(spark, "ieid,oiid,asid", 5, 10, "20211101")
+        case "oiid" => generateBlacklist(spark, "oiid,ieid,asid", 3, 10, "20211101")
+        case "asid" => generateBlacklist(spark, "asid,ieid,oiid", 3, 5, "20211101")
       }
     })
 
@@ -144,7 +144,7 @@ object IdBlackList {
            |  FROM
            |  (
            |    SELECT ${id(0)}
-           |         , COLLECT_SET(duid) AS duid_list
+           |         , duid
            |    FROM
            |    (
            |      SELECT /*+ BROADCAST(b) */
@@ -159,15 +159,16 @@ object IdBlackList {
            |      )a
            |      LEFT ANTI JOIN
            |      (
-           |        SELECT $id
-           |        FROM dm_mid_master.${id}_blacklist_full
+           |        SELECT ${id(0)}
+           |        FROM dm_mid_master.${id(0)}_blacklist_full
            |        WHERE day < '$day'
            |      )b
            |      ON a.${id(0)} = b.${id(0)}
            |    )c
-           |    GROUP BY ${id(0)}
+           |    GROUP BY ${id(0)},duid
            |  )d
-           |  WHERE SIZE(duid_list) > 200
+           |  GROUP BY ${id(0)}
+           |  HAVING COUNT(1) > 200
            |
            |  UNION ALL
            |
@@ -177,7 +178,6 @@ object IdBlackList {
            |GROUP BY ${id(0)}
            |""".stripMargin)
     }
-
 
   }
 }
