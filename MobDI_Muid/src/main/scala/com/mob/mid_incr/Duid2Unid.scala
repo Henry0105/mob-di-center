@@ -21,6 +21,8 @@ object Duid2Unid {
   }
 
   def compute(spark: SparkSession, day: String): Unit = {
+
+
     //1.源头表载入
     spark.sql(
       s"""
@@ -32,7 +34,7 @@ object Duid2Unid {
          |          AND firstinstalltime IS NOT NULL
          |          AND LENGTH(firstinstalltime) = 13
          |          AND SUBSTR(firstinstalltime,-3,3) <> '000'
-         |          AND pkg = REGEXP_EXTRACT(pkg, '^[a-zA-Z]+[0-9a-zA-Z_]*(\.[a-zA-Z]+[0-9a-zA-Z_]*)*', 0),
+         |          AND pkg = REGEXP_EXTRACT(pkg, '^[a-zA-Z]+[0-9a-zA-Z_]*(\\.[a-zA-Z]+[0-9a-zA-Z_]*)*', 0),
          |          CONCAT(pkg,'_',version,'_',firstinstalltime),
          |          '') AS pkg_it
          |     , IF(TRIM(LOWER(ieid)) IN ('','null','unknown','none','other','未知','na'),'',ieid) AS ieid
