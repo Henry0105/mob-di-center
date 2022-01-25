@@ -35,6 +35,7 @@ object Duid2Duidfinal {
          |AND id1 <> ''
          |AND id2 IS NOT NULL
          |AND id2 <> ''
+         |GROUP BY id1,id2
          |""".stripMargin)
 
     //构造边
@@ -60,30 +61,46 @@ object Duid2Duidfinal {
     //当日duid-unid-unidfinal数据
     val duid_unid_unidfinal_incr: DataFrame = spark.sql(
       s"""
-         |SELECT a.duid
-         |     , a.unid
-         |     , a.pkg_it
-         |     , a.ieid
-         |     , a.oiid
-         |     , a.asid
-         |     , a.factory
-         |     , a.flag
-         |     , COALESCE(b.unid_final,a.unid) AS unid_final
+         |SELECT e.duid
+         |     , e.duid_final
+         |     , e.unid
+         |     , e.pkg_it
+         |     , e.ieid
+         |     , e.oiid
+         |     , e.asid
+         |     , e.factory
+         |     , e.flag
+         |     , COALESCE(f.unid_final,e.unid) AS unid_final
          |FROM
          |(
-         |  SELECT duid
-         |       , unid
-         |       , pkg_it
-         |       , ieid
-         |       , oiid
-         |       , asid
-         |       , factory
-         |       , flag
-         |  FROM dm_mid_master.duid_incr_tmp
-         |  WHERE day = '$day'
-         |) a
-         |LEFT JOIN tmp_ccgraph_result b
-         |ON a.unid = b.unid
+         |  SELECT a.*
+         |  FROM
+         |  (
+         |    SELECT *
+         |    FROM dm_mid_master.duid_incr_tmp
+         |    WHERE day = '$day'
+         |  )a
+         |  LEFT ANTI JOIN
+         |  (
+         |    SELECT ieid
+         |    FROM dm_mid_master.ieid_blacklist_full
+         |    WHERE day <= '$day'
+         |  )b ON a.ieid = b.ieid
+         |  LEFT ANTI JOIN
+         |  (
+         |    SELECT oiid
+         |    FROM dm_mid_master.oiid_blacklist_full
+         |    WHERE day <= '$day'
+         |  )c ON a.oiid = c.oiid
+         |  LEFT ANTI JOIN
+         |  (
+         |    SELECT asid
+         |    FROM dm_mid_master.asid_blacklist_full
+         |    WHERE day <= '$day'
+         |  )d ON a.asid = d.asid
+         |) e
+         |LEFT JOIN tmp_ccgraph_result f
+         |ON e.unid = f.unid
          |""".stripMargin)
     duid_unid_unidfinal_incr.cache()
     duid_unid_unidfinal_incr.count()
@@ -104,20 +121,21 @@ object Duid2Duidfinal {
     //将当日新生成的duid_duidfinal的关系更新
     spark.sql(
       s"""
-         |WITH duid_unid_unidfinal AS (
-         |  SELECT duid
-         |       , unid
+         |WITH unid_duidfinal AS (
+         |  SELECT unid
+         |       , duid_final
          |  FROM duid_unid_unidfinal_incr
-         |  GROUP BY duid,unid
+         |  GROUP BY unid,duid_final
          |)
          |
          |INSERT OVERWRITE TABLE dm_mid_master.duid_duidfinal_info_incr PARTITION (day = '$day')
          |SELECT a.duid
-         |     , b.duid AS duid_final
+         |     , b.duid_final AS duid_final
          |     , ieid
          |     , oiid
          |     , asid
          |     , factory
+         |     , flag
          |FROM
          |(
          |    SELECT duid
@@ -126,14 +144,15 @@ object Duid2Duidfinal {
          |         , oiid
          |         , asid
          |         , factory
+         |         , flag
          |    FROM duid_unid_unidfinal_incr
-         |    GROUP BY duid,unid_final,ieid,oiid,asid,factory
+         |    GROUP BY duid,unid_final,ieid,oiid,asid,factory,flag
          |) a
          |LEFT JOIN
          |(
-         |  SELECT duid
+         |  SELECT duid_final
          |       , unid AS unid_tmp
-         |  FROM duid_unid_unidfinal
+         |  FROM unid_duidfinal
          |)b
          |ON a.unid_final = b.unid_tmp
          |""".stripMargin)
@@ -144,9 +163,11 @@ object Duid2Duidfinal {
          |INSERT OVERWRITE TABLE dm_mid_master.duid_unidfinal_mapping PARTITION(day = '$day')
          |SELECT duid
          |     , unid_final
-         |FROM duid_unid_unidfinal_incr
-         |WHERE flag = 1
-         |GROUP BY duid,unid_final
+         |     , duid_final
+         |FROM dm_mid_master.duid_duidfinal_info_incr
+         |WHERE day = '$day'
+         |AND flag = 1
+         |GROUP BY duid,unid_final,duid_final
          |""".stripMargin)
 
   }
