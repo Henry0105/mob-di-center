@@ -310,7 +310,7 @@ from
 left join
 (select oiid,muid,factory,collect_set(asid) oiid_asid
 from $device_muid_mapping_full_fixed_final_without_blacklist
-where coalesce(oiid)<>''
+  where coalesce(oiid,'')<>''
 group by oiid,muid,factory) b
 on a.oiid=b.oiid and a.factory=b.factory
 
@@ -341,7 +341,7 @@ left join
 (
   select ieid,muid,collect_set(asid) ieid_asid
   from $device_muid_mapping_full_fixed_final_without_blacklist
-  where coalesce(ieid)<>''
+  where coalesce(ieid,'')<>''
   group by ieid,muid
 ) b on a.ieid=b.ieid
 where a.ieid is not null and a.ieid<>''
@@ -364,7 +364,7 @@ factory,model,serdatetime from $duid_mid_with_id_final
 LATERAL VIEW explode(coalesce(asid,array())) tmpTable as asid_tmp
 "
 
-
+#展开后的数据+修复后的全量映射表去掉图合并结果join到的记录+由于asid为空展开失败的数据
 hive -e "
 $sqlset
 drop table if exists $duid_mid_with_id_explode_final;
@@ -377,13 +377,13 @@ with without_ieid as (
   left join
   (select ieid from $dws_mid_ids_mapping where day='final' group by ieid) b
   on a.ieid = b.ieid
-  where coalesce(a.ieid) <>'' and b.ieid is null
+  where coalesce(a.ieid,'') <>'' and b.ieid is null
 
   union all
 
   select '' duid,oiid,ieid,'' duid_final,asid,muid mid,factory,null model,serdatetime
   from $device_muid_mapping_full_fixed_final_without_blacklist
-  where coalesce(ieid) =''
+  where coalesce(ieid,'') =''
 ),
 without_oiid as (
   select duid,a.oiid,ieid,duid_final,asid,mid,factory,model,serdatetime
@@ -391,20 +391,22 @@ without_oiid as (
   left join
   (select oiid from $dws_mid_ids_mapping where day='final' group by oiid) b
   on a.oiid=b.oiid
-  where coalesce(a.oiid) <>'' and b.oiid is null
+  where coalesce(a.oiid,'') <>'' and b.oiid is null
 
   union all
 
   select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime
-  from without_ieid where coalesce(oiid) =''
+  from without_ieid where coalesce(oiid,'') =''
 )
 insert overwrite table $duid_mid_with_id_explode_final
+select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from(
 select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from $duid_mid_with_id_explode
 union all
 select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from without_oiid
 union all
 select duid,oiid,ieid,duid_final,'' asid,mid,factory,model,serdatetime from $duid_mid_with_id_final
 where asid is null or size(asid)=0
+) where coalesce(oiid,'') <>'' or coalesce(ieid,'') <>'' or coalesce(duid,'') <>''
 "
 #根据duid聚合取最老的一条mid作为最终mid
 #mid为空的,是从图计算到后续计算都没有关联到的,算是一对一的数据,直接取duid为duid_final
@@ -420,23 +422,24 @@ with duid_mid as (
   select duid,mid_final from
   (
     select duid,first_value(mid) over (partition by duid order by serdatetime) mid_final
-    from $duid_mid_with_id_explode_final where coalesce(duid)<>''
+    from $duid_mid_with_id_explode_final where coalesce(duid,'')<>'' and coalesce(mid,'')<>''
   ) t group by duid,mid_final
 )
 insert overwrite table $duid_mid_with_id_explode_final_fixed
-select duid,oiid,ieid,duid_final,asid,if(coalesce(mid)='',sha1(duid),mid) mid,factory,model,serdatetime from(
+select duid,oiid,ieid,duid_final,asid,if(coalesce(mid,'')='',sha1(duid),mid) mid,factory,model,
+min(if(serdatetime ='',null,serdatetime)) serdatetime from(
   select a.duid,oiid,ieid,duid_final,asid,mid_final mid,factory,model,serdatetime
   from $duid_mid_with_id_explode_final a
   left join duid_mid b on a.duid=b.duid
-  where coalesce(a.duid)<>''
+  where coalesce(a.duid,'')<>''
 
   union all
 
   select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime
   from $duid_mid_with_id_explode_final
-  where coalesce(duid)=''
-) t where coalesce(ieid)<>'' or coalesce(oiid)<>''
-group by duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime
+  where coalesce(duid,'')=''
+) t where coalesce(ieid,'')<>'' or coalesce(oiid,'')<>''
+group by duid,oiid,ieid,duid_final,asid,mid,factory,model
 "
 
 
@@ -448,11 +451,11 @@ add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
 create temporary function sha1 as 'com.youzu.mob.java.udf.SHA1Hashing';
 drop table if exists $duid_mid_without_id;
 create table $duid_mid_without_id stored as orc as
-select a.duid,duid_final,if(coalesce(duid_final)='',sha1(duid),sha1(duid_final)) mid
+select a.duid,duid_final,if(coalesce(duid_final,'')='',sha1(duid),sha1(duid_final)) mid
 from $dws_mid_ids_mapping a
 left join
-(select duid from $duid_mid_with_id_explode_final_fixed where coalesce(mid)<>'' and coalesce(duid)<>'' group by duid) b
+(select duid from $duid_mid_with_id_explode_final_fixed where coalesce(mid,'')<>'' and coalesce(duid,'')<>'' group by duid) b
 on a.duid=b.duid
-where day='20211101' and coalesce(a.duid)<>'' and coalesce(a.ieid)='' and coalesce(a.oiid)='' and b.duid is null
+where day='final' and coalesce(a.duid,'')<>'' and coalesce(a.ieid,'')='' and coalesce(a.oiid,'')='' and b.duid is null
 group by a.duid,duid_final
 "
