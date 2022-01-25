@@ -201,6 +201,20 @@ object Duid2Unid {
 
 
     //3.去掉黑名单duid并且清洗厂商机型
+    //3.1去除duid 1对多厂商机型
+    spark.sql(
+      """
+        |SELECT duid
+        |FROM
+        |(
+        |  SELECT duid,CONCAT(UPPER(TRIM(factory)),'_',UPPER(TRIM(model))) AS factory_model
+        |  FROM sourceTable
+        |  GROUP BY duid,CONCAT(UPPER(TRIM(factory)),'_',UPPER(TRIM(model)))
+        |)a
+        |GROUP BY duid
+        |HAVING COUNT(1) > 1
+        |""".stripMargin).createOrReplaceTempView("factory_model_nimiety")
+
     spark.sql(
       """
         |SELECT /*+ BROADCAST(d) */
@@ -221,18 +235,11 @@ object Duid2Unid {
         |  FROM
         |  (
         |    SELECT *
-        |         , COUNT(DISTINCT(factory_model)) OVER(PARTITION BY duid) AS factory_model_cnt
-        |    FROM
-        |    (
-        |        SELECT *
-        |               , CONCAT(UPPER(TRIM(factory)),'_',UPPER(TRIM(model))) AS factory_model
-        |        FROM sourceTable
-        |        WHERE (pkg_it <> '' OR ieid <> '' OR oiid <> '' OR asid <> '')
-        |    )x
+        |    FROM sourceTable
+        |    WHERE (pkg_it <> '' OR ieid <> '' OR oiid <> '' OR asid <> '')
         |  )a
-        |  LEFT ANTI JOIN dm_mid_master.duid_blacklist b
-        |  ON a.duid = b.duid
-        |  WHERE factory_model_cnt = 1
+        |  LEFT ANTI JOIN dm_mid_master.duid_blacklist b ON a.duid = b.duid
+        |  LEFT ANTI JOIN factory_model_nimiety x ON a.duid = x.duid
         |)c
         |LEFT JOIN dm_sdk_mapping.brand_model_mapping_par d
         |ON d.version = '1000'
