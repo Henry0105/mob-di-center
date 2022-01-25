@@ -160,7 +160,7 @@ object Duid2Duidfinal {
     //将当日新生成的duid_unidfinal的关系更新
     spark.sql(
       s"""
-         |INSERT OVERWRITE TABLE dm_mid_master.duid_unidfinal_mapping PARTITION(day = '$day')
+         |INSERT OVERWRITE TABLE dm_mid_master.duid_unidfinal_duidfinal_mapping PARTITION(day = '$day')
          |SELECT duid
          |     , unid_final
          |     , duid_final
