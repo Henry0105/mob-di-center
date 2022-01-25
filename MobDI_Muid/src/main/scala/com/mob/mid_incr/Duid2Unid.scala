@@ -37,13 +37,13 @@ object Duid2Unid {
          |          AND TRIM(pkg) NOT IN ('','null','NULL','unknown','none','other','未知','na'),
          |          CONCAT(pkg,'_',version,'_',firstinstalltime),
          |          '') AS pkg_it
-         |     , IF(TRIM(LOWER(ieid)) IN ('','null','NULL','unknown','none','other','未知','na'),'',ieid) AS ieid
-         |     , IF(TRIM(LOWER(oiid)) IN ('','null','NULL','unknown','none','other','未知','na'),'',oiid) AS oiid
+         |     , IF(TRIM(LOWER(ieid)) IN ('','null','unknown','none','other','未知','na'),'',ieid) AS ieid
+         |     , IF(TRIM(LOWER(oiid)) IN ('','null','unknown','none','other','未知','na'),'',oiid) AS oiid
          |     , '' AS asid
          |     , 'install' AS source
          |FROM dm_mobdi_master.dwd_log_device_install_app_all_info_sec_di
          |WHERE day = '$day'
-         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[a-fA-F0-9]{10,50}', 0)
+         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\-]{36}|[0-9]{14,17}', 0)
          |
          |UNION ALL
          |
@@ -51,13 +51,13 @@ object Duid2Unid {
          |     , factory
          |     , model
          |     , '' AS pkg_it
-         |     , IF(TRIM(LOWER(ieid)) IN ('','null','NULL','unknown','none','other','未知','na'),'',ieid) AS ieid
-         |     , IF(TRIM(LOWER(oiid)) IN ('','null','NULL','unknown','none','other','未知','na'),'',oiid) AS oiid
+         |     , IF(TRIM(LOWER(ieid)) IN ('','null','unknown','none','other','未知','na'),'',ieid) AS ieid
+         |     , IF(TRIM(LOWER(oiid)) IN ('','null','unknown','none','other','未知','na'),'',oiid) AS oiid
          |     , '' AS asid
          |     , 'pv' AS source
          |FROM dm_mobdi_master.dwd_pv_sec_di
          |WHERE day = '$day'
-         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[a-fA-F0-9]{10,50}', 0)
+         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\-]{36}|[0-9]{14,17}', 0)
          |
          |UNION ALL
          |
@@ -65,26 +65,39 @@ object Duid2Unid {
          |     , factory
          |     , model
          |     , '' AS pkg_it
-         |     , IF(TRIM(LOWER(ieid)) IN ('','null','NULL','unknown','none','other','未知','na'),'',ieid) AS ieid
-         |     , IF(TRIM(LOWER(oiid)) IN ('','null','NULL','unknown','none','other','未知','na'),'',oiid) AS oiid
+         |     , IF(TRIM(LOWER(ieid)) IN ('','null','unknown','none','other','未知','na'),'',ieid) AS ieid
+         |     , IF(TRIM(LOWER(oiid)) IN ('','null','unknown','none','other','未知','na'),'',oiid) AS oiid
          |     , '' AS asid
          |     , 'mdata' AS source
          |FROM dm_mobdi_master.dwd_mdata_nginx_pv_di
          |WHERE day = '$day'
-         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[a-fA-F0-9]{10,50}', 0)
+         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\-]{36}|[0-9]{14,17}', 0)
          |
          |UNION ALL
          |
-         |SELECT COALESCE(IF(LOWER(TRIM(curduid)) < 0, '', LOWER(TRIM(curduid))), LOWER(TRIM(id))) AS duid
+         |SELECT duid
          |     , factory
          |     , model
-         |     , '' AS pkg_it
-         |     , IF(TRIM(LOWER(ieid)) IN ('','null','NULL','unknown','none','other','未知','na'),'',ieid) AS ieid
-         |     , IF(TRIM(LOWER(oiid)) IN ('','null','NULL','unknown','none','other','未知','na'),'',oiid) AS oiid
-         |     , IF(TRIM(LOWER(asid)) IN ('','null','NULL','unknown','none','other','未知','na'),'',asid) AS asid
-         |     , 'jh' AS source
-         |FROM dm_mobdi_master.dwd_log_device_info_jh_sec_di
-         |WHERE day = '$day'
+         |     , pkg_it
+         |     , ieid
+         |     , oiid
+         |     , asid
+         |     , source
+         |FROM
+         |(
+         |  SELECT COALESCE(IF(LOWER(TRIM(curduid)) < 0, '', LOWER(TRIM(curduid))), LOWER(TRIM(id))) AS duid
+         |       , factory
+         |       , model
+         |       , '' AS pkg_it
+         |       , IF(TRIM(LOWER(ieid)) IN ('','null','unknown','none','other','未知','na'),'',ieid) AS ieid
+         |       , IF(TRIM(LOWER(oiid)) IN ('','null','unknown','none','other','未知','na'),'',oiid) AS oiid
+         |       , IF(TRIM(LOWER(asid)) IN ('','null','unknown','none','other','未知','na'),'',asid) AS asid
+         |       , 'jh' AS source
+         |  FROM dm_mobdi_master.dwd_log_device_info_jh_sec_di
+         |  WHERE day = '$day'
+         |)jh
+         |WHERE duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\-]{36}|[0-9]{14,17}', 0)
+         |
          |
          |UNION ALL
          |
@@ -92,13 +105,13 @@ object Duid2Unid {
          |     , factory
          |     , model
          |     , '' AS pkg_it
-         |     , IF(TRIM(LOWER(ieid)) IN ('','null','NULL','unknown','none','other','未知','na'),'',ieid) AS ieid
-         |     , IF(TRIM(LOWER(oiid)) IN ('','null','NULL','unknown','none','other','未知','na'),'',oiid) AS oiid
+         |     , IF(TRIM(LOWER(ieid)) IN ('','null','unknown','none','other','未知','na'),'',ieid) AS ieid
+         |     , IF(TRIM(LOWER(oiid)) IN ('','null','unknown','none','other','未知','na'),'',oiid) AS oiid
          |     , '' AS asid
          |     , 'location' AS source
          |FROM dm_mobdi_master.dwd_location_info_sec_di
          |WHERE day = '$day'
-         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[a-fA-F0-9]{10,50}', 0)
+         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\-]{36}|[0-9]{14,17}', 0)
          |
          |UNION ALL
          |
@@ -106,13 +119,13 @@ object Duid2Unid {
          |     , factory
          |     , model
          |     , '' AS pkg_it
-         |     , IF(TRIM(LOWER(ieid)) IN ('','null','NULL','unknown','none','other','未知','na'),'',ieid) AS ieid
-         |     , IF(TRIM(LOWER(oiid)) IN ('','null','NULL','unknown','none','other','未知','na'),'',oiid) AS oiid
+         |     , IF(TRIM(LOWER(ieid)) IN ('','null','unknown','none','other','未知','na'),'',ieid) AS ieid
+         |     , IF(TRIM(LOWER(oiid)) IN ('','null','unknown','none','other','未知','na'),'',oiid) AS oiid
          |     , '' AS asid
          |     , 'auto_location' AS source
          |FROM dm_mobdi_master.dwd_auto_location_info_sec_di
          |WHERE day = '$day'
-         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[a-fA-F0-9]{10,50}', 0)
+         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\-]{36}|[0-9]{14,17}', 0)
          |
          |UNION ALL
          |
@@ -120,13 +133,13 @@ object Duid2Unid {
          |     , factory
          |     , model
          |     , '' AS pkg_it
-         |     , IF(TRIM(LOWER(ieid)) IN ('','null','NULL','unknown','none','other','未知','na'),'',ieid) AS ieid
-         |     , IF(TRIM(LOWER(oiid)) IN ('','null','NULL','unknown','none','other','未知','na'),'',oiid) AS oiid
+         |     , IF(TRIM(LOWER(ieid)) IN ('','null','unknown','none','other','未知','na'),'',ieid) AS ieid
+         |     , IF(TRIM(LOWER(oiid)) IN ('','null','unknown','none','other','未知','na'),'',oiid) AS oiid
          |     , '' AS asid
          |     , 'wifi' AS source
          |FROM dm_mobdi_master.dwd_log_wifi_info_sec_di
          |WHERE day = '$day'
-         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[a-fA-F0-9]{10,50}', 0)
+         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\-]{36}|[0-9]{14,17}', 0)
          |
          |UNION ALL
          |
@@ -134,13 +147,13 @@ object Duid2Unid {
          |     , factory
          |     , model
          |     , '' AS pkg_it
-         |     , IF(TRIM(LOWER(ieid)) IN ('','null','NULL','unknown','none','other','未知','na'),'',ieid) AS ieid
-         |     , IF(TRIM(LOWER(oiid)) IN ('','null','NULL','unknown','none','other','未知','na'),'',oiid) AS oiid
+         |     , IF(TRIM(LOWER(ieid)) IN ('','null','unknown','none','other','未知','na'),'',ieid) AS ieid
+         |     , IF(TRIM(LOWER(oiid)) IN ('','null','unknown','none','other','未知','na'),'',oiid) AS oiid
          |     , '' AS asid
          |     , 'base_station' AS source
          |FROM dm_mobdi_master.dwd_base_station_info_sec_di
          |WHERE day = '$day'
-         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[a-fA-F0-9]{10,50}', 0)
+         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\-]{36}|[0-9]{14,17}', 0)
          |""".stripMargin).createOrReplaceTempView("sourceTable")
 
     //2.生成当日duid黑名单数据
@@ -156,15 +169,20 @@ object Duid2Unid {
          |""".stripMargin)
 
     spark.sql(
-      """
-        |SELECT /*+ BROADCAST(b) */
-        |       a.duid
-        |     , a.ieid
-        |     , a.oiid
-        |FROM dm_mid_master.duid_oiid_ieid_mapping_full a
-        |LEFT ANTI JOIN dm_mid_master.duid_blacklist b
-        |ON a.duid = b.duid
-        |""".stripMargin).createOrReplaceTempView("remove_black")
+      s"""
+         |SELECT /*+ BROADCAST(b) */
+         |       a.duid
+         |     , a.ieid
+         |     , a.oiid
+         |FROM dm_mid_master.duid_oiid_ieid_mapping_full a
+         |LEFT ANTI JOIN
+         |(
+         |  SELECT duid
+         |  FROM dm_mid_master.duid_blacklist
+         |  WHERE day < '$day'
+         |)b
+         |ON a.duid = b.duid
+         |""".stripMargin).createOrReplaceTempView("remove_black")
 
     spark.sql(
       s"""
@@ -217,7 +235,7 @@ object Duid2Unid {
 
     //2.当日duid匹配已有unid_final
     spark.sql(
-      """
+      s"""
         |SELECT a.duid
         |     , a.factory
         |     , a.pkg_it
@@ -225,14 +243,23 @@ object Duid2Unid {
         |     , a.oiid
         |     , a.asid
         |     , b.unid_final
-        |     , IF(b.unid_final IS NULL,1,0) AS flag
+        |     , COALESCE(b.duid_final,a.duid) AS duid_final
+        |     , IF(b.unid_final IS NULL,'1','0') AS flag
         |     , source
         |FROM duid_clear a
-        |LEFT JOIN dm_mid_master.duid_unidfinal_mapping b
+        |LEFT JOIN
+        |(
+        |  SELECT duid
+        |       , unid_final
+        |       , duid_final
+        |  FROM dm_mid_master.duid_unidfinal_duidfinal_mapping
+        |  WHERE day < '$day'
+        |) b
         |ON a.duid = b.duid
         |""".stripMargin).createOrReplaceTempView("duid_unidfinal_tmp")
 
     //中间落表
+    spark.sql(s"DROP TABLE IF EXISTS dm_mid_master.duid_unidfinal_tmp_$day")
     spark.sql(
       s"""
          |CREATE TABLE IF NOT EXISTS dm_mid_master.duid_unidfinal_tmp_$day STORED AS ORC AS
@@ -250,7 +277,7 @@ object Duid2Unid {
          |(
          |  SELECT duid
          |  FROM dm_mid_master.duid_unidfinal_tmp_$day
-         |  WHERE flag = 1
+         |  WHERE flag = '1'
          |  GROUP BY duid
          |)a
          |""".stripMargin).createOrReplaceTempView("duid_fsid_incr")
@@ -267,10 +294,11 @@ object Duid2Unid {
          |     , COALESCE(a.unid_final,b.unid) AS unid
          |     , a.flag
          |     , a.source
+         |     , a.duid_final
          |FROM dm_mid_master.duid_unidfinal_tmp_$day a
          |LEFT JOIN duid_fsid_incr b
          |ON a.duid = b.duid
-         |GROUP BY a.duid,a.factory,a.pkg_it,a.ieid,a.oiid,a.asid,COALESCE(a.unid_final,b.unid),a.flag,a.source
+         |GROUP BY a.duid,a.factory,a.pkg_it,a.ieid,a.oiid,a.asid,COALESCE(a.unid_final,b.unid),a.flag,a.source,a.duid_final
          |""".stripMargin)
 
   }

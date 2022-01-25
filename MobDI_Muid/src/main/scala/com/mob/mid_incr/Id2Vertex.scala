@@ -38,7 +38,12 @@ object Id2Vertex {
          |  AND $id <> ''
          |  AND $id IS NOT NULL
          |)a
-         |LEFT ANTI JOIN dm_mid_master.${id}_blacklist_full b
+         |LEFT ANTI JOIN
+         |(
+         |  SELECT $id
+         |  FROM dm_mid_master.${id}_blacklist_full
+         |  WHERE day <= '$day'
+         |)b
          |ON a.$id = b.$id
          |GROUP BY ${if (id == "oiid") s"CONCAT($id,'_',factory)" else id},unid
          |""".stripMargin
