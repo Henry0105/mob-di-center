@@ -125,17 +125,33 @@ new_id string
 hive -e "
 $sqlset
 drop table if exists $duid_mid_with_id_final_fixed;
-create table $duid_mid_with_id_final_fixed stored as orc as
-select duid,oiid,ieid,duid_final,asid,a.mid,factory,model,serdatetime,coalesce(c.mid,a.mid) mid_final
+CREATE TABLE $duid_mid_with_id_final_fixed(
+  `duid` string,
+  `oiid` string,
+  `ieid` string,
+  `duid_final` string,
+  `asid` array<string>,
+  `mid` string,
+  `factory` string,
+  `model` string,
+  `serdatetime` string,
+  `mid_final` string)
+  stored as orc;
+with old_id_mid as(
+    select old_id,mid from
+    $ids_unid_final_mapping_final b
+    left join
+    (
+    select unid,mid from(
+        select unid,mid,row_number() over (partition by unid order by serdatetime) rn
+        from $duid_mid_with_id_final_fixed_step1 where coalesce(unid,'')<>'' and coalesce(mid,'')<>''
+    )t where rn =1
+    ) c
+    on b.new_id = c.unid
+)
+insert overwrite table $duid_mid_with_id_final_fixed
+select duid,oiid,ieid,duid_final,asid,a.mid,factory,model,serdatetime,coalesce(b.mid,a.mid) mid_final
 from $duid_mid_with_id_final_fixed_step1 a
-left join $ids_unid_final_mapping_final b
+left join old_id_mid b
 on a.unid = b.old_id
-left join
-(
-  select unid,mid from(
-    select unid,mid,row_number() over (partition by unid order by serdatetime) rn
-    from $duid_mid_with_id_final_fixed_step1 where coalesce(unid,'')<>'' and coalesce(mid,'')<>''
-  )t where rn =1
-) c
-on b.new_id = c.unid
 "
