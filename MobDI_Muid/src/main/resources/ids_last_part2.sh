@@ -30,6 +30,7 @@ duid_mid_with_id_explode="$mid_db.duid_mid_with_id_explode"
 muid_with_id_unjoined_final="$mid_db.muid_with_id_unjoined_final"
 duid_mid_with_id_explode_final="$mid_db.duid_mid_with_id_explode_final"
 duid_mid_with_id_explode_final_fixed="$mid_db.duid_mid_with_id_explode_final_fixed"
+mid_with_id="$mid_db.mid_with_id"
 
 sqlset="
 set mapred.max.split.size=256000000;
@@ -454,6 +455,15 @@ min(if(serdatetime ='',null,serdatetime)) serdatetime from(
 group by duid,oiid,ieid,duid_final,asid,mid,factory,model
 "
 
+hive -e "
+$sqlset
+drop table if exists $mid_with_id;
+create table $mid_with_id stored as orc as
+select duid,oiid,ieid,duid_final,asid,min(mid) mid,factory,
+min(if(serdatetime ='',null,serdatetime)) serdatetime
+from $duid_mid_with_id_explode_final_fixed
+group by duid,oiid,ieid,duid_final,asid,factory
+"
 
 #4、将表E中没有设备id（ieid，oiid）的数据，提取duid和duid_final的关系，记为表H，并对duid_final做sha1操作，作为mid
 #如果duid有的行有ieid或oiid并且有mid,那么这个duid不应该出现在该结果表
