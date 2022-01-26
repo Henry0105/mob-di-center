@@ -68,7 +68,7 @@ object Duid2Duidfinal {
          |     , a.asid
          |     , a.factory
          |     , a.flag
-         |     , COALESCE(f.unid_final,e.unid) AS unid_final
+         |     , COALESCE(b.unid_final,a.unid) AS unid_final
          |FROM
          |(
          |  SELECT *
