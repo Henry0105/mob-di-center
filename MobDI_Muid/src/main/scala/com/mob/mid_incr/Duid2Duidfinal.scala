@@ -105,33 +105,55 @@ object Duid2Duidfinal {
          |)
          |
          |INSERT OVERWRITE TABLE dm_mid_master.duid_duidfinal_info_incr PARTITION (day = '$day')
-         |SELECT a.duid
-         |     , b.duid_final AS duid_final
-         |     , ieid
-         |     , oiid
-         |     , asid
-         |     , factory
-         |     , flag
-         |     , unid_final
+         |SELECT c.duid
+         |       , COALESCE(c.duid_final,d.duid_final) AS duid_final
+         |       , ieid
+         |       , oiid
+         |       , asid
+         |       , factory
+         |       , flag
+         |       , c.unid_final
+         |       , c.unid
          |FROM
          |(
-         |    SELECT duid
-         |         , unid_final
-         |         , ieid
-         |         , oiid
-         |         , asid
-         |         , factory
-         |         , flag
-         |    FROM duid_unid_unidfinal_incr
-         |    GROUP BY duid,unid_final,ieid,oiid,asid,factory,flag
-         |) a
+         |  SELECT a.duid
+         |       , b.duid_final AS duid_final
+         |       , ieid
+         |       , oiid
+         |       , asid
+         |       , factory
+         |       , flag
+         |       , unid_final
+         |       , unid
+         |  FROM
+         |  (
+         |      SELECT duid
+         |           , unid_final
+         |           , ieid
+         |           , oiid
+         |           , asid
+         |           , factory
+         |           , flag
+         |           , unid
+         |      FROM duid_unid_unidfinal_incr
+         |      GROUP BY duid,unid_final,ieid,oiid,asid,factory,flag,unid
+         |  ) a
+         |  LEFT JOIN
+         |  (
+         |    SELECT duid_final
+         |         , unid AS unid_tmp
+         |    FROM unid_duidfinal
+         |  )b
+         |  ON a.unid_final = b.unid_tmp
+         |)c
          |LEFT JOIN
          |(
-         |  SELECT duid_final
-         |       , unid AS unid_tmp
-         |  FROM unid_duidfinal
-         |)b
-         |ON a.unid_final = b.unid_tmp
+         |  SELECT unid
+         |       , duid_final
+         |  FROM dm_mid_master.duid_unidfinal_duidfinal_mapping
+         |  WHERE day < '$day'
+         |)d
+         |ON c.unid_final = d.unid
          |""".stripMargin)
 
     //将当日新生成的duid_unidfinal的关系更新
@@ -139,12 +161,13 @@ object Duid2Duidfinal {
       s"""
          |INSERT OVERWRITE TABLE dm_mid_master.duid_unidfinal_duidfinal_mapping PARTITION(day = '$day')
          |SELECT duid
+         |     , unid
          |     , unid_final
          |     , duid_final
          |FROM dm_mid_master.duid_duidfinal_info_incr
          |WHERE day = '$day'
          |AND flag = 1
-         |GROUP BY duid,unid_final,duid_final
+         |GROUP BY duid,unid,unid_final,duid_final
          |""".stripMargin)
 
   }
