@@ -26,25 +26,12 @@ object Id2Vertex {
     //去黑名单
     val sql: String =
       s"""
-         |SELECT ${if (id == "oiid") s"CONCAT($id,'_',factory) AS oiid" else id}
-         |     , unid
-         |FROM
-         |(
-         |  SELECT $id
-         |       , factory
+         |  SELECT ${if (id == "oiid") s"CONCAT($id,'_',factory) AS oiid" else id}
          |       , unid
          |  FROM dm_mid_master.duid_incr_tmp
          |  WHERE day = '$day'
          |  AND $id <> ''
          |  AND $id IS NOT NULL
-         |)a
-         |LEFT ANTI JOIN
-         |(
-         |  SELECT $id
-         |  FROM dm_mid_master.${id}_blacklist_full
-         |  WHERE day <= '$day'
-         |)b
-         |ON a.$id = b.$id
          |GROUP BY ${if (id == "oiid") s"CONCAT($id,'_',factory)" else id},unid
          |""".stripMargin
     println(sql)

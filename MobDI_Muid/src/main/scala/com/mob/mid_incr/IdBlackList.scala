@@ -104,6 +104,46 @@ object IdBlackList {
       }
     })
 
+    //将dm_mid_master.duid_incr_tmp中再清洗下黑名单
+    spark.sql(
+      s"""
+         |INSERT OVERWRITE TABLE dm_mid_master.duid_incr_tmp PARTITION(day = '$day')
+         |SELECT a.duid
+         |     , a.factory
+         |     , a.pkg_it
+         |     , a.ieid
+         |     , a.oiid
+         |     , a.asid
+         |     , a.unid
+         |     , a.flag
+         |     , a.source
+         |     , a.duid_final
+         |FROM
+         |(
+         |  SELECT *
+         |  FROM dm_mid_master.duid_incr_tmp
+         |  WHERE day = '$day'
+         |)a
+         |LEFT ANTI JOIN
+         |(
+         |  SELECT ieid
+         |  FROM dm_mid_master.ieid_blacklist_full
+         |  WHERE day <= '$day'
+         |)b ON a.ieid = b.ieid
+         |LEFT ANTI JOIN
+         |(
+         |  SELECT oiid
+         |  FROM dm_mid_master.oiid_blacklist_full
+         |  WHERE day <= '$day'
+         |)c ON a.oiid = c.oiid
+         |LEFT ANTI JOIN
+         |(
+         |  SELECT asid
+         |  FROM dm_mid_master.asid_blacklist_full
+         |  WHERE day <= '$day'
+         |)d ON a.asid = d.asid
+         |""".stripMargin)
+
     spark.stop()
 
   }
