@@ -32,6 +32,9 @@ duid_mid_with_id_explode_final="$mid_db.duid_mid_with_id_explode_final"
 duid_mid_with_id_explode_final_fixed="$mid_db.duid_mid_with_id_explode_final_fixed"
 mid_with_id="$mid_db.mid_with_id"
 
+muid_with_id_unjoined_unid_fixed="$mid_db.muid_with_id_unjoined_unid_fixed"
+
+
 sqlset="
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
@@ -364,7 +367,7 @@ hive -e "
 $sqlset
 drop table if exists $duid_mid_with_id_explode;
 create table $duid_mid_with_id_explode stored as orc as
-select duid,oiid,ieid,duid_final,asid_tmp asid,mid,
+select duid,oiid,ieid,duid_final,asid_tmp asid,mid_final mid,
 factory,model,serdatetime from $duid_mid_with_id_final_fixed
 LATERAL VIEW explode(coalesce(asid,array())) tmpTable as asid_tmp
 "
@@ -404,66 +407,76 @@ insert overwrite table $muid_with_id_unjoined_final
 select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from without_oiid
 "
 
+sh fix_unjoined_mid.sh
+
 #展开后的数据+修复后的全量映射表去掉图合并结果join到的记录+由于asid为空展开失败的数据
-hive -e "
-$sqlset
-drop table if exists $duid_mid_with_id_explode_final;
-
-create table $duid_mid_with_id_explode_final like $duid_mid_with_id_explode;
-
-insert overwrite table $duid_mid_with_id_explode_final
-select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from(
-select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from $duid_mid_with_id_explode
-union all
-select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from $muid_with_id_unjoined_final
-union all
-select duid,oiid,ieid,duid_final,'' asid,mid,factory,model,serdatetime from $duid_mid_with_id_final_fixed
-where asid is null or size(asid)=0
-) where coalesce(oiid,'') <>'' or coalesce(ieid,'') <>'' or coalesce(duid,'') <>''
-"
-#根据duid聚合取最老的一条mid作为最终mid
-#mid为空的,是从图计算到后续计算都没有关联到的,算是一对一的数据,直接取duid为duid_final
 hive -e "
 $sqlset
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
 create temporary function sha1 as 'com.youzu.mob.java.udf.SHA1Hashing';
-
-drop table if exists $duid_mid_with_id_explode_final_fixed;
-
-create table $duid_mid_with_id_explode_final_fixed like $duid_mid_with_id_explode;
-with duid_mid as (
-  select duid,mid_final from
-  (
-    select duid,first_value(mid) over (partition by duid order by serdatetime) mid_final
-    from $duid_mid_with_id_explode_final where coalesce(duid,'')<>'' and coalesce(mid,'')<>''
-  ) t group by duid,mid_final
-)
-insert overwrite table $duid_mid_with_id_explode_final_fixed
-select duid,oiid,ieid,duid_final,asid,if(coalesce(mid,'')='',sha1(duid),mid) mid,factory,model,
-min(if(serdatetime ='',null,serdatetime)) serdatetime from(
-  select a.duid,oiid,ieid,duid_final,asid,mid_final mid,factory,model,serdatetime
-  from $duid_mid_with_id_explode_final a
-  left join duid_mid b on a.duid=b.duid
-  where coalesce(a.duid,'')<>''
-
-  union all
-
-  select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime
-  from $duid_mid_with_id_explode_final
-  where coalesce(duid,'')=''
-) t where coalesce(ieid,'')<>'' or coalesce(oiid,'')<>''
-group by duid,oiid,ieid,duid_final,asid,mid,factory,model
+drop table if exists $duid_mid_with_id_explode_final;
+create table $duid_mid_with_id_explode_final stored as orc as
+select * from (
+  select duid,oiid,ieid,duid_final,asid,factory,
+  case when coalesce(mid,'')<>'' then mid
+       when coalesce(duid_final,'')<>'' then sha1(duid_final)
+       when coalesce(duid,'')<>'' then sha1(duid)
+       else '' end as mid,
+  min(if(serdatetime ='',null,serdatetime)) serdatetime
+  from(
+    select duid,oiid,ieid,duid_final,asid,mid,factory,serdatetime from $duid_mid_with_id_explode
+    union all
+    select duid,oiid,ieid,duid_final,asid,mid_final mid,factory,serdatetime from $muid_with_id_unjoined_unid_fixed
+    union all
+    select duid,oiid,ieid,duid_final,'' asid,mid,factory,serdatetime from $duid_mid_with_id_final_fixed
+    where asid is null or size(asid)=0
+  )a where coalesce(oiid,'') <>'' or coalesce(ieid,'') <>'' or coalesce(duid,'') <>''
+  group by duid,oiid,ieid,duid_final,asid,mid,factory
+)b where mid<>''
 "
-
-hive -e "
-$sqlset
-drop table if exists $mid_with_id;
-create table $mid_with_id stored as orc as
-select duid,oiid,ieid,duid_final,asid,mid,factory,
-min(if(serdatetime ='',null,serdatetime)) serdatetime
-from $duid_mid_with_id_explode_final_fixed
-group by duid,oiid,ieid,duid_final,asid,factory,mid
-"
+##根据duid聚合取最老的一条mid作为最终mid
+##mid为空的,是从图计算到后续计算都没有关联到的,算是一对一的数据,直接取duid为duid_final
+#hive -e "
+#$sqlset
+#add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
+#create temporary function sha1 as 'com.youzu.mob.java.udf.SHA1Hashing';
+#
+#drop table if exists $duid_mid_with_id_explode_final_fixed;
+#
+#create table $duid_mid_with_id_explode_final_fixed like $duid_mid_with_id_explode;
+#with duid_mid as (
+#  select duid,mid_final from
+#  (
+#    select duid,first_value(mid) over (partition by duid order by serdatetime) mid_final
+#    from $duid_mid_with_id_explode_final where coalesce(duid,'')<>'' and coalesce(mid,'')<>''
+#  ) t group by duid,mid_final
+#)
+#insert overwrite table $duid_mid_with_id_explode_final_fixed
+#select duid,oiid,ieid,duid_final,asid,if(coalesce(mid,'')='',sha1(duid),mid) mid,factory,model,
+#min(if(serdatetime ='',null,serdatetime)) serdatetime from(
+#  select a.duid,oiid,ieid,duid_final,asid,mid_final mid,factory,model,serdatetime
+#  from $duid_mid_with_id_explode_final a
+#  left join duid_mid b on a.duid=b.duid
+#  where coalesce(a.duid,'')<>''
+#
+#  union all
+#
+#  select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime
+#  from $duid_mid_with_id_explode_final
+#  where coalesce(duid,'')=''
+#) t where coalesce(ieid,'')<>'' or coalesce(oiid,'')<>''
+#group by duid,oiid,ieid,duid_final,asid,mid,factory,model
+#"
+#
+#hive -e "
+#$sqlset
+#drop table if exists $mid_with_id;
+#create table $mid_with_id stored as orc as
+#select duid,oiid,ieid,duid_final,asid,mid,factory,
+#min(if(serdatetime ='',null,serdatetime)) serdatetime
+#from $duid_mid_with_id_explode_final_fixed
+#group by duid,oiid,ieid,duid_final,asid,factory,mid
+#"
 
 #4、将表E中没有设备id（ieid，oiid）的数据，提取duid和duid_final的关系，记为表H，并对duid_final做sha1操作，作为mid
 #如果duid有的行有ieid或oiid并且有mid,那么这个duid不应该出现在该结果表
@@ -476,7 +489,7 @@ create table $duid_mid_without_id stored as orc as
 select a.duid,duid_final,if(coalesce(duid_final,'')='',sha1(duid),sha1(duid_final)) mid
 from $dws_mid_ids_mapping a
 left join
-(select duid from $duid_mid_with_id_explode_final_fixed where coalesce(mid,'')<>'' and coalesce(duid,'')<>'' group by duid) b
+(select duid from $duid_mid_with_id_explode_final where coalesce(mid,'')<>'' and coalesce(duid,'')<>'' group by duid) b
 on a.duid=b.duid
 where day='final' and coalesce(a.duid,'')<>'' and coalesce(a.ieid,'')='' and coalesce(a.oiid,'')='' and b.duid is null
 group by a.duid,duid_final

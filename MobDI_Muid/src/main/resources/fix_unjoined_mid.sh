@@ -127,7 +127,7 @@ hive -e "
 $sqlset
 drop table if exists $muid_with_id_unjoined_unid_fixed;
 
-CREATE TABLE `dm_mid_master.muid_with_id_unjoined_final`(
+CREATE TABLE $muid_with_id_unjoined_unid_fixed(
   `duid` string,
   `oiid` string,
   `ieid` string,
@@ -153,7 +153,7 @@ on b.new_id = c.unid
 )
 
 insert overwrite table $muid_with_id_unjoined_unid_fixed
-select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime,coalesce(b.mid,a.mid) mid_final
+select duid,oiid,ieid,duid_final,asid,a.mid,factory,model,serdatetime,coalesce(b.mid,a.mid) mid_final
 from $muid_with_id_unjoined_unid a
 left join old_id_mid b
 on a.unid = b.old_id
