@@ -22,6 +22,7 @@ object Duid2Unid {
 
   def compute(spark: SparkSession, day: String): Unit = {
 
+
     //1.源头表载入
     spark.sql(
       s"""
@@ -33,8 +34,7 @@ object Duid2Unid {
          |          AND firstinstalltime IS NOT NULL
          |          AND LENGTH(firstinstalltime) = 13
          |          AND SUBSTR(firstinstalltime,-3,3) <> '000'
-         |          AND LENGTH(pkg) > 0
-         |          AND TRIM(pkg) NOT IN ('','null','NULL','unknown','none','other','未知','na'),
+         |          AND pkg = REGEXP_EXTRACT(pkg, '^[a-zA-Z]+[0-9a-zA-Z_]*(\\.[a-zA-Z]+[0-9a-zA-Z_]*)*', 0),
          |          CONCAT(pkg,'_',version,'_',firstinstalltime),
          |          '') AS pkg_it
          |     , IF(TRIM(LOWER(ieid)) IN ('','null','unknown','none','other','未知','na'),'',ieid) AS ieid
@@ -43,7 +43,7 @@ object Duid2Unid {
          |     , 'install' AS source
          |FROM dm_mobdi_master.dwd_log_device_install_app_all_info_sec_di
          |WHERE day = '$day'
-         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\-]{36}|[0-9]{14,17}', 0)
+         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\\-]{36}|[0-9]{14,17}', 0)
          |
          |UNION ALL
          |
@@ -57,7 +57,7 @@ object Duid2Unid {
          |     , 'pv' AS source
          |FROM dm_mobdi_master.dwd_pv_sec_di
          |WHERE day = '$day'
-         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\-]{36}|[0-9]{14,17}', 0)
+         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\\-]{36}|[0-9]{14,17}', 0)
          |
          |UNION ALL
          |
@@ -71,7 +71,7 @@ object Duid2Unid {
          |     , 'mdata' AS source
          |FROM dm_mobdi_master.dwd_mdata_nginx_pv_di
          |WHERE day = '$day'
-         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\-]{36}|[0-9]{14,17}', 0)
+         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\\-]{36}|[0-9]{14,17}', 0)
          |
          |UNION ALL
          |
@@ -96,7 +96,7 @@ object Duid2Unid {
          |  FROM dm_mobdi_master.dwd_log_device_info_jh_sec_di
          |  WHERE day = '$day'
          |)jh
-         |WHERE duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\-]{36}|[0-9]{14,17}', 0)
+         |WHERE duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\\-]{36}|[0-9]{14,17}', 0)
          |
          |
          |UNION ALL
@@ -111,7 +111,7 @@ object Duid2Unid {
          |     , 'location' AS source
          |FROM dm_mobdi_master.dwd_location_info_sec_di
          |WHERE day = '$day'
-         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\-]{36}|[0-9]{14,17}', 0)
+         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\\-]{36}|[0-9]{14,17}', 0)
          |
          |UNION ALL
          |
@@ -125,7 +125,7 @@ object Duid2Unid {
          |     , 'auto_location' AS source
          |FROM dm_mobdi_master.dwd_auto_location_info_sec_di
          |WHERE day = '$day'
-         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\-]{36}|[0-9]{14,17}', 0)
+         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\\-]{36}|[0-9]{14,17}', 0)
          |
          |UNION ALL
          |
@@ -139,7 +139,7 @@ object Duid2Unid {
          |     , 'wifi' AS source
          |FROM dm_mobdi_master.dwd_log_wifi_info_sec_di
          |WHERE day = '$day'
-         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\-]{36}|[0-9]{14,17}', 0)
+         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\\-]{36}|[0-9]{14,17}', 0)
          |
          |UNION ALL
          |
@@ -153,7 +153,7 @@ object Duid2Unid {
          |     , 'base_station' AS source
          |FROM dm_mobdi_master.dwd_base_station_info_sec_di
          |WHERE day = '$day'
-         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\-]{36}|[0-9]{14,17}', 0)
+         |AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\\-]{36}|[0-9]{14,17}', 0)
          |""".stripMargin).createOrReplaceTempView("sourceTable")
 
     //2.生成当日duid黑名单数据
@@ -201,6 +201,20 @@ object Duid2Unid {
 
 
     //3.去掉黑名单duid并且清洗厂商机型
+    //3.1去除duid 1对多厂商机型
+    spark.sql(
+      """
+        |SELECT duid
+        |FROM
+        |(
+        |  SELECT duid,CONCAT(UPPER(TRIM(factory)),'_',UPPER(TRIM(model))) AS factory_model
+        |  FROM sourceTable
+        |  GROUP BY duid,CONCAT(UPPER(TRIM(factory)),'_',UPPER(TRIM(model)))
+        |)a
+        |GROUP BY duid
+        |HAVING COUNT(1) > 1
+        |""".stripMargin).createOrReplaceTempView("factory_model_nimiety")
+
     spark.sql(
       """
         |SELECT /*+ BROADCAST(d) */
@@ -224,8 +238,8 @@ object Duid2Unid {
         |    FROM sourceTable
         |    WHERE (pkg_it <> '' OR ieid <> '' OR oiid <> '' OR asid <> '')
         |  )a
-        |  LEFT ANTI JOIN dm_mid_master.duid_blacklist b
-        |  ON a.duid = b.duid
+        |  LEFT ANTI JOIN dm_mid_master.duid_blacklist b ON a.duid = b.duid
+        |  LEFT ANTI JOIN factory_model_nimiety x ON a.duid = x.duid
         |)c
         |LEFT JOIN dm_sdk_mapping.brand_model_mapping_par d
         |ON d.version = '1000'
