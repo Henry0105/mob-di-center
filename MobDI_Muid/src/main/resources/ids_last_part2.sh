@@ -24,10 +24,13 @@ device_muid_mapping_full_fixed_final_without_blacklist="$mid_db.device_muid_mapp
 
 duid_mid_with_id="$mid_db.duid_mid_with_id"
 duid_mid_with_id_final="$mid_db.duid_mid_with_id_final"
+duid_mid_with_id_final_fixed="$mid_db.duid_mid_with_id_final_fixed"
 duid_mid_without_id="$mid_db.duid_mid_without_id"
 duid_mid_with_id_explode="$mid_db.duid_mid_with_id_explode"
+muid_with_id_unjoined_final="$mid_db.muid_with_id_unjoined_final"
 duid_mid_with_id_explode_final="$mid_db.duid_mid_with_id_explode_final"
 duid_mid_with_id_explode_final_fixed="$mid_db.duid_mid_with_id_explode_final_fixed"
+mid_with_id="$mid_db.mid_with_id"
 
 sqlset="
 set mapred.max.split.size=256000000;
@@ -354,23 +357,22 @@ case when (oiid_mid is not null and oiid_mid <> '') then oiid_mid else sha1(duid
 from $duid_mid_with_id
 where ieid is null or ieid=''
 "
+#使用图合并这一步的结果
+sh fix_duid_mid.sh
 
 hive -e "
 $sqlset
 drop table if exists $duid_mid_with_id_explode;
 create table $duid_mid_with_id_explode stored as orc as
 select duid,oiid,ieid,duid_final,asid_tmp asid,mid,
-factory,model,serdatetime from $duid_mid_with_id_final
+factory,model,serdatetime from $duid_mid_with_id_final_fixed
 LATERAL VIEW explode(coalesce(asid,array())) tmpTable as asid_tmp
 "
 
-#展开后的数据+修复后的全量映射表去掉图合并结果join到的记录+由于asid为空展开失败的数据
 hive -e "
 $sqlset
-drop table if exists $duid_mid_with_id_explode_final;
-
-create table $duid_mid_with_id_explode_final like $duid_mid_with_id_explode;
-
+drop table if exists $muid_with_id_unjoined_final;
+create table $muid_with_id_unjoined_final like $duid_mid_with_id_explode;
 with without_ieid as (
   select '' duid,oiid,a.ieid,'' duid_final,asid,muid mid,factory,null model,serdatetime
   from $device_muid_mapping_full_fixed_final_without_blacklist a
@@ -398,13 +400,24 @@ without_oiid as (
   select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime
   from without_ieid where coalesce(oiid,'') =''
 )
+insert overwrite table $muid_with_id_unjoined_final
+select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from without_oiid
+"
+
+#展开后的数据+修复后的全量映射表去掉图合并结果join到的记录+由于asid为空展开失败的数据
+hive -e "
+$sqlset
+drop table if exists $duid_mid_with_id_explode_final;
+
+create table $duid_mid_with_id_explode_final like $duid_mid_with_id_explode;
+
 insert overwrite table $duid_mid_with_id_explode_final
 select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from(
 select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from $duid_mid_with_id_explode
 union all
-select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from without_oiid
+select duid,oiid,ieid,duid_final,asid,mid,factory,model,serdatetime from $muid_with_id_unjoined_final
 union all
-select duid,oiid,ieid,duid_final,'' asid,mid,factory,model,serdatetime from $duid_mid_with_id_final
+select duid,oiid,ieid,duid_final,'' asid,mid,factory,model,serdatetime from $duid_mid_with_id_final_fixed
 where asid is null or size(asid)=0
 ) where coalesce(oiid,'') <>'' or coalesce(ieid,'') <>'' or coalesce(duid,'') <>''
 "
@@ -442,6 +455,15 @@ min(if(serdatetime ='',null,serdatetime)) serdatetime from(
 group by duid,oiid,ieid,duid_final,asid,mid,factory,model
 "
 
+hive -e "
+$sqlset
+drop table if exists $mid_with_id;
+create table $mid_with_id stored as orc as
+select duid,oiid,ieid,duid_final,asid,min(mid) mid,factory,
+min(if(serdatetime ='',null,serdatetime)) serdatetime
+from $duid_mid_with_id_explode_final_fixed
+group by duid,oiid,ieid,duid_final,asid,factory
+"
 
 #4、将表E中没有设备id（ieid，oiid）的数据，提取duid和duid_final的关系，记为表H，并对duid_final做sha1操作，作为mid
 #如果duid有的行有ieid或oiid并且有mid,那么这个duid不应该出现在该结果表
