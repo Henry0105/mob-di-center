@@ -49,9 +49,7 @@ object Duid2Duidfinal {
     val graph = Graph(verticexRdd, edgeRdd)
     val ccGraph: Graph[VertexId, String] = graph.connectedComponents(10)
 
-    val value: RDD[(String, String)] = ccGraph
-      .vertices
-      .map(x => (x._1.toString, x._2.toString))
+    val value: RDD[(String, String)] = ccGraph.vertices.map(x => (x._1.toString, x._2.toString))
 
     spark
       .createDataFrame(value)
@@ -61,46 +59,24 @@ object Duid2Duidfinal {
     //当日duid-unid-unidfinal数据
     val duid_unid_unidfinal_incr: DataFrame = spark.sql(
       s"""
-         |SELECT e.duid
-         |     , e.duid_final
-         |     , e.unid
-         |     , e.pkg_it
-         |     , e.ieid
-         |     , e.oiid
-         |     , e.asid
-         |     , e.factory
-         |     , e.flag
-         |     , COALESCE(f.unid_final,e.unid) AS unid_final
+         |SELECT a.duid
+         |     , a.duid_final
+         |     , a.unid
+         |     , a.pkg_it
+         |     , a.ieid
+         |     , a.oiid
+         |     , a.asid
+         |     , a.factory
+         |     , a.flag
+         |     , COALESCE(b.unid_final,a.unid) AS unid_final
          |FROM
          |(
-         |  SELECT a.*
-         |  FROM
-         |  (
-         |    SELECT *
-         |    FROM dm_mid_master.duid_incr_tmp
-         |    WHERE day = '$day'
-         |  )a
-         |  LEFT ANTI JOIN
-         |  (
-         |    SELECT ieid
-         |    FROM dm_mid_master.ieid_blacklist_full
-         |    WHERE day <= '$day'
-         |  )b ON a.ieid = b.ieid
-         |  LEFT ANTI JOIN
-         |  (
-         |    SELECT oiid
-         |    FROM dm_mid_master.oiid_blacklist_full
-         |    WHERE day <= '$day'
-         |  )c ON a.oiid = c.oiid
-         |  LEFT ANTI JOIN
-         |  (
-         |    SELECT asid
-         |    FROM dm_mid_master.asid_blacklist_full
-         |    WHERE day <= '$day'
-         |  )d ON a.asid = d.asid
-         |) e
-         |LEFT JOIN tmp_ccgraph_result f
-         |ON e.unid = f.unid
+         |  SELECT *
+         |  FROM dm_mid_master.duid_incr_tmp
+         |  WHERE day = '$day'
+         |)a
+         |LEFT JOIN tmp_ccgraph_result b
+         |ON a.unid = b.unid
          |""".stripMargin)
     duid_unid_unidfinal_incr.cache()
     duid_unid_unidfinal_incr.count()
@@ -136,6 +112,7 @@ object Duid2Duidfinal {
          |     , asid
          |     , factory
          |     , flag
+         |     , unid_final
          |FROM
          |(
          |    SELECT duid
