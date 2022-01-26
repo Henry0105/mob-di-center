@@ -459,10 +459,10 @@ hive -e "
 $sqlset
 drop table if exists $mid_with_id;
 create table $mid_with_id stored as orc as
-select duid,oiid,ieid,duid_final,asid,min(mid) mid,factory,
+select duid,oiid,ieid,duid_final,asid,mid,factory,
 min(if(serdatetime ='',null,serdatetime)) serdatetime
 from $duid_mid_with_id_explode_final_fixed
-group by duid,oiid,ieid,duid_final,asid,factory
+group by duid,oiid,ieid,duid_final,asid,factory,mid
 "
 
 #4、将表E中没有设备id（ieid，oiid）的数据，提取duid和duid_final的关系，记为表H，并对duid_final做sha1操作，作为mid
