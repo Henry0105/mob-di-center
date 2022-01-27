@@ -128,16 +128,16 @@ $sqlset
 drop table if exists $muid_with_id_unjoined_unid_fixed;
 
 CREATE TABLE $muid_with_id_unjoined_unid_fixed(
-  `duid` string,
-  `oiid` string,
-  `ieid` string,
-  `duid_final` string,
-  `asid` string,
-  `mid` string,
-  `factory` string,
-  `model` string,
-  `serdatetime` string,
-  `mid_final` string
+  duid string,
+  oiid string,
+  ieid string,
+  duid_final string,
+  asid string,
+  mid string,
+  factory string,
+  model string,
+  serdatetime string,
+  mid_final string
 )
 stored as orc;
 with old_id_mid as (

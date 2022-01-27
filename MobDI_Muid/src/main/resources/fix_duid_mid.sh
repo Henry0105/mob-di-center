@@ -1,14 +1,14 @@
 #!/bin/bash
 set -x -e
 mid_db="dm_mid_master"
-duid_mid_with_id_final="$mid_db.duid_mid_with_id_final"
-duid_mid_with_id_final_fixed_step1="$mid_db.duid_mid_with_id_final_fixed_step1"
+duid_mid_with_id_final="$mid_db.duid_mid_with_id_final_1"
+duid_mid_with_id_final_fixed_step1="$mid_db.duid_mid_with_id_final_fixed_step1_1"
 duid_fsid_mapping="$mid_db.duid_unid_mapping"
-ieid_unid_tmp_final="$mid_db.ieid_unid_tmp_final"
-oiid_unid_tmp_final="$mid_db.oiid_unid_tmp_final"
-ids_vertex_par_final="$mid_db.ids_vertex_par_final"
-ids_unid_final_mapping_final="$mid_db.ids_unid_final_mapping_final"
-duid_mid_with_id_final_fixed="$mid_db.duid_mid_with_id_final_fixed"
+ieid_unid_tmp_final="$mid_db.ieid_unid_tmp_final_1"
+oiid_unid_tmp_final="$mid_db.oiid_unid_tmp_final_1"
+ids_vertex_par_final="$mid_db.ids_vertex_par_final_1"
+ids_unid_final_mapping_final="$mid_db.ids_unid_final_mapping_final_1"
+duid_mid_with_id_final_fixed="$mid_db.duid_mid_with_id_final_fixed_1"
 
 sqlset="
 set mapred.max.split.size=256000000;
@@ -126,16 +126,16 @@ hive -e "
 $sqlset
 drop table if exists $duid_mid_with_id_final_fixed;
 CREATE TABLE $duid_mid_with_id_final_fixed(
-  `duid` string,
-  `oiid` string,
-  `ieid` string,
-  `duid_final` string,
-  `asid` array<string>,
-  `mid` string,
-  `factory` string,
-  `model` string,
-  `serdatetime` string,
-  `mid_final` string)
+  duid string,
+  oiid string,
+  ieid string,
+  duid_final string,
+  asid array<string>,
+  mid string,
+  factory string,
+  model string,
+  serdatetime string,
+  mid_final string)
   stored as orc;
 with old_id_mid as(
     select old_id,mid from

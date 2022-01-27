@@ -430,7 +430,8 @@ select * from (
     union all
     select duid,oiid,ieid,duid_final,'' asid,mid,factory,serdatetime from $duid_mid_with_id_final_fixed
     where asid is null or size(asid)=0
-  )a where coalesce(oiid,'') <>'' or coalesce(ieid,'') <>'' or coalesce(duid,'') <>''
+  )a where (coalesce(oiid,'') <>'' or coalesce(ieid,'') <>'' or coalesce(duid,'') <>'')
+  and (coalesce(oiid,'') <>'' or coalesce(ieid,'') <>'')
   group by duid,oiid,ieid,duid_final,asid,mid,factory
 )b where mid<>''
 "
