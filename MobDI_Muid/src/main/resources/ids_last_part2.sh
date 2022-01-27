@@ -439,7 +439,7 @@ select * from (
     union all
     select duid,oiid,ieid,duid_final,asid,mid_final mid,factory,serdatetime from $muid_with_id_unjoined_unid_fixed
     union all
-    select duid,oiid,ieid,duid_final,'' asid,mid,factory,serdatetime from $duid_mid_with_id_final_fixed
+    select duid,oiid,ieid,duid_final,'' asid,mid_final mid,factory,serdatetime from $duid_mid_with_id_final_fixed
     where asid is null or size(asid)=0
   )a where (coalesce(oiid,'') <>'' or coalesce(ieid,'') <>'' or coalesce(duid,'') <>'')
   and (coalesce(oiid,'') <>'' or coalesce(ieid,'') <>'')
