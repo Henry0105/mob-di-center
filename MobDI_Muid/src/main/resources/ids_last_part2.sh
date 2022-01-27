@@ -7,7 +7,7 @@ dws_mid_ids_mapping="$mid_db.dws_mid_ids_mapping"
 asid_black="$mid_db.asid_blacklist_full"
 
 blacklist_muid="$mid_db.blacklist_muid"
-
+muid_blacklist_full="$mid_db.muid_blacklist_full"
 ieid_black="$mid_db.ieid_blacklist_full"
 oiid_black="$mid_db.oiid_blacklist_full"
 
@@ -271,13 +271,24 @@ from $device_muid_mapping_full_fixed where coalesce(oiid,'') = ''
 
 hive -e "
 $sqlset
+create table $muid_blacklist_full stored as orc as
+select muid from (
+    select muid from(select muid,oiid from $device_muid_mapping_full_fixed_final where coalesce(muid,'')<>'' and coalesce(oiid,'')<>'' group by muid,oiid) a group by muid having count(*) > 2
+    union all
+    select muid from(select muid,ieid from $device_muid_mapping_full_fixed_final where coalesce(muid,'')<>'' and coalesce(ieid,'')<>'' group by muid,ieid) b group by muid having count(*) > 3
+) t group by muid
+"
+
+hive -e "
+$sqlset
 drop table if exists $device_muid_mapping_full_fixed_final_without_blacklist;
 create table $device_muid_mapping_full_fixed_final_without_blacklist stored as orc as
-select device_old,device_token,muid,token,a.ieid,mcid,snid,a.oiid,a.asid,sysver,factory,serdatetime,flag
+select device_old,device_token,case when e.muid is null then a.muid else '' end muid,token,a.ieid,mcid,snid,a.oiid,a.asid,sysver,factory,serdatetime,flag
 from $device_muid_mapping_full_fixed_final a
 left join $ieid_black b on a.ieid=b.ieid
 left join $oiid_black c on a.oiid=c.oiid
 left join $asid_black d on a.asid=d.asid
+left join $muid_blacklist_full e on a.muid=e.muid
 where b.ieid is null and c.oiid is null and d.asid is null
 "
 
