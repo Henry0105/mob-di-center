@@ -503,6 +503,6 @@ from $dws_mid_ids_mapping a
 left join
 (select duid from $duid_mid_with_id_explode_final where coalesce(mid,'')<>'' and coalesce(duid,'')<>'' group by duid) b
 on a.duid=b.duid
-where day='final' and coalesce(a.duid,'')<>'' and coalesce(a.ieid,'')='' and coalesce(a.oiid,'')='' and b.duid is null
+where day='final' and coalesce(a.duid_final,'')<>'' and coalesce(a.duid,'')<>'' and coalesce(a.ieid,'')='' and coalesce(a.oiid,'')='' and b.duid is null
 group by a.duid,duid_final
 "
