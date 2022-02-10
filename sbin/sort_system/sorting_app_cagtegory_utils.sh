@@ -14,7 +14,7 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 mapping_db=${dim_app_category_mapping_par%.*}
 mapping_tb=${dim_app_category_mapping_par#*.}
 
-result=`mysql -h10.21.33.28 -uroot -p'mobtech2019java' -P3306 -e "select max(time) from sorting_system.app_category" -sN`
+result=`mysql -h10.89.120.12 -uroot -p'mobtech2019java' -P3310 -e "select max(time) from sorting_system.app_category" -sN`
 targetPar=1000.$result
 
 parSql="
@@ -31,7 +31,7 @@ else
   exit 0
 fi
 
-mysqlInfoStr='{"userName":"root","pwd":"mobtech2019java","dbName":"sorting_system","host":"10.21.33.28","port":3306,"tableName":"app_category"}'
+mysqlInfoStr='{"userName":"root","pwd":"mobtech2019java","dbName":"sorting_system","host":"10.89.120.12","port":3310,"tableName":"app_category"}'
 mailList="DIMonitor@mob.com;yqzhou@mob.com"
 
 #其中mysql_table_info_tmp表是spark临时表，用于存储mysql拉取过来的数据

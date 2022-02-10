@@ -15,7 +15,7 @@ game_app_detail_tb=${dim_game_app_detail_par#*.}
 #mapping
 #dim_cate_id_mapping_par=dim_sdk_mapping.dim_cate_id_mapping_par
 
-result=`mysql -h10.21.33.28 -u root -p'mobtech2019java' -P3306  -e "select max(time) from sorting_system.game_detail" -sN`
+result=`mysql -h10.89.120.12 -u root -p'mobtech2019java' -P3310  -e "select max(time) from sorting_system.game_detail" -sN`
 targetPar=1000.$result
 
 parSql="
@@ -32,7 +32,7 @@ else
   exit 0
 fi
 
-mysqlInfoStr='{"userName":"root","pwd":"mobtech2019java","dbName":"sorting_system","host":"10.21.33.28","port":3306,"tableName":"game_detail"}'
+mysqlInfoStr='{"userName":"root","pwd":"mobtech2019java","dbName":"sorting_system","host":"10.89.120.12","port":3310,"tableName":"game_detail"}'
 mailList="DIMonitor@mob.com;yqzhou@mob.com"
 
 #其中mysql_table_info_tmp表是spark临时表，用于存储mysql拉取过来的数据

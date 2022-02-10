@@ -14,7 +14,7 @@ p2p_app_cat_db=${dim_p2p_app_cat_par%.*}
 p2p_app_cat_tb=${dim_p2p_app_cat_par#*.}
 
 
-result=`mysql -h10.21.33.28 -u root -p'mobtech2019java' -P3306  -e "select max(time) from sorting_system.multiloan" -sN`
+result=`mysql -h10.89.120.12 -u root -p'mobtech2019java' -P3310  -e "select max(time) from sorting_system.multiloan" -sN`
 targetPar=1000.$result
 
 parSql="
@@ -31,7 +31,7 @@ else
   exit 0
 fi
 
-mysqlInfoStr='{"userName":"root","pwd":"mobtech2019java","dbName":"sorting_system","host":"10.21.33.28","port":3306,"tableName":"multiloan"}'
+mysqlInfoStr='{"userName":"root","pwd":"mobtech2019java","dbName":"sorting_system","host":"10.89.120.12","port":3310,"tableName":"multiloan"}'
 mailList="DIMonitor@mob.com;yqzhou@mob.com"
 
 #其中mysql_table_info_tmp表是spark临时表，用于存储mysql拉取过来的数据

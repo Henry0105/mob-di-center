@@ -19,7 +19,7 @@ mapping_tb=${dim_app_category_mapping_par#*.}
 mapping_app360_db=${dim_app_category_mapping_app360_par%.*}
 mapping_app360_tb=${dim_app_category_mapping_app360_par#*.}
 
-result=`mysql -h10.21.33.28 -uroot -p'mobtech2019java' -P3306 -e "select max(time) from sorting_system.edu_app_category" -sN`
+result=`mysql -h10.89.120.12 -uroot -p'mobtech2019java' -P3310 -e "select max(time) from sorting_system.edu_app_category" -sN`
 targetPar1=1000.$result
 
 
@@ -50,7 +50,7 @@ fi
 echo $targetPar
 
 
-mysqlInfoStr='{"userName":"root","pwd":"mobtech2019java","dbName":"sorting_system","host":"10.21.33.28","port":3306,"tableName":"edu_app_category"}'
+mysqlInfoStr='{"userName":"root","pwd":"mobtech2019java","dbName":"sorting_system","host":"10.89.120.12","port":3310,"tableName":"edu_app_category"}'
 mailList="DIMonitor@mob.com;yqzhou@mob.com"
 
 #其中mysql_table_info_tmp表是spark临时表，用于存储mysql拉取过来的数据

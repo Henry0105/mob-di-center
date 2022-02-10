@@ -85,7 +85,7 @@ on a.apppkg = h.apppkg
         \"object\": \"mysql\",
         \"batchSize\": \"500\",
         \"table\": \"sorting_system.app_top3000_pickup\",
-        \"url\": \"jdbc:mysql://10.21.33.28:3306/sorting_system?useUnicode=true&characterEncoding=UTF-8\",
+        \"url\": \"jdbc:mysql://10.89.120.12:3310/sorting_system?useUnicode=true&characterEncoding=UTF-8\",
         \"user\": \"root\",
         \"password\": \"mobtech2019java\"
     }
