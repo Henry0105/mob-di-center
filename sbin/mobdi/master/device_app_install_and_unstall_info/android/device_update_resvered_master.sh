@@ -61,19 +61,4 @@ from
   and (final_flag != -1
     or from_unixtime(cast(unstall_datetime/1000 as int),'yyyyMMdd')='$day')
 ) t1;
-
-insert overwrite table ${dws_device_install_app_re_status_40d_di} partition(day='${day}')
-select device,pkg,reserved_flag as refine_final_flag
-from ${dws_device_install_status}
-where day='${day}'
-and process_time>'$bdate1'
-and (final_flag != -1
-  or from_unixtime(cast(unstall_datetime/1000 as int),'yyyyMMdd')='$day');
 "
-# 增加同步数据，后金融线上工具上线以后删除
-#hive -v -e"
-#insert overwrite table dm_mobdi_master.master_reserved partition(day=${date1})
-#select device,pkg,refine_final_flag,install_flag,unstall_flag,final_flag
-#from dm_mobdi_master.master_reserved_new
-#where day=${date1};
-#"
