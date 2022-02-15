@@ -16,7 +16,7 @@ then
 dw_table=${raw_table}
 fi
 
-muid_field="muid"
+mid_field="mid"
 queue="root.yarn_etl.etl"
 
 duid_col=$(grep "^$dw_table " ./table.conf |awk '{print $2}')
@@ -46,7 +46,7 @@ par=$(echo ${select}|awk -F ',' '{print $(NF)}')
 select_muid=","$(echo ${select}|sed "s/,$par//g")","
 
 muid_flag=0
-if [[ ${select_muid} == *,${muid_field},* ]] ;then
+if [[ ${select_muid} == *,${mid_field},* ]] ;then
   muid_flag=1
 else
   echo "没有muid,无需执行该脚本"
@@ -84,6 +84,8 @@ fi
 
 
 select_raw=$(echo ${select_muid}|awk -F '#' '{print substr($1,2,(length($0)-2))}')
+select_raw_no_mid=$(echo ${select_muid}|sed "s/,$mid_field,/,null $mid_field,/g" \
+|awk -F '#' '{print substr($1,2,(length($0)-2))}')
 
 staged_table="raw_table"
 sql="
@@ -101,18 +103,17 @@ SET hive.exec.parallel=true;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
 create temporary function sha as 'com.youzu.mob.java.udf.SHA1Hashing';
 with $staged_table as (
-select $select_raw
+select $select_raw_no_mid
 from ${raw_table} where $par = $yesterday
 )
 "
 
-
 if [[ ${duid_flag} -gt 0 ]]
 then
 
-muid_col_select="concat(if(coalesce(a.muid,'')='',b.mid,a.muid),'_1') muid"
+muid_col_select="if(coalesce(a.${mid_field},'')='',b.mid,a.${mid_field}) ${mid_field}"
 
-select_duid=$(echo ${select_muid}|sed "s/,$duid_col,/,a.$duid_col,/g"|sed "s/,$muid_field,/,$muid_col_select,/g" \
+select_duid=$(echo ${select_muid}|sed "s/,$duid_col,/,a.$duid_col,/g"|sed "s/,$mid_field,/,$muid_col_select,/g" \
 | awk -F '#' '{print substr($1,2,(length($0)-2))}')
 
 sql=${sql}"
@@ -134,9 +135,9 @@ fi
 
 if [[ ${oiid_flag} -gt 0 ]]
 then
-muid_col_select="if(coalesce(a.muid,'')='',b.mid,a.muid) muid"
+muid_col_select="if(coalesce(a.${mid_field},'')='',b.mid,a.${mid_field}) ${mid_field}"
 select_oiid=$(echo ${select_muid}|sed "s/,$oiid_col,/,a.$oiid_col,/g"|sed "s/,factory,/,a.factory,/g" \
-|sed "s/,$muid_field,/,$muid_col_select,/g" \
+|sed "s/,$mid_field,/,$muid_col_select,/g" \
 | awk -F '#' '{print substr($1,2,(length($0)-2))}')
 
 
@@ -159,8 +160,8 @@ fi
 
 if [[ ${ieid_flag} -gt 0 ]]
 then
-muid_col_select="if(coalesce(a.muid,'')='',b.mid,a.muid) muid"
-select_ieid=$(echo ${select_muid}|sed "s/,$ieid_col,/,a.$ieid_col,/g"|sed "s/,$muid_field,/,$muid_col_select,/g" \
+muid_col_select="if(coalesce(a.${mid_field},'')='',b.mid,a.${mid_field}) ${mid_field}"
+select_ieid=$(echo ${select_muid}|sed "s/,$ieid_col,/,a.$ieid_col,/g"|sed "s/,$mid_field,/,$muid_col_select,/g" \
 | awk -F '#' '{print substr($1,2,(length($0)-2))}')
 
 sql=${sql}"
@@ -184,8 +185,8 @@ select_sha_duid=${select_raw}
 
 if [[ ${duid_flag} -gt 0 ]]
 then
-sha_duid_col_select="if(coalesce(muid,'')='',if(coalesce($duid_col,'')='','',concat(sha($duid_col),'_0')),muid) muid"
-select_sha_duid=$(echo ${select_muid}|sed "s/,$muid_field,/,$sha_duid_col_select,/g" \
+sha_duid_col_select="if(coalesce(${mid_field},'')='',if(coalesce($duid_col,'')='','',concat(sha($duid_col),'_0')),${mid_field}) ${mid_field}"
+select_sha_duid=$(echo ${select_muid}|sed "s/,$mid_field,/,$sha_duid_col_select,/g" \
 | awk -F '#' '{print substr($1,2,(length($0)-2))}')
 fi
 
