@@ -36,8 +36,8 @@ group by apppkg, appname, cate_l1, cate_l2, cate_l1_id, cate_l2_id
 "
 
 sqoop export  \
---connect jdbc:mysql://10.21.32.198:3306/mobdi_profile \
---username mobdi_profile --password M8IKE4HFBQ394BsX \
+--connect jdbc:mysql://10.90.27.12:3307/mobdi_profile \
+--username bigdatarnd --password AC2yH6ETssR1n \
 --table t_app_category \
 --hcatalog-database dm_mobdi_tmp \
 --hcatalog-table app_category_mapping_to_mysql \
