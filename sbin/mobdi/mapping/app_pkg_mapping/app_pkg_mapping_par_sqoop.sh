@@ -18,8 +18,8 @@ t1=$1;
 if [ $(date -d "$t1" +%w) -eq 2 ] ;then
 
 sqoop export  \
---connect jdbc:mysql://10.21.32.198:3306/mobdi_profile \
---username mobdi_profile --password M8IKE4HFBQ394BsX \
+--connect jdbc:mysql://10.90.27.12:3307/mobdi_profile \
+--username bigdatarnd --password AC2yH6ETssR1n \
 --table t_hive_app_pkg_mapping_par \
 --hcatalog-database dm_sdk_mapping \
 --hcatalog-table app_pkg_mapping_par \
