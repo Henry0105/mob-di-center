@@ -31,7 +31,6 @@ age_new_topic_wgt="${tmpdb}.age_new_topic_wgt"
 age_new_age_features_all="${tmpdb}.age_new_features_all"
 
 hive -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;

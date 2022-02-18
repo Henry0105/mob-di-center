@@ -18,7 +18,6 @@ insertday=${day}_muid
 age_new_active_days_1="${dm_mobdi_tmp}.age_new_active_days_1"
 
 hive -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
