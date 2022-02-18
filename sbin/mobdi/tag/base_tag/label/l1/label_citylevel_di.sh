@@ -35,7 +35,6 @@ last_area_par=`hive -e "show partitions $area_mapping" | sort | tail -n 1`
 
 #根据device_ip_info的表，计算国家省份城市,如果非3g/4g的，则取最新的一个非3g/4g所对应的记录,否则取3g/4g最新对应的
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 with device_countrys_label_incr as (
   select device,country,province,city
   from

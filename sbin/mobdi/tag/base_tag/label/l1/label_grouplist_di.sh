@@ -30,8 +30,6 @@ label_grouplist_di=${label_l1_grouplist_di}
 
 ##主逻辑
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
-SET mapreduce.job.queuename=dba;
 set hive.exec.parallel=true;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;

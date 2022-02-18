@@ -43,7 +43,6 @@ SELECT GET_LAST_PARTITION('$dm_mobdi_tmp', 'phone_contacts_index_word_split_prep
 
 
 spark2-submit --master yarn  --deploy-mode cluster  \
---queue root.yarn_data_compliance2 \
 --class com.youzu.mob.newscore.MappingAgeContactWord2Vec \
 --driver-memory 8G --num-executors 5 \
 --executor-cores 2 \

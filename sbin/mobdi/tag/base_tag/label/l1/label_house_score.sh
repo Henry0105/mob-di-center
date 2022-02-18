@@ -23,7 +23,6 @@ device_applist_new=${dim_device_applist_new_di}
 label_house_score_di=${label_l1_house_score_di}
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;

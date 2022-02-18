@@ -31,7 +31,6 @@ label_catelist_di=${label_l1_catelist_di}
 #label_catelist_di="dw_mobdi_md.device_catelist_label_incr"
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 insert overwrite table $label_catelist_di partition(day='$day')
 select device,concat(cate_id_list,'=',cnt_list) as catelist
 from

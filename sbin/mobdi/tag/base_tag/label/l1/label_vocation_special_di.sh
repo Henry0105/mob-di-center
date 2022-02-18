@@ -25,7 +25,6 @@ device_applist_new=${dim_device_applist_new_di}
 label_l1_vocation_special=${label_l1_vocation_special}
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.exec.parallel=true;
 set hive.auto.convert.join=true;
 set hive.map.aggr=true;

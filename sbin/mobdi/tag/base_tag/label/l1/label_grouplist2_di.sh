@@ -39,7 +39,6 @@ stored as orc
 
 ##主逻辑
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.exec.parallel=true;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;

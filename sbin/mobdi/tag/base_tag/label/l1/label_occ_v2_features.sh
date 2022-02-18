@@ -69,7 +69,6 @@ hive -v -e "
 
 {
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
 set hive.optimize.skewjoin = true;
@@ -110,7 +109,6 @@ group by device;
 
 {
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 drop table if exists $label_occ_score_applist;
 create  table $label_occ_score_applist stored as orc as
 with seed as
@@ -183,7 +181,6 @@ on substr(x.phone,1,3)=y.phone_pre3
 
 {
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
 create temporary function get_distance as 'com.youzu.mob.java.udf.GetDistance';
@@ -286,7 +283,6 @@ from
 
 
 spark2-submit \
---queue root.yarn_data_compliance2 \
 --class com.youzu.mob.poi.PoiExport \
 --master yarn \
 --conf spark.dynamicAllocation.enabled=true \
@@ -310,7 +306,6 @@ spark2-submit \
 }"
 
 spark2-submit \
---queue root.yarn_data_compliance2 \
 --class com.youzu.mob.poi.PoiExport \
 --master yarn \
 --conf spark.dynamicAllocation.enabled=true \
@@ -340,7 +335,6 @@ spark2-submit \
 /opt/mobdata/sbin/spark-submit \
 --class com.youzu.mob.poi.PoiExport \
 --master yarn \
---queue root.yarn_data_compliance2 \
 --conf spark.dynamicAllocation.enabled=true \
 --conf spark.dynamicAllocation.minExecutors=10 \
 --conf spark.dynamicAllocation.maxExecutors=200 \
@@ -399,7 +393,6 @@ from (select a.device,b.poi_type
 
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 drop table if exists $label_home_poiaround;
 create table $label_home_poiaround stored as orc as
 select device,poi_type

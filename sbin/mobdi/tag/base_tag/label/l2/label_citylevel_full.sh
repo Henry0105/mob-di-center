@@ -42,7 +42,6 @@ where version='20200304.1000';
 "
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 insert overwrite table $label_hometown_df partition (day=$day)
 select device,country,province,city,country_cn,province_cn,city_cn,city_level,city_level_1001,process_time
 from

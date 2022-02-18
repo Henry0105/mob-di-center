@@ -26,7 +26,6 @@ output_table=${tmpdb}.tmp_occ1002_predict_part2
 
 ## part2 mapping_app_index源数据不同,不能复用
 hive -e"
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 with seed as
 (
     select *

@@ -34,7 +34,6 @@ app_category_mapping="dm_sdk_mapping.app_category_mapping_par"
 
 #计算设备的头部apppkg分类特征索引（consume_level模型专用）
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapreduce.map.memory.mb=5120;
 set mapreduce.map.java.opts='-Xmx4600m';
 set mapreduce.child.map.java.opts='-Xmx4600m';
