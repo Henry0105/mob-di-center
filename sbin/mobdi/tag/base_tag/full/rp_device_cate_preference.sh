@@ -35,7 +35,6 @@ label_l1_catelist_di=$label_l1_catelist_di
 device_cate_preference_incr=${tmpdb}.device_cate_preference_incr
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
 create temporary function explode_tags as 'com.youzu.mob.java.udtf.ExplodeTags';
 
