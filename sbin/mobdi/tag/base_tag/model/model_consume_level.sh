@@ -44,7 +44,6 @@ consume_level_device_index_onehot_prepare=${tmpdb}.consume_level_device_index_on
 #加上头部app安装数量特征索引
 #加上头部app分类特征索引
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;

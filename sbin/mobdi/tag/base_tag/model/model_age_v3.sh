@@ -51,7 +51,6 @@ test_flag="0"
 whitelist=$dim_whitelist_dpiage_shandong_used
 
 spark2-submit --master yarn --deploy-mode cluster \
---queue root.yarn_data_compliance2 \
 --class com.youzu.mob.newscore.AgeScoreV3 \
 --driver-memory 8G \
 --executor-memory 15G \

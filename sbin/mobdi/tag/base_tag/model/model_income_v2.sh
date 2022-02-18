@@ -44,7 +44,6 @@ model_path5_pre="hdfs://ShareSdkHadoop/dmgroup/dba/modelpath/20211203/income_v2/
 
 
 spark2-submit --master yarn --deploy-mode cluster \
---queue root.yarn_data_compliance2 \
 --class com.youzu.mob.newscore.IncomeScoreV2 \
 --driver-memory 8G \
 --executor-memory 15G \

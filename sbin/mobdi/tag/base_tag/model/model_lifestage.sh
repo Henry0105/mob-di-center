@@ -24,7 +24,6 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 outputTable="${label_l2_result_scoring_di}"
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 insert overwrite table $outputTable partition (day=$day, kind='life_stage')
 select device,life_stage as prediction, 1.0 as probability
 from

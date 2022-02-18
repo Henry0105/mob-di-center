@@ -54,6 +54,6 @@ spark2-submit --master yarn --deploy-mode cluster \
 --conf spark.kryoserializer.buffer.max=1024 \
 --conf spark.speculation=true \
 --conf spark.driver.maxResultSize=4g \
- --conf spark.default.parallelism=2000 \
+--conf spark.default.parallelism=2000 \
 --conf spark.driver.extraJavaOptions="-XX:MaxPermSize=1024m -XX:PermSize=256m" \
 /home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$tmp_score_app2vec" "$tmp_score_part1" "$tmp_score_part2" "$tmp_score_part3" "$tmp_score_part4" "$tmp_score_part5" "$tmp_score_part6" "$tmp_score_part7" "$tmp_score_part8" "$modelPath" "$threshold" "$out_put_table" "$day"

@@ -51,7 +51,6 @@ outputTable=${label_l2_result_scoring_di}
 
 #直接复用已经生成的dw_mobdi_md.device_info_level_par_new表的设备特征，去计算income_1001的设备特征
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;
@@ -152,7 +151,6 @@ where day='$day'
 "
 
 spark2-submit --master yarn --deploy-mode cluster \
---queue root.yarn_data_compliance2 \
 --class com.youzu.mob.newscore.Income1001Score \
 --driver-memory 8G \
 --executor-memory 15G \

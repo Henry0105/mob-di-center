@@ -102,7 +102,6 @@ pre_sqls="
 `create_industry_sql 'industry_individual' 19`"
 
 spark2-submit --master yarn --deploy-mode cluster \
---queue root.yarn_data_compliance2 \
 --class com.youzu.mob.newscore.IndustryScore \
 --driver-memory 8G \
 --executor-memory 15G \

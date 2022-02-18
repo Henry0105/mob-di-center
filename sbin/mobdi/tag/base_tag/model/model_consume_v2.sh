@@ -29,7 +29,6 @@ model_path2="/dmgroup/dba/modelpath/20200721/consume_1001/cluster_9"
 tran_flag=0
 
 spark2-submit --master yarn --deploy-mode cluster \
---queue root.yarn_data_compliance2 \
 --class com.youzu.mob.newscore.ConsumeV2 \
 --driver-memory 8G \
 --executor-memory 15G \
@@ -49,7 +48,6 @@ spark2-submit --master yarn --deploy-mode cluster \
 /home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar "$day" "$seed" "$mapping" "$output_table" "$model_path" "$model_path2" $tran_flag
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;

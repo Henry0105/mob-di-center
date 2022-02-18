@@ -58,7 +58,6 @@ group by device
 "
 
 spark2-submit --master yarn --deploy-mode cluster \
---queue root.yarn_data_compliance2 \
 --class com.youzu.mob.newscore.OccupationScore \
 --driver-memory 8G \
 --executor-memory 15G \

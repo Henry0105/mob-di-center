@@ -36,7 +36,6 @@ echo ${day}
 last_conf_par=`hive -e "show partitions tp_mobdi_model.model_confidence_config_maping" | sort | tail -n 1`
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 insert overwrite table $models_with_confidence_pre
 select device,prediction,probability,day,kind,
        case
@@ -102,7 +101,6 @@ from dw_mobdi_md.models_with_confidence_pre;
 
 #增加edu的前置逻辑自洽
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 insert overwrite table $models_with_confidence_pre_par partition(day = '$day')
 select a.device,
        case when b.prediction=6 and a.prediction=9 and conv(substr(a.device, 0, 4), 16 ,10)/65535<0.8 then 8
@@ -152,7 +150,6 @@ and kind <> 'edu';
 # step2 使用通用工具进行逻辑自洽和置信度计算
 path=$(dirname "$0")
 spark2-submit --class com.youzu.mob.newscore.ModelProfileTableMerge \
-  --queue root.yarn_data_compliance2 \
   --master yarn-cluster \
   --name merge_two_$day \
   --driver-memory 4G \

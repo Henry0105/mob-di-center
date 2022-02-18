@@ -43,7 +43,6 @@ out_put_table=$label_l2_result_scoring_di
 test_flag="0"
 
 spark2-submit --master yarn --deploy-mode cluster \
---queue root.yarn_data_compliance2 \
 --class com.youzu.mob.newscore.AgeScoreV2 \
 --driver-memory 8G \
 --executor-memory 15G \
