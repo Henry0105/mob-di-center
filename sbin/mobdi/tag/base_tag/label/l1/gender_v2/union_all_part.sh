@@ -42,6 +42,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
+
 insert overwrite table $gender_feature_v2_final partition(day='$day')
 select t1.device, 
 case when cnt_cate_l1_index15 is null or cnt_cate_l1_index15=-99 then 3.0 else cnt_cate_l1_index15 end as cnt_cate_l1_index15,
