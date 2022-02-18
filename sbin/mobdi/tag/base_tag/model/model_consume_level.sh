@@ -126,7 +126,6 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
-set mapreduce.job.queuename=root.yarn_data_compliance;
 insert overwrite table $consume_level_device_index_onehot_prepare partition(day='$day')
 select device,
        cast(sum(if(index>=0 and index<=7,index,0)) as int) as city_level_1001,
@@ -162,7 +161,6 @@ spark2-submit --master yarn --deploy-mode cluster \
 --driver-memory 8G \
 --executor-memory 15G \
 --executor-cores 5 \
---queue root.yarn_data_compliance \
 --conf spark.shuffle.service.enabled=true \
 --conf spark.dynamicAllocation.enabled=true \
 --conf spark.dynamicAllocation.minExecutors=1 \

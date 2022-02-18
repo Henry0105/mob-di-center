@@ -144,7 +144,6 @@ newVer=${day}.1000
 lastVer=${lastday}.1000
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 set mapreduce.map.memory.mb=4096;
 set mapreduce.map.java.opts='-Xmx3680m';
 set mapreduce.child.map.java.opts='-Xmx3680m';

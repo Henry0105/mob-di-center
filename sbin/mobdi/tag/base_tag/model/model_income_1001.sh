@@ -92,7 +92,6 @@ where day='$day';
 
 #合并所有特征
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 set hive.exec.parallel=true;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;

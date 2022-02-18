@@ -39,7 +39,6 @@ shoppingMallBssidMappingLastPar=hive -e "show partitions $dim_shopping_mall_ssid
 #然后计算device在商场的连接天数
 #根据连接天数计算index
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;

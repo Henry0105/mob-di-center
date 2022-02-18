@@ -81,7 +81,6 @@ group by device,index;
 
 #得到设备的app catel2分类特征索引（occupation_1001模型专用）
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapreduce.map.memory.mb=5120;
 set mapreduce.map.java.opts='-Xmx4600m';
 set mapreduce.child.map.java.opts='-Xmx4600m';

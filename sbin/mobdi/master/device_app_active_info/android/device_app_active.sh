@@ -42,7 +42,6 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
-set mapreduce.job.queuename=root.yarn_data_compliance1;
 
 insert overwrite table $dws_device_app_runtimes_di partition(day='$day')
 select device,
@@ -81,7 +80,6 @@ set hive.exec.parallel=true;
 set hive.exec.parallel.thread.number=10;
 set hive.map.aggr=true;
 set hive.auto.convert.join=true;
-set mapreduce.job.queuename=root.yarn_data_compliance1;
 
 insert overwrite table $app_active_daily PARTITION(day=${day})
 select device, apppkg
@@ -120,7 +118,6 @@ set hive.exec.parallel=true;
 set hive.exec.parallel.thread.number=10;
 set hive.map.aggr=true;
 set hive.auto.convert.join=true;
-set mapreduce.job.queuename=root.yarn_data_compliance1;
 
 insert overwrite table $app_active_weekly partition(par_time=${day})
 select device,
@@ -156,7 +153,6 @@ set hive.exec.parallel=true;
 set hive.exec.parallel.thread.number=10;
 set hive.map.aggr=true;
 set hive.auto.convert.join=true;
-set mapreduce.job.queuename=root.yarn_data_compliance1;
 
 insert overwrite table $app_active_monthly PARTITION(month=$month)
 select device,

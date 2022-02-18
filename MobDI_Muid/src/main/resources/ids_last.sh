@@ -208,7 +208,6 @@ new_id string
 
 /opt/mobdata/sbin/spark-submit --master yarn \
 --deploy-mode cluster \
---queue root.yarn_data_compliance1 \
 --name Step2TokenConnectedComponents_ids \
 --class com.mob.mid_full.Step2TokenConnectedComponents \
 --conf spark.dynamicAllocation.maxExecutors=150 \
@@ -248,7 +247,6 @@ new_id string
 
 /opt/mobdata/sbin/spark-submit --master yarn \
 --deploy-mode cluster \
---queue root.yarn_data_compliance1 \
 --name Step2TokenConnectedComponents_ids \
 --class com.mob.mid_full.Step2TokenConnectedComponents \
 --conf spark.dynamicAllocation.maxExecutors=150 \

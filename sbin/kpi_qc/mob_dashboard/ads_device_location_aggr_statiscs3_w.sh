@@ -13,7 +13,6 @@ out:mob_dashboard.ads_device_location_aggr_statiscs3_w
 
 #3执行hql代码
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.exec.parallel=true ;
 set hive.exec.parallel.thread.number=6;
 set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;

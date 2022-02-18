@@ -39,7 +39,6 @@ init2 $day
 echo ${arr1}
 
 hive -v -e  "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 set hive.support.quoted.identifiers=None;
 
 drop view if exists $rp_device_profile_full_history_view;
@@ -56,7 +55,6 @@ select *,row_number() over (partition by device order by processtime_all desc,ve
 "
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 SET hive.exec.dynamic.partition=true;
 SET hive.exec.dynamic.partition.mode=nonstrict;
 set hive.support.quoted.identifiers=None;

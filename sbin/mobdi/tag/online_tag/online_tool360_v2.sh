@@ -161,7 +161,6 @@ function gen_timewindow_total(){
             set hive.merge.size.per.task = 250000000;
             set hive.exec.dynamic.partition=true;
             set hive.exec.dynamic.partition.mode=nonstrict;
-            set mapreduce.job.queuename=root.yarn_data_compliance;
 			with device_pkg as
 			(
 			select device,relation from
@@ -247,7 +246,6 @@ function gen_timewindow_total(){
             set hive.merge.size.per.task = 250000000;
             set hive.exec.dynamic.partition=true;
             set hive.exec.dynamic.partition.mode=nonstrict;
-            set mapreduce.job.queuename=root.yarn_data_compliance;
 
             insert overwrite table ${tmp_table_total} partition(type='${source_type}_${computer_type}',timewindow=${timewindow},day=${day})
             select a.device,a.relation,a.percent,a.total,b.profile_id as cate_id,sum(num) as num
@@ -286,7 +284,6 @@ set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
 set hive.exec.dynamic.partition=true;
 set hive.exec.dynamic.partition.mode=nonstrict;
-set mapreduce.job.queuename=root.yarn_data_compliance;
 
 		insert overwrite table ${tmp_table_total} partition(type='${source_type}_${computer_type}',timewindow=${timewindow},day=${day})
         select a.device,a.relation,a.percent,a.total,b.profile_id as cate_id,sum(num) as num
@@ -321,7 +318,6 @@ set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
 set hive.exec.dynamic.partition=true;
 set hive.exec.dynamic.partition.mode=nonstrict;
-set mapreduce.job.queuename=root.yarn_data_compliance;
 
         insert overwrite table ${tmp_table_total} partition(type='${source_type}_${computer_type}',timewindow=${timewindow},day=${day})
         select device,relation,percent,total,cate_id,sum(num) as num
@@ -407,7 +403,6 @@ set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
 set hive.exec.dynamic.partition=true;
 set hive.exec.dynamic.partition.mode=nonstrict;
-set mapreduce.job.queuename=root.yarn_data_compliance;
 
     insert overwrite table ${tmp_table_total} partition(type=${type},timewindow=${timewindow},day=${day})
     select device,relation,percent,total,cate_id,sum(num) as num from
@@ -437,7 +432,6 @@ set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
 set hive.exec.dynamic.partition=true;
 set hive.exec.dynamic.partition.mode=nonstrict;
-set mapreduce.job.queuename=root.yarn_data_compliance;
 
     insert overwrite table ${tmp_table_total} partition(type=${type},timewindow=${timewindow},day=${day})
     select device,relation,percent,total,cate_id,sum(num) as num from
@@ -478,7 +472,6 @@ function gen_timewindow_profile(){
         set mapred.min.split.size.per.rack=128000000;
         set hive.merge.smallfiles.avgsize=250000000;
         set hive.merge.size.per.task = 250000000;
-set mapreduce.job.queuename=root.yarn_data_compliance;
 
     insert overwrite table ${timewindow_online_profile_v3} partition(day=${day},feature)
     select device,count(1) as cnt,cate_id as feature
@@ -503,7 +496,6 @@ set mapreduce.job.queuename=root.yarn_data_compliance;
 		set hive.merge.size.per.task = 250000000;
 		set hive.exec.dynamic.partition=true;
 		set hive.exec.dynamic.partition.mode=nonstrict;
-set mapreduce.job.queuename=root.yarn_data_compliance;
 
 	    insert overwrite table ${timewindow_online_profile_v3} partition(day=${day},feature)
     select device,count(1) as cnt,cate_id as feature
@@ -528,7 +520,6 @@ set mapreduce.job.queuename=root.yarn_data_compliance;
 		set hive.exec.dynamic.partition=true;
 		set hive.exec.dynamic.partition.mode=nonstrict;
         set hive.exec.max.dynamic.partitions=10000;
-set mapreduce.job.queuename=root.yarn_data_compliance;
 
     insert overwrite table ${timewindow_online_profile_v3} partition(day=${day},feature)
     select percent.device,

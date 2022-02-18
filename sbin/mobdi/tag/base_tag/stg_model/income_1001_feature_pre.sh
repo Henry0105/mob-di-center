@@ -417,7 +417,6 @@ p1month=`date -d "$day -1 months" +%Y%m%d`
 #然后和通讯录特征结果dw_mobdi_md.phone_contacts_index表join，得到设备的微商水军标志位、通讯录号码得分分段、是否有公司名、公司手机数量分段、职级排行分段、分词index
 #最后处理50个词向量四分位数特征dw_mobdi_md.income_1001_phone_contacts_index
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function explode_tags as 'com.youzu.mob.java.udtf.ExplodeTags';
 SET hive.merge.mapfiles=true;

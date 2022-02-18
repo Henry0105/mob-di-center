@@ -175,7 +175,6 @@ elif [ ${type} -eq 6 ];then
   fi
 
   mapping_version=`hive -e"
-set mapreduce.job.queuename=root.yarn_data_compliance1;
 select max(version)
                  from ${online_category_mapping_par_replace}
                  where type = ${type}"`
@@ -188,7 +187,6 @@ select max(version)
   set hive.exec.compress.intermediate=true;
   set hive.intermediate.compression.codec=org.apache.hadoop.io.compress.SnappyCodec;
   set hive.intermediate.compression.type=BLOCK;
-  set mapreduce.job.queuename=root.yarn_data_compliance1;
 
   insert overwrite table ${timewindow_online_profile_v2} partition(flag=${type},day=${day},timewindow=${timewindow})
   SELECT NVL(now_rp.device,bef_rp.device) as device,NVL(now_rp.feature,bef_rp.feature) as feature,
@@ -320,7 +318,6 @@ fi
 
 # 两个mapping表
 mapping_version=`hive -e"
-                 set mapreduce.job.queuename=root.yarn_data_compliance1;
                  select max(version)
                  from ${online_category_mapping_par_replace}
                  where type = '${type}'"`
@@ -348,7 +345,6 @@ HADOOP_USER_NAME=dba /opt/mobdata/sbin/spark-submit \
 --driver-memory 12G \
 --executor-memory 9G \
 --executor-cores 4 \
---queue root.yarn_data_compliance1 \
 --conf spark.network.timeout=300 \
 --conf spark.sql.shuffle.partitions=3000 \
 --conf spark.yarn.executor.memoryOverhead=2048 \
@@ -379,7 +375,6 @@ HADOOP_USER_NAME=dba /opt/mobdata/sbin/spark-submit \
 "
 # 合并小文件
 HADOOP_USER_NAME=dba hive -e"
-set mapreduce.job.queuename=root.yarn_data_compliance1;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;

@@ -33,7 +33,6 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 #device_mintime_mapping=$device_mintime_mapping
 
 hive -v -e"
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapreduce.map.memory.mb=5120;
 set mapreduce.map.java.opts='-Xmx4600m' -XX:+UseG1GC;
 set mapreduce.child.map.java.opts='-Xmx4600m';

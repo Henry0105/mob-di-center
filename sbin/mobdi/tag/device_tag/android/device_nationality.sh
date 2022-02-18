@@ -156,7 +156,6 @@ inner join
 
 #--设备居住地信息
 hive -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 insert overwrite table $tmp_device_nationality_permanent_pre
 select device,ch_name as country
 from
@@ -191,7 +190,6 @@ echo "start step 3"
 
 #--ip地址
 hive -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.exec.parallel=true;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
@@ -245,7 +243,6 @@ inner join
 
 #--运营商 dm_sdk_mapping.mapping_carrier_country,dw_mobdi_md.device_nationality_hardware->dw_mobdi_md.device_nationality_carrier
 hive -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 insert overwrite table $tmp_device_nationality_carrier
 select a2.device,a1.country
 from
@@ -295,7 +292,6 @@ stored as orc;
 # dw_mobdi_md.device_nationality_language,dw_mobdi_md.device_nationality_ip,dw_mobdi_md.device_nationality_permanent,
 #dw_mobdi_md.device_nationality_carrier,dm_sdk_mapping.map_country_sdk,dw_mobdi_md.device_nationality_apprank_cnt->rp_mobdi_app.device_nationality partition
 hive -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.exec.parallel=true;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;

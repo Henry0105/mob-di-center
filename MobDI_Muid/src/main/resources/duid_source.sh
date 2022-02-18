@@ -30,7 +30,6 @@ set hive.support.quoted.identifiers=None;
 set hive.exec.dynamic.partition.mode=nonstrict;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-set mapreduce.job.queuename=root.yarn_data_compliance1;
 "
 
 hive -e "

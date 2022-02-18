@@ -38,7 +38,6 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
-set mapreduce.job.queuename=root.yarn_data_compliance1;
 SET mapreduce.map.memory.mb=8192;
 SET mapreduce.map.java.opts=-Xmx6g -XX:+UseG1GC;
 SET mapreduce.reduce.memory.mb=10240;

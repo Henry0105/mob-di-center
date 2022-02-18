@@ -122,7 +122,6 @@ from
 
 
 HADOOP_USER_NAME=dba hive -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 set hive.exec.dynamic.partition=true;
 set hive.exec.dynamic.partition.mode=nostrict;
 set hive.exec.max.created.files=1000000;
@@ -193,7 +192,6 @@ group by device
 
 
 HADOOP_USER_NAME=dba hive -e "
-set mapreduce.job.queuename=root.yarn_data_complianc2;
 set hive.exec.dynamic.partition=true;
 set hive.exec.dynamic.partition.mode=nostrict;
 set hive.exec.max.created.files=1000000;

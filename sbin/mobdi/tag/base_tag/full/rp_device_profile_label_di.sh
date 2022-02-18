@@ -30,7 +30,6 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 #rp_device_profile_label_appname_di=dm_mobdi_report.rp_device_profile_label_appname_di
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 set hive.merge.mapfiles=true;
 set hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;

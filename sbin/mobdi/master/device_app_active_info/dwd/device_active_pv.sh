@@ -44,7 +44,6 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
-set mapreduce.job.queuename=root.yarn_data_compliance1;
 
 INSERT OVERWRITE TABLE $dws_device_active_di PARTITION (day = '$day', plat, source)
 SELECT if(plat=1,muid,deviceid) as device,

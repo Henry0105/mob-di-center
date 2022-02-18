@@ -81,7 +81,6 @@ PARTITIONED BY (
   day string) stored as orc;"
   
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 insert overwrite table $rp_device_demo_update PARTITION(day='$update_part')
 select device as deviceid,country,province,city,gender,agebin,segment,edu,kids,income,cell_factory,model,model_level,
        carrier,network,screensize,sysver,tot_install_apps,country_cn,province_cn,city_cn,city_level,occupation,car,

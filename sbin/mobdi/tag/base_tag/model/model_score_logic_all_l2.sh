@@ -165,7 +165,6 @@ spark2-submit --class com.youzu.mob.newscore.ModelProfileTableMerge \
 
 #全字段去重
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 insert overwrite table $label_l2_model_with_confidence_union_logic_di partition(day=$day)
 select device,gender,gender_cl,agebin,agebin_cl,edu,edu_cl,income,income_cl,kids,kids_cl,
        car,car_cl,house,house_cl,married,married_cl,occupation,occupation_cl,industry,

@@ -350,7 +350,6 @@ function gen_tmp_table(){
       set hive.exec.dynamic.partition=true;
       set hive.exec.dynamic.partition.mode=nonstrict;
       set hive.exec.max.dynamic.partitions.pernode=4000;
-set mapreduce.job.queuename=root.yarn_data_compliance1;
 
       add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
       create temporary function notvacation as 'com.youzu.mob.java.udf.NotVacation';

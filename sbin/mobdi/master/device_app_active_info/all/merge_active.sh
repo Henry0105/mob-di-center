@@ -46,7 +46,6 @@ set hive.merge.size.per.task = 256000000;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.map.aggr=true;
 set hive.auto.convert.join=true;
-set mapreduce.job.queuename=root.yarn_data_compliance1;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function get_min_ip as 'com.youzu.mob.java.udf.GetIpAttribute';
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';

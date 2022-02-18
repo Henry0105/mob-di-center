@@ -90,7 +90,6 @@ skew_pkgs=${skew_pkgs_arr//[\[\]]}
 
 
 HADOOP_USER_NAME=dba hive -v -e"
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 set hive.exec.parallel=true;
 set hive.exec.parallel.thread.number=8;
 set mapreduce.map.memory.mb=12288;

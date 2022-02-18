@@ -26,7 +26,6 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 #label_statics_type_all_di
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 insert overwrite table $appdb.device_mapping_label_incr partition(day='${day}')
 select device,carrier,cell_factory,sysver,model,model_level,screensize,breaked,public_date,network,country,province,city,
        country_cn,province_cn,city_cn,city_level,city_level_1001,identity,price

@@ -31,7 +31,6 @@ set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
 set hive.mapjoin.smalltable.filesize=500000000;
 SET hive.exec.max.created.files=5000000;
-set mapreduce.job.queuename=root.yarn_data_compliance1;
 "
 hive -e "
 $sqlset

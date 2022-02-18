@@ -40,7 +40,6 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 
 insert overwrite table $calculate_model_device partition(day='$day')
 select device
@@ -60,7 +59,6 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 insert overwrite table dm_mobdi_topic.dws_location_bssid_info_di partition(day)
 select if(plat = 1,muid,device) as device,bssid,plat,
        from_unixtime(cast(substring(datetime, 1, 10) as bigint), 'yyyyMMdd HH:mm:ss') as real_date, day
@@ -84,7 +82,6 @@ set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
 
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 
 insert overwrite table $dws_location_bssid_info_di partition(day='$day')
 select if(plat = 1,muid,device) as device,bssid,plat,
@@ -110,7 +107,6 @@ set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
 
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 
 insert overwrite table $income_1001_bssid_index_calculate_base_info partition(day='$day')
 select a.device,b.bssid,b.day as active_day

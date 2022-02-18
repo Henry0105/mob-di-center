@@ -46,7 +46,6 @@ fi
 echo $lastPartStrA
 
 hive -v -e"
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 insert overwrite table $device_models_confidence_full partition(version='$new_ver')
 select device,gender,gender_cl,agebin,agebin_cl,edu,edu_cl,income,income_cl,kids,kids_cl,
        car,car_cl,house,house_cl,married,married_cl,occupation,occupation_cl,industry,

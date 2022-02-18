@@ -36,7 +36,6 @@ income_1001_hotel_bssid_index=${tmp_db}.income_1001_hotel_bssid_index
 #计算设备是否去过各个价格等级、星级、评分等级的酒店
 #根据上一步结果计算index
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;

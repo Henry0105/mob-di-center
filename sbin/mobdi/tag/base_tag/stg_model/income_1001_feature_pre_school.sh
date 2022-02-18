@@ -37,7 +37,6 @@ income_1001_university_bssid_index=${tmp_db}.income_1001_university_bssid_index
 #对每个device保留过去一个月连接最频繁的学校对应的连接天数
 #根据连接天数计算index
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.auto.convert.join=false;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;

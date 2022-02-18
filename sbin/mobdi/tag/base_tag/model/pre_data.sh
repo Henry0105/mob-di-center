@@ -95,7 +95,6 @@ left join
 "
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.exec.parallel=true;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;

@@ -102,7 +102,6 @@ spark2-submit --master yarn --deploy-mode cluster \
 
 #去小文件
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;

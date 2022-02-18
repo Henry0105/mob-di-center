@@ -51,8 +51,7 @@ tmp_device_language_tmp=dm_mobdi_tmp.device_language_tmp
 
 #生成增量数据，主要为获取该段时间内的语言数据，可一次性跑多天
 hive -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
-SET hive.exec.dynamic.partition=true;  
+SET hive.exec.dynamic.partition=true;
 SET hive.exec.dynamic.partition.mode=nonstrict; 
 SET hive.exec.max.dynamic.partitions.pernode=10000;
 SET hive.exec.max.dynamic.partitions=10000;
@@ -114,7 +113,6 @@ if [ -n "$lastPartStr" ]; then
 fi
 
 hive -e"
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 INSERT OVERWRITE TABLE $device_language PARTITION (day=$day)
 SELECT device,language_code,language_cn,language_name,country_cn,country_en, plat,update_date,update_date as processtime
 FROM

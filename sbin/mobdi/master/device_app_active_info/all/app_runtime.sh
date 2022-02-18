@@ -54,7 +54,6 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
-set mapreduce.job.queuename=root.yarn_data_compliance1;
 
 ADD jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 CREATE TEMPORARY FUNCTION clean_client_time as 'com.youzu.mob.java.udf.ClientTimeCleanUDF';
@@ -101,7 +100,6 @@ on a1.pkg = a2.pkg;
 "
 
 HADOOP_USER_NAME=dba hive -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 INSERT overwrite TABLE $device_active_applist_full PARTITION (day = ${day})
 SELECT device,
        plat,

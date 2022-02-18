@@ -91,7 +91,6 @@ group by device,update_day
 "
 
 hive -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -115,7 +114,6 @@ cross join ( select * from  $dim_age_cate_avg_embedding_all )a;
 "
 
 hive -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;

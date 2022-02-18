@@ -39,7 +39,6 @@ income_1001_traffic_bssid_index=${tmp_db}.income_1001_traffic_bssid_index
 #然后计算device是否连接过长途汽车站、地铁站、机场、火车站
 #根据连接结果计算index
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;

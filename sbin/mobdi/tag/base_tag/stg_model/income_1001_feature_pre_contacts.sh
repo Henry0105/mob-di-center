@@ -54,7 +54,6 @@ pidPartition=`hive -e "show partitions $dim_device_pid_merge_df" | awk -v day=${
 #然后和通讯录特征结果dm_mobdi_tmp.pid_contacts_index_sec表join，得到设备的微商水军标志位、通讯录号码得分分段、是否有公司名、公司手机数量分段、职级排行分段、分词index
 #最后处理50个词向量四分位数特征dm_mobdi_tmp.income_1001_pid_contacts_index_sec
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function explode_tags as 'com.youzu.mob.java.udtf.ExplodeTags';
 SET hive.merge.mapfiles=true;
