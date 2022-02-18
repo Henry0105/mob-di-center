@@ -35,7 +35,6 @@ SET mapreduce.map.java.opts='-Xmx6g';
 SET mapreduce.child.map.java.opts='-Xmx6g';
 set mapreduce.reduce.memory.mb=8196;
 SET mapreduce.reduce.java.opts='-Xmx6g';
-set mapreduce.job.queuename=root.yarn_data_compliance;
 
 with seed as
 (

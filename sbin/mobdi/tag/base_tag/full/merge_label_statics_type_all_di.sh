@@ -26,7 +26,6 @@ label_nationality=$device_nationality
 device_statics_label=$label_statics_type_all_di
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 insert overwrite table $device_statics_label partition(day='$day')
 select un.device,app.applist,app.tot_install_apps,nn.nationality,nn.nationality_cn,g.tag_list as group_list,cates.catelist,app.processtime as processtime
 from

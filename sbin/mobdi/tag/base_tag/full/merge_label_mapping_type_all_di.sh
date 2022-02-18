@@ -24,7 +24,6 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 device_mapping_label=$label_mapping_type_all_di
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=125000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;

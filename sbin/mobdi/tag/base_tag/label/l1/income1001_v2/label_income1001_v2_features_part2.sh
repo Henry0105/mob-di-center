@@ -25,7 +25,6 @@ mapping_app_index=${mapping_income1001_v2_app_index0}
 
 ## part2 mapping_app_index源数据不同,不能复用
 hive -e"
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 with seed as
 (
    select *

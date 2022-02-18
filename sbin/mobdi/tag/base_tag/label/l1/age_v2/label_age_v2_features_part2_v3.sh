@@ -28,7 +28,6 @@ device_applist_new=${dim_device_applist_new_di}
 output_table_v3=${tmpdb}.tmp_score_part2_v3
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 with seed as (
   select device,pkg from $device_applist_new where day='$day'
 )

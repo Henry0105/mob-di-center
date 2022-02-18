@@ -24,7 +24,6 @@ tmp_edu_score_part8=${tmpdb}.tmp_edu_score_part8
 
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
 set mapreduce.map.memory.mb=4096;

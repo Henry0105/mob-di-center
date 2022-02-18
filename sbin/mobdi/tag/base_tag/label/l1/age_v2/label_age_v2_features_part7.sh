@@ -49,7 +49,6 @@ set mapred.min.split.size.per.node=128000000;
 set mapred.min.split.size.per.rack=128000000;
 set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
-set mapreduce.job.queuename=root.yarn_data_compliance;
 
 with seed as (
   select device from $device_applist_new where day='$day' group by device

@@ -62,7 +62,6 @@ spark2-submit --master yarn --deploy-mode cluster \
 --driver-memory 4G \
 --executor-memory 12G \
 --executor-cores 4 \
---queue root.yarn_data_compliance \
 --conf spark.shuffle.service.enabled=true \
 --conf spark.dynamicAllocation.enabled=true \
 --conf spark.dynamicAllocation.minExecutors=100 \

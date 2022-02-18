@@ -25,7 +25,6 @@ income_new_ratio_features_6m="${tmpdb}.income_new_ratio_features_6m"
 
 
 HADOOP_USER_NAME=dba hive -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 set hive.exec.dynamic.partition=true;
 set hive.exec.dynamic.partition.mode=nostrict;
 set hive.exec.max.created.files=1000000;

@@ -25,7 +25,6 @@ output_table=${tmpdb}.tmp_score_part1
 
 ##-----part1
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 insert overwrite table ${output_table} partition(day='${day}')
 select device,
        if(size(collect_list(index))=0,collect_set(0),collect_list(index)) as index,

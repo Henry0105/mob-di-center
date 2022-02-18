@@ -24,7 +24,6 @@ label_consume_1001=$label_l1_consume_1001_di
 device_model_label=$label_model_type_all_di
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function concat2 as 'com.youzu.mob.java.udaf.concatfortwofields';
 insert overwrite table $device_model_label partition(day='$day')

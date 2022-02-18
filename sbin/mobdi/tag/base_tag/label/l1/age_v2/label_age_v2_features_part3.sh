@@ -27,7 +27,6 @@ device_applist_new=${dim_device_applist_new_di}
 output_table=${tmpdb}.tmp_score_part3
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;

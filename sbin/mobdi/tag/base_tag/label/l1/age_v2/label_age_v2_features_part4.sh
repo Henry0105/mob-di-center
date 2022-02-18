@@ -30,7 +30,6 @@ output_table=${tmpdb}.tmp_score_part4
 
 ##-----part4
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 with seed as
 (
   select device
