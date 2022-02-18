@@ -8,12 +8,10 @@ fi
 
 insert_day=$1
 
-# 获取当前日期的下个月第一天
-nextmonth=$(date -d "${insert_day} +1 month" +%Y%m01)
 # 获取当前日期所在月的第一天
 start_month=$(date -d "${insert_day}  " +%Y%m01)
 # 获取当前日期所在月的最后一天
-end_month=$(date -d "$nextmonth last day" +%Y%m%d)
+end_month=$insert_day
 
 source /home/dba/mobdi_center/conf/hive-env.sh
 

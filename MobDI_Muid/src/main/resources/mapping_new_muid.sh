@@ -16,12 +16,14 @@ then
 dw_table=${raw_table}
 fi
 
-muid_field="muid"
+mid_field="mid"
 queue="root.yarn_etl.etl"
 
 duid_col=$(grep "^$dw_table " ./table.conf |awk '{print $2}')
 oiid_col=$(grep "^$dw_table " ./table.conf |awk '{print $3}')
 ieid_col=$(grep "^$dw_table " ./table.conf |awk '{print $4}')
+plat_col=$(grep "^$dw_table " ./table.conf |awk '{print $5}')
+device_col=$(grep "^$dw_table " ./table.conf |awk '{print $6}')
 
 if [[ -z ${duid_col} ]]
 then
@@ -38,6 +40,16 @@ then
 ieid_col="ieid"
 fi
 
+if [[ -z ${plat_col} ]]
+then
+plat_col="plat"
+fi
+
+if [[ -z ${device_col} ]]
+then
+device_col="deviceid"
+fi
+
 
 select=$(hive -e "desc ${dw_table}" | awk -F '\t' '{print $1,","}' | xargs echo | sed s/[[:space:]]//g|awk -F ',,#' '{print $1}')
 
@@ -46,11 +58,16 @@ par=$(echo ${select}|awk -F ',' '{print $(NF)}')
 select_muid=","$(echo ${select}|sed "s/,$par//g")","
 
 muid_flag=0
-if [[ ${select_muid} == *,${muid_field},* ]] ;then
+if [[ ${select_muid} == *,${mid_field},* ]] ;then
   muid_flag=1
 else
-  echo "没有muid,无需执行该脚本"
+  echo "没有mid,无需执行该脚本"
   exit 1
+fi
+
+if [[ ${select_muid} != *,${device_col},* ]] ;then
+ echo "没有device,需查看有plat无device情况"
+ exit 1
 fi
 
 mid_db="dm_mid_master"
@@ -84,6 +101,20 @@ fi
 
 
 select_raw=$(echo ${select_muid}|awk -F '#' '{print substr($1,2,(length($0)-2))}')
+select_raw_no_mid=$(echo ${select_muid}|sed "s/,$mid_field,/,null $mid_field,/g" \
+|awk -F '#' '{print substr($1,2,(length($0)-2))}')
+select_raw_device_mid=$(echo ${select_muid}|sed "s/,$mid_field,/,$device_col as $mid_field,/g" \
+|awk -F '#' '{print substr($1,2,(length($0)-2))}')
+
+muid_flag_1=''
+muid_flag_2=''
+if [[ ${select_muid} == *,${plat_col},* ]] ;then
+  muid_flag_1=" and ${plat_col}=1"
+  muid_flag_2=" union all select $select_raw_device_mid from ${raw_table} where $par = $yesterday and ${plat_col}!=1"
+else
+  echo "没有plat,需确认是否对全表操作,如需操作,注释exit 1"
+  exit 1
+fi
 
 staged_table="raw_table"
 sql="
@@ -101,18 +132,17 @@ SET hive.exec.parallel=true;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
 create temporary function sha as 'com.youzu.mob.java.udf.SHA1Hashing';
 with $staged_table as (
-select $select_raw
-from ${raw_table} where $par = $yesterday
+select $select_raw_no_mid
+from ${raw_table} where $par = $yesterday $muid_flag_1
 )
 "
-
 
 if [[ ${duid_flag} -gt 0 ]]
 then
 
-muid_col_select="concat(if(coalesce(a.muid,'')='',b.mid,a.muid),'_1') muid"
+muid_col_select="if(coalesce(a.${mid_field},'')='',b.mid,a.${mid_field}) ${mid_field}"
 
-select_duid=$(echo ${select_muid}|sed "s/,$duid_col,/,a.$duid_col,/g"|sed "s/,$muid_field,/,$muid_col_select,/g" \
+select_duid=$(echo ${select_muid}|sed "s/,$duid_col,/,a.$duid_col,/g"|sed "s/,$mid_field,/,$muid_col_select,/g" \
 | awk -F '#' '{print substr($1,2,(length($0)-2))}')
 
 sql=${sql}"
@@ -134,9 +164,9 @@ fi
 
 if [[ ${oiid_flag} -gt 0 ]]
 then
-muid_col_select="if(coalesce(a.muid,'')='',b.mid,a.muid) muid"
+muid_col_select="if(coalesce(a.${mid_field},'')='',b.mid,a.${mid_field}) ${mid_field}"
 select_oiid=$(echo ${select_muid}|sed "s/,$oiid_col,/,a.$oiid_col,/g"|sed "s/,factory,/,a.factory,/g" \
-|sed "s/,$muid_field,/,$muid_col_select,/g" \
+|sed "s/,$mid_field,/,$muid_col_select,/g" \
 | awk -F '#' '{print substr($1,2,(length($0)-2))}')
 
 
@@ -145,11 +175,11 @@ sql=${sql}"
 select $select_oiid
 from ${staged_table} a left join $oiid_mid_mapping_par b
 on a.$oiid_col=b.oiid and a.factory=b.factory and b.day=$mapping_par
-where coalesce(a.$oiid_col,'')<>''
+where coalesce(a.$oiid_col,'')<>'' and coalesce(a.$mid_field,'')=''
 
 union all
 
-select $select_raw from ${staged_table} where coalesce($oiid_col,'')=''
+select $select_raw from ${staged_table} where coalesce($oiid_col,'')='' or  coalesce($mid_field,'')<>''
 )
 "
 
@@ -159,8 +189,8 @@ fi
 
 if [[ ${ieid_flag} -gt 0 ]]
 then
-muid_col_select="if(coalesce(a.muid,'')='',b.mid,a.muid) muid"
-select_ieid=$(echo ${select_muid}|sed "s/,$ieid_col,/,a.$ieid_col,/g"|sed "s/,$muid_field,/,$muid_col_select,/g" \
+muid_col_select="if(coalesce(a.${mid_field},'')='',b.mid,a.${mid_field}) ${mid_field}"
+select_ieid=$(echo ${select_muid}|sed "s/,$ieid_col,/,a.$ieid_col,/g"|sed "s/,$mid_field,/,$muid_col_select,/g" \
 | awk -F '#' '{print substr($1,2,(length($0)-2))}')
 
 sql=${sql}"
@@ -168,11 +198,11 @@ sql=${sql}"
 select $select_ieid
 from ${staged_table} a left join $ieid_mid_mapping_par b
 on a.$ieid_col=b.ieid and b.day=$mapping_par
-where coalesce(a.$ieid_col,'')<>''
+where coalesce(a.$ieid_col,'')<>'' and coalesce(a.$mid_field,'')=''
 
 union all
 
-select $select_raw from ${staged_table} where coalesce($ieid_col,'')=''
+select $select_raw from ${staged_table} where coalesce($ieid_col,'')=''  or  coalesce($mid_field,'')<>''
 )
 "
 
@@ -184,15 +214,17 @@ select_sha_duid=${select_raw}
 
 if [[ ${duid_flag} -gt 0 ]]
 then
-sha_duid_col_select="if(coalesce(muid,'')='',if(coalesce($duid_col,'')='','',concat(sha($duid_col),'_0')),muid) muid"
-select_sha_duid=$(echo ${select_muid}|sed "s/,$muid_field,/,$sha_duid_col_select,/g" \
+sha_duid_col_select="if(coalesce(${mid_field},'')='',if(coalesce($duid_col,'')='','',concat(sha($duid_col),'_0')),${mid_field}) ${mid_field}"
+select_sha_duid=$(echo ${select_muid}|sed "s/,$mid_field,/,$sha_duid_col_select,/g" \
 | awk -F '#' '{print substr($1,2,(length($0)-2))}')
 fi
 
 sql=${sql}"
 insert overwrite table $dw_table partition($par=$yesterday)
 select $select_sha_duid from $staged_table
+$muid_flag_2
 "
 
 echo -e "$sql"
 hive -e "$sql"
+
