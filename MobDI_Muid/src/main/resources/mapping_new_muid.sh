@@ -22,6 +22,8 @@ queue="root.yarn_etl.etl"
 duid_col=$(grep "^$dw_table " ./table.conf |awk '{print $2}')
 oiid_col=$(grep "^$dw_table " ./table.conf |awk '{print $3}')
 ieid_col=$(grep "^$dw_table " ./table.conf |awk '{print $4}')
+plat_col=$(grep "^$dw_table " ./table.conf |awk '{print $5}')
+device_col=$(grep "^$dw_table " ./table.conf |awk '{print $6}')
 
 if [[ -z ${duid_col} ]]
 then
@@ -38,6 +40,16 @@ then
 ieid_col="ieid"
 fi
 
+if [[ -z ${plat_col} ]]
+then
+plat_col="plat"
+fi
+
+if [[ -z ${device_col} ]]
+then
+device_col="deviceid"
+fi
+
 
 select=$(hive -e "desc ${dw_table}" | awk -F '\t' '{print $1,","}' | xargs echo | sed s/[[:space:]]//g|awk -F ',,#' '{print $1}')
 
@@ -49,8 +61,13 @@ muid_flag=0
 if [[ ${select_muid} == *,${mid_field},* ]] ;then
   muid_flag=1
 else
-  echo "没有muid,无需执行该脚本"
+  echo "没有mid,无需执行该脚本"
   exit 1
+fi
+
+if [[ ${select_muid} != *,${device_col},* ]] ;then
+ echo "没有device,需查看有plat无device情况"
+ exit 1
 fi
 
 mid_db="dm_mid_master"
@@ -86,6 +103,18 @@ fi
 select_raw=$(echo ${select_muid}|awk -F '#' '{print substr($1,2,(length($0)-2))}')
 select_raw_no_mid=$(echo ${select_muid}|sed "s/,$mid_field,/,null $mid_field,/g" \
 |awk -F '#' '{print substr($1,2,(length($0)-2))}')
+select_raw_device_mid=$(echo ${select_muid}|sed "s/,$mid_field,/,$device_col as $mid_field,/g" \
+|awk -F '#' '{print substr($1,2,(length($0)-2))}')
+
+muid_flag_1=''
+muid_flag_2=''
+if [[ ${select_muid} == *,${plat_col},* ]] ;then
+  muid_flag_1=" and ${plat_col}=1"
+  muid_flag_2=" union all select $select_raw_device_mid from ${raw_table} where $par = $yesterday and ${plat_col}!=1"
+else
+  echo "没有plat,需确认是否对全表操作,如需操作,注释exit 1"
+  exit 1
+fi
 
 staged_table="raw_table"
 sql="
@@ -104,7 +133,7 @@ add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager.jar;
 create temporary function sha as 'com.youzu.mob.java.udf.SHA1Hashing';
 with $staged_table as (
 select $select_raw_no_mid
-from ${raw_table} where $par = $yesterday
+from ${raw_table} where $par = $yesterday $muid_flag_1
 )
 "
 
@@ -146,11 +175,11 @@ sql=${sql}"
 select $select_oiid
 from ${staged_table} a left join $oiid_mid_mapping_par b
 on a.$oiid_col=b.oiid and a.factory=b.factory and b.day=$mapping_par
-where coalesce(a.$oiid_col,'')<>''
+where coalesce(a.$oiid_col,'')<>'' and coalesce(a.$mid_field,'')=''
 
 union all
 
-select $select_raw from ${staged_table} where coalesce($oiid_col,'')=''
+select $select_raw from ${staged_table} where coalesce($oiid_col,'')='' or  coalesce($mid_field,'')<>''
 )
 "
 
@@ -169,11 +198,11 @@ sql=${sql}"
 select $select_ieid
 from ${staged_table} a left join $ieid_mid_mapping_par b
 on a.$ieid_col=b.ieid and b.day=$mapping_par
-where coalesce(a.$ieid_col,'')<>''
+where coalesce(a.$ieid_col,'')<>'' and coalesce(a.$mid_field,'')=''
 
 union all
 
-select $select_raw from ${staged_table} where coalesce($ieid_col,'')=''
+select $select_raw from ${staged_table} where coalesce($ieid_col,'')=''  or  coalesce($mid_field,'')<>''
 )
 "
 
@@ -193,7 +222,9 @@ fi
 sql=${sql}"
 insert overwrite table $dw_table partition($par=$yesterday)
 select $select_sha_duid from $staged_table
+$muid_flag_2
 "
 
 echo -e "$sql"
 hive -e "$sql"
+
