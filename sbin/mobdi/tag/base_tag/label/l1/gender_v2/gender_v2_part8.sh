@@ -17,7 +17,6 @@ gender_feature_v2_part8="${dm_mobdi_tmp}.gender_feature_v2_part8"
 #gender_app_tgi_level_5="dm_sdk_mapping.gender_app_tgi_level_5"
 
 hive -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;

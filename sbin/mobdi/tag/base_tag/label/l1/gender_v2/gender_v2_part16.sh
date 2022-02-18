@@ -56,7 +56,6 @@ gender_app2vec_vec2_score_test_2k=${dm_mobdi_tmp}.gender_app2vec_vec2_score_test
 spark2-submit --master yarn --deploy-mode cluster \
 --class com.youzu.mob.newscore.App2Vec \
 --driver-memory 4G \
---queue root.yarn_data_compliance \
 --executor-memory 15G \
 --executor-cores 4 \
 --conf spark.shuffle.service.enabled=true \

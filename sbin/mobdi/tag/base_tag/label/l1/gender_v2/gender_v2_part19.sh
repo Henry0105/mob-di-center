@@ -27,7 +27,7 @@ set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 256000000;
 set hive.exec.max.dynamic.partitions.pernode=1000;
 set hive.exec.max.dynamic.partitions=10000;
-set mapreduce.job.queuename=root.yarn_data_compliance;
+
 insert overwrite table $gender_feature_v2_part19 partition(day='$insertday')
 select t1.device, avg(topic_0)  topic1, 
 avg(topic_1) topic2,

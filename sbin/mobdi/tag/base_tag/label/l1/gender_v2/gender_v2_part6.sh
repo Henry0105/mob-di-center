@@ -19,7 +19,6 @@ gender_feature_v2_part6="${tmpdb}.gender_feature_v2_part6"
 #label_l1_applist_refine_cnt_di="rp_mobdi_app.label_l1_applist_refine_cnt_di"
 
 hive -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
