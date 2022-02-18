@@ -38,7 +38,6 @@ label_merge_all=${dm_mobdi_tmp}.model_merge_all_features
 transfered_feature_table=${dm_mobdi_tmp}.model_transfered_features
 
 hive -v -e "
-set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.exec.parallel=true;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
