@@ -88,6 +88,11 @@ if [[ ${select_muid} == *,${oiid_col},* && ${select_muid} == *,factory,* ]] ;the
 oiid_flag=1
 fi
 
+factory_flag=0
+if [[ ${select_muid} == *,factory,* ]] ;then
+factory_flag=1
+fi
+
 ieid_flag=0
 if [[ ${select_muid} == *,${ieid_col},* ]] ;then
 ieid_flag=1
@@ -169,12 +174,23 @@ select_oiid=$(echo ${select_muid}|sed "s/,$oiid_col,/,a.$oiid_col,/g"|sed "s/,fa
 |sed "s/,$mid_field,/,$muid_col_select,/g" \
 | awk -F '#' '{print substr($1,2,(length($0)-2))}')
 
+factory_join=""
+mapping_table="(select oiid,mid from
+(select oiid,mid,row_number() over (partition by oiid order by serdatetime) rn
+from $oiid_mid_mapping_par where day=$mapping_par) z
+where rn=1)"
+if [[ ${factory_flag} -gt 0 ]]
+then
+factory_join="and a.factory=b.factory and b.day=$mapping_par"
+mapping_table="$oiid_mid_mapping_par"
+fi
 
 sql=${sql}"
 ,oiid_stage as(
 select $select_oiid
-from ${staged_table} a left join $oiid_mid_mapping_par b
-on a.$oiid_col=b.oiid and a.factory=b.factory and b.day=$mapping_par
+from ${staged_table} a
+left join $mapping_table b
+on a.$oiid_col=b.oiid $factory_join
 where coalesce(a.$oiid_col,'')<>'' and coalesce(a.$mid_field,'')=''
 
 union all
