@@ -46,10 +46,11 @@ object Step1Pkg2Vertex {
     // app同版本相同安装时间(pkg_it)
     /**
      * 过滤出出现过一次以上,maxOidSize次以下的pkg_it
+     * 考虑到duid会变,给予极限值变化5000次(假设同一个app在毫秒级安装不重复)
      */
     val pkgItCount = spark.sql(
       s"""
-         |select pkg_it ,count(1) cc
+         |select pkg_it ,count(distinct duid) cc
          |from $tmpSourceTbl where pkg_it not like '%000'
          |group by pkg_it having  cc > 1 and cc < $maxOidSize
          |""".stripMargin)
