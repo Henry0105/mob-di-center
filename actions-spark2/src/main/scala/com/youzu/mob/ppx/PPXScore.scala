@@ -66,7 +66,7 @@ object PPXScore {
          |    where version='${day}.1000'
          |  )profile_full
          |  left join
-         |  $DIM_PPX_APP_MAPPING
+         |  $DIM_PPX_APP_MAPPING ppx_app
          |  on profile_full.app_encode = ppx_app.app_wd
          |)t
          |group by device
