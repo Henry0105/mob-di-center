@@ -682,7 +682,7 @@ SELECT device
 FROM $device_profile_label_full_par
 WHERE version='${newVer}';
 "
-~/jdk1.8.0_45/bin/java -cp /home/dba/mobdi_center/lib/mysql-utils-1.0-jar-with-dependencies.jar  com.mob.TagUpdateTime -d rp_mobdi_app -t rp_device_profile_full_view
+#~/jdk1.8.0_45/bin/java -cp /home/dba/mobdi_center/lib/mysql-utils-1.0-jar-with-dependencies.jar  com.mob.TagUpdateTime -d rp_mobdi_app -t rp_device_profile_full_view
 
 echo `date +%Y-%m-%d:%H:%M:%S` 'over'
 end=`date +%Y-%m-%d:%H:%M:%S`
