@@ -15,7 +15,6 @@ firstDayOfMonth=`date -d ${day} +%Y%m01`
 
 #muid月活安卓前置
 HADOOP_USER_NAME=dba hive -v -e "
-set mapreduce.job.queuename=root.yarn_mobdashboard.mobdashboard;
 set mapreduce.map.memory.mb=9000;
 set mapreduce.map.java.opts=-Xmx7200m;
 set mapreduce.reduce.memory.mb=9000;

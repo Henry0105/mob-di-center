@@ -8,7 +8,6 @@ lastYearPartition=$(hive -e "show partitions dm_mobdi_report.device_profile_labe
 
 
 HADOOP_USER_NAME=dba hive -e "
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 set mapreduce.map.memory.mb=9000;
 set mapreduce.map.java.opts=-Xmx7200m;
 set mapreduce.reduce.memory.mb=9000;

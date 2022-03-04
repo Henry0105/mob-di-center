@@ -10,7 +10,6 @@ day=$1
 HADOOP_USER_NAME=dba hive -e"
 set hive.exec.parallel=true;
 SET mapreduce.map.memory.mb=4096;
-set mapreduce.job.queuename=root.yarn_etl.etl;
 set mapreduce.map.java.opts='-Xmx6144M' -XX:+UseG1GC;;
 set mapreduce.reduce.memory.mb=8192;
 set mapreduce.reduce.java.opts='-Xmx6144M';

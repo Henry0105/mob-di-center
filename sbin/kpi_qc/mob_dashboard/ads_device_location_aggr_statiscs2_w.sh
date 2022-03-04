@@ -12,7 +12,6 @@ ads_device_location_aggr_statiscs2_w=mob_dashboard.ads_muid_location_aggr_statis
 
 #3执行hql代码
 HADOOP_USER_NAME=dba hive -v -e "
-set mapreduce.job.queuename=root.yarn_mobdashboard.mobdashboard;
 set hive.exec.parallel=true ;
 set hive.exec.parallel.thread.number=6;
 set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;

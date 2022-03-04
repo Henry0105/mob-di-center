@@ -6,7 +6,6 @@ lastMonth=`date -d "$day -1 month" +%Y%m%d`
 
 HADOOP_USER_NAME=dba hive -e "
 set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
-set mapreduce.job.queuename=root.yarn_data_compliance2;
 set mapreduce.map.memory.mb=9000;
 set mapreduce.map.java.opts=-Xmx7200m;
 set mapreduce.reduce.memory.mb=9000;

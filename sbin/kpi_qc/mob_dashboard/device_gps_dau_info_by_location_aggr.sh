@@ -39,7 +39,6 @@ stored as orc;
 area_lastpar=`hive -S -e "show partitions dm_sdk_mapping.mapping_area_par" |tail -n 1 `
 
 HADOOP_USER_NAME=dba hive -v -e "
-set mapreduce.job.queuename=root.yarn_mobdashboard.mobdashboard;
 
 insert overwrite table $device_gps_dau_info_by_location_aggr partition(day = '$day')
 select x.cnt as cnt,

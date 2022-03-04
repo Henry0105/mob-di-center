@@ -8,7 +8,6 @@ if [ $# -lt 1 ]; then
 fi
 day=$1
 HADOOP_USER_NAME=dba hive -e"
-set mapreduce.job.queuename=root.yarn_etl.etl;
 set hive.exec.parallel=true;
 SET mapreduce.map.memory.mb=4096;
 set mapreduce.map.java.opts='-Xmx6144M' -XX:+UseG1GC;;
