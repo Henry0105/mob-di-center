@@ -39,7 +39,8 @@ sum(if(muid_type='gps_base_wifi_in_muid_android' and plat = 1,1,0)) as gps_base_
 sum(if(muid_type='gps_base_wifi_in_muid_ios' and plat = 2,1,0)) as gps_base_wifi_in_muid_ios,
 sum(if(muid_type='pid_in_muid_ios' and plat = 2,1,0)) as pid_in_muid_ios,
 sum(if(muid_type='isid_in_muid' and plat = 1,1,0)) as isid_in_muid,
-sum(if(muid_type='ifid_in_muid' and plat = 2,1,0)) as ifid_in_muid
+sum(if(muid_type='ifid_in_muid' and plat = 2,1,0)) as ifid_in_muid,
+sum(if(muid_type='asid_in_muid' and plat = 1,1,0)) as asid_in_muid
 from mobdi_muid_dashboard.muid_dau_other_id_percent_statement_by_dws_device_sdk_run_master_di 
 where day=$day
 "

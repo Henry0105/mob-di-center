@@ -17,12 +17,15 @@ fi
 day=$1
 lastday=`date -d "$day -1 days" +%Y%m%d`
 yearhalf_days=`date -d "$day -540 days" +%Y%m%d`
+two_year_ago=`date -d "$day -2 years" +%Y%m%d`
 :<<!
 create table if not exists mobdi_muid_dashboard.pid_all_dau_by_dim_device_pid_merge_df(
 pid_history bigint comment '总量',
 pid_yearhalf bigint comment'近一年半总量',
 pid_history_dau bigint comment'全量日新增',
-pid_yearhalf_dau bigint comment'近一年半日新增'
+pid_yearhalf_dau bigint comment'近一年半日新增',
+pid_two_year bigint comment'近两年总量',
+pid_two_year_dau bigint comment'近两年日新增'
 )comment 'pid总量和日新增'
 partitioned by (day string comment'日期')
 stored as orc;
@@ -46,11 +49,16 @@ set hive.map.aggr=true;
 set mapred.task.timeout=1800000;
 insert overwrite table mobdi_muid_dashboard.pid_all_dau_by_dim_device_pid_merge_df partition(day='$day')
 select
-pid_history,pid_yearhalf,pid_history-pid_history_yesterday as pid_history_dau,pid_yearhalf-pid_yearhalf_yesterday as pid_yearhalf_dau
+pid_history,
+pid_yearhalf,
+pid_history-pid_history_yesterday as pid_history_dau,
+pid_yearhalf-pid_yearhalf_yesterday as pid_yearhalf_dau,
+pid_two_year,
+pid_two_year-pid_two_year_yesterday as pid_two_year_dau
 from
 ( 
 select
-count(*) as pid_history,sum(if(pid_ltm >= $yearhalf_days,1,0)) as pid_yearhalf
+count(*) as pid_history,sum(if(pid_ltm >= $yearhalf_days,1,0)) as pid_yearhalf,sum(if(pid_ltm >= $two_year_ago,1,0)) as pid_two_year
 from
 (
 select pid, from_unixtime(cast(pid_ltm as bigint), 'yyyyMMdd') as pid_ltm
@@ -70,9 +78,10 @@ group by pid,pid_ltm
 )c
 )a
 join
-(select pid_history as pid_history_yesterday,pid_yearhalf as pid_yearhalf_yesterday
+(select pid_history as pid_history_yesterday,pid_yearhalf as pid_yearhalf_yesterday,pid_two_year as pid_two_year_yesterday
 from mobdi_muid_dashboard.pid_all_dau_by_dim_device_pid_merge_df
 where day='$lastday')b
 ;"
+
 
 

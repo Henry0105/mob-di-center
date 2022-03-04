@@ -17,13 +17,15 @@ fi
 day=$1
 lastday=`date -d "$day -1 days" +%Y%m%d`
 yearhalf_days=`date -d "$day -540 days" +%Y%m%d`
-
+two_year_ago=`date -d "$day -2 years" +%Y%m%d`
 :<<!
 create table if not exists mobdi_muid_dashboard.oiid_all_dau_by_dim_device_oiid_merge_df(
 oiid_history bigint comment '总量',
 oiid_yearhalf bigint comment'近一年半总量',
 oiid_history_dau bigint comment'全量日新增',
-oiid_yearhalf_dau bigint comment'近一年半日新增'
+oiid_yearhalf_dau bigint comment'近一年半日新增',
+oiid_two_year bigint comment'近两年总量',
+oiid_two_year_dau bigint comment'近两年日新增'
 )comment 'oiid总量和日新增'
 partitioned by (day string comment'日期')
 stored as orc;
@@ -47,11 +49,16 @@ set hive.map.aggr=true;
 set mapred.task.timeout=1800000;
 insert overwrite table mobdi_muid_dashboard.oiid_all_dau_by_dim_device_oiid_merge_df partition(day='$day')
 select
-oiid_history,oiid_yearhalf,oiid_history-oiid_history_yesterday as oiid_history_dau,oiid_yearhalf-oiid_yearhalf_yesterday as oiid_yearhalf_dau
+oiid_history,
+oiid_yearhalf,
+oiid_history-oiid_history_yesterday as oiid_history_dau,
+oiid_yearhalf-oiid_yearhalf_yesterday as oiid_yearhalf_dau,
+oiid_two_year,
+oiid_two_year-oiid_two_year_yesterday as oiid_two_year_dau
 from
 (
 select
-count(*) as oiid_history,sum(if(oiid_ltm >= $yearhalf_days,1,0)) as oiid_yearhalf
+count(*) as oiid_history,sum(if(oiid_ltm >= $yearhalf_days,1,0)) as oiid_yearhalf,sum(if(oiid_ltm >= $two_year_ago,1,0)) as oiid_two_year
 from
 (
 select oiid, from_unixtime(cast(oiid_ltm as bigint), 'yyyyMMdd') as oiid_ltm
@@ -71,9 +78,10 @@ group by oiid,oiid_ltm
 )c
 )a
 join
-(select oiid_history as oiid_history_yesterday,oiid_yearhalf as oiid_yearhalf_yesterday
+(select oiid_history as oiid_history_yesterday,oiid_yearhalf as oiid_yearhalf_yesterday,oiid_two_year as oiid_two_year_yesterday
 from mobdi_muid_dashboard.oiid_all_dau_by_dim_device_oiid_merge_df
 where day='$lastday')b
 on 1=1
 ;"
+
 

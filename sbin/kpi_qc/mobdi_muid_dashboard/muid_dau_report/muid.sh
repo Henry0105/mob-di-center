@@ -10,6 +10,7 @@ fi
 day=$1
 
 HADOOP_USER_NAME=dba hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 set hive.groupby.skewindata=true;
 SET hive.map.aggr=true;
 SET hive.auto.convert.join=true;
