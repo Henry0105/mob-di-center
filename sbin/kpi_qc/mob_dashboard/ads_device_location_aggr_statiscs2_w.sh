@@ -4,15 +4,15 @@ set -e -x
 
 day=$1
 
-source /home/dba/mobdi_center/conf/hive-env.sh
-
-: '
-input:dm_mobdi_master.dwd_device_location_di_v2
-out:mob_dashboard.ads_device_location_aggr_statiscs2_w
-'
+#input:
+#dwd_device_location_di_v2=dm_mobdi_master.dwd_device_location_di_v2
+dwd_device_location_di_v2=dm_mobdi_master.dwd_device_location_info_di_v2
+#out:
+ads_device_location_aggr_statiscs2_w=mob_dashboard.ads_muid_location_aggr_statiscs2_w
 
 #3执行hql代码
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_mobdashboard.mobdashboard;
 set hive.exec.parallel=true ;
 set hive.exec.parallel.thread.number=6;
 set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
@@ -25,12 +25,11 @@ set hive.merge.size.per.task = 268435456;
 set hive.merge.smallfiles.avgsize=32000000 ;
 set hive.auto.convert.join=true;
 set hive.exec.reducers.bytes.per.reducer=300000000;
-set hive.exec.dynamic.partition =true;
-set hive.exec.dynamic.partition.mode = nonstrict;
+
 
 
 INSERT OVERWRITE TABLE $ads_device_location_aggr_statiscs2_w
-PARTITION(day)
+PARTITION(day = $day)
 	select
 	    from_unixtime(unix_timestamp(),'yyyy-MM-dd HH:mm:ss') as crtd_tmst
 	   ,from_unixtime(unix_timestamp(),'yyyy-MM-dd')          as data_dt
@@ -39,9 +38,8 @@ PARTITION(day)
 		 ,province
 		 ,city
 		 ,count(1)
-	   ,${statis_date} as day
 	 FROM $dwd_device_location_di_v2
-	 WHERE     day = ${statis_date} 
+	 WHERE     day = ${day}
 	      AND  type in ('gps','wifi','base')
 				group by
 				    type
@@ -51,3 +49,4 @@ PARTITION(day)
 
 					 ;
 					 "
+

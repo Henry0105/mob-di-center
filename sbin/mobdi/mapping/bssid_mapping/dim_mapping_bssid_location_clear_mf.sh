@@ -1,43 +1,37 @@
-#!/bin/bash
+#/bin/bash
 
 set -x -e
 
 day=$1
+nowdate=`date -d $day +%Y%m01`
 
-#导入配置文件
-source /home/dba/mobdi_center/conf/hive-env.sh
+#获取dm_mobdi_mapping.dim_mapping_bssid_location_mf 离day最近的3个分区
+
+last_partition=`date -d "$day -1 month" +%Y%m26`
+last_second_partition=`date -d "$last_partition -1 months" "+%Y%m%d"`
+last_three_partition=`date -d "$last_partition -2 months" "+%Y%m%d"`
 
 ## input
-#dim_mapping_bssid_location_mf=dim_mobdi_mapping.dim_mapping_bssid_location_mf
+dim_mapping_bssid_location_mf=dim_mobdi_mapping.dim_mapping_bssid_location_mf
 
 ## output
-#dim_mapping_bssid_location_clear_mf=dim_mobdi_mapping.dim_mapping_bssid_location_clear_mf
-
-bssid_mapping_sql="
-    add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
-    create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_mapping_bssid_location_mf', 'day');
-"
-last_partition=(`hive -e "$bssid_mapping_sql"`)
+dim_mapping_bssid_location_clear_mf=dim_mobdi_mapping.dim_mapping_bssid_location_clear_mf
 
 
-newestThreePartitions=`hive -e "show partitions $dim_mapping_bssid_location_mf" | awk -v day=${last_partition} -F '=' '$2<=day {print $0}'| sort| tail -n 3| xargs echo| sed 's/\s/,/g'`
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
+add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
+create temporary function get_distance as 'com.youzu.mob.java.udf.WGS84Distance';
 
-
-last_second_partition=`echo $newestThreePartitions |cut -d"," -f2`
-
-last_three_partition=`echo $newestThreePartitions |cut -d"," -f1`
-
-hive -v -e"
-insert overwrite table $dim_mapping_bssid_location_clear_mf partition (day='$day')
-select t1.*,
-       case when t2.bssid is null then 0
+insert overwrite table $dim_mapping_bssid_location_clear_mf partition (day='$nowdate')
+select t1.bssid,t1.lat,t1.lon,t1.acc,t1.geohash8,t1.addr,t1.country,t1.province,t1.city,t1.district,t1.street,t1.ssid,t1.bssid_type,
+       case when t2.bssid is null and bssid_type=1 then 0
             else 1
        end as flag
 from
-(select *
+(select bssid,lat,lon,acc,geohash8,addr,country,province,city,district,street,ssid,bssid_type
   from $dim_mapping_bssid_location_mf
-  where day='${last_partition}' and bssid_type=1
+  where day='${last_partition}'
   ) t1
 left join
 (
@@ -96,5 +90,4 @@ select bssid
      )tt1
      group by bssid
 ) t2
-on t1.bssid=t2.bssid;
-"
+on t1.bssid=t2.bssid;"

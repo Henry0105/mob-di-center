@@ -51,8 +51,7 @@ sns_tmp_oauth=$tmpdb.sns_tmp_oauth
 #out
 #rp_device_sns_full=dm_mobdi_report.rp_device_sns_full
 lastpartition=`hive -e "show partitions $rp_device_sns_full"|sort|tail -n1`
-
-hive -e "
+HADOOP_USER_NAME=dba hive -e "
 set hive.exec.parallel=true;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
@@ -186,7 +185,7 @@ where rank = 1;
 
 '
 
-hive -e "
+HADOOP_USER_NAME=dba hive -e "
 set hive.exec.parallel=true;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
@@ -340,7 +339,7 @@ where rank = 1;
 
 '
 
-hive -e "
+HADOOP_USER_NAME=dba hive -e "
 set hive.exec.parallel=true;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
@@ -395,7 +394,7 @@ from
         select device,plat,snsplat,snsuid,birthday,icon,secrettype,nickname,snsuserurl,sharecount,resume,educationjson,
         snsuserlevel,snsregat,favouritecount,gender,secret,followercount,workjson,processtime,rawuserdata
         from $rp_device_sns_full
-        where day = ${lastpartition}
+        where ${lastpartition}
 
         union all
 
@@ -409,10 +408,19 @@ from
         (select device from $sns_tmp_oauth where day = ${indate} group by device) a2
         on a1.device = a2.device
         left join
-        (select device from $rp_device_sns_full where day = ${lastpartition} group by device) a3
+        (select device from $rp_device_sns_full where ${lastpartition} group by device) a3
         on a1.device = a3.device
         where a2.device is null and a3.device is null
         )a
     )aa
 where rank = 1;
+"
+HADOOP_USER_NAME=dba hive -v -e"
+drop view if exists dm_mobdi_report.rp_device_sns_full_view;
+create view dm_mobdi_report.rp_device_sns_full_view as
+select
+device,plat,snsplat,snsuid,birthday,icon,secrettype,nickname,snsuserurl,sharecount,resume,educationjson,snsuserlevel,snsregat,favouritecount,gender,secret,followercount,workjson,processtime,rawuserdata,unionid
+from
+$rp_device_sns_full
+where day='$indate'
 "

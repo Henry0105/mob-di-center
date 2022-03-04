@@ -48,7 +48,7 @@ set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
 
 INSERT OVERWRITE TABLE $dws_device_active_di PARTITION (day = '$day', plat, source)
-SELECT muid as device,
+SELECT if(plat=1,muid,deviceid) as device,
        trim(apppkg) as pkg,
        trim(apppkg) as apppkg,
        if(appkey is null
@@ -67,12 +67,12 @@ SELECT muid as device,
        'mdata_pv' as source
 FROM $dwd_mdata_nginx_pv_di
 WHERE day = '$day'
-and trim(lower(muid)) rlike '^[a-f0-9]{40}$'
+and trim(lower(if(plat=1,muid,deviceid))) rlike '^[a-f0-9]{40}$'
 and apppkg is not null
 and trim(apppkg) not in ('','null','NULL')
 and trim(apppkg)=regexp_extract(trim(apppkg),'([a-zA-Z0-9\.\_-]+)',0)
 and plat in (1, 2)
-GROUP BY muid,
+GROUP BY if(plat=1,muid,deviceid),
          trim(apppkg),
          if(appkey is null
             or split(trim(regexp_replace(regexp_replace(appkey,'\\\\s+',' '),'\"','')),'\\\\s+')[0] in ('null','NULL')

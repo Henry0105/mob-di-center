@@ -4,14 +4,14 @@ set -e -x
 
 day=$1
 
-source /home/dba/mobdi_center/conf/hive-env.sh
-: '
-input:dm_mobdi_master.dwd_device_location_di_v2
-out:mob_dashboard.ads_bi_device_location_aggr_statiscs_w
-'
+#input
+#dwd_device_location_di_v2=dm_mobdi_master.dwd_device_location_di_v2
+dwd_device_location_di_v2=dm_mobdi_master.dwd_device_location_info_di_v2
+#out
+ads_bi_device_location_aggr_statiscs_w=mob_dashboard.ads_bi_muid_location_aggr_statiscs_w
 
 #3执行hql代码
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
 set hive.exec.parallel=true ;
 set hive.exec.parallel.thread.number=6;
 set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
@@ -24,12 +24,10 @@ set hive.merge.size.per.task = 268435456;
 set hive.merge.smallfiles.avgsize=32000000 ;
 set hive.auto.convert.join=true;
 set hive.exec.reducers.bytes.per.reducer=300000000;
-set hive.exec.dynamic.partition =true;
-set hive.exec.dynamic.partition.mode = nonstrict;
 
 
 INSERT OVERWRITE TABLE  $ads_bi_device_location_aggr_statiscs_w
-PARTITION(day)
+PARTITION(day = $day)
 
 	--1.按照国家country聚合
 	SELECT
@@ -39,13 +37,12 @@ PARTITION(day)
 	 ,country                                               as anals_dim1
 	 ,'不限'                                                as anals_dim2
 	 ,COUNT(DISTINCT device)                                as anals_value
-	 ,${statis_date}                                        as day
 	 FROM (
 		 SELECT
 		  country
 		  ,device
 		  FROM $dwd_device_location_di_v2
-		  WHERE     day =${statis_date}
+		  WHERE     day =${day}
 			     AND  type in ('gps','wifi','base')
 	 ) t
 	 GROUP BY country
@@ -58,16 +55,12 @@ UNION ALL
 	  ,province                                              as anals_dim1
 	  ,'不限'                                                as anals_dim2
 	  ,COUNT(DISTINCT device)                                as anals_value
-	  ,${statis_date}                                        as day
-
 	  FROM  (
 		  SELECT
 		   province
 		   ,device
-
 		   FROM $dwd_device_location_di_v2
-		   WHERE   day =${statis_date}
-		    --  AND  country ='cn'
+		   WHERE   day =${day}
 			     AND  type in ('gps','wifi','base')
 	  ) t
 	  GROUP BY province
@@ -80,13 +73,12 @@ UNION ALL
 	   ,city                                                  as  anals_dim1
 	   ,'不限'                                                as anals_dim2
 	   ,COUNT(DISTINCT device)                                as anals_value
-	   ,${statis_date}                                        as day
 	   FROM  (
 		   SELECT
 		    city
 			,device
 			FROM $dwd_device_location_di_v2
-			WHERE    day =${statis_date}
+			WHERE    day =${day}
 			      AND  type in ('gps','wifi','base')
 	   ) t
 	   GROUP BY city
@@ -99,14 +91,13 @@ UNION ALL
 		  ,type                                                  as  anals_dim1
 		  ,country                                               as  anals_dim2
 		  ,count(distinct device)                                as  anals_value
-		  ,${statis_date}                                        as day
 		from  (
 			SELECT
 			  type
 			 ,country
 			 ,device
 			 FROM $dwd_device_location_di_v2
-			 WHERE   day =${statis_date}
+			 WHERE   day =${day}
 			    AND  type in ('gps','wifi','base')
 		) t
 		GROUP BY
@@ -121,14 +112,13 @@ UNION ALL
 		  ,type                                                  as  anals_dim1
 		  ,province                                              as  anals_dim2
 		  ,count(distinct device)                                as anals_value
-		  ,${statis_date}                                        as day
 		  FROM  (
 			  SELECT
 			    type
 			   ,province
 			   ,device
 			   FROM $dwd_device_location_di_v2
-			   WHERE   day =${statis_date}
+			   WHERE   day =${day}
 				     AND  type in ('gps','wifi','base')
 		  ) t
 		  GROUP BY
@@ -143,14 +133,13 @@ UNION ALL
 			  ,type                                                  as  anals_dim1
 			  ,city                                                  as  anals_dim2
 			  ,COUNT(DISTINCT device)                                as anals_value
-			  ,${statis_date}                                        as day
 			FROM  (
 				SELECT
 				  type
 				 ,city
 				 ,device
 				 FROM $dwd_device_location_di_v2
-				 WHERE   day =${statis_date}
+				 WHERE   day =${day}
 					     AND  type in ('gps','wifi','base')
 			) t
 			GROUP BY
@@ -158,4 +147,5 @@ UNION ALL
 			 ,city
 			 ;
 			 "
+
 

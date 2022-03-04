@@ -11,54 +11,57 @@ set -e -x
 day=$1
 pday=`date -d "$day -1 month" "+%Y%m%d"`
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive-env.sh
+#ource /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+#source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+#source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 
 #input
-#dwd_location_info_sec_di=dm_mobdi_master.dwd_location_info_sec_di
-#dwd_log_wifi_info_sec_di=dm_mobdi_master.dwd_log_wifi_info_sec_di
-bssid_exchange=${dw_mobdi_source}.bssid_exchange
+dwd_location_info_sec_di=dm_mobdi_master.dwd_location_info_sec_di
+dwd_log_wifi_info_sec_di=dm_mobdi_master.dwd_log_wifi_info_sec_di
+bssid_exchange=dw_mobdi_source.bssid_exchange
 #md
-tmpdb=$dm_mobdi_tmp
-calculate_bssid_mapping_base_info=$tmpdb.calculate_bssid_mapping_base_info
-speed_abnormal_device_info_for_mapping=$tmpdb.speed_abnormal_device_info_for_mapping
-calculate_bssid_mapping_base_info_except_abnormal_data=$tmpdb.calculate_bssid_mapping_base_info_except_abnormal_data
-bssid_from_gps_par=$tmpdb.bssid_from_gps_par
-bssid_finaltable_gps_cnt1_par=$tmpdb.bssid_finaltable_gps_cnt1_par
-bssid_finaltable_gps_cnt2_par=$tmpdb.bssid_finaltable_gps_cnt2_par
-bssid_strangetable_gps_cnt2_par=$tmpdb.bssid_strangetable_gps_cnt2_par
-bssid_finaltable_gps_cnt3_pre_par=$tmpdb.bssid_finaltable_gps_cnt3_pre_par
-bssid_finaltable_gps_cnt3_dbscan_par=$tmpdb.bssid_finaltable_gps_cnt3_dbscan_par
-bssid_finaltable_gps_cnt3_dbscan_result_par=$tmpdb.bssid_finaltable_gps_cnt3_dbscan_result_par
-bssid_finaltable_gps_cnt3_dbscan_unique_par=$tmpdb.bssid_finaltable_gps_cnt3_dbscan_unique_par
-bssid_finaltable_gps_cnt3_pre_allinfo_par=$tmpdb.bssid_finaltable_gps_cnt3_pre_allinfo_par
-bssid_finaltable_gps_cnt3_pre_allinfo_maxday_par=$tmpdb.bssid_finaltable_gps_cnt3_pre_allinfo_maxday_par
-bssid_finaltable_gps_cnt3_pre_allinfo_maxday_maxcnt_par=$tmpdb.bssid_finaltable_gps_cnt3_pre_allinfo_maxday_maxcnt_par
-bssid_finaltable_gps_cnt3_par=$tmpdb.bssid_finaltable_gps_cnt3_par
-bssid_finaltable_gps_cnt3_notsure_par=$tmpdb.bssid_finaltable_gps_cnt3_notsure_par
-bssid_finaltable_gps_cnt3_notsure_trans_par=$tmpdb.bssid_finaltable_gps_cnt3_notsure_trans_par
-bssid_strangetable_gps_cnt3_sure_par=$tmpdb.bssid_strangetable_gps_cnt3_sure_par
-bssid_finaltable_gps_cnt3_sure_pre_par=$tmpdb.bssid_finaltable_gps_cnt3_sure_pre_par
-bssid_finaltable_gps_cnt3_sure_par=$tmpdb.bssid_finaltable_gps_cnt3_sure_par
-bssid_strangetable_gps_cnt3_par=$tmpdb.bssid_strangetable_gps_cnt3_par
-bssid_strangetable_gps_par=$tmpdb.bssid_strangetable_gps_par
-bssid_finaltable_gps_par=$tmpdb.bssid_finaltable_gps_par
-bssid_finaltable_gps_new_par=$tmpdb.bssid_finaltable_gps_new_par
-bssid_finaltable_par=$tmpdb.bssid_finaltable_par
-bssid_finaltable_addgeohash8_par=$tmpdb.bssid_finaltable_addgeohash8_par
-bssid_finaltable_addgeohash8_addlocation_par=$tmpdb.bssid_finaltable_addgeohash8_addlocation_par
+calculate_bssid_mapping_base_info=dm_mobdi_tmp.calculate_bssid_mapping_base_info
+speed_abnormal_device_info_for_mapping=dm_mobdi_tmp.speed_abnormal_device_info_for_mapping
+calculate_bssid_mapping_base_info_except_abnormal_data=dm_mobdi_tmp.calculate_bssid_mapping_base_info_except_abnormal_data
+bssid_from_gps_par=dm_mobdi_tmp.bssid_from_gps_par
+bssid_finaltable_gps_cnt1_par=dm_mobdi_tmp.bssid_finaltable_gps_cnt1_par
+bssid_finaltable_gps_cnt2_par=dm_mobdi_tmp.bssid_finaltable_gps_cnt2_par
+bssid_strangetable_gps_cnt2_par=dm_mobdi_tmp.bssid_strangetable_gps_cnt2_par
+bssid_finaltable_gps_cnt3_pre_par=dm_mobdi_tmp.bssid_finaltable_gps_cnt3_pre_par
+bssid_finaltable_gps_cnt3_dbscan_par=dm_mobdi_tmp.bssid_finaltable_gps_cnt3_dbscan_par
+bssid_finaltable_gps_cnt3_dbscan_result_par=dm_mobdi_tmp.bssid_finaltable_gps_cnt3_dbscan_result_par
+bssid_finaltable_gps_cnt3_dbscan_unique_par=dm_mobdi_tmp.bssid_finaltable_gps_cnt3_dbscan_unique_par
+bssid_finaltable_gps_cnt3_pre_allinfo_par=dm_mobdi_tmp.bssid_finaltable_gps_cnt3_pre_allinfo_par
+bssid_finaltable_gps_cnt3_pre_allinfo_maxday_par=dm_mobdi_tmp.bssid_finaltable_gps_cnt3_pre_allinfo_maxday_par
+bssid_finaltable_gps_cnt3_pre_allinfo_maxday_maxcnt_par=dm_mobdi_tmp.bssid_finaltable_gps_cnt3_pre_allinfo_maxday_maxcnt_par
+bssid_finaltable_gps_cnt3_par=dm_mobdi_tmp.bssid_finaltable_gps_cnt3_par
+bssid_finaltable_gps_cnt3_notsure_par=dm_mobdi_tmp.bssid_finaltable_gps_cnt3_notsure_par
+bssid_finaltable_gps_cnt3_notsure_trans_par=dm_mobdi_tmp.bssid_finaltable_gps_cnt3_notsure_trans_par
+bssid_strangetable_gps_cnt3_sure_par=dm_mobdi_tmp.bssid_strangetable_gps_cnt3_sure_par
+bssid_finaltable_gps_cnt3_sure_pre_par=dm_mobdi_tmp.bssid_finaltable_gps_cnt3_sure_pre_par
+bssid_finaltable_gps_cnt3_sure_par=dm_mobdi_tmp.bssid_finaltable_gps_cnt3_sure_par
+bssid_strangetable_gps_cnt3_par=dm_mobdi_tmp.bssid_strangetable_gps_cnt3_par
+bssid_strangetable_gps_par=dm_mobdi_tmp.bssid_strangetable_gps_par
+bssid_finaltable_gps_par=dm_mobdi_tmp.bssid_finaltable_gps_par
+bssid_finaltable_gps_new_par=dm_mobdi_tmp.bssid_finaltable_gps_new_par
+bssid_finaltable_par=dm_mobdi_tmp.bssid_finaltable_par
+bssid_finaltable_addgeohash8_par=dm_mobdi_tmp.bssid_finaltable_addgeohash8_par
+bssid_finaltable_addgeohash8_addlocation_par=dm_mobdi_tmp.bssid_finaltable_addgeohash8_addlocation_par
 
 #mapping
-# dim_geohash8_china_area_mapping_par=dim_sdk_mapping.dim_geohash8_china_area_mapping_par
-# dim_geohash6_china_area_mapping_par=dim_sdk_mapping.dim_geohash6_china_area_mapping_par
-# dim_bssid_type_mf=dim_mobdi_mapping.dim_bssid_type_mf
+dim_geohash8_china_area_mapping_par=dm_sdk_mapping.geohash8_lbs_info_mapping_par
+dim_geohash6_china_area_mapping_par=dm_sdk_mapping.geohash6_area_mapping_par
+dim_bssid_type_mf=dim_mobdi_mapping.dim_bssid_type_mf
 
 #output
-# dim_mapping_bssid_location_mf=dim_mobdi_mapping.dim_mapping_bssid_location_mf
-# dim_bssid_ssid_mapping_par=dim_mobdi_mapping.dim_bssid_ssid_mapping_par
+dim_mapping_bssid_location_mf=dim_mobdi_mapping.dim_mapping_bssid_location_mf
+dim_bssid_ssid_mapping_par=dim_mobdi_mapping.dim_bssid_ssid_mapping_par
 
 echo "step 1:get gps data from log..."
 
-hive -v -e "
+#9月添加
+HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function coord_convertor as 'com.youzu.mob.java.udf.CoordConvertor';
 insert overwrite table $calculate_bssid_mapping_base_info partition(day='$day')
@@ -75,7 +78,23 @@ from
     and trim(lower(cur_bssid)) not in ('00:00:00:00:00:00','02:00:00:00:00:00','01:80:c2:00:00:03','ff:ff:ff:ff:ff:ff','00:02:00:00:00:00')
     and abs(latitude) <= 90 and abs(longitude) <= 180 and (latitude <> 0 or longitude <> 0)
     and ((latitude - round(latitude, 1))*10 <> 0.0 and (longitude - round(longitude, 1))*10 <> 0.0)
+    and plat=1
     group by muid, trim(lower(cur_bssid)), cur_ssid, latitude, longitude, clienttime, accuracy, day
+
+    union all
+
+    select deviceid, trim(lower(cur_bssid)) as bssid, cur_ssid as ssid, latitude, longitude, clienttime, accuracy, day as log_day
+    from $dwd_location_info_sec_di
+    where day >$pday and day <=$day
+    and regexp_replace(trim(lower(cur_bssid)), '-|:|\\\\.|\073', '') rlike '^[0-9a-f]{12}$'
+    and cur_bssid is not null
+    and latitude is not null
+    and longitude is not null
+    and trim(lower(cur_bssid)) not in ('00:00:00:00:00:00','02:00:00:00:00:00','01:80:c2:00:00:03','ff:ff:ff:ff:ff:ff','00:02:00:00:00:00')
+    and abs(latitude) <= 90 and abs(longitude) <= 180 and (latitude <> 0 or longitude <> 0)
+    and ((latitude - round(latitude, 1))*10 <> 0.0 and (longitude - round(longitude, 1))*10 <> 0.0)
+    and plat=2
+    group by deviceid, trim(lower(cur_bssid)), cur_ssid, latitude, longitude, clienttime, accuracy, day
 
     union all
 
@@ -89,7 +108,7 @@ from
             cl['ltime'] ltime
       from $dwd_log_wifi_info_sec_di
       where day >$pday and day <=$day
-	and cl['latitude'] is not null
+	    and cl['latitude'] is not null
       and cl['longitude'] is not null
       and abs(cl['latitude']) <= 90 and abs(cl['longitude']) <= 180 and (cl['latitude'] <> 0 or cl['longitude'] <> 0)
       and ((cl['latitude'] - round(cl['latitude'], 1))*10 <> 0.0 and (cl['longitude'] - round(cl['longitude'], 1))*10 <> 0.0)
@@ -97,6 +116,26 @@ from
       and bssid is not null
       and trim(lower(bssid)) not in ('00:00:00:00:00:00','02:00:00:00:00:00','01:80:c2:00:00:03','ff:ff:ff:ff:ff:ff','00:02:00:00:00:00')
       and datetime-cl['ltime']<=300000
+      and plat=1
+
+      union all
+
+            select device, trim(lower(bssid)) as bssid, ssid, datetime,day,
+            split(coord_convertor(cl['latitude'],cl['longitude'],'wsg84','bd09'),',')[0] latitude,
+            split(coord_convertor(cl['latitude'],cl['longitude'],'wsg84','bd09'),',')[1] longitude,
+            cl['accuracy'] accuracy,
+            cl['ltime'] ltime
+      from $dwd_log_wifi_info_sec_di
+      where day >$pday and day <=$day
+	    and cl['latitude'] is not null
+      and cl['longitude'] is not null
+      and abs(cl['latitude']) <= 90 and abs(cl['longitude']) <= 180 and (cl['latitude'] <> 0 or cl['longitude'] <> 0)
+      and ((cl['latitude'] - round(cl['latitude'], 1))*10 <> 0.0 and (cl['longitude'] - round(cl['longitude'], 1))*10 <> 0.0)
+      and regexp_replace(trim(lower(bssid)), '-|:|\\\\.|\073', '') rlike '^[0-9a-f]{12}$'
+      and bssid is not null
+      and trim(lower(bssid)) not in ('00:00:00:00:00:00','02:00:00:00:00:00','01:80:c2:00:00:03','ff:ff:ff:ff:ff:ff','00:02:00:00:00:00')
+      and datetime-cl['ltime']<=300000
+      and plat=2
     ) a
     where latitude is not null
     and longitude is not null
@@ -106,9 +145,9 @@ from
 
 ) b group by deviceid, bssid, ssid, latitude, longitude, clienttime, accuracy, log_day
 "
-
 #12小时内的移动距离>=100m且平均速度>=30m/s，认为是异常数据
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function get_distance as 'com.youzu.mob.java.udf.WGS84Distance';
 SET hive.merge.mapfiles=true;
@@ -167,7 +206,8 @@ where t1.day='$day'
 and t2.deviceid is null;
 "
 
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;
@@ -193,7 +233,8 @@ echo "get data from gps over"
 
 #step 2:取cnt = 1的bssid直接放入最终表
 
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
 set hive.merge.mapredfiles = true;
@@ -223,12 +264,13 @@ from
 group by bssid"
 
 
-spark2-submit --master yarn --deploy-mode cluster \
+HADOOP_USER_NAME=dba /opt/mobdata/sbin/spark-submit --master yarn --deploy-mode cluster \
+--queue root.yarn_data_compliance \
 --class com.youzu.mob.bssidmapping.bssidGpsCnt2 \
 --driver-memory 10G \
 --executor-memory 12G \
 --executor-cores 2 \
---name "bassid_gps_cnt2_task_par" \
+--name "muid_bassid_gps_cnt2_task_par" \
 --conf spark.shuffle.service.enabled=true \
 --conf spark.dynamicAllocation.enabled=true \
 --conf spark.dynamicAllocation.minExecutors=45 \
@@ -248,7 +290,8 @@ spark2-submit --master yarn --deploy-mode cluster \
 /home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar "$data_2_pre_sql" $bssid_finaltable_gps_cnt2_par $bssid_strangetable_gps_cnt2_par $day
 
 # 合并小文件
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -269,7 +312,8 @@ where dt='$day';
 
 echo "step 4: compute gps_cnt3 tables start..."
 
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
 set hive.merge.mapredfiles = true;
@@ -304,12 +348,13 @@ where dt='$day'
 "
 
 
-spark2-submit --master yarn --deploy-mode cluster \
+HADOOP_USER_NAME=dba /opt/mobdata/sbin/spark-submit --master yarn --deploy-mode cluster \
 --class com.youzu.mob.mydbscan.DBSCAN_gps_cnt3 \
+--queue root.yarn_data_compliance \
 --driver-memory 10G \
 --executor-memory 12G \
 --executor-cores 2 \
---name "bassid_gps_cnt3_dbscan_task_$day" \
+--name "muid_bassid_gps_cnt3_dbscan_task_$day" \
 --conf spark.shuffle.service.enabled=true \
 --conf spark.dynamicAllocation.enabled=true \
 --conf spark.dynamicAllocation.minExecutors=45 \
@@ -328,7 +373,8 @@ spark2-submit --master yarn --deploy-mode cluster \
 --driver-java-options "-XX:MaxPermSize=1g" \
 /home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar "$cnt3_pre_sql" $bssid_finaltable_gps_cnt3_dbscan_par $day
 
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -343,7 +389,8 @@ from $bssid_finaltable_gps_cnt3_dbscan_par
 where dt='$day'
 "
 
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
 set hive.merge.mapredfiles = true;
@@ -368,7 +415,8 @@ where cnt > 1;
 "
 
 #--1.将这批异常点从聚类结果中删除,2.对清洗之后的聚类结果进行去重
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
 set hive.merge.mapredfiles = true;
@@ -391,7 +439,8 @@ group by bssid, lat, lon, cluster, centerlon, centerlat;
 "
 
 #--将聚类结果匹配回
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
 set hive.merge.mapredfiles = true;
@@ -413,7 +462,8 @@ from
 ) tmp;
 "
 
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
 set hive.merge.mapredfiles = true;
@@ -464,7 +514,8 @@ from
 ) tmp;
 "
 
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
 set hive.merge.mapredfiles = true;
@@ -491,7 +542,8 @@ from
 group by bssid, lat, lon;
 "
 
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
 set hive.merge.mapredfiles = true;
@@ -522,12 +574,13 @@ select bssid, latlist, lonlist, cluster
 from $bssid_finaltable_gps_cnt3_notsure_trans_par
 where dt='$day'"
 
-spark2-submit --master yarn --deploy-mode cluster \
+HADOOP_USER_NAME=dba /opt/mobdata/sbin/spark-submit --master yarn --deploy-mode cluster \
 --class com.youzu.mob.bssidmapping.bssidGpsCnt3NotsureMindistance \
 --driver-memory 10G \
+--queue root.yarn_data_compliance \
 --executor-memory 12G \
 --executor-cores 2 \
---name "bssid_gps_cnt3_mindistance_$day" \
+--name "muid_bssid_gps_cnt3_mindistance_$day" \
 --conf spark.shuffle.service.enabled=true \
 --conf spark.dynamicAllocation.enabled=true \
 --conf spark.dynamicAllocation.minExecutors=45 \
@@ -546,7 +599,8 @@ spark2-submit --master yarn --deploy-mode cluster \
 --driver-java-options "-XX:MaxPermSize=1g" \
 /home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT.jar "$cnt3_notsure_trans_pre_sql" $bssid_finaltable_gps_cnt3_notsure_par $bssid_strangetable_gps_cnt3_sure_par $bssid_finaltable_gps_cnt3_sure_pre_par $bssid_finaltable_gps_cnt3_pre_allinfo_par $day
 
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
@@ -565,7 +619,8 @@ from $bssid_finaltable_gps_cnt3_sure_pre_par
 where dt='$day';
 "
 
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.exec.parallel=true;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
@@ -592,7 +647,8 @@ group by bssid, lat, lon;
 
 #--对于其中cnt >= 3的bssid，归入异常表
 #--对于聚类结果全是异常点的bssid，归入异常表
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
 set hive.merge.mapredfiles = true;
@@ -648,7 +704,8 @@ group by bssid;
 #step4:
 #--选择cnt >= 10000的bssid，可以用geohash方法或者聚类方法，反正是单独计算
 :<<!
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
 insert overwrite table dw_mobdi_md.bssid_finaltable_gps_cnt3_pre_verybig_par partition(dt=$day)
 select bssid, lat, lon, day, acc_set, ssid_set
 from dw_mobdi_md.bssid_from_gps_par
@@ -657,7 +714,8 @@ and cnt >= 10000;"
 !
 
 #--合并所有异常表
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
 set hive.merge.mapredfiles = true;
@@ -693,7 +751,8 @@ where rn=1
 "
 
 #--合并所有正常表
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
 insert overwrite table $bssid_finaltable_gps_par partition(dt=$day)
 select bssid, lat, lon, acc_set, ssid_set, 1 as confidence
 from $bssid_finaltable_gps_cnt1_par
@@ -725,13 +784,19 @@ where dt='$day';
 "
 
 #--把正常表中的acc_set取均值，用于最终所有数据源的汇总
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.map.memory.mb=8192;
+set mapreduce.map.java.opts='-Xmx7300m';
+set mapreduce.child.map.java.opts='-Xmx8192m';
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
 set hive.merge.mapredfiles = true;
 set hive.merge.size.per.task = 125000000;
 set hive.merge.smallfiles.avgsize=16000000;
 set hive.exec.parallel=true;
+set dfs.socket.timeout=3600000;
+set dfs.datanode.socket.write.timeout=3600000;
 insert overwrite table $bssid_finaltable_gps_new_par partition(dt=$day)
 select bssid, lat, lon,
        avg(acc) as acc,
@@ -759,7 +824,8 @@ if [ -n "$extLastPartStr" ]; then
     extLastPartStrA=" AND $extLastPartStr"
 fi
 
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
 set hive.merge.mapredfiles = true;
@@ -801,7 +867,8 @@ where num = 1;
 "
 
 #--生成geohash8（因为晓东的工具需要geohash这个字段，所以先生成geohash8）
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
 set hive.merge.mapredfiles = true;
@@ -924,14 +991,28 @@ fi
 if [ -n "$lastPartStr" ]; then
     lastPartStrA=" AND $lastPartStr"
 fi
-bssidTypeAllSql="
-    add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
-    create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_bssid_type_mf', 'day');
-"
-bssidTypeAllPartition=(`hive -e "$bssidTypeAllSql"`)
+#bssidTypeAllSql="
+#    add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
+#    create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
+#    SELECT GET_LAST_PARTITION('dim_mobdi_mapping', 'dim_bssid_type_mf', 'day');
+#"
+#bssidTypeAllPartition=(`hive -e "$bssidTypeAllSql"`)
 
-hive -v -e"
+
+if [ ${day:6:8} -ge 26 ]; then
+    bssidTypeAllPartition=${day:0:6}26
+fi
+
+if [ ${day:6:8} -lt 26 ]; then
+    bssidTypeAllPartition=`date -d "$day -1 month" "+%Y%m26"`
+fi
+
+if [ ${day} -le '20180326' ]; then
+    bssidTypeAllPartition='20180326'
+fi
+
+HADOOP_USER_NAME=dba hive -v -e"
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.hadoop.supports.splittable.combineinputformat=true;
 set hive.merge.mapfiles = true;
 set hive.merge.mapredfiles = true;
@@ -985,15 +1066,8 @@ $dim_bssid_type_mf t2 on t2.day='$bssidTypeAllPartition' and t1.bssid=t2.bssid
 ;
 "
 
-###################################执行生成dm_mobdi_mapping.dim_bssid_ssid_mapping_par的数据，下游data-exchange会使用到#####
-#就第一次跑
-: "
-insert overwrite table dm_mobdi_mapping.dim_bssid_ssid_mapping_par partition (day = '20190131')
-select bssid, ssid, real_date
-from test.zhangxy_bssid_ssid_bu2017;
-"
-
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set mapred.min.split.size=200000000;
 set mapred.max.split.size=300000000;
 set mapred.min.split.size.per.node=50000000;
@@ -1039,3 +1113,4 @@ from
 ) as c
 where num = 1;
 "
+
