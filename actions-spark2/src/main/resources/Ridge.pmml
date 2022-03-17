@@ -1,0 +1,1187 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PMML xmlns="http://www.dmg.org/PMML-4_3" xmlns:data="http://jpmml.org/jpmml-model/InlineTable" version="4.4">
+	<Header>
+		<Application name="JPMML-SkLearn" version="1.6.34"/>
+		<Timestamp>2021-12-21T07:53:49Z</Timestamp>
+	</Header>
+	<DataDictionary>
+		<DataField name="income" optype="continuous" dataType="double"/>
+		<DataField name="fin_7_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_4_trend" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_3_0_trend" optype="continuous" dataType="double"/>
+		<DataField name="b8_trend" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_3_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_11_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_20_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_12_trend" optype="continuous" dataType="double"/>
+		<DataField name="a7_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_15_trend" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_1_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_4_0_trend" optype="continuous" dataType="double"/>
+		<DataField name="a4_3_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_17_trend" optype="continuous" dataType="double"/>
+		<DataField name="a2_trend" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_1_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_25_trend" optype="continuous" dataType="double"/>
+		<DataField name="b6_4_trend" optype="continuous" dataType="double"/>
+		<DataField name="a9_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_23_trend" optype="continuous" dataType="double"/>
+		<DataField name="b7_trend" optype="continuous" dataType="double"/>
+		<DataField name="a5_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_32_trend" optype="continuous" dataType="double"/>
+		<DataField name="a18_trend" optype="continuous" dataType="double"/>
+		<DataField name="a14_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_28_trend" optype="continuous" dataType="double"/>
+		<DataField name="a8_trend" optype="continuous" dataType="double"/>
+		<DataField name="a4_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_39_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_36_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_16_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_27_trend" optype="continuous" dataType="double"/>
+		<DataField name="a13_3_trend" optype="continuous" dataType="double"/>
+		<DataField name="b6_3_trend" optype="continuous" dataType="double"/>
+		<DataField name="a13_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="a11_trend" optype="continuous" dataType="double"/>
+		<DataField name="a5_3_trend" optype="continuous" dataType="double"/>
+		<DataField name="a20_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="a20_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_21_trend" optype="continuous" dataType="double"/>
+		<DataField name="a1_trend" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_2_3_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_40_trend" optype="continuous" dataType="double"/>
+		<DataField name="a8_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_48_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="a10_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="a9_4_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_52_trend" optype="continuous" dataType="double"/>
+		<DataField name="a12_trend" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_4_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="a20_3_trend" optype="continuous" dataType="double"/>
+		<DataField name="a6_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_35_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_33_trend" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_2_0_trend" optype="continuous" dataType="double"/>
+		<DataField name="a20_8_trend" optype="continuous" dataType="double"/>
+		<DataField name="b10_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_44_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_41_trend" optype="continuous" dataType="double"/>
+		<DataField name="a2_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="a5_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_4_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_34_trend" optype="continuous" dataType="double"/>
+		<DataField name="a6_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="a20_4_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_19_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_51_trend" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_3_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="a10_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="a14_3_trend" optype="continuous" dataType="double"/>
+		<DataField name="a8_5_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_22_trend" optype="continuous" dataType="double"/>
+		<DataField name="a2_4_trend" optype="continuous" dataType="double"/>
+		<DataField name="b11_trend" optype="continuous" dataType="double"/>
+		<DataField name="a13_trend" optype="continuous" dataType="double"/>
+		<DataField name="b6_trend" optype="continuous" dataType="double"/>
+		<DataField name="a19_trend" optype="continuous" dataType="double"/>
+		<DataField name="a8_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="a20_11_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_38_trend" optype="continuous" dataType="double"/>
+		<DataField name="a7_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="a20_9_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_24_trend" optype="continuous" dataType="double"/>
+		<DataField name="a20_12_trend" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_1_3_trend" optype="continuous" dataType="double"/>
+		<DataField name="a20_5_trend" optype="continuous" dataType="double"/>
+		<DataField name="a9_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_45_trend" optype="continuous" dataType="double"/>
+		<DataField name="a2_3_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_42_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_30_trend" optype="continuous" dataType="double"/>
+		<DataField name="b1_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_50_trend" optype="continuous" dataType="double"/>
+		<DataField name="a10_trend" optype="continuous" dataType="double"/>
+		<DataField name="b2_trend" optype="continuous" dataType="double"/>
+		<DataField name="a14_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="b12_trend" optype="continuous" dataType="double"/>
+		<DataField name="a2_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="a6_trend" optype="continuous" dataType="double"/>
+		<DataField name="a9_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="a3_trend" optype="continuous" dataType="double"/>
+		<DataField name="a15_trend" optype="continuous" dataType="double"/>
+		<DataField name="b3_trend" optype="continuous" dataType="double"/>
+		<DataField name="a2_7_trend" optype="continuous" dataType="double"/>
+		<DataField name="b9_trend" optype="continuous" dataType="double"/>
+		<DataField name="a2_5_trend" optype="continuous" dataType="double"/>
+		<DataField name="a7_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_3_trend" optype="continuous" dataType="double"/>
+		<DataField name="b4_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_26_trend" optype="continuous" dataType="double"/>
+		<DataField name="a2_6_trend" optype="continuous" dataType="double"/>
+		<DataField name="a17_trend" optype="continuous" dataType="double"/>
+		<DataField name="b6_5_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_9_trend" optype="continuous" dataType="double"/>
+		<DataField name="b7_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="a6_3_trend" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_1_0_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_31_trend" optype="continuous" dataType="double"/>
+		<DataField name="a20_10_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_13_trend" optype="continuous" dataType="double"/>
+		<DataField name="b8_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="a20_6_trend" optype="continuous" dataType="double"/>
+		<DataField name="a9_3_trend" optype="continuous" dataType="double"/>
+		<DataField name="b6_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_43_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_47_trend" optype="continuous" dataType="double"/>
+		<DataField name="b13_trend" optype="continuous" dataType="double"/>
+		<DataField name="b7_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_46_trend" optype="continuous" dataType="double"/>
+		<DataField name="a13_4_trend" optype="continuous" dataType="double"/>
+		<DataField name="a2_8_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_29_trend" optype="continuous" dataType="double"/>
+		<DataField name="a10_3_trend" optype="continuous" dataType="double"/>
+		<DataField name="a20_7_trend" optype="continuous" dataType="double"/>
+		<DataField name="b5_trend" optype="continuous" dataType="double"/>
+		<DataField name="b6_6_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_49_trend" optype="continuous" dataType="double"/>
+		<DataField name="a5_trend" optype="continuous" dataType="double"/>
+		<DataField name="a20_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_14_trend" optype="continuous" dataType="double"/>
+		<DataField name="a7_3_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_5_trend" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_5_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="a4_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="a7_4_trend" optype="continuous" dataType="double"/>
+		<DataField name="a8_6_trend" optype="continuous" dataType="double"/>
+		<DataField name="b6_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_8_trend" optype="continuous" dataType="double"/>
+		<DataField name="a13_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_5_3_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_37_trend" optype="continuous" dataType="double"/>
+		<DataField name="b8_3_trend" optype="continuous" dataType="double"/>
+		<DataField name="b8_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_10_trend" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_5_0_trend" optype="continuous" dataType="double"/>
+		<DataField name="a8_3_trend" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_5_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="a4_trend" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_2_1_trend" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_2_2_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_6_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_18_trend" optype="continuous" dataType="double"/>
+		<DataField name="a8_4_trend" optype="continuous" dataType="double"/>
+		<DataField name="fin_26_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_25_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_4_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_24_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_27_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_6_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_5_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_29_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_25_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_26_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_6_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_5_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a5_3_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a5_1_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a5_2_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a5_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a6_1_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a6_2_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a6_3_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a9_1_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a9_3_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a9_4_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a9_2_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a9_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_32_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_28_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b7_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b8_1_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b8_2_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b8_3_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_4_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_12_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_2_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_10_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_5_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_6_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_8_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_1_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_11_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_1_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_11_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_6_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_10_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_8_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_5_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_2_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_4_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a5_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a13_2_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a13_1_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a13_3_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a13_4_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_12_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b8_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_50_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a6_3_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a6_2_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a6_1_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_51_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_52_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_48_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_49_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_47_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_47_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_52_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_49_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_48_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_51_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a4_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_49_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_47_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_48_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_51_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_52_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_50_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a4_2_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a4_3_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a4_1_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_30_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_50_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_31_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a4_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b7_1_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b7_2_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_5_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_3_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_4_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_6_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_1_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_2_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a6_3_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a6_2_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a6_1_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_2_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_5_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_6_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_4_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_1_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_3_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_31_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_3_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_30_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a9_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_43_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_7_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_9_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_19_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b8_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_13_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a9_2_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a9_1_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a9_3_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a9_4_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b7_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_40_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_27_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a13_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_22_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_19_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_9_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_2_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a8_6_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_5_3_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_7_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_43_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_36_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_39_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_5_1_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_5_2_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a14_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_5_0_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a2_1_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a8_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b12_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b11_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a18_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="tgi1_2_3_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a2_6_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_13_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a7_4_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a7_1_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a8_4_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a13_2_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a13_4_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a13_1_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a13_3_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a13_3_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a13_4_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a13_1_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a13_2_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_43_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_3_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_12_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a13_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_8_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_3_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_15_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b7_1_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b7_2_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b8_3_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b8_1_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b8_2_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_1_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_3_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_6_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_4_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_5_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_2_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a4_3_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a4_1_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a4_2_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_46_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a6_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a6_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b6_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b8_2_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b8_1_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b8_3_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b7_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a4_1_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a4_2_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a4_3_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_27_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a13_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a5_2_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a5_1_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a5_3_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_46_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_29_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a4_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_46_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b7_2_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b7_1_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="b8_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a9_4_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a9_3_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a9_2_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a9_1_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a6_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a9_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a5_2_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a5_1_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a5_3_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a5_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_4_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="a20_1_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_4_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_24_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_28_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_32_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_32_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_28_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_4_6m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_29_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_30_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_31_3m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_26_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_25_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_5_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_6_12m_ratio" optype="continuous" dataType="double"/>
+		<DataField name="fin_24_3m_ratio" optype="continuous" dataType="double"/>
+	</DataDictionary>
+	<RegressionModel functionName="regression" algorithmName="sklearn.linear_model._ridge.RidgeCV">
+		<MiningSchema>
+			<MiningField name="income" usageType="target"/>
+			<MiningField name="fin_7_trend"/>
+			<MiningField name="fin_4_trend"/>
+			<MiningField name="tgi1_3_0_trend"/>
+			<MiningField name="b8_trend"/>
+			<MiningField name="tgi1_3_1_trend"/>
+			<MiningField name="fin_11_trend"/>
+			<MiningField name="fin_20_trend"/>
+			<MiningField name="fin_12_trend"/>
+			<MiningField name="a7_trend"/>
+			<MiningField name="fin_15_trend"/>
+			<MiningField name="tgi1_1_2_trend"/>
+			<MiningField name="tgi1_4_0_trend"/>
+			<MiningField name="a4_3_trend"/>
+			<MiningField name="fin_17_trend"/>
+			<MiningField name="a2_trend"/>
+			<MiningField name="tgi1_1_1_trend"/>
+			<MiningField name="fin_25_trend"/>
+			<MiningField name="b6_4_trend"/>
+			<MiningField name="a9_trend"/>
+			<MiningField name="fin_23_trend"/>
+			<MiningField name="b7_trend"/>
+			<MiningField name="a5_2_trend"/>
+			<MiningField name="fin_32_trend"/>
+			<MiningField name="a18_trend"/>
+			<MiningField name="a14_trend"/>
+			<MiningField name="fin_1_trend"/>
+			<MiningField name="fin_28_trend"/>
+			<MiningField name="a8_trend"/>
+			<MiningField name="a4_1_trend"/>
+			<MiningField name="fin_39_trend"/>
+			<MiningField name="fin_36_trend"/>
+			<MiningField name="fin_16_trend"/>
+			<MiningField name="fin_27_trend"/>
+			<MiningField name="a13_3_trend"/>
+			<MiningField name="b6_3_trend"/>
+			<MiningField name="a13_2_trend"/>
+			<MiningField name="a11_trend"/>
+			<MiningField name="a5_3_trend"/>
+			<MiningField name="a20_2_trend"/>
+			<MiningField name="a20_trend"/>
+			<MiningField name="fin_21_trend"/>
+			<MiningField name="a1_trend"/>
+			<MiningField name="tgi1_2_3_trend"/>
+			<MiningField name="fin_40_trend"/>
+			<MiningField name="a8_1_trend"/>
+			<MiningField name="fin_48_trend"/>
+			<MiningField name="fin_2_trend"/>
+			<MiningField name="a10_2_trend"/>
+			<MiningField name="a9_4_trend"/>
+			<MiningField name="fin_52_trend"/>
+			<MiningField name="a12_trend"/>
+			<MiningField name="tgi1_4_1_trend"/>
+			<MiningField name="a20_3_trend"/>
+			<MiningField name="a6_1_trend"/>
+			<MiningField name="fin_35_trend"/>
+			<MiningField name="fin_33_trend"/>
+			<MiningField name="tgi1_2_0_trend"/>
+			<MiningField name="a20_8_trend"/>
+			<MiningField name="b10_trend"/>
+			<MiningField name="fin_44_trend"/>
+			<MiningField name="fin_41_trend"/>
+			<MiningField name="a2_2_trend"/>
+			<MiningField name="a5_1_trend"/>
+			<MiningField name="tgi1_4_2_trend"/>
+			<MiningField name="fin_34_trend"/>
+			<MiningField name="a6_2_trend"/>
+			<MiningField name="a20_4_trend"/>
+			<MiningField name="fin_19_trend"/>
+			<MiningField name="fin_51_trend"/>
+			<MiningField name="tgi1_3_2_trend"/>
+			<MiningField name="a10_1_trend"/>
+			<MiningField name="a14_3_trend"/>
+			<MiningField name="a8_5_trend"/>
+			<MiningField name="fin_22_trend"/>
+			<MiningField name="a2_4_trend"/>
+			<MiningField name="b11_trend"/>
+			<MiningField name="a13_trend"/>
+			<MiningField name="b6_trend"/>
+			<MiningField name="a19_trend"/>
+			<MiningField name="a8_2_trend"/>
+			<MiningField name="a20_11_trend"/>
+			<MiningField name="fin_38_trend"/>
+			<MiningField name="a7_1_trend"/>
+			<MiningField name="a20_9_trend"/>
+			<MiningField name="fin_24_trend"/>
+			<MiningField name="a20_12_trend"/>
+			<MiningField name="tgi1_1_3_trend"/>
+			<MiningField name="a20_5_trend"/>
+			<MiningField name="a9_1_trend"/>
+			<MiningField name="fin_45_trend"/>
+			<MiningField name="a2_3_trend"/>
+			<MiningField name="fin_42_trend"/>
+			<MiningField name="fin_30_trend"/>
+			<MiningField name="b1_trend"/>
+			<MiningField name="fin_50_trend"/>
+			<MiningField name="a10_trend"/>
+			<MiningField name="b2_trend"/>
+			<MiningField name="a14_1_trend"/>
+			<MiningField name="b12_trend"/>
+			<MiningField name="a2_1_trend"/>
+			<MiningField name="a6_trend"/>
+			<MiningField name="a9_2_trend"/>
+			<MiningField name="a3_trend"/>
+			<MiningField name="a15_trend"/>
+			<MiningField name="b3_trend"/>
+			<MiningField name="a2_7_trend"/>
+			<MiningField name="b9_trend"/>
+			<MiningField name="a2_5_trend"/>
+			<MiningField name="a7_2_trend"/>
+			<MiningField name="fin_3_trend"/>
+			<MiningField name="b4_trend"/>
+			<MiningField name="fin_26_trend"/>
+			<MiningField name="a2_6_trend"/>
+			<MiningField name="a17_trend"/>
+			<MiningField name="b6_5_trend"/>
+			<MiningField name="fin_9_trend"/>
+			<MiningField name="b7_1_trend"/>
+			<MiningField name="a6_3_trend"/>
+			<MiningField name="tgi1_1_0_trend"/>
+			<MiningField name="fin_31_trend"/>
+			<MiningField name="a20_10_trend"/>
+			<MiningField name="fin_13_trend"/>
+			<MiningField name="b8_1_trend"/>
+			<MiningField name="a20_6_trend"/>
+			<MiningField name="a9_3_trend"/>
+			<MiningField name="b6_2_trend"/>
+			<MiningField name="fin_43_trend"/>
+			<MiningField name="fin_47_trend"/>
+			<MiningField name="b13_trend"/>
+			<MiningField name="b7_2_trend"/>
+			<MiningField name="fin_46_trend"/>
+			<MiningField name="a13_4_trend"/>
+			<MiningField name="a2_8_trend"/>
+			<MiningField name="fin_29_trend"/>
+			<MiningField name="a10_3_trend"/>
+			<MiningField name="a20_7_trend"/>
+			<MiningField name="b5_trend"/>
+			<MiningField name="b6_6_trend"/>
+			<MiningField name="fin_49_trend"/>
+			<MiningField name="a5_trend"/>
+			<MiningField name="a20_1_trend"/>
+			<MiningField name="fin_14_trend"/>
+			<MiningField name="a7_3_trend"/>
+			<MiningField name="fin_5_trend"/>
+			<MiningField name="tgi1_5_2_trend"/>
+			<MiningField name="a4_2_trend"/>
+			<MiningField name="a7_4_trend"/>
+			<MiningField name="a8_6_trend"/>
+			<MiningField name="b6_1_trend"/>
+			<MiningField name="fin_8_trend"/>
+			<MiningField name="a13_1_trend"/>
+			<MiningField name="tgi1_5_3_trend"/>
+			<MiningField name="fin_37_trend"/>
+			<MiningField name="b8_3_trend"/>
+			<MiningField name="b8_2_trend"/>
+			<MiningField name="fin_10_trend"/>
+			<MiningField name="tgi1_5_0_trend"/>
+			<MiningField name="a8_3_trend"/>
+			<MiningField name="tgi1_5_1_trend"/>
+			<MiningField name="a4_trend"/>
+			<MiningField name="tgi1_2_1_trend"/>
+			<MiningField name="tgi1_2_2_trend"/>
+			<MiningField name="fin_6_trend"/>
+			<MiningField name="fin_18_trend"/>
+			<MiningField name="a8_4_trend"/>
+			<MiningField name="fin_26_3m_ratio"/>
+			<MiningField name="fin_25_3m_ratio"/>
+			<MiningField name="fin_4_12m_ratio"/>
+			<MiningField name="fin_24_12m_ratio"/>
+			<MiningField name="fin_27_3m_ratio"/>
+			<MiningField name="fin_6_6m_ratio"/>
+			<MiningField name="fin_5_6m_ratio"/>
+			<MiningField name="fin_29_12m_ratio"/>
+			<MiningField name="fin_25_6m_ratio"/>
+			<MiningField name="fin_26_6m_ratio"/>
+			<MiningField name="fin_6_3m_ratio"/>
+			<MiningField name="fin_5_3m_ratio"/>
+			<MiningField name="a5_3_6m_ratio"/>
+			<MiningField name="a5_1_6m_ratio"/>
+			<MiningField name="a5_2_6m_ratio"/>
+			<MiningField name="a5_3m_ratio"/>
+			<MiningField name="a6_1_6m_ratio"/>
+			<MiningField name="a6_2_6m_ratio"/>
+			<MiningField name="a6_3_6m_ratio"/>
+			<MiningField name="a9_1_3m_ratio"/>
+			<MiningField name="a9_3_3m_ratio"/>
+			<MiningField name="a9_4_3m_ratio"/>
+			<MiningField name="a9_2_3m_ratio"/>
+			<MiningField name="a9_6m_ratio"/>
+			<MiningField name="fin_32_6m_ratio"/>
+			<MiningField name="fin_28_6m_ratio"/>
+			<MiningField name="b7_12m_ratio"/>
+			<MiningField name="b8_1_3m_ratio"/>
+			<MiningField name="b8_2_3m_ratio"/>
+			<MiningField name="b8_3_3m_ratio"/>
+			<MiningField name="a20_4_3m_ratio"/>
+			<MiningField name="a20_12_3m_ratio"/>
+			<MiningField name="a20_2_3m_ratio"/>
+			<MiningField name="a20_10_3m_ratio"/>
+			<MiningField name="a20_5_3m_ratio"/>
+			<MiningField name="a20_6_3m_ratio"/>
+			<MiningField name="a20_8_3m_ratio"/>
+			<MiningField name="a20_1_3m_ratio"/>
+			<MiningField name="a20_11_3m_ratio"/>
+			<MiningField name="a20_1_6m_ratio"/>
+			<MiningField name="a20_11_6m_ratio"/>
+			<MiningField name="a20_6_6m_ratio"/>
+			<MiningField name="a20_10_6m_ratio"/>
+			<MiningField name="a20_8_6m_ratio"/>
+			<MiningField name="a20_5_6m_ratio"/>
+			<MiningField name="a20_2_6m_ratio"/>
+			<MiningField name="a20_4_6m_ratio"/>
+			<MiningField name="a5_12m_ratio"/>
+			<MiningField name="a13_2_12m_ratio"/>
+			<MiningField name="a13_1_12m_ratio"/>
+			<MiningField name="a13_3_12m_ratio"/>
+			<MiningField name="a13_4_12m_ratio"/>
+			<MiningField name="a20_12_6m_ratio"/>
+			<MiningField name="b8_12m_ratio"/>
+			<MiningField name="fin_50_6m_ratio"/>
+			<MiningField name="a6_3_12m_ratio"/>
+			<MiningField name="a6_2_12m_ratio"/>
+			<MiningField name="a6_1_12m_ratio"/>
+			<MiningField name="fin_51_6m_ratio"/>
+			<MiningField name="fin_52_6m_ratio"/>
+			<MiningField name="fin_48_6m_ratio"/>
+			<MiningField name="fin_49_6m_ratio"/>
+			<MiningField name="fin_47_6m_ratio"/>
+			<MiningField name="fin_47_12m_ratio"/>
+			<MiningField name="fin_52_12m_ratio"/>
+			<MiningField name="fin_49_12m_ratio"/>
+			<MiningField name="fin_48_12m_ratio"/>
+			<MiningField name="fin_51_12m_ratio"/>
+			<MiningField name="a4_12m_ratio"/>
+			<MiningField name="fin_49_3m_ratio"/>
+			<MiningField name="fin_47_3m_ratio"/>
+			<MiningField name="fin_48_3m_ratio"/>
+			<MiningField name="fin_51_3m_ratio"/>
+			<MiningField name="fin_52_3m_ratio"/>
+			<MiningField name="fin_50_12m_ratio"/>
+			<MiningField name="a4_2_3m_ratio"/>
+			<MiningField name="a4_3_3m_ratio"/>
+			<MiningField name="a4_1_3m_ratio"/>
+			<MiningField name="fin_30_6m_ratio"/>
+			<MiningField name="fin_50_3m_ratio"/>
+			<MiningField name="fin_31_6m_ratio"/>
+			<MiningField name="a4_6m_ratio"/>
+			<MiningField name="b6_12m_ratio"/>
+			<MiningField name="b7_1_3m_ratio"/>
+			<MiningField name="b7_2_3m_ratio"/>
+			<MiningField name="b6_5_3m_ratio"/>
+			<MiningField name="b6_3_3m_ratio"/>
+			<MiningField name="b6_4_3m_ratio"/>
+			<MiningField name="b6_6_3m_ratio"/>
+			<MiningField name="b6_1_3m_ratio"/>
+			<MiningField name="b6_2_3m_ratio"/>
+			<MiningField name="a6_3_3m_ratio"/>
+			<MiningField name="a6_2_3m_ratio"/>
+			<MiningField name="a6_1_3m_ratio"/>
+			<MiningField name="b6_2_6m_ratio"/>
+			<MiningField name="b6_5_6m_ratio"/>
+			<MiningField name="b6_6_6m_ratio"/>
+			<MiningField name="b6_4_6m_ratio"/>
+			<MiningField name="b6_1_6m_ratio"/>
+			<MiningField name="b6_3_6m_ratio"/>
+			<MiningField name="fin_31_12m_ratio"/>
+			<MiningField name="fin_3_12m_ratio"/>
+			<MiningField name="fin_30_12m_ratio"/>
+			<MiningField name="a9_12m_ratio"/>
+			<MiningField name="fin_43_12m_ratio"/>
+			<MiningField name="a20_7_12m_ratio"/>
+			<MiningField name="a20_9_12m_ratio"/>
+			<MiningField name="fin_19_12m_ratio"/>
+			<MiningField name="b8_6m_ratio"/>
+			<MiningField name="fin_13_12m_ratio"/>
+			<MiningField name="a9_2_12m_ratio"/>
+			<MiningField name="a9_1_12m_ratio"/>
+			<MiningField name="a9_3_12m_ratio"/>
+			<MiningField name="a9_4_12m_ratio"/>
+			<MiningField name="b7_6m_ratio"/>
+			<MiningField name="fin_40_6m_ratio"/>
+			<MiningField name="fin_27_12m_ratio"/>
+			<MiningField name="a13_6m_ratio"/>
+			<MiningField name="fin_22_6m_ratio"/>
+			<MiningField name="fin_19_6m_ratio"/>
+			<MiningField name="a20_9_6m_ratio"/>
+			<MiningField name="fin_2_6m_ratio"/>
+			<MiningField name="a8_6_6m_ratio"/>
+			<MiningField name="tgi1_5_3_6m_ratio"/>
+			<MiningField name="a20_7_6m_ratio"/>
+			<MiningField name="fin_43_6m_ratio"/>
+			<MiningField name="fin_36_6m_ratio"/>
+			<MiningField name="fin_39_6m_ratio"/>
+			<MiningField name="tgi1_5_1_6m_ratio"/>
+			<MiningField name="tgi1_5_2_6m_ratio"/>
+			<MiningField name="a14_6m_ratio"/>
+			<MiningField name="tgi1_5_0_6m_ratio"/>
+			<MiningField name="a2_1_6m_ratio"/>
+			<MiningField name="a8_6m_ratio"/>
+			<MiningField name="b12_6m_ratio"/>
+			<MiningField name="b11_6m_ratio"/>
+			<MiningField name="a18_6m_ratio"/>
+			<MiningField name="tgi1_2_3_6m_ratio"/>
+			<MiningField name="a2_6_6m_ratio"/>
+			<MiningField name="fin_13_6m_ratio"/>
+			<MiningField name="a7_4_6m_ratio"/>
+			<MiningField name="a7_1_6m_ratio"/>
+			<MiningField name="a8_4_6m_ratio"/>
+			<MiningField name="a13_2_3m_ratio"/>
+			<MiningField name="a13_4_3m_ratio"/>
+			<MiningField name="a13_1_3m_ratio"/>
+			<MiningField name="a13_3_3m_ratio"/>
+			<MiningField name="a13_3_6m_ratio"/>
+			<MiningField name="a13_4_6m_ratio"/>
+			<MiningField name="a13_1_6m_ratio"/>
+			<MiningField name="a13_2_6m_ratio"/>
+			<MiningField name="fin_43_3m_ratio"/>
+			<MiningField name="fin_3_3m_ratio"/>
+			<MiningField name="fin_12_3m_ratio"/>
+			<MiningField name="a13_3m_ratio"/>
+			<MiningField name="fin_8_3m_ratio"/>
+			<MiningField name="fin_3_6m_ratio"/>
+			<MiningField name="fin_15_6m_ratio"/>
+			<MiningField name="b7_1_6m_ratio"/>
+			<MiningField name="b7_2_6m_ratio"/>
+			<MiningField name="b8_3_6m_ratio"/>
+			<MiningField name="b8_1_6m_ratio"/>
+			<MiningField name="b8_2_6m_ratio"/>
+			<MiningField name="b6_1_12m_ratio"/>
+			<MiningField name="b6_3_12m_ratio"/>
+			<MiningField name="b6_6_12m_ratio"/>
+			<MiningField name="b6_4_12m_ratio"/>
+			<MiningField name="b6_5_12m_ratio"/>
+			<MiningField name="b6_2_12m_ratio"/>
+			<MiningField name="b6_6m_ratio"/>
+			<MiningField name="a4_3_12m_ratio"/>
+			<MiningField name="a4_1_12m_ratio"/>
+			<MiningField name="a4_2_12m_ratio"/>
+			<MiningField name="fin_46_12m_ratio"/>
+			<MiningField name="a6_12m_ratio"/>
+			<MiningField name="a6_3m_ratio"/>
+			<MiningField name="b6_3m_ratio"/>
+			<MiningField name="b8_2_12m_ratio"/>
+			<MiningField name="b8_1_12m_ratio"/>
+			<MiningField name="b8_3_12m_ratio"/>
+			<MiningField name="b7_3m_ratio"/>
+			<MiningField name="a4_1_6m_ratio"/>
+			<MiningField name="a4_2_6m_ratio"/>
+			<MiningField name="a4_3_6m_ratio"/>
+			<MiningField name="fin_27_6m_ratio"/>
+			<MiningField name="a13_12m_ratio"/>
+			<MiningField name="a5_2_12m_ratio"/>
+			<MiningField name="a5_1_12m_ratio"/>
+			<MiningField name="a5_3_12m_ratio"/>
+			<MiningField name="fin_46_6m_ratio"/>
+			<MiningField name="fin_29_6m_ratio"/>
+			<MiningField name="a4_3m_ratio"/>
+			<MiningField name="fin_46_3m_ratio"/>
+			<MiningField name="a20_6m_ratio"/>
+			<MiningField name="b7_2_12m_ratio"/>
+			<MiningField name="b7_1_12m_ratio"/>
+			<MiningField name="a20_3m_ratio"/>
+			<MiningField name="b8_3m_ratio"/>
+			<MiningField name="a9_4_6m_ratio"/>
+			<MiningField name="a9_3_6m_ratio"/>
+			<MiningField name="a9_2_6m_ratio"/>
+			<MiningField name="a9_1_6m_ratio"/>
+			<MiningField name="a6_6m_ratio"/>
+			<MiningField name="a9_3m_ratio"/>
+			<MiningField name="a5_2_3m_ratio"/>
+			<MiningField name="a5_1_3m_ratio"/>
+			<MiningField name="a5_3_3m_ratio"/>
+			<MiningField name="a5_6m_ratio"/>
+			<MiningField name="a20_4_12m_ratio"/>
+			<MiningField name="a20_1_12m_ratio"/>
+			<MiningField name="fin_4_3m_ratio"/>
+			<MiningField name="fin_24_6m_ratio"/>
+			<MiningField name="fin_28_3m_ratio"/>
+			<MiningField name="fin_32_3m_ratio"/>
+			<MiningField name="fin_32_12m_ratio"/>
+			<MiningField name="fin_28_12m_ratio"/>
+			<MiningField name="fin_4_6m_ratio"/>
+			<MiningField name="fin_29_3m_ratio"/>
+			<MiningField name="fin_30_3m_ratio"/>
+			<MiningField name="fin_31_3m_ratio"/>
+			<MiningField name="fin_26_12m_ratio"/>
+			<MiningField name="fin_25_12m_ratio"/>
+			<MiningField name="fin_5_12m_ratio"/>
+			<MiningField name="fin_6_12m_ratio"/>
+			<MiningField name="fin_24_3m_ratio"/>
+		</MiningSchema>
+		<RegressionTable intercept="-6933.160541670497">
+			<NumericPredictor name="fin_7_trend" coefficient="7062.724819894348"/>
+			<NumericPredictor name="fin_4_trend" coefficient="-3599.1563395282087"/>
+			<NumericPredictor name="tgi1_3_0_trend" coefficient="-4832.897487304645"/>
+			<NumericPredictor name="b8_trend" coefficient="400.16194467818366"/>
+			<NumericPredictor name="tgi1_3_1_trend" coefficient="1760.7250059539783"/>
+			<NumericPredictor name="fin_11_trend" coefficient="5285.158605941904"/>
+			<NumericPredictor name="fin_20_trend" coefficient="6006.580300841426"/>
+			<NumericPredictor name="fin_12_trend" coefficient="-11683.263291186307"/>
+			<NumericPredictor name="a7_trend" coefficient="658.5328609013814"/>
+			<NumericPredictor name="fin_15_trend" coefficient="-9598.128668897434"/>
+			<NumericPredictor name="tgi1_1_2_trend" coefficient="3211.5170686100764"/>
+			<NumericPredictor name="tgi1_4_0_trend" coefficient="1935.7579448142817"/>
+			<NumericPredictor name="a4_3_trend" coefficient="7428.1021244365"/>
+			<NumericPredictor name="fin_17_trend" coefficient="4715.916766864249"/>
+			<NumericPredictor name="a2_trend" coefficient="-1110.321711193574"/>
+			<NumericPredictor name="tgi1_1_1_trend" coefficient="-3135.993248224089"/>
+			<NumericPredictor name="fin_25_trend" coefficient="-2473.860489810795"/>
+			<NumericPredictor name="b6_4_trend" coefficient="5363.765872778543"/>
+			<NumericPredictor name="a9_trend" coefficient="-2470.3056563049704"/>
+			<NumericPredictor name="fin_23_trend" coefficient="-15729.025867599645"/>
+			<NumericPredictor name="b7_trend" coefficient="8672.032612551091"/>
+			<NumericPredictor name="a5_2_trend" coefficient="-1388.9604171375493"/>
+			<NumericPredictor name="fin_32_trend" coefficient="-2332.702622024024"/>
+			<NumericPredictor name="a18_trend" coefficient="2393.163961027959"/>
+			<NumericPredictor name="a14_trend" coefficient="-3664.5929124358136"/>
+			<NumericPredictor name="fin_1_trend" coefficient="-5729.717382372761"/>
+			<NumericPredictor name="fin_28_trend" coefficient="2308.137669564889"/>
+			<NumericPredictor name="a8_trend" coefficient="1949.3288227127653"/>
+			<NumericPredictor name="a4_1_trend" coefficient="-554.6702758864418"/>
+			<NumericPredictor name="fin_39_trend" coefficient="-2232.547722666275"/>
+			<NumericPredictor name="fin_36_trend" coefficient="-2232.547722666275"/>
+			<NumericPredictor name="fin_16_trend" coefficient="-3545.6387359456394"/>
+			<NumericPredictor name="fin_27_trend" coefficient="-4193.558934482736"/>
+			<NumericPredictor name="a13_3_trend" coefficient="54.73293359392091"/>
+			<NumericPredictor name="b6_3_trend" coefficient="-124.63840524975475"/>
+			<NumericPredictor name="a13_2_trend" coefficient="-7163.705788235537"/>
+			<NumericPredictor name="a11_trend" coefficient="-16173.815956188053"/>
+			<NumericPredictor name="a5_3_trend" coefficient="7616.3736991448595"/>
+			<NumericPredictor name="a20_2_trend" coefficient="-1018.9107715614266"/>
+			<NumericPredictor name="a20_trend" coefficient="-2656.59929684589"/>
+			<NumericPredictor name="fin_21_trend" coefficient="1724.1451655834135"/>
+			<NumericPredictor name="a1_trend" coefficient="22335.33951460004"/>
+			<NumericPredictor name="tgi1_2_3_trend" coefficient="-7028.850484545474"/>
+			<NumericPredictor name="fin_40_trend" coefficient="-4354.864510385692"/>
+			<NumericPredictor name="a8_1_trend" coefficient="-1763.4466097122506"/>
+			<NumericPredictor name="fin_48_trend" coefficient="-1339.5478513610592"/>
+			<NumericPredictor name="fin_2_trend" coefficient="3894.3506733835798"/>
+			<NumericPredictor name="a10_2_trend" coefficient="228.9818267544494"/>
+			<NumericPredictor name="a9_4_trend" coefficient="16798.806799351685"/>
+			<NumericPredictor name="fin_52_trend" coefficient="4862.7005581654885"/>
+			<NumericPredictor name="a12_trend" coefficient="3383.789293987279"/>
+			<NumericPredictor name="tgi1_4_1_trend" coefficient="-1452.6116211766087"/>
+			<NumericPredictor name="a20_3_trend" coefficient="4108.247054419632"/>
+			<NumericPredictor name="a6_1_trend" coefficient="-2097.4002645123446"/>
+			<NumericPredictor name="fin_35_trend" coefficient="-9059.237095051862"/>
+			<NumericPredictor name="fin_33_trend" coefficient="-9059.237095051862"/>
+			<NumericPredictor name="tgi1_2_0_trend" coefficient="1259.342771352612"/>
+			<NumericPredictor name="a20_8_trend" coefficient="7889.211455966915"/>
+			<NumericPredictor name="b10_trend" coefficient="3178.376609655468"/>
+			<NumericPredictor name="fin_44_trend" coefficient="2511.00710162157"/>
+			<NumericPredictor name="fin_41_trend" coefficient="2511.00710162157"/>
+			<NumericPredictor name="a2_2_trend" coefficient="-12871.584208339427"/>
+			<NumericPredictor name="a5_1_trend" coefficient="-2789.2960348782026"/>
+			<NumericPredictor name="tgi1_4_2_trend" coefficient="-2311.7571748443434"/>
+			<NumericPredictor name="fin_34_trend" coefficient="3471.5098290005594"/>
+			<NumericPredictor name="a6_2_trend" coefficient="-527.0880572635871"/>
+			<NumericPredictor name="a20_4_trend" coefficient="1334.4143060246636"/>
+			<NumericPredictor name="fin_19_trend" coefficient="-10923.676567874389"/>
+			<NumericPredictor name="fin_51_trend" coefficient="-1344.068325618492"/>
+			<NumericPredictor name="tgi1_3_2_trend" coefficient="-1408.3394248703873"/>
+			<NumericPredictor name="a10_1_trend" coefficient="11004.074800714076"/>
+			<NumericPredictor name="a14_3_trend" coefficient="-4340.475877448319"/>
+			<NumericPredictor name="a8_5_trend" coefficient="8192.974222649304"/>
+			<NumericPredictor name="fin_22_trend" coefficient="14671.515680325274"/>
+			<NumericPredictor name="a2_4_trend" coefficient="3220.771446132684"/>
+			<NumericPredictor name="b11_trend" coefficient="8413.210586491046"/>
+			<NumericPredictor name="a13_trend" coefficient="3622.0264688967186"/>
+			<NumericPredictor name="b6_trend" coefficient="860.4264913844248"/>
+			<NumericPredictor name="a19_trend" coefficient="-15100.132892978332"/>
+			<NumericPredictor name="a8_2_trend" coefficient="4855.194144084861"/>
+			<NumericPredictor name="a20_11_trend" coefficient="9785.093801694284"/>
+			<NumericPredictor name="fin_38_trend" coefficient="-565.8450051986684"/>
+			<NumericPredictor name="a7_1_trend" coefficient="705.7100606011257"/>
+			<NumericPredictor name="a20_9_trend" coefficient="-305.4865439550553"/>
+			<NumericPredictor name="fin_24_trend" coefficient="-1428.9418775781292"/>
+			<NumericPredictor name="a20_12_trend" coefficient="1901.7401346357844"/>
+			<NumericPredictor name="tgi1_1_3_trend" coefficient="-2871.8759820737314"/>
+			<NumericPredictor name="a20_5_trend" coefficient="8191.73804652624"/>
+			<NumericPredictor name="a9_1_trend" coefficient="4979.039282317348"/>
+			<NumericPredictor name="fin_45_trend" coefficient="2229.3875466182562"/>
+			<NumericPredictor name="a2_3_trend" coefficient="-5437.711994984867"/>
+			<NumericPredictor name="fin_42_trend" coefficient="-19270.258398245278"/>
+			<NumericPredictor name="fin_30_trend" coefficient="-7739.732215571831"/>
+			<NumericPredictor name="b1_trend" coefficient="-2754.718582998154"/>
+			<NumericPredictor name="fin_50_trend" coefficient="1979.3017371006938"/>
+			<NumericPredictor name="a10_trend" coefficient="2645.2620642664106"/>
+			<NumericPredictor name="b2_trend" coefficient="5171.3645825704325"/>
+			<NumericPredictor name="a14_1_trend" coefficient="333.7398444117792"/>
+			<NumericPredictor name="b12_trend" coefficient="-3405.729278864571"/>
+			<NumericPredictor name="a2_1_trend" coefficient="544.7121977089341"/>
+			<NumericPredictor name="a6_trend" coefficient="-1102.8270990384353"/>
+			<NumericPredictor name="a9_2_trend" coefficient="-6347.869871471413"/>
+			<NumericPredictor name="a3_trend" coefficient="-7723.543802684491"/>
+			<NumericPredictor name="a15_trend" coefficient="5534.270196419589"/>
+			<NumericPredictor name="b3_trend" coefficient="4234.31706286656"/>
+			<NumericPredictor name="a2_7_trend" coefficient="-13757.43105138499"/>
+			<NumericPredictor name="b9_trend" coefficient="6213.597355604661"/>
+			<NumericPredictor name="a2_5_trend" coefficient="-5911.038878769422"/>
+			<NumericPredictor name="a7_2_trend" coefficient="-14571.893246186977"/>
+			<NumericPredictor name="fin_3_trend" coefficient="-7488.122464280316"/>
+			<NumericPredictor name="b4_trend" coefficient="-6659.784458121446"/>
+			<NumericPredictor name="fin_26_trend" coefficient="1437.5290999956367"/>
+			<NumericPredictor name="a2_6_trend" coefficient="6192.194564398846"/>
+			<NumericPredictor name="a17_trend" coefficient="13694.820091933363"/>
+			<NumericPredictor name="b6_5_trend" coefficient="-3994.9827886057587"/>
+			<NumericPredictor name="fin_9_trend" coefficient="4683.014483399479"/>
+			<NumericPredictor name="b7_1_trend" coefficient="-4229.377296946676"/>
+			<NumericPredictor name="a6_3_trend" coefficient="712.1123285781373"/>
+			<NumericPredictor name="tgi1_1_0_trend" coefficient="1697.507407579323"/>
+			<NumericPredictor name="fin_31_trend" coefficient="-3551.8106356054"/>
+			<NumericPredictor name="a20_10_trend" coefficient="392.34512476201405"/>
+			<NumericPredictor name="fin_13_trend" coefficient="2542.317605013527"/>
+			<NumericPredictor name="b8_1_trend" coefficient="4847.487117529942"/>
+			<NumericPredictor name="a20_6_trend" coefficient="-3983.4511119620106"/>
+			<NumericPredictor name="a9_3_trend" coefficient="-24549.030548596023"/>
+			<NumericPredictor name="b6_2_trend" coefficient="6867.312829225462"/>
+			<NumericPredictor name="fin_43_trend" coefficient="9127.798935841765"/>
+			<NumericPredictor name="fin_47_trend" coefficient="1331.1896488019022"/>
+			<NumericPredictor name="b13_trend" coefficient="7723.737362859999"/>
+			<NumericPredictor name="b7_2_trend" coefficient="9492.247999760493"/>
+			<NumericPredictor name="fin_46_trend" coefficient="7037.543684520113"/>
+			<NumericPredictor name="a13_4_trend" coefficient="6947.450433675829"/>
+			<NumericPredictor name="a2_8_trend" coefficient="-1254.4023166376458"/>
+			<NumericPredictor name="fin_29_trend" coefficient="-1036.5963383690437"/>
+			<NumericPredictor name="a10_3_trend" coefficient="-3367.995801980663"/>
+			<NumericPredictor name="a20_7_trend" coefficient="-12981.507439036104"/>
+			<NumericPredictor name="b5_trend" coefficient="-6482.285198692587"/>
+			<NumericPredictor name="b6_6_trend" coefficient="-1790.8924036526503"/>
+			<NumericPredictor name="fin_49_trend" coefficient="14454.065431890689"/>
+			<NumericPredictor name="a5_trend" coefficient="2112.375432135478"/>
+			<NumericPredictor name="a20_1_trend" coefficient="-1210.3820616885364"/>
+			<NumericPredictor name="fin_14_trend" coefficient="6515.28944475108"/>
+			<NumericPredictor name="a7_3_trend" coefficient="7607.700229515679"/>
+			<NumericPredictor name="fin_5_trend" coefficient="11025.418565323618"/>
+			<NumericPredictor name="tgi1_5_2_trend" coefficient="-761.1672107979987"/>
+			<NumericPredictor name="a4_2_trend" coefficient="491.6677023501185"/>
+			<NumericPredictor name="a7_4_trend" coefficient="3028.496340356933"/>
+			<NumericPredictor name="a8_6_trend" coefficient="-1797.9042770778694"/>
+			<NumericPredictor name="b6_1_trend" coefficient="-840.2712389886768"/>
+			<NumericPredictor name="fin_8_trend" coefficient="-5435.609001086642"/>
+			<NumericPredictor name="a13_1_trend" coefficient="-6201.322058368034"/>
+			<NumericPredictor name="tgi1_5_3_trend" coefficient="2461.9767794079553"/>
+			<NumericPredictor name="fin_37_trend" coefficient="-2502.6772390632023"/>
+			<NumericPredictor name="b8_3_trend" coefficient="-4953.715530170612"/>
+			<NumericPredictor name="b8_2_trend" coefficient="-7681.704676619095"/>
+			<NumericPredictor name="fin_10_trend" coefficient="-3219.377887918938"/>
+			<NumericPredictor name="tgi1_5_0_trend" coefficient="-1167.4245723320778"/>
+			<NumericPredictor name="a8_3_trend" coefficient="-5524.5677657752085"/>
+			<NumericPredictor name="tgi1_5_1_trend" coefficient="-1265.5085963873878"/>
+			<NumericPredictor name="a4_trend" coefficient="3211.913897036303"/>
+			<NumericPredictor name="tgi1_2_1_trend" coefficient="-2484.0789638551987"/>
+			<NumericPredictor name="tgi1_2_2_trend" coefficient="510.4807758138838"/>
+			<NumericPredictor name="fin_6_trend" coefficient="-4666.142866565772"/>
+			<NumericPredictor name="fin_18_trend" coefficient="3352.349746484603"/>
+			<NumericPredictor name="a8_4_trend" coefficient="9534.129530262988"/>
+			<NumericPredictor name="fin_26_3m_ratio" coefficient="198716.5693121364"/>
+			<NumericPredictor name="fin_25_3m_ratio" coefficient="-8239.238507428674"/>
+			<NumericPredictor name="fin_4_12m_ratio" coefficient="2062.645327049378"/>
+			<NumericPredictor name="fin_24_12m_ratio" coefficient="-157122.39220318495"/>
+			<NumericPredictor name="fin_27_3m_ratio" coefficient="17160.630754916754"/>
+			<NumericPredictor name="fin_6_6m_ratio" coefficient="-52628.82333443691"/>
+			<NumericPredictor name="fin_5_6m_ratio" coefficient="-1550842.0506008083"/>
+			<NumericPredictor name="fin_29_12m_ratio" coefficient="13309.531277216905"/>
+			<NumericPredictor name="fin_25_6m_ratio" coefficient="109732.67881965946"/>
+			<NumericPredictor name="fin_26_6m_ratio" coefficient="121838.34811512446"/>
+			<NumericPredictor name="fin_6_3m_ratio" coefficient="-15806.20863077617"/>
+			<NumericPredictor name="fin_5_3m_ratio" coefficient="509855.6247317925"/>
+			<NumericPredictor name="a5_3_6m_ratio" coefficient="-181330.52337603027"/>
+			<NumericPredictor name="a5_1_6m_ratio" coefficient="-11047.77656221509"/>
+			<NumericPredictor name="a5_2_6m_ratio" coefficient="32933.45167304416"/>
+			<NumericPredictor name="a5_3m_ratio" coefficient="-7260.508314521082"/>
+			<NumericPredictor name="a6_1_6m_ratio" coefficient="-8759.948110071897"/>
+			<NumericPredictor name="a6_2_6m_ratio" coefficient="224307.5472445993"/>
+			<NumericPredictor name="a6_3_6m_ratio" coefficient="22570.151015820877"/>
+			<NumericPredictor name="a9_1_3m_ratio" coefficient="36348.30565876333"/>
+			<NumericPredictor name="a9_3_3m_ratio" coefficient="-52602.4650055111"/>
+			<NumericPredictor name="a9_4_3m_ratio" coefficient="-100731.48922735987"/>
+			<NumericPredictor name="a9_2_3m_ratio" coefficient="-78240.53072738198"/>
+			<NumericPredictor name="a9_6m_ratio" coefficient="30384.837807400796"/>
+			<NumericPredictor name="fin_32_6m_ratio" coefficient="-503828.2355573361"/>
+			<NumericPredictor name="fin_28_6m_ratio" coefficient="25220.352560499683"/>
+			<NumericPredictor name="b7_12m_ratio" coefficient="-21471.77367389814"/>
+			<NumericPredictor name="b8_1_3m_ratio" coefficient="-25404.666900457625"/>
+			<NumericPredictor name="b8_2_3m_ratio" coefficient="28185.514470835984"/>
+			<NumericPredictor name="b8_3_3m_ratio" coefficient="-35851.330645523136"/>
+			<NumericPredictor name="a20_4_3m_ratio" coefficient="753096.9240008045"/>
+			<NumericPredictor name="a20_12_3m_ratio" coefficient="287740.73549160943"/>
+			<NumericPredictor name="a20_2_3m_ratio" coefficient="79746.55388912553"/>
+			<NumericPredictor name="a20_10_3m_ratio" coefficient="-163499.6764611211"/>
+			<NumericPredictor name="a20_5_3m_ratio" coefficient="25444.511178441615"/>
+			<NumericPredictor name="a20_6_3m_ratio" coefficient="136331.89445787686"/>
+			<NumericPredictor name="a20_8_3m_ratio" coefficient="-152253.19662967752"/>
+			<NumericPredictor name="a20_1_3m_ratio" coefficient="-470790.5956629746"/>
+			<NumericPredictor name="a20_11_3m_ratio" coefficient="-11817.193010082898"/>
+			<NumericPredictor name="a20_1_6m_ratio" coefficient="607116.9501419622"/>
+			<NumericPredictor name="a20_11_6m_ratio" coefficient="14908.865216459817"/>
+			<NumericPredictor name="a20_6_6m_ratio" coefficient="-205723.0914524421"/>
+			<NumericPredictor name="a20_10_6m_ratio" coefficient="56289.52844200482"/>
+			<NumericPredictor name="a20_8_6m_ratio" coefficient="252843.20739127923"/>
+			<NumericPredictor name="a20_5_6m_ratio" coefficient="-55696.31435980152"/>
+			<NumericPredictor name="a20_2_6m_ratio" coefficient="-9059.85242741145"/>
+			<NumericPredictor name="a20_4_6m_ratio" coefficient="295204.2146525175"/>
+			<NumericPredictor name="a5_12m_ratio" coefficient="31761.054790340728"/>
+			<NumericPredictor name="a13_2_12m_ratio" coefficient="-38597.953758716736"/>
+			<NumericPredictor name="a13_1_12m_ratio" coefficient="4033.7038103987907"/>
+			<NumericPredictor name="a13_3_12m_ratio" coefficient="-9475.601597775012"/>
+			<NumericPredictor name="a13_4_12m_ratio" coefficient="-84020.45239203263"/>
+			<NumericPredictor name="a20_12_6m_ratio" coefficient="-366047.09542149433"/>
+			<NumericPredictor name="b8_12m_ratio" coefficient="2758.783130722648"/>
+			<NumericPredictor name="fin_50_6m_ratio" coefficient="2833861.002442323"/>
+			<NumericPredictor name="a6_3_12m_ratio" coefficient="-149389.47194537197"/>
+			<NumericPredictor name="a6_2_12m_ratio" coefficient="-162135.76810648447"/>
+			<NumericPredictor name="a6_1_12m_ratio" coefficient="13339.340892168359"/>
+			<NumericPredictor name="fin_51_6m_ratio" coefficient="73781.10127476054"/>
+			<NumericPredictor name="fin_52_6m_ratio" coefficient="-190059.95513945093"/>
+			<NumericPredictor name="fin_48_6m_ratio" coefficient="-27189.688602597616"/>
+			<NumericPredictor name="fin_49_6m_ratio" coefficient="-127436.27794249714"/>
+			<NumericPredictor name="fin_47_6m_ratio" coefficient="21122.337345358857"/>
+			<NumericPredictor name="fin_47_12m_ratio" coefficient="21364.639590471492"/>
+			<NumericPredictor name="fin_52_12m_ratio" coefficient="185971.60836508722"/>
+			<NumericPredictor name="fin_49_12m_ratio" coefficient="150445.05084849233"/>
+			<NumericPredictor name="fin_48_12m_ratio" coefficient="75770.26159855504"/>
+			<NumericPredictor name="fin_51_12m_ratio" coefficient="69177.97936031537"/>
+			<NumericPredictor name="a4_12m_ratio" coefficient="-20130.12983755576"/>
+			<NumericPredictor name="fin_49_3m_ratio" coefficient="-120819.3718631411"/>
+			<NumericPredictor name="fin_47_3m_ratio" coefficient="-29121.07793321885"/>
+			<NumericPredictor name="fin_48_3m_ratio" coefficient="-18773.64612342025"/>
+			<NumericPredictor name="fin_51_3m_ratio" coefficient="-101808.9912687015"/>
+			<NumericPredictor name="fin_52_3m_ratio" coefficient="-60959.90509123223"/>
+			<NumericPredictor name="fin_50_12m_ratio" coefficient="35360.23429884865"/>
+			<NumericPredictor name="a4_2_3m_ratio" coefficient="-31919.648281688544"/>
+			<NumericPredictor name="a4_3_3m_ratio" coefficient="48421.07680971166"/>
+			<NumericPredictor name="a4_1_3m_ratio" coefficient="14084.455089466663"/>
+			<NumericPredictor name="fin_30_6m_ratio" coefficient="-24991.649783154495"/>
+			<NumericPredictor name="fin_50_3m_ratio" coefficient="-930957.7566553929"/>
+			<NumericPredictor name="fin_31_6m_ratio" coefficient="-1197086.4174346265"/>
+			<NumericPredictor name="a4_6m_ratio" coefficient="-5692.127637778042"/>
+			<NumericPredictor name="b6_12m_ratio" coefficient="-14260.734717096213"/>
+			<NumericPredictor name="b7_1_3m_ratio" coefficient="-7471.541468549647"/>
+			<NumericPredictor name="b7_2_3m_ratio" coefficient="24397.51995521705"/>
+			<NumericPredictor name="b6_5_3m_ratio" coefficient="-94148.22196003287"/>
+			<NumericPredictor name="b6_3_3m_ratio" coefficient="-13531.434912539988"/>
+			<NumericPredictor name="b6_4_3m_ratio" coefficient="54232.85306502889"/>
+			<NumericPredictor name="b6_6_3m_ratio" coefficient="240674.87239143244"/>
+			<NumericPredictor name="b6_1_3m_ratio" coefficient="-92475.56741833016"/>
+			<NumericPredictor name="b6_2_3m_ratio" coefficient="74683.8448924047"/>
+			<NumericPredictor name="a6_3_3m_ratio" coefficient="88616.66618077958"/>
+			<NumericPredictor name="a6_2_3m_ratio" coefficient="-59089.4690034817"/>
+			<NumericPredictor name="a6_1_3m_ratio" coefficient="9667.130219037133"/>
+			<NumericPredictor name="b6_2_6m_ratio" coefficient="120214.40751298892"/>
+			<NumericPredictor name="b6_5_6m_ratio" coefficient="61222.11162246004"/>
+			<NumericPredictor name="b6_6_6m_ratio" coefficient="-253780.41346355606"/>
+			<NumericPredictor name="b6_4_6m_ratio" coefficient="8860.437151430217"/>
+			<NumericPredictor name="b6_1_6m_ratio" coefficient="-205190.9113456277"/>
+			<NumericPredictor name="b6_3_6m_ratio" coefficient="-154187.94793072148"/>
+			<NumericPredictor name="fin_31_12m_ratio" coefficient="-182055.5711083548"/>
+			<NumericPredictor name="fin_3_12m_ratio" coefficient="-359140.96232244204"/>
+			<NumericPredictor name="fin_30_12m_ratio" coefficient="304019.05745332054"/>
+			<NumericPredictor name="a9_12m_ratio" coefficient="-16015.480974446253"/>
+			<NumericPredictor name="fin_43_12m_ratio" coefficient="426336.34442114533"/>
+			<NumericPredictor name="a20_7_12m_ratio" coefficient="-155972.2649454355"/>
+			<NumericPredictor name="a20_9_12m_ratio" coefficient="-1927635.4548678827"/>
+			<NumericPredictor name="fin_19_12m_ratio" coefficient="-128905.44625168487"/>
+			<NumericPredictor name="b8_6m_ratio" coefficient="20762.60497755002"/>
+			<NumericPredictor name="fin_13_12m_ratio" coefficient="27845.97334943498"/>
+			<NumericPredictor name="a9_2_12m_ratio" coefficient="60597.26463406441"/>
+			<NumericPredictor name="a9_1_12m_ratio" coefficient="-51606.063730137765"/>
+			<NumericPredictor name="a9_3_12m_ratio" coefficient="-97308.8429236691"/>
+			<NumericPredictor name="a9_4_12m_ratio" coefficient="78661.92960966007"/>
+			<NumericPredictor name="b7_6m_ratio" coefficient="42231.845050939475"/>
+			<NumericPredictor name="fin_40_6m_ratio" coefficient="16028.600766280357"/>
+			<NumericPredictor name="fin_27_12m_ratio" coefficient="20144.058890019613"/>
+			<NumericPredictor name="a13_6m_ratio" coefficient="29607.021215675228"/>
+			<NumericPredictor name="fin_22_6m_ratio" coefficient="1182389.9408430776"/>
+			<NumericPredictor name="fin_19_6m_ratio" coefficient="56618.786500977665"/>
+			<NumericPredictor name="a20_9_6m_ratio" coefficient="1949305.306538428"/>
+			<NumericPredictor name="fin_2_6m_ratio" coefficient="283003.3547553948"/>
+			<NumericPredictor name="a8_6_6m_ratio" coefficient="3803.635632371594"/>
+			<NumericPredictor name="tgi1_5_3_6m_ratio" coefficient="867680.0786658889"/>
+			<NumericPredictor name="a20_7_6m_ratio" coefficient="137932.63809212553"/>
+			<NumericPredictor name="fin_43_6m_ratio" coefficient="-457511.68904241745"/>
+			<NumericPredictor name="fin_36_6m_ratio" coefficient="-328022.09738858306"/>
+			<NumericPredictor name="fin_39_6m_ratio" coefficient="-328022.09738858306"/>
+			<NumericPredictor name="tgi1_5_1_6m_ratio" coefficient="137942.30607437747"/>
+			<NumericPredictor name="tgi1_5_2_6m_ratio" coefficient="313675.95441907475"/>
+			<NumericPredictor name="a14_6m_ratio" coefficient="39837.722962553344"/>
+			<NumericPredictor name="tgi1_5_0_6m_ratio" coefficient="73460.55608263721"/>
+			<NumericPredictor name="a2_1_6m_ratio" coefficient="7032.9126300835815"/>
+			<NumericPredictor name="a8_6m_ratio" coefficient="131020.25453163577"/>
+			<NumericPredictor name="b12_6m_ratio" coefficient="45460.22376969127"/>
+			<NumericPredictor name="b11_6m_ratio" coefficient="-27334.631895935567"/>
+			<NumericPredictor name="a18_6m_ratio" coefficient="-34964.44500477401"/>
+			<NumericPredictor name="tgi1_2_3_6m_ratio" coefficient="-205155.44887648438"/>
+			<NumericPredictor name="a2_6_6m_ratio" coefficient="-66488.47616832763"/>
+			<NumericPredictor name="fin_13_6m_ratio" coefficient="-902727.1339503692"/>
+			<NumericPredictor name="a7_4_6m_ratio" coefficient="42247.646135837276"/>
+			<NumericPredictor name="a7_1_6m_ratio" coefficient="29751.406088627624"/>
+			<NumericPredictor name="a8_4_6m_ratio" coefficient="-164114.21005083364"/>
+			<NumericPredictor name="a13_2_3m_ratio" coefficient="19042.185704349078"/>
+			<NumericPredictor name="a13_4_3m_ratio" coefficient="24929.343680414062"/>
+			<NumericPredictor name="a13_1_3m_ratio" coefficient="-18058.95798042127"/>
+			<NumericPredictor name="a13_3_3m_ratio" coefficient="-16953.858929552767"/>
+			<NumericPredictor name="a13_3_6m_ratio" coefficient="31680.388427801536"/>
+			<NumericPredictor name="a13_4_6m_ratio" coefficient="60506.276491439"/>
+			<NumericPredictor name="a13_1_6m_ratio" coefficient="27028.571705570408"/>
+			<NumericPredictor name="a13_2_6m_ratio" coefficient="27695.27025127841"/>
+			<NumericPredictor name="fin_43_3m_ratio" coefficient="899061.5935469834"/>
+			<NumericPredictor name="fin_3_3m_ratio" coefficient="897.0571246190327"/>
+			<NumericPredictor name="fin_12_3m_ratio" coefficient="342534.57749666646"/>
+			<NumericPredictor name="a13_3m_ratio" coefficient="-4056.9633213480574"/>
+			<NumericPredictor name="fin_8_3m_ratio" coefficient="125302.20544555268"/>
+			<NumericPredictor name="fin_3_6m_ratio" coefficient="181721.74595316898"/>
+			<NumericPredictor name="fin_15_6m_ratio" coefficient="623761.4359279135"/>
+			<NumericPredictor name="b7_1_6m_ratio" coefficient="72401.03771661026"/>
+			<NumericPredictor name="b7_2_6m_ratio" coefficient="-24508.779617492102"/>
+			<NumericPredictor name="b8_3_6m_ratio" coefficient="68537.90955913266"/>
+			<NumericPredictor name="b8_1_6m_ratio" coefficient="30783.215970485857"/>
+			<NumericPredictor name="b8_2_6m_ratio" coefficient="-27988.798084763526"/>
+			<NumericPredictor name="b6_1_12m_ratio" coefficient="414514.9189414954"/>
+			<NumericPredictor name="b6_3_12m_ratio" coefficient="53127.28799275067"/>
+			<NumericPredictor name="b6_6_12m_ratio" coefficient="-108367.39398375426"/>
+			<NumericPredictor name="b6_4_12m_ratio" coefficient="-41699.099360591164"/>
+			<NumericPredictor name="b6_5_12m_ratio" coefficient="-108747.83007935497"/>
+			<NumericPredictor name="b6_2_12m_ratio" coefficient="-5932.023586666666"/>
+			<NumericPredictor name="b6_6m_ratio" coefficient="-9678.15733213421"/>
+			<NumericPredictor name="a4_3_12m_ratio" coefficient="-48955.461980597065"/>
+			<NumericPredictor name="a4_1_12m_ratio" coefficient="-17874.211596270914"/>
+			<NumericPredictor name="a4_2_12m_ratio" coefficient="-14396.005375478431"/>
+			<NumericPredictor name="fin_46_12m_ratio" coefficient="69794.24725685935"/>
+			<NumericPredictor name="a6_12m_ratio" coefficient="-5723.101501857997"/>
+			<NumericPredictor name="a6_3m_ratio" coefficient="9097.508138035142"/>
+			<NumericPredictor name="b6_3m_ratio" coefficient="21229.303069468868"/>
+			<NumericPredictor name="b8_2_12m_ratio" coefficient="-7938.819690950249"/>
+			<NumericPredictor name="b8_1_12m_ratio" coefficient="55325.63949127379"/>
+			<NumericPredictor name="b8_3_12m_ratio" coefficient="-38348.90258273544"/>
+			<NumericPredictor name="b7_3m_ratio" coefficient="1513.6868152915565"/>
+			<NumericPredictor name="a4_1_6m_ratio" coefficient="-28995.34086593115"/>
+			<NumericPredictor name="a4_2_6m_ratio" coefficient="45557.7530728659"/>
+			<NumericPredictor name="a4_3_6m_ratio" coefficient="-3383.210512987807"/>
+			<NumericPredictor name="fin_27_6m_ratio" coefficient="-5658.067926002752"/>
+			<NumericPredictor name="a13_12m_ratio" coefficient="-15766.355106231851"/>
+			<NumericPredictor name="a5_2_12m_ratio" coefficient="-159445.88035733256"/>
+			<NumericPredictor name="a5_1_12m_ratio" coefficient="42007.60935155906"/>
+			<NumericPredictor name="a5_3_12m_ratio" coefficient="-9420.426429940102"/>
+			<NumericPredictor name="fin_46_6m_ratio" coefficient="-40558.09580228297"/>
+			<NumericPredictor name="fin_29_6m_ratio" coefficient="-2108.8034133616547"/>
+			<NumericPredictor name="a4_3m_ratio" coefficient="10481.93009267022"/>
+			<NumericPredictor name="fin_46_3m_ratio" coefficient="-30873.347258166916"/>
+			<NumericPredictor name="a20_6m_ratio" coefficient="-35558.498140426964"/>
+			<NumericPredictor name="b7_2_12m_ratio" coefficient="46689.031779626064"/>
+			<NumericPredictor name="b7_1_12m_ratio" coefficient="-52251.3972097735"/>
+			<NumericPredictor name="a20_3m_ratio" coefficient="24151.990487872717"/>
+			<NumericPredictor name="b8_3m_ratio" coefficient="-10043.72175680113"/>
+			<NumericPredictor name="a9_4_6m_ratio" coefficient="49640.33510958688"/>
+			<NumericPredictor name="a9_3_6m_ratio" coefficient="98459.61142002537"/>
+			<NumericPredictor name="a9_2_6m_ratio" coefficient="-8488.299787717726"/>
+			<NumericPredictor name="a9_1_6m_ratio" coefficient="46334.65816554352"/>
+			<NumericPredictor name="a6_6m_ratio" coefficient="7743.3403156452605"/>
+			<NumericPredictor name="a9_3m_ratio" coefficient="-19063.519781597715"/>
+			<NumericPredictor name="a5_2_3m_ratio" coefficient="-29135.866946757946"/>
+			<NumericPredictor name="a5_1_3m_ratio" coefficient="-11644.864250002274"/>
+			<NumericPredictor name="a5_3_3m_ratio" coefficient="159438.28855647732"/>
+			<NumericPredictor name="a5_6m_ratio" coefficient="-14712.325472225097"/>
+			<NumericPredictor name="a20_4_12m_ratio" coefficient="-437336.10279458633"/>
+			<NumericPredictor name="a20_1_12m_ratio" coefficient="-67678.14426958222"/>
+			<NumericPredictor name="fin_4_3m_ratio" coefficient="-14516.603458009697"/>
+			<NumericPredictor name="fin_24_6m_ratio" coefficient="106951.36049267102"/>
+			<NumericPredictor name="fin_28_3m_ratio" coefficient="-3761.6385136678427"/>
+			<NumericPredictor name="fin_32_3m_ratio" coefficient="329217.6972193505"/>
+			<NumericPredictor name="fin_32_12m_ratio" coefficient="205729.27201889092"/>
+			<NumericPredictor name="fin_28_12m_ratio" coefficient="1257.8938512348582"/>
+			<NumericPredictor name="fin_4_6m_ratio" coefficient="-56250.43762421031"/>
+			<NumericPredictor name="fin_29_3m_ratio" coefficient="11656.541776704378"/>
+			<NumericPredictor name="fin_30_3m_ratio" coefficient="118338.7732791349"/>
+			<NumericPredictor name="fin_31_3m_ratio" coefficient="773786.8725082087"/>
+			<NumericPredictor name="fin_26_12m_ratio" coefficient="-410382.1094765712"/>
+			<NumericPredictor name="fin_25_12m_ratio" coefficient="-144052.11265801042"/>
+			<NumericPredictor name="fin_5_12m_ratio" coefficient="1142588.37777966"/>
+			<NumericPredictor name="fin_6_12m_ratio" coefficient="-1468.1998421816093"/>
+			<NumericPredictor name="fin_24_3m_ratio" coefficient="3026.545187087189"/>
+		</RegressionTable>
+	</RegressionModel>
+</PMML>
