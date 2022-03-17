@@ -1,4 +1,4 @@
-#!/bin/sh
+#! /bin/sh
 set -e -x
 export LANG=en_US.UTF-8
 : '
@@ -20,7 +20,9 @@ date1=$1
 date2=$(date -d "$date1 -7 day" +%Y%m%d)
 date3=$(date -d "$date1 -1 day" +%Y%m%d)
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive-env.sh
+#source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+#source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+#source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
 : '
 @part_1:
 实现功能:未经过渠道清理的包名所对应的app_name数据增量更新到dim_app_name_info_orig表
@@ -33,29 +35,37 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 			update_day 更新时间
 '
 #input
-#dwd_log_device_install_app_all_info_sec_di=dm_mobdi_master.dwd_log_device_install_app_all_info_sec_di
-#dwd_log_device_install_app_incr_info_sec_di=dm_mobdi_master.dwd_log_device_install_app_incr_info_sec_di
-#dwd_log_device_unstall_app_info_sec_di=dm_mobdi_master.dwd_log_device_unstall_app_info_sec_di
+#dwd_log_device_install_app_all_info_sec_di=dw_sdk_log.log_device_install_app_all_info
+#dwd_log_device_install_app_incr_info_sec_di=dw_sdk_log.log_device_install_app_incr_info
+#dwd_log_device_unstall_app_info_sec_di=dw_sdk_log.log_device_unstall_app_info
+
+dwd_log_device_install_app_all_info_sec_di=dm_mobdi_master.dwd_log_device_install_app_all_info_sec_di
+dwd_log_device_install_app_incr_info_sec_di=dm_mobdi_master.dwd_log_device_install_app_incr_info_sec_di
+dwd_log_device_unstall_app_info_sec_di=dm_mobdi_master.dwd_log_device_unstall_app_info_sec_di
 
 #mapping
-#dim_app_pkg_mapping_par=dim_sdk_mapping.dim_app_pkg_mapping_par
+dim_app_pkg_mapping_par=dm_sdk_mapping.app_pkg_mapping_par
 
-tmpdb=$dm_mobdi_tmp
 #md
-pkg_name_sort=$tmpdb.pkg_name_sort
-apppkg_name_temp=$tmpdb.apppkg_name_temp
+pkg_name_sort=dm_mobdi_tmp.pkg_name_sort
+apppkg_name_temp=dm_mobdi_tmp.apppkg_name_temp
 
 #out
-#dim_app_name_info_orig=dim_mobdi_mapping.dim_app_name_info_orig
-#dim_apppkg_name_info_wf=dim_mobdi_mapping.dim_apppkg_name_info_wf
+dim_app_name_info_orig=dim_mobdi_mapping.dim_app_name_info_orig
+dim_apppkg_name_info_wf=dim_mobdi_mapping.dim_apppkg_name_info_wf
 
 
 
 #pull out all the pkg between this period
-hive -e "
+HADOOP_USER_NAME=dba hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
+set mapreduce.map.memory.mb=4096;
+set mapreduce.map.java.opts='-Xmx3g' -XX:+UseG1GC;
+SET hive.exec.parallel=true;
+SET hive.exec.parallel.thread.number=10;
 insert overwrite table $pkg_name_sort
 select *,ROW_NUMBER() OVER(PARTITION BY pkg ORDER BY cnt desc) AS rank from
-(select pkg,name,count(*) as cnt from 
+(select pkg,name,count(*) as cnt from
 (select pkg,name,device from
 (select pkg,name,muid as device from $dwd_log_device_install_app_all_info_sec_di
 where day<=$date1 and day >= $date2
@@ -63,14 +73,14 @@ and pkg is not null and trim(pkg)<>''
 and name is not null and trim(name)<>'' and name <> 'null' and name <> 'NULL'
 and name not rlike '\\\\.com$' and name not rlike '\\\\.com\\\\.' and name not rlike '^com\\\\.' and name <> pkg
 group by pkg,name,muid
-union all 
+union all
 select pkg,name,muid as device from $dwd_log_device_install_app_incr_info_sec_di
 where day<=$date1 and day >=$date2
 and pkg is not null and trim(pkg)<>''
 and name is not null and trim(name)<>'' and name <> 'null' and name <> 'NULL'
 and name not rlike '\\\\.com$' and name not rlike '\\\\.com\\\\.' and name not rlike '^com\\\\.' and name <> pkg
 group by pkg,name,muid
-union all 
+union all
 select pkg,name,muid as device from $dwd_log_device_unstall_app_info_sec_di
 where day<=$date1 and day >=$date2
 and pkg is not null and trim(pkg)<>''
@@ -79,10 +89,11 @@ and name not rlike '\\\\.com$' and name not rlike '\\\\.com\\\\.' and name not r
 group by pkg,name,muid ) a
 group by pkg,name,device)aa
 group by pkg,name ) x
-;" 
+;"
 
 #incremental update
-hive -e "
+HADOOP_USER_NAME=dba hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 insert overwrite table $dim_app_name_info_orig
 select pkg,name,cnt,update_day from
 (select a.*,row_number() over (partition by pkg order by cnt desc) num from
@@ -91,7 +102,7 @@ union all
 select pkg,name,cnt,update_day from $dim_app_name_info_orig where pkg = regexp_extract(pkg,'([a-zA-Z0-9\.\_]+)',0)
 )a)b
 where num = 1
-;" 
+;"
 
 : '
 @part_2:
@@ -107,33 +118,30 @@ where num = 1
 '
 
 #incremental update by clear pkg
-hive -e "
+HADOOP_USER_NAME=dba hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 insert overwrite table $apppkg_name_temp
 select apppkg, name as app_name,cnt from
 (select *,ROW_NUMBER() OVER(PARTITION BY apppkg ORDER BY cnt desc) AS rank from
 (select apppkg,name,sum(cnt) as cnt from
-(select COALESCE(b.apppkg,a.pkg) as apppkg, a.name, a.cnt 
+(select COALESCE(b.apppkg,a.pkg) as apppkg, a.name, a.cnt
 from $pkg_name_sort a
 left join (select * from $dim_app_pkg_mapping_par where version='1000') b
 on a.pkg=b.pkg
 where a.rank=1) x
 group by apppkg,name) xx) xxx
 where rank = 1 and apppkg is not null and length(apppkg) <> 0 and apppkg = regexp_extract(apppkg,'([a-zA-Z0-9\.\_]+)',0)
-;" 
+;"
 
-hive -e "
+HADOOP_USER_NAME=dba hive -e "
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 insert overwrite table $dim_apppkg_name_info_wf partition (day='$date1')
 select apppkg,app_name,cnt,update_day from
 (select *,ROW_NUMBER() OVER(PARTITION BY apppkg ORDER BY cnt desc) as num
-from 
+from
 (select apppkg,app_name,cnt,update_day from $dim_apppkg_name_info_wf where day=$date3
 union all
 select apppkg,app_name,cnt,$date1 as update_day from $apppkg_name_temp) a )b
 where num=1
 ;"
-# hive -e "select pkg from $dim_app_name_info_orig where update_day=$date1;">>/home/dba/after_mobdi/weeklyRun/crawl_label/pkg_list_incr_$date1.txt
-#for old_version in `hive -e "show partitions $dim_apppkg_name_info_wf " | sort | head -n -7`
-#do
-#	echo "rm $old_version"
-#	hive -v -e "alter table $dim_apppkg_name_info_wf drop if exists partition($old_version)"
-#done
+

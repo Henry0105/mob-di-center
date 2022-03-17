@@ -57,7 +57,7 @@ SELECT device,
        'appdir' AS source
 FROM
 (
-    SELECT muid as device,
+    SELECT if(plat=1,muid,deviceid) as device,
            trim(expolde_pkg) AS pkg,
            update_time,
            trim(apppkg) as apppkg,
@@ -75,7 +75,7 @@ FROM
     FROM $dwd_app_dir_active_sec_di
     lateral view explode(update) update_map as expolde_pkg, update_time
     WHERE day = '$day'
-    and trim(lower(muid)) rlike '^[a-f0-9]{40}$'
+    and trim(lower(if(plat=1,muid,deviceid))) rlike '^[a-f0-9]{40}$'
     and trim(deviceid) != '0000000000000000000000000000000000000000'
     and plat in (1, 2)
 ) as t1
@@ -84,5 +84,5 @@ and pkg not in ('','null','NULL')
 and pkg=regexp_extract(pkg,'([a-zA-Z0-9\.\_-]+)',0)
 and update_time >= unix_timestamp('$day 00:00:00', 'yyyyMMdd HH:mm:ss') * 1000
 and update_time <= unix_timestamp('$day 24:00:00', 'yyyyMMdd HH:mm:ss') * 1000
-GROUP BY muid,pkg,apppkg,appkey,appver,clientip,commonsdkver,plat;
+GROUP BY device,pkg,apppkg,appkey,appver,clientip,commonsdkver,plat;
 "

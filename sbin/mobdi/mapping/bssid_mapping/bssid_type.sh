@@ -11,24 +11,25 @@ set -e -x
 day=$1
 pday=`date -d "$day -31 days" "+%Y%m%d"`
 #导入配置文件
-source /home/dba/mobdi_center/conf/hive-env.sh
+#source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
+#source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
 #input
-#dwd_location_info_sec_di=dm_mobdi_master.dwd_location_info_sec_di
-tmpdb=$dm_mobdi_tmp
+dwd_location_info_sec_di=dm_mobdi_master.dwd_location_info_sec_di
 #tmp
-calculate_bssid_type_base_info_except_abnormal_data_all=$tmpdb.calculate_bssid_type_base_info_except_abnormal_data_all
-calculate_bssid_type_base_info_except_abnormal_data=$tmpdb.calculate_bssid_type_base_info_except_abnormal_data
-calculate_bssid_type_base_info_except_abnormal_data_final_info=$tmpdb.calculate_bssid_type_base_info_except_abnormal_data_final_info
-calculate_bssid_type_base_info=$tmpdb.calculate_bssid_type_base_info
-speed_abnormal_device_info=$tmpdb.speed_abnormal_device_info
-speed_abnormal_device_info_2=$tmpdb.speed_abnormal_device_info_2
-bssid_abnormal_type=$tmpdb.bssid_abnormal_type
-bssid_mobile_type=$tmpdb.bssid_mobile_type
-bssid_stable_type=$tmpdb.bssid_stable_type
+calculate_bssid_type_base_info_except_abnormal_data_all=dm_mobdi_tmp.calculate_bssid_type_base_info_except_abnormal_data_all
+calculate_bssid_type_base_info_except_abnormal_data=dm_mobdi_tmp.calculate_bssid_type_base_info_except_abnormal_data
+calculate_bssid_type_base_info_except_abnormal_data_final_info=dm_mobdi_tmp.calculate_bssid_type_base_info_except_abnormal_data_final_info
+calculate_bssid_type_base_info=dm_mobdi_tmp.calculate_bssid_type_base_info
+speed_abnormal_device_info=dm_mobdi_tmp.speed_abnormal_device_info
+speed_abnormal_device_info_2=dm_mobdi_tmp.speed_abnormal_device_info_2
+bssid_abnormal_type=dm_mobdi_tmp.bssid_abnormal_type
+bssid_mobile_type=dm_mobdi_tmp.bssid_mobile_type
+bssid_stable_type=dm_mobdi_tmp.bssid_stable_type
 #output
-#dim_bssid_type_mf=dim_mobdi_mapping.dim_bssid_type_mf
+dim_bssid_type_mf=dim_mobdi_mapping.dim_bssid_type_mf
 
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 insert overwrite table $calculate_bssid_type_base_info partition(day='$day')
 select muid as deviceid, cur_bssid as bssid, cur_ssid as ssid, latitude, longitude, clienttime
 from $dwd_location_info_sec_di
@@ -43,11 +44,31 @@ and longitude > 73
 and longitude < 136
 and latitude > 3
 and latitude < 54
-group by muid, cur_bssid, cur_ssid, latitude, longitude, clienttime;
+and plat=1
+group by muid, cur_bssid, cur_ssid, latitude, longitude, clienttime
+
+union all
+
+select deviceid, cur_bssid as bssid, cur_ssid as ssid, latitude, longitude, clienttime
+from $dwd_location_info_sec_di
+where day > '$pday' and day <='$day'
+and length(trim(cur_bssid))=17
+and cur_bssid is not null and latitude is not null and longitude is not null
+and cur_bssid <> '' and cur_bssid <> '00:00:00:00:00:00' and cur_bssid <> 'null' and cur_bssid <> '02:00:00:00:00:00' and cur_bssid <> '01:80:c2:00:00:03' and cur_bssid <> 'ff:ff:ff:ff:ff:ff' and cur_bssid <> '00:02:00:00:00:00'
+and (latitude - round(latitude, 1))*10 <> 0.0 and (longitude - round(longitude, 1))*10 <> 0.0
+--以下条件在计算bssid_mapping表时没有
+and regexp_replace(cur_bssid, '-|:|\\\\.|\073', '') rlike '^[0-9a-f]{12}$'
+and longitude > 73
+and longitude < 136
+and latitude > 3
+and latitude < 54
+and plat=2
+group by deviceid, cur_bssid, cur_ssid, latitude, longitude, clienttime;
 "
 
 #12小时内的移动距离>=100m且平均速度>=30m/s，认为是异常数据
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function get_distance as 'com.youzu.mob.java.udf.WGS84Distance';
 SET hive.merge.mapfiles=true;
@@ -107,7 +128,8 @@ and t2.deviceid is null;
 "
 
 #计算出现超过5次的bssid的活跃天数、设备数、连接数、ssid、ssid数、各个距离的覆盖率
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function get_distance as 'com.youzu.mob.java.udf.WGS84Distance';
 set hive.exec.parallel=true;
@@ -197,7 +219,8 @@ group by t1.bssid, active_days, device_num, connect_num, nvl(t4.ssid,'?'), nvl(t
 条件1：500米覆盖率小于50%、1公里覆盖率小于80%、200公里覆盖率大于等于90%、ssid数量为1、连接设备数为1、活跃天数小于7、连接次数小于30、剔除部分特殊ssid
 条件2：ssid内包含有手机、汽车、火车或者移动路由器等信息，剔除ssid内包含华为路由器，小米路由器，维修店，4s店等关键字的bssid
 '
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.exec.parallel=true;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
@@ -247,7 +270,8 @@ group by bssid;
 条件1可以用上面的数据，下面准备条件2需要用到的数据
 区别于calculate_bssid_type_base_info_except_abnormal_data，将异常数据全部排除
 '
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function get_distance as 'com.youzu.mob.java.udf.WGS84Distance';
 SET hive.merge.mapfiles=true;
@@ -310,7 +334,8 @@ and distance_ahead>=10000;
 条件1：设备数大于等于2、100公里覆盖率小于80%、排除掉移动型bssid、ssid数量为1且500米覆盖率小于50% 或者 ssid数量为2且连接数大于10 或者 ssid数量为3
 条件2：计算三天内的移动距离以及移动速度，移动距离超过10公里，移动速度超过100m/s为异常数据，异常数据大于等于4条或者异常数据中的ssid数量大于等于2，排除掉移动型bssid
 '
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.exec.parallel=true;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
@@ -363,7 +388,8 @@ where t2.bssid is null;
 稳定型bssid
 500米覆盖率大于等于50%、5公里覆盖率大于等于80%、ssid数量为1、排除掉移动型bssid和异常型bssid
 '
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
 set mapred.max.split.size=250000000;
@@ -395,12 +421,21 @@ and t3.bssid is null;
 无法识别型BSSID：全量表中的bssid为无法识别型，更新时以增量表中数据为准。
 '
 #计算dw_mobdi_md.bssid_type_all表小于day最近的一个分区
-lastPartition=`hive -e "show partitions $dim_bssid_type_mf" | awk -v day=${day} -F '=' '$2<day {print $0}'| sort| tail -n 1`
+lastPartStr=`hive -e "show partitions $dim_bssid_type_mf" | awk -v day=${day} -F '=' '$2<day {print $0}'| sort| tail -n 1`
+if [ -z "$lastPartStr" ]; then
+    lastPartition=$lastPartStr
+fi
+
+if [ -n "$lastPartStr" ]; then
+    lastPartition=" AND $lastPartStr"
+fi
+
 #计算小于等于day最近的三个分区，并用' or '连接
 newestThreePartitions=`hive -e "show partitions $bssid_stable_type" | awk -v day=${day} -F '=' '$2<=day {print $0}'| sort| tail -n 3| xargs echo| sed 's/\s/ or /g'`
 echo ${newestThreePartitions}
 
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
+set mapreduce.job.queuename=root.yarn_data_compliance;
 set hive.exec.parallel=true;
 SET hive.merge.mapfiles=true;
 SET hive.merge.mapredfiles=true;
@@ -423,7 +458,7 @@ from
   select bssid,max(type) as type
   from
   (
-    select bssid,type from $dim_bssid_type_mf where $lastPartition
+    select bssid,type from $dim_bssid_type_mf where 1=1 $lastPartition
 
     union all
 
@@ -456,3 +491,4 @@ left join
   having count(1)=3
 ) mobile_3month on ful.bssid=mobile_3month.bssid;
 "
+

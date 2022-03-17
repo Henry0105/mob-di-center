@@ -16,17 +16,15 @@ fi
 
 day=$1
 
-source /home/dba/mobdi_center/conf/hive-env.sh
-
 #input
-#dwd_device_location_aggr_statiscs2_w=mob_dashboard.dwd_device_location_aggr_statiscs2_w
-#ads_bi_device_location_aggr_statiscs_w=mob_dashboard.ads_bi_device_location_aggr_statiscs_w
+ads_device_location_aggr_statiscs2_w=mob_dashboard.ads_device_location_aggr_statiscs2_w
+ads_bi_device_location_aggr_statiscs_w=mob_dashboard.ads_bi_device_location_aggr_statiscs_w
 
 #mapping
-#mapping_area_par=dm_sdk_mapping.mapping_area_par
+mapping_area_par=dm_sdk_mapping.mapping_area_par
 
 #output
-#device_gps_dau_info_by_location_aggr=mob_dashboard.device_gps_dau_info_by_location_aggr
+device_gps_dau_info_by_location_aggr=mob_dashboard.muid_gps_dau_info_by_location_aggr
 
 :<<!
 create table mob_dashboard.device_gps_dau_info_by_location_aggr(
@@ -38,33 +36,32 @@ partitioned by (day string comment '日期')
 stored as orc;
 !
 
-area_lastpar=`hive -S -e "show partitions $dim_mapping_area_par" |tail -n 1 `
+area_lastpar=`hive -S -e "show partitions dm_sdk_mapping.mapping_area_par" |tail -n 1 `
 
-hive -v -e "
-set mapreduce.job.queuename=root.yarn_mobdashboard.mobdashboard;
+HADOOP_USER_NAME=dba hive -v -e "
 
 insert overwrite table $device_gps_dau_info_by_location_aggr partition(day = '$day')
 select x.cnt as cnt,
        y.cnt as dau,
        x.cnt/y.cnt as frequency
-from 
+from
 (
     select sum(anals_value) as cnt
     from
     (
         select city,
                anals_value
-        from $dwd_device_location_aggr_statiscs2_w
+        from $ads_device_location_aggr_statiscs2_w
         where type = 'gps'
         and day = '$day'
     ) a
-    left join 
+    left join
     (
         select province_code,
-               city_code,    
+               city_code,
                province,
                city
-        from $dim_mapping_area_par
+        from $mapping_area_par
         where $area_lastpar
         and country = '中国'
         group by province_code,city_code,province,city
@@ -72,11 +69,11 @@ from
     on a.city = b.city_code
     where b.province != '' and b.city != ''
 )x
-left join 
+left join
 (
     select anals_value as cnt
-    from $ads_bi_device_location_aggr_statiscs_w 
-    where label = '4'  
+    from $ads_bi_device_location_aggr_statiscs_w
+    where label = '4'
     and anals_dim2 = 'cn'
     and day = '$day'
     and anals_dim1 = 'gps'
