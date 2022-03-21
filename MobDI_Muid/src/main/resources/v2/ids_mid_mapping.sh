@@ -28,13 +28,13 @@ SET hive.exec.parallel=true;
 
 hive -e "
 $sqlset
-insert overwrite table $duid_mid_mapping_par partition(day=$day)
+insert overwrite table $duid_mid_mapping_par partition(day='$day')
 select duid,mid from $dwd_all_id_detail where day='all' group by duid,mid
 "
 
 hive -e "
 $sqlset
-insert overwrite table $oiid_mid_mapping_par partition(day=$day)
+insert overwrite table $oiid_mid_mapping_par partition(day='$day')
 select oiid,factory,mid from(
   select oiid,factory,mid,count(mid) over(partition by oiid,factory) cnt
   from (
@@ -46,7 +46,7 @@ select oiid,factory,mid from(
 
 hive -e "
 $sqlset
-insert overwrite table $ieid_mid_mapping_par partition(day=$day)
+insert overwrite table $ieid_mid_mapping_par partition(day='$day')
 select ieid,mid from(
   select ieid,mid,count(mid) over(partition by ieid) cnt
   from (

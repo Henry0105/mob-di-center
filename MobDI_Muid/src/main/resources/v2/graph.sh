@@ -39,7 +39,7 @@ source_sql_ids="select id1,id2 from $ids_unid_vertex where day='all'"
 --conf spark.driver.maxResultSize=1024m \
 --conf spark.network.maxRemoteBlockSizeFetchToMem=256m \
 --conf spark.shuffle.accurateBlockThreshold=256m \
-./muid.jar 15 "$source_sql_ids" $ids_graph_result_full
+./muid.jar 20 "$source_sql_ids" $ids_graph_result_full
 
 
 hive -e "

@@ -52,9 +52,9 @@ from tmp_source
 where ieid is not null and ieid<>'' group by ieid
 ),
 tmp_oiid_unid as (
-select oiid,factory,model,min(unid) unid_oiid
+select oiid,factory,min(unid) unid_oiid
 from tmp_source
-where oiid is not null and oiid<>'' group by oiid,factory,model
+where oiid is not null and oiid<>'' group by oiid,factory
 )
 insert overwrite table $ids_unid_vertex partition(day='all')
 select id1,id2 from (
@@ -67,7 +67,7 @@ select id1,id2 from (
 
   select unid id1,unid_oiid id2
   from tmp_source a
-  left join tmp_oiid_unid b on a.oiid=b.oiid and a.factory=b.factory and a.model=b.model
+  left join tmp_oiid_unid b on a.oiid=b.oiid and a.factory=b.factory
   where a.oiid is not null and a.oiid<>''
 ) t group by id1,id2
 "
