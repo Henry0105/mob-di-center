@@ -27,6 +27,10 @@ dim_device_oiid_merge_df=dim_mobdi_mapping.dim_device_oiid_merge_df
 # output
 dim_id_mapping_android_sec_df=dim_mobdi_mapping.dim_id_mapping_android_sec_df
 
+# view
+dim_id_mapping_android_sec_df_view=dim_mobdi_mapping.dim_id_mapping_android_sec_df_view
+
+
 
 HADOOP_USER_NAME=dba hive -e"
 set hive.exec.parallel=true;
@@ -86,46 +90,60 @@ from
 left join
 (
   select device,mcid, mcid_tm, mcid_ltm, mcid_abnormal_tm
-  from $dim_device_mcid_merge_df 
+  from $dim_device_mcid_merge_df
   where day='${insert_day}' and device is not null and length(device)= 40 and device = regexp_extract(device,'([a-f0-9]{40})', 0)
   and mcid is not null and length(mcid)>0
 ) de_mcid on ff.device=de_mcid.device
 left join
 (
   select device,ieid, ieid_tm, ieid_ltm, ieid_abnormal_tm
-  from $dim_device_ieid_merge_df 
+  from $dim_device_ieid_merge_df
   where day='${insert_day}' and device is not null and length(device)= 40 and device = regexp_extract(device,'([a-f0-9]{40})', 0)
   and ieid is not null and length(ieid)>0
 ) de_ieid on ff.device=de_ieid.device
 left join
 (
   select device, snid, snid_tm, snid_ltm, snid_abnormal_tm
-  from $dim_device_snid_merge_df 
+  from $dim_device_snid_merge_df
   where day='${insert_day}' and device is not null and length(device)= 40 and device = regexp_extract(device,'([a-f0-9]{40})', 0)
   and snid is not null and length(snid)>0
 ) de_snid on ff.device=de_snid.device
 left join
 (
   select device, isid, isid_tm, isid_ltm,isid_abnormal_tm
-  from $dim_device_isid_merge_df 
+  from $dim_device_isid_merge_df
   where day='${insert_day}' and device is not null and length(device)= 40 and device = regexp_extract(device,'([a-f0-9]{40})', 0)
   and isid is not null and length(isid)>0
 ) de_isid on ff.device=de_isid.device
 left join
 (
   select device, pid, pid_tm, pid_ltm,pid_abnormal_tm
-  from $dim_device_pid_merge_df 
+  from $dim_device_pid_merge_df
   where day='${insert_day}' and device is not null and length(device)= 40 and device = regexp_extract(device,'([a-f0-9]{40})', 0)
   and pid is not null and length(pid)>0
 ) de_pid on ff.device=de_pid.device
 left join
 (
   select device, oiid, oiid_tm, oiid_ltm,oiid_abnormal_tm
-  from $dim_device_oiid_merge_df 
+  from $dim_device_oiid_merge_df
   where day='${insert_day}' and device is not null and length(device)= 40 and device = regexp_extract(device,'([a-f0-9]{40})', 0)
   and oiid is not null and length(oiid)>0
 ) de_oiid on ff.device=de_oiid.device
 "
+
+# qc 数据条数
+function qc_id_mapping(){
+
+  cd `dirname $0`
+  sh /home/dba/mobdi/qc/real_time_mobdi_qc/qc_id_mapping_view.sh  "$dim_id_mapping_android_sec_df" "${insert_day}.1000" "$dim_id_mapping_android_sec_df_view" || qc_fail_flag=1
+  if [[ ${qc_fail_flag} -eq 1 ]]; then
+    echo 'qc失败，阻止生成view'
+    exit 1
+  fi
+  echo "qc_id_mapping success!"
+}
+
+qc_id_mapping $insert_day
 
 
 # full表分区清理，保留最近10天数据，同时保留每月最后一天的数据
@@ -155,4 +173,12 @@ if [[ "$delete_day" -ne "$LastMonthLastDay" ]]; then
   echo "deleting version: ${delete_day}.1002 if exists"
   hive -e "alter table $dim_id_mapping_android_sec_df DROP IF EXISTS PARTITION (version='${delete_day}.1002');"
 fi
+
+# 创建/替换视图
+HADOOP_USER_NAME=dba hive -e "
+create or replace view $dim_id_mapping_android_sec_df_view
+as
+select * from $dim_id_mapping_android_sec_df
+where version='${insert_day}.1000'
+"
 # ### END DELETE

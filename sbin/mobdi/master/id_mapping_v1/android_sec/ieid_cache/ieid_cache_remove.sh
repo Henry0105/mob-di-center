@@ -78,62 +78,6 @@ $ieid_device_every_day_total_sec t2
 on t1.device=t2.device;
 "
 
-# qc 数据条数
-function qc_id_mapping(){
-
-  cd `dirname $0`
-  sh /home/dba/mobdi/qc/real_time_mobdi_qc/qc_id_mapping_view.sh  "$dim_id_mapping_android_sec_df" "${day}.1001" "$dim_id_mapping_android_sec_df_view" || qc_fail_flag=1
-  if [[ ${qc_fail_flag} -eq 1 ]]; then
-    echo 'qc失败，阻止生成view'
-    exit 1
-  fi
-  echo "qc_id_mapping success!"
-}
-
-qc_id_mapping $day
-
-# 检查新分区磁盘波动
-CHECK_DATA()
-{
-  local insert_path=$1
-  local p1day_path=$2
-  # 检查路径上的文件是否存在
-  hadoop fs -test -e $insert_path
-  if [[ $? -eq 0 ]] ; then
-    # path存在
-    insert_data_du=`hadoop fs -du -s $insert_path | awk '{print $1}'`
-    p1day_data_du=`hadoop fs -du -s $p1day_path | awk '{print $1}'`
-    # 阈值,为了方便比较,加1
-    threshold=1.1
-    # 文件夹大小不为0
-    if [ $insert_data_du -gt 0 -a $p1day_data_du -gt 0 ] ;then
-	if [ $insert_data_du -gt $p1day_data_du  ] ; then
-	    diff=`expr $insert_data_du - $p1day_data_du`
-	else
-	    diff=`expr $p1day_data_du - $insert_data_du`
-	fi
-	diff_rate=`echo "scale=10; ($diff+$p1day_data_du)/$p1day_data_du" | bc`
-	if [ `expr $diff_rate \> $threshold` -eq 1 ] ; then
-		echo "qc fail!!!!!!!, 磁盘波动率超过阈值"
-		return 1
-	else
-		echo "qc success 切换视图 !!!!!!"
-		return 0
-	fi
-    else
-      echo "qc fail!!!!, 磁盘大小为0"
-      return 1
-    fi
-  fi
-}
-
 # CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/dim_mobdi_mapping.db/dim_id_mapping_android_sec_df/version=${day}.1001" "hdfs://ShareSdkHadoop/user/hive/warehouse/dim_mobdi_mapping.db/dim_id_mapping_android_sec_df/version=${p1day}.1001"
 
 
-# 创建/替换视图
-HADOOP_USER_NAME=dba hive -e "
-create or replace view $dim_id_mapping_android_sec_df_view
-as
-select * from $dim_id_mapping_android_sec_df
-where version='${day}.1001'
-"
