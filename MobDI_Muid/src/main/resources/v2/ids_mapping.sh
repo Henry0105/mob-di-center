@@ -60,7 +60,7 @@ CASE
     '' unid,'' mid,0 flag
 from(
   select duid,oiid,ieid,factory,model from (
-    select duid,oiid,ieid,factory,model,day from $log_device_info_jh
+    select if(curduid is null or trim(curduid)='',id,curduid) duid,oiid,ieid,factory,model,plat,day from $log_device_info_jh\
     union all
     select duid,oiid,ieid,factory,model,day from $log_device_install_app_all_info
     union all

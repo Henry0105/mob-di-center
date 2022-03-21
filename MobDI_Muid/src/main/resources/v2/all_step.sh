@@ -86,7 +86,7 @@ set mapreduce.reduce.memory.mb=14000;
 
 insert overwrite table $id_source partition(day='all_with_blacklist')
 select duid,oiid,ieid,factory,model,unid,mid,flag
-from $id_source where day not like 'al%'
+from $id_source where day between 20190501 and 20211001
 group by duid,oiid,ieid,factory,model,unid,mid,flag
 "
 #生成并删除黑名单
