@@ -93,7 +93,7 @@ if [[ ${select_muid} == *,${ieid_col},* ]] ;then
 ieid_flag=1
 fi
 
-if [[ ${duid_flag} -eq 0 && ${oiid_flag} -eq 0 && ${ieid_col} -eq 0 ]]
+if [[ ${duid_flag} -eq 0 && ${oiid_flag} -eq 0 && ${ieid_flag} -eq 0 ]]
 then
 echo "没有duid,oiid,ieid3个字段,无法进行匹配"
 exit 1
