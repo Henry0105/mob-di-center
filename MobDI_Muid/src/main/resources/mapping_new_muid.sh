@@ -1,6 +1,8 @@
 #!/bin/bash
 set -x -e
 
+cd `dirname $0`
+
 if [[ $# -lt 2 ]]
 then
 echo "参数不足: 1.分区日期 2.原表 3.目标表(可不填,默认为原表)"
@@ -19,11 +21,11 @@ fi
 mid_field="mid"
 queue="root.yarn_etl.etl"
 
-duid_col=$(grep "^$dw_table " ./table.conf |awk '{print $2}')
-oiid_col=$(grep "^$dw_table " ./table.conf |awk '{print $3}')
-ieid_col=$(grep "^$dw_table " ./table.conf |awk '{print $4}')
-plat_col=$(grep "^$dw_table " ./table.conf |awk '{print $5}')
-device_col=$(grep "^$dw_table " ./table.conf |awk '{print $6}')
+duid_col=$(grep "^$dw_table " ./table.conf |awk '{print $2}'|xargs)
+oiid_col=$(grep "^$dw_table " ./table.conf |awk '{print $3}'|xargs)
+ieid_col=$(grep "^$dw_table " ./table.conf |awk '{print $4}'|xargs)
+plat_col=$(grep "^$dw_table " ./table.conf |awk '{print $5}'|xargs)
+device_col=$(grep "^$dw_table " ./table.conf |awk '{print $6}'|xargs)
 
 if [[ -z ${duid_col} ]]
 then
