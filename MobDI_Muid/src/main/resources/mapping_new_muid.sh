@@ -117,7 +117,7 @@ muid_flag_1=''
 muid_flag_2=''
 if [[ ${select_muid} == *,${plat_col},* ]] ;then
   muid_flag_1=" and ${plat_col}='1'"
-  muid_flag_2=" union all select $select_raw_device_mid from ${raw_table} where $par = $yesterday and ${plat_col}!='1'"
+  muid_flag_2=" union all select $select_raw_device_mid from ${raw_table} where $par = $yesterday and coalesce(${plat_col},'')!='1'"
 else
   echo "没有plat,需确认是否对全表操作,如需操作,注释exit 1"
   #exit 1
