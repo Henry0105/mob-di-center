@@ -69,7 +69,7 @@ fi
 
 if [[ ${select_muid} != *,${device_col},* ]] ;then
  echo "没有device,需查看有plat无device情况"
- exit 1
+ #exit 1
 fi
 
 mid_db="dm_mid_master"
@@ -105,17 +105,22 @@ fi
 select_raw=$(echo ${select_muid}|awk -F '#' '{print substr($1,2,(length($0)-2))}')
 select_raw_no_mid=$(echo ${select_muid}|sed "s/,$mid_field,/,null $mid_field,/g" \
 |awk -F '#' '{print substr($1,2,(length($0)-2))}')
+if [[ ${select_muid} == *,${device_col},* ]];then
 select_raw_device_mid=$(echo ${select_muid}|sed "s/,$mid_field,/,$device_col as $mid_field,/g" \
 |awk -F '#' '{print substr($1,2,(length($0)-2))}')
+else
+select_raw_device_mid=$(echo ${select_muid}|sed "s/,$mid_field,/,null as $mid_field,/g" \
+|awk -F '#' '{print substr($1,2,(length($0)-2))}')
+fi
 
 muid_flag_1=''
 muid_flag_2=''
 if [[ ${select_muid} == *,${plat_col},* ]] ;then
   muid_flag_1=" and ${plat_col}='1'"
-  muid_flag_2=" union all select $select_raw_device_mid from ${raw_table} where $par = $yesterday and ${plat_col}!='1'"
+  muid_flag_2=" union all select $select_raw_device_mid from ${raw_table} where $par = $yesterday and coalesce(${plat_col},'')!='1'"
 else
   echo "没有plat,需确认是否对全表操作,如需操作,注释exit 1"
-  exit 1
+  #exit 1
 fi
 
 staged_table="raw_table"
@@ -151,7 +156,7 @@ sql=${sql}"
 ,duid_stage as(
 select $select_duid
 from $staged_table a left join $duid_mid_mapping_par b
-on a.$duid_col=b.duid and b.day=$mapping_par
+on a.$duid_col=b.duid and b.day='$mapping_par'
 where coalesce(a.$duid_col,'')<>''
 
 union all
@@ -176,7 +181,7 @@ sql=${sql}"
 ,oiid_stage as(
 select $select_oiid
 from ${staged_table} a left join $oiid_mid_mapping_par b
-on a.$oiid_col=b.oiid and a.factory=b.factory and b.day=$mapping_par
+on a.$oiid_col=b.oiid and a.factory=b.factory and b.day='$mapping_par'
 where coalesce(a.$oiid_col,'')<>'' and coalesce(a.$mid_field,'')=''
 
 union all
@@ -199,7 +204,7 @@ sql=${sql}"
 ,ieid_stage as(
 select $select_ieid
 from ${staged_table} a left join $ieid_mid_mapping_par b
-on a.$ieid_col=b.ieid and b.day=$mapping_par
+on a.$ieid_col=b.ieid and b.day='$mapping_par'
 where coalesce(a.$ieid_col,'')<>'' and coalesce(a.$mid_field,'')=''
 
 union all
