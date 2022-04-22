@@ -42,7 +42,7 @@ object IdBlackList {
     id match {
       case "ieid" => generateBlacklist(spark, "ieid,oiid,duid", 5, 200, day)
       case "oiid" => generateBlacklist(spark, "oiid,ieid,duid", 3, 200, day)
-      case "duid" => generateBlacklist(spark, "duid,ieid,oiid", 3, 3, day)
+      case "duid" => generateBlacklist(spark, "duid,ieid,oiid", 3, 2, day)
     }
 
     spark.stop()

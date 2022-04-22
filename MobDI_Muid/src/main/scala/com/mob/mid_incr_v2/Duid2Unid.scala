@@ -7,6 +7,7 @@ object Duid2Unid {
   def main(args: Array[String]): Unit = {
 
     val day: String = args(0)
+    val a7day: String = args(1)
 
     val spark: SparkSession = SparkSession
       .builder()
@@ -14,13 +15,13 @@ object Duid2Unid {
       .enableHiveSupport()
       .getOrCreate()
 
-    compute(spark, day)
+    compute(spark, day, a7day)
 
     spark.stop()
 
   }
 
-  def compute(spark: SparkSession, day: String): Unit = {
+  def compute(spark: SparkSession, day: String, a7day: String): Unit = {
 
     //1.去掉黑名单duid并且清洗厂商机型
     spark.sql(
@@ -93,7 +94,7 @@ object Duid2Unid {
     spark.sql(
       s"""
          |SELECT duid
-         |     , fsid('$day') AS unid
+         |     , fsid('$a7day') AS unid
          |FROM
          |(
          |  SELECT duid
