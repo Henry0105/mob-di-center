@@ -7,6 +7,9 @@ object Duid2Unid {
   def main(args: Array[String]): Unit = {
 
     val day: String = args(0)
+
+    //该日期是因为历史数据20201101-20211101生成雪花id时统一用的日期为20211106
+    //所以增量数据生成雪花id日期自动+6，从20211107开始
     val a7day: String = args(1)
 
     val spark: SparkSession = SparkSession

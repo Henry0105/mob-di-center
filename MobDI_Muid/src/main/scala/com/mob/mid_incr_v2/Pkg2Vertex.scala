@@ -30,19 +30,26 @@ object Pkg2Vertex {
          |SELECT duid
          |     , pkg_it
          |     , unid
-         |FROM dm_mid_master.duid_incr_tmp
-         |WHERE day = '$day'
-         |AND pkg_it <> ''
+         |FROM
+         |(
+         |  SELECT duid
+         |       , pkg_it
+         |       , unid
+         |  FROM dm_mid_master.duid_incr_tmp
+         |  WHERE day = '$day'
+         |  AND pkg_it <> ''
+         |  GROUP BY duid,pkg_it,unid
+         |
+         |  UNION ALL
+         |
+         |  SELECT duid
+         |       , pkg_it
+         |       , unid_final AS unid
+         |  FROM dm_mid_master.duid_unid_info_month
+         |  WHERE day = '$pday'
+         |  AND SUBSTRING(pkg_it,-3) <> '000'
+         |) a
          |GROUP BY duid,pkg_it,unid
-         |
-         |union all
-         |
-         |SELECT duid
-         |     , pkg_it
-         |     , unid_final AS unid
-         |FROM dm_mid_master.duid_unid_info_month
-         |WHERE day = '$pday'
-         |AND SUBSTRING(pkg_it,-3) <> '000'
          |""".stripMargin)
     duid_info_month.cache()
     duid_info_month.count()
@@ -64,18 +71,18 @@ object Pkg2Vertex {
     spark.udf.register("get_pkg_ver", getPkgVersion _)
     spark.sql(
       s"""
-         |SELECT duid
+         |SELECT unid
          |FROM
          |(
-         |  SELECT duid
+         |  SELECT unid
          |       , get_pkg_ver(pkg_it) AS version
          |       , count(1) AS cnt
          |  FROM duid_info_month
-         |  GROUP BY duid,get_pkg_ver(pkg_it)
+         |  GROUP BY unid,get_pkg_ver(pkg_it)
          |)a
          |WHERE cnt > 100
-         |GROUP BY duid
-         |""".stripMargin).createOrReplaceTempView("black_duid")
+         |GROUP BY unid
+         |""".stripMargin).createOrReplaceTempView("black_unid")
 
     //3.去除异常数据后构造边
     spark.udf.register[Seq[(String, String, Int)], Seq[String]]("openid_resembled", openid_resembled)
@@ -97,8 +104,8 @@ object Pkg2Vertex {
          |      (
          |        SELECT *
          |        FROM duid_info_month a
-         |        LEFT ANTI JOIN black_duid b
-         |        ON a.duid = b.duid
+         |        LEFT ANTI JOIN black_unid b
+         |        ON a.unid = b.unid
          |      )c
          |      LEFT SEMI JOIN
          |      (
