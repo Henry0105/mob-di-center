@@ -98,24 +98,38 @@ object Duid2Duidfinal {
       s"""
          |WITH unid_duidfinal AS (
          |  SELECT unid
-         |       , duid_final
+         |       , duid
          |  FROM duid_unid_unidfinal_incr
-         |  GROUP BY unid,duid_final
-         |)
+         |  WHERE flag = '1'
+         |  GROUP BY unid,duid
+         |),
          |
-         |INSERT OVERWRITE TABLE dm_mid_master.duid_duidfinal_info_incr PARTITION (day = '$day')
-         |SELECT c.duid
-         |       , COALESCE(c.duid_final,d.duid_final) AS duid_final
+         |tmp_duid_unid_unidfinal_incr AS (
+         |  SELECT duid
+         |       , duid_final
+         |       , unid_final
          |       , ieid
          |       , oiid
          |       , factory
          |       , flag
-         |       , c.unid_final
+         |       , unid
+         |  FROM duid_unid_unidfinal_incr
+         |  GROUP BY duid,duid_final,unid_final,ieid,oiid,factory,flag,unid
+         |)
+         |
+         |INSERT OVERWRITE TABLE dm_mid_master.duid_duidfinal_info_incr PARTITION (day = '$day')
+         |SELECT c.duid
+         |       , COALESCE(d.duid_final,c.duid_final) AS duid_final
+         |       , ieid
+         |       , oiid
+         |       , factory
+         |       , flag
+         |       , COALESCE(d.unid_final,c.unid_final) AS unid_final
          |       , c.unid
          |FROM
          |(
          |  SELECT a.duid
-         |       , b.duid_final AS duid_final
+         |       , b.duid AS duid_final
          |       , ieid
          |       , oiid
          |       , factory
@@ -131,20 +145,34 @@ object Duid2Duidfinal {
          |           , factory
          |           , flag
          |           , unid
-         |      FROM duid_unid_unidfinal_incr
-         |      GROUP BY duid,unid_final,ieid,oiid,factory,flag,unid
+         |      FROM tmp_duid_unid_unidfinal_incr
+         |      WHERE flag = '1'
          |  ) a
          |  LEFT JOIN
          |  (
-         |    SELECT duid_final
+         |    SELECT duid
          |         , unid AS unid_tmp
          |    FROM unid_duidfinal
          |  )b
          |  ON a.unid_final = b.unid_tmp
+         |
+         |  UNION ALL
+         |
+         |  SELECT duid
+         |       , duid_final
+         |       , ieid
+         |       , oiid
+         |       , factory
+         |       , flag
+         |       , unid_final
+         |       , unid
+         |  FROM tmp_duid_unid_unidfinal_incr
+         |  WHERE flag = '0'
          |)c
          |LEFT JOIN
          |(
          |  SELECT unid
+         |       , unid_final
          |       , duid_final
          |  FROM dm_mid_master.duid_unidfinal_duidfinal_mapping
          |  WHERE day < '$day'
