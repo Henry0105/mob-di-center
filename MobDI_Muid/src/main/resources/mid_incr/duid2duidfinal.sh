@@ -20,6 +20,7 @@ if [ $# -ne 1 ]; then
 fi
 
 day=$1
+pday=`date -d "$day -1 day" +%Y%m%d`
 
 spark2-submit --master yarn \
 --deploy-mode cluster \
@@ -45,4 +46,4 @@ spark2-submit --master yarn \
 --conf spark.speculation.quantile=0.98 \
 --conf spark.sql.autoBroadcastJoinThreshold=1048576000 \
 --jars hdfs://ShareSdkHadoop/user/dba/yanhw/etl_udf-1.1.2.jar \
-/home/dba/luost/MobDI_Muid-1.0-SNAPSHOT-jar-with-dependencies.jar $day
+/home/dba/luost/MobDI_Muid-1.0-SNAPSHOT-jar-with-dependencies.jar $day $pday

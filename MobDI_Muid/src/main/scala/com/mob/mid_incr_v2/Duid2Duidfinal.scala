@@ -11,6 +11,7 @@ object Duid2Duidfinal {
   def main(args: Array[String]): Unit = {
 
     val day: String = args(0)
+    val pday: String = args(1)
 
     val spark: SparkSession = SparkSession
       .builder()
@@ -18,13 +19,13 @@ object Duid2Duidfinal {
       .appName(s"Duid2Duidfinal_$day")
       .getOrCreate()
 
-    compute(spark, day)
+    compute(spark, day, pday)
 
     spark.stop()
 
   }
 
-  def compute(spark: SparkSession, day: String): DataFrame = {
+  def compute(spark: SparkSession, day: String, pday: String): DataFrame = {
 
     val vertex: DataFrame = spark.sql(
       s"""
@@ -175,23 +176,40 @@ object Duid2Duidfinal {
          |       , unid_final
          |       , duid_final
          |  FROM dm_mid_master.duid_unidfinal_duidfinal_mapping
-         |  WHERE day < '$day'
+         |  WHERE day = '$pday'
          |)d
          |ON c.unid_final = d.unid
          |""".stripMargin)
 
     //将当日新生成的duid_unidfinal的关系更新
+    //因为增量数据拿到老的unid后图合并也会变化，所以这里也需要更新历史unid-unidfinal等关系
     spark.sql(
       s"""
          |INSERT OVERWRITE TABLE dm_mid_master.duid_unidfinal_duidfinal_mapping PARTITION(day = '$day')
-         |SELECT duid
-         |     , unid
-         |     , unid_final
-         |     , duid_final
-         |FROM dm_mid_master.duid_duidfinal_info_incr
-         |WHERE day = '$day'
-         |AND flag = 1
-         |GROUP BY duid,unid,unid_final,duid_final
+         |SELECT COALESCE(a.duid,b.duid) AS duid
+         |     , COALESCE(a.unid,b.unid) AS unid
+         |     , COALESCE(a.unid_final,b.unid_final) AS unid_final
+         |     , COALESCE(a.duid_final,b.duid_final) AS duid_final
+         |FROM
+         |(
+         |    SELECT duid
+         |         , unid
+         |         , unid_final
+         |         , duid_final
+         |    FROM dm_mid_master.duid_duidfinal_info_incr
+         |    WHERE day = '$day'
+         |    GROUP BY duid,unid,unid_final,duid_final
+         |)a
+         |FULL JOIN
+         |(
+         |     SELECT duid
+         |          , unid
+         |          , unid_final
+         |          , duid_final
+         |    FROM dm_mid_master.duid_unidfinal_duidfinal_mapping
+         |    WHERE day = '$pday'
+         |)b
+         |ON a.duid = b.duid
          |""".stripMargin)
 
   }

@@ -10,7 +10,8 @@ object Duid2Unid {
 
     //该日期是因为历史数据20201101-20211101生成雪花id时统一用的日期为20211106
     //所以增量数据生成雪花id日期自动+6，从20211107开始
-    val a7day: String = args(1)
+    val a120day: String = args(1)
+    val pday: String = args(2)
 
     val spark: SparkSession = SparkSession
       .builder()
@@ -18,13 +19,13 @@ object Duid2Unid {
       .enableHiveSupport()
       .getOrCreate()
 
-    compute(spark, day, a7day)
+    compute(spark, day, a120day, pday)
 
     spark.stop()
 
   }
 
-  def compute(spark: SparkSession, day: String, a7day: String): Unit = {
+  def compute(spark: SparkSession, day: String, a120day: String, pday: String): Unit = {
 
     //1.去掉黑名单duid并且清洗厂商机型
     spark.sql(
@@ -87,7 +88,7 @@ object Duid2Unid {
          |       , unid_final
          |       , duid_final
          |  FROM dm_mid_master.duid_unidfinal_duidfinal_mapping
-         |  WHERE day < '$day'
+         |  WHERE day = '$pday'
          |) b
          |ON a.duid = b.duid
          |""".stripMargin)
@@ -97,7 +98,7 @@ object Duid2Unid {
     spark.sql(
       s"""
          |SELECT duid
-         |     , fsid('$a7day') AS unid
+         |     , fsid('$a120day') AS unid
          |FROM
          |(
          |  SELECT duid

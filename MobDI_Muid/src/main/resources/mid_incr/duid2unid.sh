@@ -21,6 +21,7 @@ fi
 
 day=$1
 a7day=`date -d "$day +120 days" +%Y%m%d`
+pday=`date -d "$day -1 day" +%Y%m%d`
 
 spark2-submit --master yarn \
 --deploy-mode cluster \
@@ -44,4 +45,4 @@ spark2-submit --master yarn \
 --conf spark.shuffle.file.buffer=128k \
 --conf spark.speculation.quantile=0.98 \
 --jars hdfs://ShareSdkHadoop/user/dba/yanhw/etl_udf-1.1.2.jar \
-/home/dba/luost/MobDI_Muid-1.0-SNAPSHOT-jar-with-dependencies.jar $day $a7day 
+/home/dba/luost/MobDI_Muid-1.0-SNAPSHOT-jar-with-dependencies.jar $day $a7day $pday
