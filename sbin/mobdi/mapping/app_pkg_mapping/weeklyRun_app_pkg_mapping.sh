@@ -24,22 +24,22 @@ if [ $(date -d "$t1" +%w) -eq 2 ] ;then
 app_pkg_clean_byhand_sql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('dm_sdk_mapping', 'app_pkg_clean_byhand', 'version');
+    SELECT GET_LAST_PARTITION('dim_sdk_mapping', 'dim_app_pkg_clean_byhand', 'version');
 "
 app_pkg_clean_byhand_partition=(`hive -e "$app_pkg_clean_byhand_sql"`)
 
 #hive -e "
-#create table if not exists dw_mobdi_md.master_pkg_name(pkg string, name string, arr array<string>, arr_size int);
-#create table if not exists dw_mobdi_md.master_pkg(pkg string, arr array<string>, arr_size int);
-#create table if not exists dw_mobdi_md.app_pkg_mapping(pkg string, apppkg string, tag tinyint);
-#create table if not exists dw_mobdi_md.master_pkg_size3_2(pkg string, arr array<string>, arr_size int, p_0 string, p_1 string, p_2 string);
-#create table if not exists dw_mobdi_md.master_pkg_size3_final(pkg string, p_0 string, p_1 string, p_2 string);
-#create table if not exists dw_mobdi_md.master_pkg_size4_3(pkg string, arr array<string>, arr_size int, p_0 string, p_1 string, p_2 string, p_3 string);
-#create table if not exists dw_mobdi_md.master_pkg_size4_final(pkg string, p_0 string, p_1 string, p_2 string, p_3 string);
-#create table if not exists dw_mobdi_md.master_pkg_size5_4(pkg string, arr array<string>, arr_size int, p_0 string, p_1 string, p_2 string, p_3 string, p_4 string);
-#create table if not exists dw_mobdi_md.master_pkg_size5_final(pkg string, p_0 string, p_1 string, p_2 string, p_3 string, p_4 string);
+#create table if not exists dm_mobdi_tmp.master_pkg_name(pkg string, name string, arr array<string>, arr_size int);
+#create table if not exists dm_mobdi_tmp.master_pkg(pkg string, arr array<string>, arr_size int);
+#create table if not exists dm_mobdi_tmp.app_pkg_mapping(pkg string, apppkg string, tag tinyint);
+#create table if not exists dm_mobdi_tmp.master_pkg_size3_2(pkg string, arr array<string>, arr_size int, p_0 string, p_1 string, p_2 string);
+#create table if not exists dm_mobdi_tmp.master_pkg_size3_final(pkg string, p_0 string, p_1 string, p_2 string);
+#create table if not exists dm_mobdi_tmp.master_pkg_size4_3(pkg string, arr array<string>, arr_size int, p_0 string, p_1 string, p_2 string, p_3 string);
+#create table if not exists dm_mobdi_tmp.master_pkg_size4_final(pkg string, p_0 string, p_1 string, p_2 string, p_3 string);
+#create table if not exists dm_mobdi_tmp.master_pkg_size5_4(pkg string, arr array<string>, arr_size int, p_0 string, p_1 string, p_2 string, p_3 string, p_4 string);
+#create table if not exists dm_mobdi_tmp.master_pkg_size5_final(pkg string, p_0 string, p_1 string, p_2 string, p_3 string, p_4 string);
 #";
-	   sql="insert overwrite table dw_mobdi_md.master_pkg_name
+	   sql="insert overwrite table dm_mobdi_tmp.master_pkg_name
 	        select t.*,size(arr) arr_size
 	        from
 	        (
@@ -50,7 +50,7 @@ app_pkg_clean_byhand_partition=(`hive -e "$app_pkg_clean_byhand_sql"`)
 			    from
 			    (
 			      select pkg,name
-			      from dm_sdk_mapping.pkg_name_mapping
+			      from dim_mobdi_mapping.dim_app_name_info_orig
 			    )a
 			    group by pkg,name
 			  )c
@@ -58,87 +58,87 @@ app_pkg_clean_byhand_partition=(`hive -e "$app_pkg_clean_byhand_sql"`)
 			where length(pkg) > 3
 			and pkg = regexp_extract(pkg,'([a-zA-Z0-9\.\_]+)',0)";
 	   echo "$sql"; hive -e "$sql";
-	   
-	   sql="insert overwrite table dw_mobdi_md.master_pkg
+
+	   sql="insert overwrite table dm_mobdi_tmp.master_pkg
 	        select pkg,arr,arr_size
-			from dw_mobdi_md.master_pkg_name
+			from dm_mobdi_tmp.master_pkg_name
 			group by pkg,arr,arr_size";
 	   echo "$sql"; hive -e "$sql";
-	   
-	   sql="insert overwrite table dw_mobdi_md.app_pkg_mapping
+//啥呀
+	   sql="insert overwrite table dm_mobdi_tmp.app_pkg_mapping
 	        select pkg,apppkg,tag
-			from dm_sdk_mapping.app_pkg_mapping_par
+			from dim_sdk_mapping.dim_app_pkg_mapping_par
 			where version='1000'";
 	   echo "$sql"; hive -e "$sql";
 
 	   arr_size=(3 4 5);
-	   
-	   sql="insert overwrite table dw_mobdi_md.master_pkg_size3_2 
+
+	   sql="insert overwrite table dm_mobdi_tmp.master_pkg_size3_2
 	        select pkg,arr,arr_size,arr[0] as p_0,arr[1] as p_1,arr[2] as p_2
-	        from dw_mobdi_md.master_pkg
+	        from dm_mobdi_tmp.master_pkg
 	        where arr_size = 3";
 	   echo "$sql"; hive -e "$sql";
-	   
-	   sql="insert overwrite table dw_mobdi_md.master_pkg_size4_3 
+
+	   sql="insert overwrite table dm_mobdi_tmp.master_pkg_size4_3
 	        select pkg,arr,arr_size,arr[0] as p_0,arr[1] as p_1,arr[2] as p_2,arr[3] as p_3
-	        from dw_mobdi_md.master_pkg
+	        from dm_mobdi_tmp.master_pkg
 	        where arr_size = 4";
 	   echo "$sql"; hive -e "$sql";
-	   
-	   sql="insert overwrite table dw_mobdi_md.master_pkg_size5_4 
+
+	   sql="insert overwrite table dm_mobdi_tmp.master_pkg_size5_4
 	        select pkg,arr,arr_size,arr[0] as p_0,arr[1] as p_1,arr[2] as p_2,arr[3] as p_3,arr[4] as p_4
-	        from dw_mobdi_md.master_pkg
+	        from dm_mobdi_tmp.master_pkg
 	        where arr_size = 5";
 	   echo "$sql"; hive -e "$sql";
 
-	   if [ ${#arr_size[*]} -ge 1 ];then 
-		  
+	   if [ ${#arr_size[*]} -ge 1 ];then
+
 		  for n in ${arr_size[*]};do
-		
+
 			 col=""; a_col=""; subsql=""; s=`expr $n - 1`; u=`expr $n - 2`;
 
-			 for ((k=1; k<$n; ++k));do 
-				m=`expr $k - 1`;  
+			 for ((k=1; k<$n; ++k));do
+				m=`expr $k - 1`;
 				col="$col p_$m,"; a_col="${a_col} a.p_$m,";
 				subsql="${subsql} a.p_$m = b.p_$m and";
-			 done 
-		
-			 for ((w=2; w<$n; ++w));do 
-				head=${col%p_$w*}; 
-				if [ $w -ne $s ];then 
+			 done
+
+			 for ((w=2; w<$n; ++w));do
+				head=${col%p_$w*};
+				if [ $w -ne $s ];then
 				   tail_col=",${col#*p_$w,} p_$s";
 				   if [ $w = 2 ];then
-					  table="dw_mobdi_md.master_pkg_size${n}_$s";	   
-					  sql1="insert overwrite table dw_mobdi_md.master_pkg_size${n}_final"; 
+					  table="dm_mobdi_tmp.master_pkg_size${n}_$s";
+					  sql1="insert overwrite table dm_mobdi_tmp.master_pkg_size${n}_final";
 				   else
-					  table="dw_mobdi_md.master_pkg_size${n}_final";
-					  sql1="insert overwrite table dw_mobdi_md.master_pkg_size${n}_final";
+					  table="dm_mobdi_tmp.master_pkg_size${n}_final";
+					  sql1="insert overwrite table dm_mobdi_tmp.master_pkg_size${n}_final";
 				   fi
 				else
 				   tail_col="";
 				   if [ $n = 3 ];then
-					  table="dw_mobdi_md.master_pkg_size${n}_$s";	   
-					  sql1="insert overwrite table dw_mobdi_md.master_pkg_size${n}_final";
+					  table="dm_mobdi_tmp.master_pkg_size${n}_$s";
+					  sql1="insert overwrite table dm_mobdi_tmp.master_pkg_size${n}_final";
 				   else
-					  table="dw_mobdi_md.master_pkg_size${n}_final";
-					  sql1="insert overwrite table dw_mobdi_md.master_pkg_size${n}_final";
+					  table="dm_mobdi_tmp.master_pkg_size${n}_final";
+					  sql1="insert overwrite table dm_mobdi_tmp.master_pkg_size${n}_final";
 				   fi
 				fi
-			 
-				sql="$sql1 select pkg,${head}COALESCE(t.main_channel,p_$w) p_$w${tail_col} from 
-					 $table tt left join dm_sdk_mapping.pkg_from_channel t on tt.p_$w = t.channel";
-				echo "$sql"; hive -e "$sql"; 
+
+				sql="$sql1 select pkg,${head}COALESCE(t.main_channel,p_$w) p_$w${tail_col} from
+					 $table tt left join dim_sdk_mapping.dim_pkg_from_channel t on tt.p_$w = t.channel";
+				echo "$sql"; hive -e "$sql";
 			 done
-			 
+
 			 if [ $n -le 4 ];then
 				subsql="p_$s = \"yz_zsy\"";
 			 else
-				subsql="((p_4 = \"yz_zsy\" and p_3 <> \"yz_zsy\" and p_2 <> \"yz_zsy\") 
+				subsql="((p_4 = \"yz_zsy\" and p_3 <> \"yz_zsy\" and p_2 <> \"yz_zsy\")
 						or (p_4 = \"yz_zsy\" and p_3 = \"yz_zsy\" and p_2 <> \"yz_zsy\")
 						or (p_4 = \"yz_zsy\" and p_3 = \"yz_zsy\" and p_2 = \"yz_zsy\")) ";
-			 fi  
-				
-			 sql="insert into table dw_mobdi_md.app_pkg_mapping
+			 fi
+
+			 sql="insert into table dm_mobdi_tmp.app_pkg_mapping
 			      select pkg,apppkg,1 tag
 			      from
 			      (
@@ -149,7 +149,7 @@ app_pkg_clean_byhand_partition=(`hive -e "$app_pkg_clean_byhand_sql"`)
 				      from
 				      (
 				        select pkg,concat_ws(\".\",${col}p_$s) apppkg
-				        from dw_mobdi_md.master_pkg_size${n}_final
+				        from dm_mobdi_tmp.master_pkg_size${n}_final
 				        where $subsql
 				      )t
 				      group by pkg,apppkg
@@ -161,12 +161,13 @@ app_pkg_clean_byhand_partition=(`hive -e "$app_pkg_clean_byhand_sql"`)
 			 echo "$sql"; hive -e "$sql";
 
 		  done
+
 : '
 @part_2:
 实现功能：获得初步渠道清理数据
 输出结果：app_pkg_mapping
 '
-		sql="insert into table dw_mobdi_md.app_pkg_mapping
+		sql="insert into table dm_mobdi_tmp.app_pkg_mapping
 		     select pkg,apppkg,0 tag
 		     from
 		     (
@@ -198,9 +199,9 @@ app_pkg_clean_byhand_partition=(`hive -e "$app_pkg_clean_byhand_sql"`)
 			                 from
 			                 (
 			                   select a.apppkg,b.name app_name f
-			                   rom dw_mobdi_md.app_pkg_mapping a
+			                   rom dm_mobdi_tmp.app_pkg_mapping a
 			                   left join
-			                   dw_mobdi_md.master_pkg_name b on a.pkg = b.pkg
+			                   dm_mobdi_tmp.master_pkg_name b on a.pkg = b.pkg
 			                   where length(a.apppkg) >= 7
 			                 )c
 			                 where app_name is not null
@@ -215,7 +216,7 @@ app_pkg_clean_byhand_partition=(`hive -e "$app_pkg_clean_byhand_sql"`)
 			       inner join
 			       (
 			         select pkg apppkg,name app_name
-			         from dw_mobdi_md.master_pkg_name
+			         from dm_mobdi_tmp.master_pkg_name
 			       ) tt on (t.app_name = tt.app_name)
 			       where regexp_extract(tt.apppkg,t.apppkg,0)=t.apppkg
 			     )ttt
@@ -225,52 +226,52 @@ app_pkg_clean_byhand_partition=(`hive -e "$app_pkg_clean_byhand_sql"`)
 			 where rank = 1";
 		echo "$sql"; hive -e "$sql";
 
-		sql="insert into table dw_mobdi_md.app_pkg_mapping
+		sql="insert into table dm_mobdi_tmp.app_pkg_mapping
 		     select pkg,apppkg,2 as tag
-		     from dm_sdk_mapping.app_pkg_clean_byhand where version = '$app_pkg_clean_byhand_partition' ;";
+		     from dim_sdk_mapping.dim_app_pkg_clean_byhand where version = '$app_pkg_clean_byhand_partition' ;";
 		echo "$sql"; hive -e "$sql";
         #添加应用宝清洗过程
         sql="
-        insert overwrite table dw_mobdi_md.pkg_yyb_to_wdj_cln
+        insert overwrite table dm_mobdi_tmp.pkg_yyb_to_wdj_cln
         select a.packagename_yyb as pkg,b.apppkg as apppkg,b.tag as tag
         from
         (
           select packagename_yyb,packagename_wdj
-          from dm_sdk_mapping.yyb_pkg_cln
+          from dim_sdk_mapping.dim_yyb_pkg_cln
         ) a
         inner join
         (
           select *
-          from dw_mobdi_md.app_pkg_mapping
+          from dm_mobdi_tmp.app_pkg_mapping
         ) b
         on a.packagename_wdj=b.pkg；
         ";
         echo "$sql"; hive -e "$sql";
         sql="
-        insert overwrite table dw_mobdi_md.app_pkg_mapping
-        select * from  dw_mobdi_md.app_pkg_mapping
+        insert overwrite table dm_mobdi_tmp.app_pkg_mapping
+        select * from  dm_mobdi_tmp.app_pkg_mapping
         union all
-        select * from dw_mobdi_md.pkg_yyb_to_wdj_cln
+        select * from dm_mobdi_tmp.pkg_yyb_to_wdj_cln
         ;
         ";
         echo "$sql"; hive -e "$sql";
 
 
-		 sql="insert overwrite table dm_sdk_mapping.app_pkg_mapping_par partition (version='${t1}.1000')
+		 sql="insert overwrite table dim_sdk_mapping.dim_app_pkg_mapping_par partition (version='${t1}.1000')
 		      select pkg,apppkg,tag
 		      from
 		      (
 		        select *,
 			           row_number() over (partition by pkg order by tag desc) rank
-			    from dw_mobdi_md.app_pkg_mapping
+			    from dm_mobdi_tmp.app_pkg_mapping
 			  )a
 			  where rank = 1";
 		 echo "$sql"; hive -e "$sql";
 
         hive -v -e "
-        insert overwrite table dm_sdk_mapping.app_pkg_mapping_par partition (version='1000') 
-        select pkg,apppkg,tag 
-        from dm_sdk_mapping.app_pkg_mapping_par
+        insert overwrite table dim_sdk_mapping.dim_app_pkg_mapping_par partition (version='1000')
+        select pkg,apppkg,tag
+        from dim_sdk_mapping.dim_app_pkg_mapping_par
         where version='${t1}.1000';"
        fi
 	
