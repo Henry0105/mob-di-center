@@ -57,7 +57,7 @@ avg( topic_0)as topic_0,
 avg( topic_1)as topic_1
 from(
     select pkg,topic_11,topic_16,topic_7,topic_8,topic_9,topic_0,topic_1
-    from mobdi_analyst_test.tangzhzh_pkg_topic_wgt
+    from $mapping_pkg_topic_wgt
 )a
 inner join
 (
