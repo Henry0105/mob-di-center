@@ -67,7 +67,7 @@ left join
 select device,ieid,oiid,pid
 from
 dim_mobdi_mapping.dim_id_mapping_android_sec_df
-where version='${day}.1001'
+where version='${day}.1000'
 )c
 on a.device=c.device;
 
