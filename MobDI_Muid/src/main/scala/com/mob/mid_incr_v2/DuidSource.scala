@@ -8,6 +8,7 @@ object DuidSource {
 
     val day: String = args(0)
     val pday = args(1)
+    val p1month = args(2)
 
     val spark: SparkSession = SparkSession
       .builder()
@@ -15,13 +16,13 @@ object DuidSource {
       .enableHiveSupport()
       .getOrCreate()
 
-    compute(spark, day, pday)
+    compute(spark, day, pday, p1month)
 
     spark.stop()
 
   }
 
-  def compute(spark: SparkSession, day: String, pday: String): DataFrame = {
+  def compute(spark: SparkSession, day: String, pday: String, p1month: String): DataFrame = {
 
     //1.源头表载入
     spark.sql(s"DROP TABLE IF EXISTS dm_mid_master.tmp_mid_source_$day")
@@ -58,7 +59,8 @@ object DuidSource {
          |         , ieid
          |         , oiid
          |    FROM dm_mobdi_master.dwd_log_device_install_app_all_info_sec_di
-         |    WHERE day = '$day'
+         |    WHERE day >= '$pday'
+         |    AND day <= '$day'
          |    AND duid IS NOT NULL
          |    AND TRIM(duid) <> ''
          |    AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\\-]{36}|[0-9]{14,17}', 0)
@@ -74,7 +76,8 @@ object DuidSource {
          |       , ieid
          |       , oiid
          |  FROM dm_mobdi_master.dwd_pv_sec_di
-         |  WHERE day = '$day'
+         |  WHERE day >= '$pday'
+         |  AND day <= '$day'
          |  AND duid IS NOT NULL
          |  AND TRIM(duid) <> ''
          |  AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\\-]{36}|[0-9]{14,17}', 0)
@@ -89,7 +92,8 @@ object DuidSource {
          |       , ieid
          |       , oiid
          |  FROM dm_mobdi_master.dwd_mdata_nginx_pv_di
-         |  WHERE day = '$day'
+         |  WHERE day >= '$pday'
+         |  AND day <= '$day'
          |  AND duid IS NOT NULL
          |  AND TRIM(duid) <> ''
          |  AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\\-]{36}|[0-9]{14,17}', 0)
@@ -112,7 +116,8 @@ object DuidSource {
          |         , ieid
          |         , oiid
          |    FROM dm_mobdi_master.dwd_log_device_info_jh_sec_di
-         |    WHERE day = '$day'
+         |    WHERE day >= '$pday'
+         |    AND day <= '$day'
          |  )jh
          |  WHERE duid IS NOT NULL
          |  AND TRIM(duid) <> ''
@@ -128,7 +133,8 @@ object DuidSource {
          |       , ieid
          |       , oiid
          |  FROM dm_mobdi_master.dwd_location_info_sec_di
-         |  WHERE day = '$day'
+         |      WHERE day >= '$pday'
+         |    AND day <= '$day'
          |  AND duid IS NOT NULL
          |  AND TRIM(duid) <> ''
          |  AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\\-]{36}|[0-9]{14,17}', 0)
@@ -143,7 +149,8 @@ object DuidSource {
          |       , ieid
          |       , oiid
          |  FROM dm_mobdi_master.dwd_auto_location_info_sec_di
-         |  WHERE day = '$day'
+         |      WHERE day >= '$pday'
+         |    AND day <= '$day'
          |  AND duid IS NOT NULL
          |  AND TRIM(duid) <> ''
          |  AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\\-]{36}|[0-9]{14,17}', 0)
@@ -158,7 +165,8 @@ object DuidSource {
          |       , ieid
          |       , oiid
          |  FROM dm_mobdi_master.dwd_log_wifi_info_sec_di
-         |  WHERE day = '$day'
+         |      WHERE day >= '$pday'
+         |    AND day <= '$day'
          |  AND duid IS NOT NULL
          |  AND TRIM(duid) <> ''
          |  AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\\-]{36}|[0-9]{14,17}', 0)
@@ -173,7 +181,8 @@ object DuidSource {
          |       , ieid
          |       , oiid
          |  FROM dm_mobdi_master.dwd_base_station_info_sec_di
-         |  WHERE day = '$day'
+         |      WHERE day >= '$pday'
+         |    AND day <= '$day'
          |  AND duid IS NOT NULL
          |  AND TRIM(duid) <> ''
          |  AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\\-]{36}|[0-9]{14,17}', 0)
@@ -205,7 +214,7 @@ object DuidSource {
          |       , ieid
          |       , oiid
          |  FROM dm_mid_master.duid_oiid_ieid_mapping_full
-         |  WHERE day = '$pday'
+         |  WHERE day = '$p1month'
          |)a
          |GROUP BY duid,ieid,oiid
          |""".stripMargin)

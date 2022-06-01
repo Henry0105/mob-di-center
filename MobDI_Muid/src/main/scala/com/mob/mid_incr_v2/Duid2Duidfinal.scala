@@ -52,10 +52,7 @@ object Duid2Duidfinal {
 
     val value: RDD[(String, String)] = ccGraph.vertices.map(x => (x._1.toString, x._2.toString))
 
-    spark
-      .createDataFrame(value)
-      .toDF("unid", "unid_final")
-      .createOrReplaceTempView("tmp_ccgraph_result")
+    spark.createDataFrame(value).toDF("unid", "unid_final").createOrReplaceTempView("tmp_ccgraph_result")
 
     //当日duid-unid-unidfinal数据
     val duid_unid_unidfinal_incr: DataFrame = spark.sql(
@@ -78,8 +75,8 @@ object Duid2Duidfinal {
          |LEFT JOIN tmp_ccgraph_result b
          |ON a.unid = b.unid
          |""".stripMargin)
-    duid_unid_unidfinal_incr.cache()
-    duid_unid_unidfinal_incr.count()
+    //duid_unid_unidfinal_incr.cache()
+    //duid_unid_unidfinal_incr.count()
     duid_unid_unidfinal_incr.createOrReplaceTempView("duid_unid_unidfinal_incr")
 
     //生成每日duid-unidfinal数据
@@ -177,6 +174,7 @@ object Duid2Duidfinal {
          |       , duid_final
          |  FROM dm_mid_master.duid_unidfinal_duidfinal_mapping
          |  WHERE day = '$pday'
+         |  GROUP BY unid,unid_final,duid_final
          |)d
          |ON c.unid_final = d.unid
          |""".stripMargin)
