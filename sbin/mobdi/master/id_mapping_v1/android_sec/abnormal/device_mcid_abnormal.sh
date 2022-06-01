@@ -23,11 +23,11 @@ echo "$full_par"
 
 
 HADOOP_USER_NAME=dba hive -v -e "
-set mapreduce.map.memory.mb=6144;
-set mapreduce.map.java.opts='-Xmx5200m' -XX:+UseG1GC;
-set mapreduce.child.map.java.opts='-Xmx5200m';
-set mapreduce.reduce.memory.mb=10240;
-set mapreduce.reduce.java.opts='-Xmx8192m' -XX:+UseG1GC;
+set mapreduce.map.memory.mb=8192;
+set mapreduce.map.java.opts='-Xmx6553m' -XX:+UseG1GC;
+set mapreduce.child.map.java.opts='-Xmx6553m';
+set mapreduce.reduce.memory.mb=12288;
+set mapreduce.reduce.java.opts='-Xmx9830m' -XX:+UseG1GC;
 set hive.vectorized.execution.enabled=true;
 set hive.vectorized.execution.reduce.enabled=true;
 set hive.optimize.skewjoin=true;

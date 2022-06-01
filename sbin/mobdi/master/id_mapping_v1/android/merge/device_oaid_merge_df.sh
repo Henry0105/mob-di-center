@@ -36,11 +36,11 @@ add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT
 create temporary function mobdi_array_udf as 'com.youzu.mob.java.udf.MobdiArrayUtilUDF2';
 set hive.exec.parallel=true;
 set hive.exec.parallel.thread.number=8;
-set mapreduce.map.memory.mb=10240;
-set mapreduce.map.java.opts='-Xmx8192m' -XX:+UseG1GC;
-set mapreduce.child.map.java.opts='-Xmx8192m';
-set mapreduce.reduce.memory.mb=20480;
-set mapreduce.reduce.java.opts='-Xmx16384m' -XX:+UseG1GC;
+set mapreduce.map.memory.mb=14336;
+set mapreduce.map.java.opts='-Xmx12888m' -XX:+UseG1GC;
+set mapreduce.child.map.java.opts='-Xmx12288m';
+set mapreduce.reduce.memory.mb=24576;
+set mapreduce.reduce.java.opts='-Xmx19660m' -XX:+UseG1GC;
 set mapred.max.split.size=256000000;
 set mapred.min.split.size.per.node=100000000;
 set mapred.min.split.size.per.rack=100000000;
