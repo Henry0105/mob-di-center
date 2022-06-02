@@ -30,25 +30,9 @@ object Pkg2Vertex {
          |SELECT duid
          |     , pkg_it
          |     , unid
-         |FROM
-         |(
-         |  SELECT duid
-         |       , pkg_it
-         |       , unid
-         |  FROM dm_mid_master.duid_incr_tmp
-         |  WHERE day = '$day'
-         |  AND pkg_it <> ''
-         |  GROUP BY duid,pkg_it,unid
-         |
-         |  UNION ALL
-         |
-         |  SELECT duid
-         |       , pkg_it
-         |       , unid_final AS unid
-         |  FROM dm_mid_master.duid_unid_info_month
-         |  WHERE day = '$pday'
-         |  AND SUBSTRING(pkg_it,-3) <> '000'
-         |) a
+         |FROM dm_mid_master.duid_incr_tmp
+         |WHERE day = '$day'
+         |AND pkg_it <> ''
          |GROUP BY duid,pkg_it,unid
          |""".stripMargin)
     duid_info_month.cache()
@@ -84,6 +68,50 @@ object Pkg2Vertex {
          |GROUP BY unid
          |""".stripMargin).createOrReplaceTempView("black_unid")
 
+    spark.sql(
+      """
+        |SELECT a.duid
+        |     , a.pkg_it
+        |     , a.unid
+        |FROM
+        |(
+        |  SELECT *
+        |  FROM duid_info_month a
+        |  LEFT ANTI JOIN black_unid b
+        |  ON a.unid = b.unid
+        |)c
+        |LEFT SEMI JOIN
+        |(
+        |  SELECT pkg_it AS pi
+        |  FROM normal_behavior_pkg_it
+        |)d
+        |ON c.pkg_it = d.pi
+        |""".stripMargin).createOrReplaceTempView("incr_clear")
+
+    spark.sql(
+      s"""
+         |SELECT duid
+         |     , pkg_it
+         |     , unid
+         |FROM
+         |(
+         |  SELECT duid
+         |       , pkg_it
+         |       , unid
+         |  FROM incr_clear
+         |
+         |  UNION ALL
+         |
+         |  SELECT duid
+         |       , pkg_it
+         |       , unid_final AS unid
+         |  FROM dm_mid_master.duid_unid_info_month
+         |  WHERE day = '$pday'
+         |  AND SUBSTRING(pkg_it,-3) <> '000'
+         |) a
+         |GROUP BY duid,pkg_it,unid
+         |""".stripMargin).createOrReplaceTempView("duid_info_all")
+
     //3.去除异常数据后构造边
     spark.udf.register[Seq[(String, String, Int)], Seq[String]]("openid_resembled", openid_resembled)
     spark.sql(
@@ -99,21 +127,9 @@ object Pkg2Vertex {
          |    SELECT openid_resembled(tids) AS tid_list
          |    FROM
          |    (
-         |      SELECT collect_set(c.unid) AS tids
-         |      FROM
-         |      (
-         |        SELECT *
-         |        FROM duid_info_month a
-         |        LEFT ANTI JOIN black_unid b
-         |        ON a.unid = b.unid
-         |      )c
-         |      LEFT SEMI JOIN
-         |      (
-         |        SELECT pkg_it AS pi
-         |        FROM normal_behavior_pkg_it
-         |      )d
-         |      ON c.pkg_it = d.pi
-         |      GROUP BY c.pkg_it
+         |      SELECT collect_set(unid) AS tids
+         |      FROM duid_info_all
+         |      GROUP BY pkg_it
          |    )e
          |  )f
          |  LATERAL VIEW EXPLODE(tid_list) tmp AS tid_info
