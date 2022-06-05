@@ -11,9 +11,8 @@ object DoGraph {
   def main(args: Array[String]): Unit = {
 
     val vertexsql: String = args(0)
-    val verticexsql: String = args(1)
-    val connectedComponents: Int = args(2).toInt
-    val output: String = args(3)
+    val connectedComponents: Int = args(1).toInt
+    val output: String = args(2)
 
     val spark: SparkSession = SparkSession
       .builder()
@@ -21,22 +20,25 @@ object DoGraph {
       .appName(s"Graph")
       .getOrCreate()
 
-    compute(spark, vertexsql, verticexsql, connectedComponents, output)
+    compute(spark, vertexsql, connectedComponents, output)
 
     spark.stop()
 
   }
 
-  def compute(spark: SparkSession, vertexsql: String, verticexsql: String, connectedComponents: Int, output: String): Unit = {
+  def compute(spark: SparkSession, vertexsql: String, connectedComponents: Int, output: String): Unit = {
     println(vertexsql)
 
-    val vertex: DataFrame = spark.sql(s"$vertexsql")
+    val vertex: DataFrame = spark.sql(
+      s"""
+         |$vertexsql
+         |""".stripMargin)
 
     //构造边
     val edgeRdd: RDD[Edge[String]] = makeEdge(vertex)
 
-    //构造顶点
-    val verticex: DataFrame = spark.sql(s"$verticexsql")
+    //构造顶点;
+    val verticex: DataFrame = vertex.select("id1").distinct()
     val verticexRdd: RDD[(VertexId, String)] = makeVerticex(verticex)
 
     //构造图

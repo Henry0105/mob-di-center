@@ -24,6 +24,7 @@ object Pkg2vertex2graph {
 
   def compute(spark: SparkSession, day: String, pday: String): Unit = {
 
+    val str = day.substring(0,6)
     //1.获取一个月数据并去除黑名单
     val duid_info_month: DataFrame = spark.sql(
       s"""
@@ -36,7 +37,7 @@ object Pkg2vertex2graph {
          |       , pkg_it
          |       , unid
          |  FROM dm_mid_master.pkg_it_duid_category_tmp
-         |  WHERE day = '$day'
+         |  WHERE month = '$str'
          |  AND pkg_it <> ''
          |  AND duid = REGEXP_EXTRACT(duid, '(s_)?[0-9a-f]{40}|[0-9a-zA-Z\\-]{36}|[0-9]{14,17}', 0)
          |)a
@@ -81,9 +82,9 @@ object Pkg2vertex2graph {
     //3.过滤
     spark.sql(
       """
-        |SELECT a.duid
-        |     , a.pkg_it
-        |     , a.unid
+        |SELECT c.duid
+        |     , c.pkg_it
+        |     , c.unid
         |FROM
         |(
         |  SELECT *

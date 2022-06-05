@@ -70,9 +70,9 @@ object Pkg2Vertex {
 
     spark.sql(
       """
-        |SELECT a.duid
-        |     , a.pkg_it
-        |     , a.unid
+        |SELECT c.duid
+        |     , c.pkg_it
+        |     , c.unid
         |FROM
         |(
         |  SELECT *
