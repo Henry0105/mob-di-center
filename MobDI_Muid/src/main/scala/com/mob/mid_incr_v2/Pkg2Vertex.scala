@@ -24,17 +24,17 @@ object Pkg2Vertex {
 
   def compute(spark: SparkSession, day: String, pday: String): Unit = {
 
-    //1.与近一个月数据合并后进行图计算
-    val duid_info_month: DataFrame = spark.sql(
-      s"""
-         |SELECT duid
-         |     , pkg_it
-         |     , unid
-         |FROM dm_mid_master.duid_incr_tmp
-         |WHERE day = '$day'
-         |AND pkg_it <> ''
-         |GROUP BY duid,pkg_it,unid
-         |""".stripMargin)
+    //1.增量一个月数据
+      val duid_info_month: DataFrame = spark.sql(
+        s"""
+           |SELECT duid
+           |     , pkg_it
+           |     , unid
+           |FROM dm_mid_master.duid_incr_tmp
+           |WHERE day = '$day'
+           |AND pkg_it <> ''
+           |GROUP BY duid,pkg_it,unid
+           |""".stripMargin)
     duid_info_month.cache()
     duid_info_month.count()
     duid_info_month.createOrReplaceTempView("duid_info_month")
@@ -87,6 +87,67 @@ object Pkg2Vertex {
         |)d
         |ON c.pkg_it = d.pi
         |""".stripMargin).createOrReplaceTempView("incr_clear")
+    spark.sql(s"create table mobdi_test.incr_clear_$day stored as orc as select * from incr_clear")
+
+    //历史一个月数据过滤
+    val duid_info_last_month: DataFrame = spark.sql(
+      s"""
+         |SELECT duid
+         |     , pkg_it
+         |     , unid_final AS unid
+         |FROM dm_mid_master.duid_unid_info_month
+         |WHERE day = '$pday'
+         |AND SUBSTRING(pkg_it,-3) <> '000'
+         |GROUP BY duid,pkg_it,unid_final
+         |""".stripMargin)
+    duid_info_last_month.cache()
+    duid_info_last_month.count()
+    duid_info_last_month.createOrReplaceTempView("duid_info_last_month")
+
+    spark.sql(
+      s"""
+         |SELECT pkg_it
+         |     , COUNT(1) AS cnt
+         |FROM duid_info_last_month
+         |GROUP BY pkg_it
+         |HAVING cnt > 1
+         |AND cnt < 5000
+         |""".stripMargin).createOrReplaceTempView("normal_behavior_pkg_it_last_month")
+
+    spark.sql(
+      s"""
+         |SELECT unid
+         |FROM
+         |(
+         |  SELECT unid
+         |       , get_pkg_ver(pkg_it) AS version
+         |       , count(1) AS cnt
+         |  FROM duid_info_last_month
+         |  GROUP BY unid,get_pkg_ver(pkg_it)
+         |)a
+         |WHERE cnt > 100
+         |GROUP BY unid
+         |""".stripMargin).createOrReplaceTempView("black_unid_last_month")
+
+    spark.sql(
+      """
+        |SELECT c.duid
+        |     , c.pkg_it
+        |     , c.unid
+        |FROM
+        |(
+        |  SELECT *
+        |  FROM duid_info_last_month a
+        |  LEFT ANTI JOIN black_unid_last_month b
+        |  ON a.unid = b.unid
+        |)c
+        |LEFT SEMI JOIN
+        |(
+        |  SELECT pkg_it AS pi
+        |  FROM normal_behavior_pkg_it_last_month
+        |)d
+        |ON c.pkg_it = d.pi
+        |""".stripMargin).createOrReplaceTempView("last_month_clear")
 
     spark.sql(
       s"""
@@ -104,13 +165,13 @@ object Pkg2Vertex {
          |
          |  SELECT duid
          |       , pkg_it
-         |       , unid_final AS unid
-         |  FROM dm_mid_master.duid_unid_info_month
-         |  WHERE day = '$pday'
-         |  AND SUBSTRING(pkg_it,-3) <> '000'
+         |       , unid
+         |  FROM last_month_clear
          |) a
          |GROUP BY duid,pkg_it,unid
          |""".stripMargin).createOrReplaceTempView("duid_info_all")
+    spark.sql(s"drop table if exists mobdi_test.duid_info_all_$day")
+    spark.sql(s"create table mobdi_test.duid_info_all_$day select * from duid_info_all")
 
     //3.去除异常数据后构造边
     spark.udf.register[Seq[(String, String, Int)], Seq[String]]("openid_resembled", openid_resembled)
@@ -128,7 +189,7 @@ object Pkg2Vertex {
          |    FROM
          |    (
          |      SELECT collect_set(unid) AS tids
-         |      FROM duid_info_all
+         |      FROM mobdi_test.duid_info_all_$day
          |      GROUP BY pkg_it
          |    )e
          |  )f
@@ -137,6 +198,19 @@ object Pkg2Vertex {
          |GROUP BY id1,id2
          |HAVING COUNT(1) >= 7
          |""".stripMargin)
+
+    spark.sql(
+      """
+        |create table mobdi_test.pkg_it_unid_6016 as
+        |SELECT openid_resembled(tids) AS tid_list
+        |FROM
+        |(
+        |  SELECT collect_set(unid) AS tids
+        |  FROM mobdi_test.duid_info_all_20211130
+        |  WHERE pkg_it = 'com.yztc.studio.plugin_4.2.2.2_1623135567872'
+        |  GROUP BY pkg_it
+        |)e
+        |""".stripMargin)
   }
 
 
