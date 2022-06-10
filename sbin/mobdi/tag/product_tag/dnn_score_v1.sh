@@ -10,6 +10,7 @@ sourceTable1="rp_finance_anticheat_muid.ronguhi_dnn_score_v1"
 outputTable="dm_mobdi_report.timewindow_online_profile_day_v4"
 
 
+
 HADOOP_USER_NAME=dba hive -v -e "
 set hive.groupby.skewindata=true;
 set hive.exec.parallel=true;
