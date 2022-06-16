@@ -15,37 +15,18 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-source /home/dba/mobdi_center/conf/hive-env.sh
 
 #input
-#dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
+dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
 #out
-#dws_device_location_staying_di=dm_mobdi_topic.dws_device_location_staying_di
-device_location_info_db=${dwd_device_location_info_di%.*}
-device_location_info_tb=${dwd_device_location_info_di#*.}
+dws_device_location_staying_di=dm_mobdi_topic.dws_device_location_staying_di
 
 day=$1
 insert_day=`date -d "$day +2 days" +%Y-%m-%d`
 
-# check source data: ####################### 新流程建表后可删，只保留一个staying_daily即可
-while true
-do
-  hadoop fs -test -e "hdfs://ShareSdkHadoop/user/hive/warehouse/$device_location_info_db.db/$device_location_info_tb/day=${day}"
-  if [[ $? -eq 0 ]] ; then
-    # path存在
-    src_data_date=`hadoop fs -ls "hdfs://ShareSdkHadoop/user/hive/warehouse/$device_location_info_db.db/$device_location_info_tb/day=${day}" | awk '{print $6}'`
-    # 判断几个分区的文件更新时间是否是在3天后
-    if [[ ${src_data_date:0:11} > $insert_day && ${src_data_date:11:11} > $insert_day && ${src_data_date:22:11} > $insert_day && ${src_data_date:33:11} > $insert_day && ${src_data_date:44:11} > $insert_day && ${src_data_date:55:11} > $insert_day && ${src_data_date:66:11} > $insert_day && ${src_data_date:77:11} > $insert_day ]] ;then
-      break
-    else
-      sleep 1800
-      echo "===========  wait for dwd_device_location_info_di ============="
-    fi
-  fi
-done
 
 
-hive -v -e"
+HADOOP_USER_NAME=dba hive -v -e"
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function array_distinct_by_sorted_list as 'com.youzu.mob.java.udf.ArrayDistinctBySortedList';
 
@@ -61,6 +42,9 @@ SET mapreduce.map.java.opts='-Xmx3072m';
 SET mapreduce.child.map.java.opts='-Xmx3072m';
 SET hive.exec.reducers.bytes.per.reducer = 1000000000;
 set mapreduce.reduce.memory.mb=6144;
+set mapreduce.job.queuename=root.yarn_data_compliance2;
+
+set mapreduce.reduce.java.opts='-Xmx4800m' -XX:+UseG1GC;
 
 with ranked_device_time as (
   select
