@@ -12,7 +12,7 @@ fi
 #source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
 ###源表
-dwd_auto_location_info_sec_di=dm_mobdi_master.dwd_auto_location_info_sec_di_mid
+dwd_auto_location_info_sec_di=dm_mobdi_master.dwd_auto_location_info_sec_di
 
 ###映射表
 dim_latlon_blacklist_mf=dm_mobdi_mapping.dim_latlon_blacklist_mf
@@ -20,7 +20,7 @@ geohash6_area_mapping_par=dm_sdk_mapping.geohash6_area_mapping_par
 geohash8_lbs_info_mapping_par=dm_sdk_mapping.geohash8_lbs_info_mapping_par
 
 ###目标表
-dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di_mid
+dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
 
 day=$1
 plus_1day=`date +%Y%m%d -d "${day} +1 day"`
@@ -61,7 +61,7 @@ set mapred.min.split.size.per.node=32000000;
 set mapred.min.split.size.per.rack=32000000;
 set hive.merge.size.per.task=256000000;
 set hive.merge.smallfiles.avgsize=32000000;
-set mapreduce.job.queuename=root.yarn_data_compliance;
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/dependencies/lib/lamfire-2.1.4.jar;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
@@ -70,7 +70,7 @@ create temporary function get_geohash as 'com.youzu.mob.java.udf.GetGeoHash';
 
 with auto_location_info as (
   select
-  nvl(mid, '') as device,
+  nvl(muid, '') as device,
   duid,
   case when latitude is not null and longitude is not null and (latitude-round(latitude,1))*10<>0.0 and (longitude-round(longitude,1))*10<>0.0 then round(cast(split(coordConvert(latitude, longitude, 'wsg84', 'bd09'), ',')[0] as double), 6) else '' end as lat,  --wgs84转换为bd09
   case when latitude is not null and longitude is not null and (latitude-round(latitude,1))*10<>0.0 and (longitude-round(longitude,1))*10<>0.0 then round(cast(split(coordConvert(latitude, longitude, 'wsg84', 'bd09'), ',')[1] as double), 6) else '' end as lon,
@@ -86,7 +86,7 @@ with auto_location_info as (
   from $dwd_auto_location_info_sec_di
   where day between '$day' and '$plus_2day'  --取开始日期起3天范围
   and from_unixtime(CAST(clienttime/1000 as BIGINT), 'yyyyMMdd') = '$day' --取clienttime转换为当日的数据
-  and trim(lower(mid)) rlike '(^[a-f0-9]{40}_0$)|(^[a-f0-9]{40}$)'
+  and trim(lower(muid)) rlike '^[a-f0-9]{40}$' and trim(muid)!='0000000000000000000000000000000000000000'
   and plat != '2'
   union all
   select

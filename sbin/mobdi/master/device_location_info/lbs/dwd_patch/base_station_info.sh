@@ -6,63 +6,42 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-source /home/dba/mobdi_center/conf/hive-env.sh
+#source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+#source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+#source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
 ###源表
-#dwd_base_station_info_sec_di=dm_mobdi_master.dwd_base_station_info_sec_di
-base_location_db=${dwd_base_station_info_sec_di%.*}
-base_location_tb=${dwd_base_station_info_sec_di#*.}
+dwd_base_station_info_sec_di=dm_mobdi_master.dwd_base_station_info_sec_di
 
 ###映射表
-#dim_latlon_blacklist_mf=dim_mobdi_mapping.dim_latlon_blacklist_mf
-#dim_mapping_ip_attribute_code=dim_sdk_mapping.dim_mapping_ip_attribute_code
-#mapping_ip_attribute_code=dm_sdk_mapping.mapping_ip_attribute_code
-ip_attribute_code_db=${dim_mapping_ip_attribute_code%.*}
-ip_attribute_code_tb=${dim_mapping_ip_attribute_code#*.}
-#dim_base_dbscan_result_mi=dim_mobdi_mapping.dim_base_dbscan_result_mi
-#dim_base_dbscan_result_month=dm_mobdi_mapping.dim_base_dbscan_result_month
-base_dbscan_result_db=${dim_base_dbscan_result_mi%.*}
-base_dbscan_result_tb=${dim_base_dbscan_result_mi#*.}
+dim_latlon_blacklist_mf=dm_mobdi_mapping.dim_latlon_blacklist_mf
+mapping_ip_attribute_code=dm_sdk_mapping.mapping_ip_attribute_code
+dim_base_dbscan_result_month=dm_mobdi_mapping.dim_base_dbscan_result_month
 
 ###目标表
-#dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
+dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
 
 
 day=$1
+plus_1day=`date +%Y%m%d -d "${day} +1 day"`
+plus_2day=`date +%Y%m%d -d "${day} +2 day"`
 echo "startday: "$day
+echo "endday:   "$plus_2day
 
-# check source data: #######################
-CHECK_DATA()
-{
-  local src_path=$1
-  hadoop fs -test -e $src_path
-  if [[ $? -eq 0 ]] ; then
-    # path存在
-    src_data_du=`hadoop fs -du -s $src_path | awk '{print $1}'`
-    # 文件夹大小不为0
-    if [[ $src_data_du != 0 ]] ;then
-      return 0
-    else
-      return 1
-    fi
-  else
-      return 1
-  fi
-}
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$base_location_db.db/$base_location_tb/day=${day}"
+
 # ##########################################
 
 base_station_mapping_sql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('$base_dbscan_result_db', '$base_dbscan_result_tb', 'day');
+    SELECT GET_LAST_PARTITION('dm_mobdi_mapping', 'dim_base_dbscan_result_month', 'day');
 "
 last_base_station_mapping_partition=(`hive -e "$base_station_mapping_sql"`)
 
 ip_mapping_sql="
     add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
     create temporary function GET_LAST_PARTITION as 'com.youzu.mob.java.udf.LatestPartition';
-    SELECT GET_LAST_PARTITION('$ip_attribute_code_db', '$ip_attribute_code_tb', 'day');
+    SELECT GET_LAST_PARTITION('dm_sdk_mapping', 'mapping_ip_attribute_code', 'day');
 "
 last_ip_mapping_partition=(`hive -e "$ip_mapping_sql"`)
 
@@ -73,7 +52,8 @@ last_ip_mapping_partition=(`hive -e "$ip_mapping_sql"`)
 #"
 #last_ip_mapping_partition_latlon=(`hive -e "$ip_mapping_sql"`)
 #获取小于当前日期的最大分区
-par_arr=(`hive -e "show partitions $dim_latlon_blacklist_mf" |awk -F '=' '{print $2}'|xargs`)
+par_arr=(`hive -e "show partitions dm_mobdi_mapping.dim_latlon_blacklist_mf" |awk -F '=' '{print $2}'|xargs`)
+# shellcheck disable=SC2068
 for par in ${par_arr[@]}
 do
   if [ $par -le $day ]
@@ -98,6 +78,7 @@ set mapred.min.split.size.per.node=32000000;
 set mapred.min.split.size.per.rack=32000000;
 set hive.merge.size.per.task=256000000;
 set hive.merge.smallfiles.avgsize=32000000;
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
 create temporary function get_ip_attribute as 'com.youzu.mob.java.udf.GetIpAttribute';
@@ -124,7 +105,7 @@ with base_station_info1 as ( --移动,联通
   where day = '$day'
   and from_unixtime(CAST(datetime/1000 as BIGINT), 'yyyyMMdd') = '$day'
   and trim(lower(muid)) rlike '^[a-f0-9]{40}$' and trim(muid)!='0000000000000000000000000000000000000000'
-  and plat = '1'
+  and plat != '2'
   and ((lac is not null or  cell is not null) and (bid is  null and sid is  null and nid is  null))
   union all
   select
@@ -148,7 +129,7 @@ with base_station_info1 as ( --移动,联通
   where day = '$day'
   and from_unixtime(CAST(datetime/1000 as BIGINT), 'yyyyMMdd') = '$day'
   and trim(lower(device)) rlike '^[a-f0-9]{40}$' and trim(device)!='0000000000000000000000000000000000000000'
-  and plat in = '2'
+  and plat = '2'
   and ((lac is not null or  cell is not null) and (bid is  null and sid is  null and nid is  null))
 ),
 base_station_info2 as ( --电信
@@ -172,7 +153,7 @@ base_station_info2 as ( --电信
   where day = '$day'
   and from_unixtime(CAST(datetime/1000 as BIGINT), 'yyyyMMdd') = '$day'
   and trim(lower(muid)) rlike '^[a-f0-9]{40}$' and trim(muid)!='0000000000000000000000000000000000000000'
-  and plat = '1'
+  and plat != '2'
   and ((bid is not null or  sid is not null or  nid is not null) and (lac is  null and cell is  null ))
   union all
   select
@@ -207,7 +188,7 @@ base_station_mapping as(
 	     when mnc = 1 then 1
 		 else 2 end as flag,
     0 as ga_abnormal_flag
-    from $dim_base_dbscan_result_mi where day = '$last_base_station_mapping_partition'
+    from $dim_base_dbscan_result_month where day = '$last_base_station_mapping_partition'
 )
 
 insert overwrite table $dwd_device_location_info_di partition (day='$day', source_table='base_station_info')
@@ -233,7 +214,8 @@ select
     nvl(apppkg,'') as apppkg,
     nvl(orig_note3,'') as orig_note3,
     nvl(abnormal_flag,'') as abnormal_flag,
-    nvl(ga_abnormal_flag,'') as ga_abnormal_flag
+    nvl(ga_abnormal_flag,'') as ga_abnormal_flag,
+	'' as level
 from (
     select
         trim(lower(device)) device,
@@ -323,7 +305,7 @@ from (
                       on (base_station_mapping.lac = base_station_info2.nid and base_station_mapping.cell = base_station_info2.bid
                       and base_station_mapping.mnc=base_station_info2.sid and base_station_mapping.flag = base_station_info2.flag)
                 ) base_station_location
-                left join (select * from $dim_mapping_ip_attribute_code where day='$last_ip_mapping_partition') ip_mapping
+                left join (select * from $mapping_ip_attribute_code where day='$last_ip_mapping_partition') ip_mapping
                 on (case when base_station_location.lat is not null and base_station_location.lon is not null then concat('', rand()) else get_ip_attribute(base_station_location.ipaddr) end = ip_mapping.minip) --通过ip信息关联
           ) aa
     ) a
@@ -332,7 +314,7 @@ from (
     and round(a.lon,5)=round(b.lon,5)
     and a.stage=b.stage
 )a
-group by  device,duid,lat,lon,time,processtime,country,province,city,area,street,plat,network,type,data_source,orig_note1,orig_note2,accuracy,apppkg,orig_note3,abnormal_flag,ga_abnormal_flag
+ group by nvl(device,''),nvl(duid,''),nvl(lat,''),nvl(lon,''),nvl(time,''),nvl(processtime,''),nvl(country,''),nvl(province,''),nvl(city,''),nvl(area,''),nvl(street,''),nvl(plat,''),nvl(network,''),nvl(type,''),nvl(data_source,''),nvl(orig_note1,''),nvl(orig_note2,''),nvl(accuracy,''),nvl(apppkg,''),nvl(orig_note3,''),nvl(abnormal_flag,''),nvl(ga_abnormal_flag,'')
 ;
 "
 
