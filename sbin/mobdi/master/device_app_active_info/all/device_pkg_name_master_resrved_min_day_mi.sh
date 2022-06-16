@@ -41,7 +41,7 @@ set hive.merge.smallfiles.avgsize=250000000;
 set hive.merge.size.per.task = 250000000;
 
 drop table if exists $calculate_tmp;
-create table $calculate_tmp as
+create table $calculate_tmp stored AS TEXTFILE as
 select t1.device,t1.pkg,null as name,t1.day
 from
 (
