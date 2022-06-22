@@ -308,8 +308,6 @@ left join
 on a.pkg = b.pkg;
 
 
-
-
 drop table if exists $tmp_sorted_pkg_part2;
 create table $tmp_sorted_pkg_part2 as
 select pkg, apppkg_new, appname, appname_new
