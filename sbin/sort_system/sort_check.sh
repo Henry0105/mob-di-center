@@ -43,6 +43,7 @@ hive_db=dm_mobdi_tmp
 hive_table=app_top_pickup_pkg
 
 
+
 spark2-submit --master yarn --deploy-mode cluster \
 --class com.youzu.mob.sortsystem.SortSystemCheck \
 --driver-memory 6G \
