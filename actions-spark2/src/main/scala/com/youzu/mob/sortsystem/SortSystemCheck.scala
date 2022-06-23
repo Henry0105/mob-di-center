@@ -49,7 +49,8 @@ object SortSystemCheck {
     val dbInfo = DbInfo.convertToDbInfo(mysqlInfoStr)
     val jdbcDF = spark.read
       .format("jdbc")
-      .option("url", DbInfo.getJDBCUrl(dbInfo))
+//      .option("url", DbInfo.getJDBCUrl(dbInfo))
+      .option("url", "jdbc:mysql://10.89.120.12:3310/sorting_system?useUnicode=true&characterEncoding=utf8")
       .option("dbtable", DbInfo.getDbTable(dbInfo))
       .option("user", dbInfo.userName)
       .option("password", dbInfo.pwd)
@@ -67,7 +68,8 @@ object SortSystemCheck {
   def writeDataToMysql(data : DataFrame, spark: SparkSession, mysqlInfoStr: String): Unit = {
     val dbInfo = DbInfo.convertToDbInfo(mysqlInfoStr)
     data.write.format("jdbc")
-      .option("url", DbInfo.getJDBCUrl(dbInfo))
+//      .option("url", DbInfo.getJDBCUrl(dbInfo))
+      .option("url", "jdbc:mysql://10.89.120.12:3310/sorting_system?useUnicode=true&characterEncoding=utf8")
       .option("dbtable", DbInfo.getDbTable(dbInfo))
       .option("user", dbInfo.userName)
       .option("password", dbInfo.pwd)
