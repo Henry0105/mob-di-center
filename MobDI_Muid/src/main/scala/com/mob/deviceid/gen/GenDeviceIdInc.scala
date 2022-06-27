@@ -331,12 +331,12 @@ object GenDeviceIdInc {
          |from
          |(select serdatetime,device_old,oaid,adsid,ieid,snid,mcid,sysver,token,factory
          |from $gen_id_raw
-         |where snid is not null and snid!='unknown') a
+         |where snid is not null and snid!='unknown' and snid!='') a
          |left join snid_bl b on a.snid = b.snid
          |union all
          |select serdatetime,device_old,oaid,adsid,ieid,snid,mcid,sysver,token,factory,0 as snid_flag
          |from $gen_id_raw
-         |where snid is null or snid='unknown'
+         |where snid is null or snid='unknown' or snid=''
          |""".stripMargin
     )
     // blacklistStep1DF.createOrReplaceTempView(blacklistStep1Table)
@@ -352,12 +352,12 @@ object GenDeviceIdInc {
          |from
          |(select serdatetime,device_old,oaid,adsid,ieid,snid,mcid,sysver,token,factory,snid_flag
          |from $blacklistStep1Table
-         |where ieid is not null and ieid!='unknown') a
+         |where ieid is not null and ieid!='unknown' and ieid!='') a
          |left join imei_bl b on a.ieid = b.ieid
          |union all
          |select serdatetime,device_old,oaid,adsid,ieid,snid,mcid,sysver,token,factory,snid_flag,0 as ieid_flag
          |from $blacklistStep1Table
-         |where ieid is null or ieid='unknown'
+         |where ieid is null or ieid='unknown' or ieid=''
          |""".stripMargin
     )
     // blacklistStep2DF.createOrReplaceTempView(blacklistStep2Table)
@@ -374,12 +374,12 @@ object GenDeviceIdInc {
          |from
          |(select serdatetime,device_old,oaid,adsid,ieid,snid,mcid,sysver,token,factory,snid_flag,ieid_flag
          |from $blacklistStep2Table
-         |where mcid is not null and mcid!='unknown') a
+         |where mcid is not null and mcid!='unknown' and mcid!='') a
          |left join mcid_bl b on a.mcid = b.mcid
          |union all
          |select serdatetime,device_old,oaid,adsid,ieid,snid,mcid,sysver,token,factory,snid_flag,ieid_flag,0 as mcid_flag
          |from $blacklistStep2Table
-         |where mcid is null or mcid='unknown'
+         |where mcid is null or mcid='unknown' or mcid=''
          |""".stripMargin
     )
     //blacklistStep3DF.createOrReplaceTempView(blacklistStep3Table)
@@ -404,7 +404,7 @@ object GenDeviceIdInc {
     val oaidNull = normalRaw.where("is_blank(oaid)")
 
     val muidFullMapping = "muid_full_mapping"
-    val mappingFullPartition = "20210323"
+    val mappingFullPartition = "20220626"
 
     val muidFullMappingDF = spark.sql(
       s"""
@@ -412,7 +412,7 @@ object GenDeviceIdInc {
          |from $DEVICEID_NEW_IDS_MAPPING_FULL where day='$mappingFullPartition'
          |union all
          |select muid,ieid,oiid,asid,factory,serdatetime
-         |from $DEVICEID_NEW_IDS_MAPPING_INCR where day>'20210323'
+         |from $DEVICEID_NEW_IDS_MAPPING_INCR where day>'20220626'
          |""".stripMargin)
     //muidFullMappingDF.persist(StorageLevel.MEMORY_AND_DISK)
     muidFullMappingDF.createOrReplaceTempView(muidFullMapping)
