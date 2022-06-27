@@ -9,13 +9,17 @@
 6. RTA最终设备池打一、二级标签,向RTA设备标签表插入数据（因在装应用包名未清洗，所以需先跟数仓的映射表映射取到清洗后的包名(优先取清洗后的包名，未清洗的则保留   dw_device_with_cate_table
 7. 向RTA正负向设备表插入设备信息及二级游戏分类的应用数    dw_device_with_cate_installcount_table
 8. 写入0324规则数据,新建临时表，包括本次所有0324推荐设备数据    dm_device_rec_for_0324_pre_table
-9. 更新至0324规则结果表最新分区，增加增改、删、不变的状态     dm_device_rec_for_0324_table
-10. 新建临时表，包括本次所有0326推荐设备数据     dm_device_rec_for_0326_pre_table
-11. 更新至0326规则结果表最新分区，增加增改、删、不变的状态     dm_device_rec_for_0326_table
-12. rta历史请求时存疑的ieid,oiid      dw_gaasid_doubtful_table
-13. 新建临时表，包括本次所有0327推荐设备数据     dm_device_rec_for_0327_pre_table
-14. 更新至0327规则结果表最新分区，增加增改、删、不变的状态     dm_device_rec_for_0327_table
-15. 汇总规则数据(0.5.1后的版本使用)     dm_device_rec_for_all_table
+9. 新建临时表，包括本次所有0324推荐设备数据+pre表中没有但在0324表次新分区中有，且未发回安装数据且不在黑名单的设备     dm_device_rec_for_0324_pre_second_table
+10. 更新至0324规则结果表最新分区，增加增改、删、不变的状态     dm_device_rec_for_0324_table
+11. 新建0325临时结果表，包括付费天数及距今付费间隔时间维度的设备     dm_device_rec_for_0325_pre_table
+12. 更新至0325规则结果表最新分区，增加增改、删、不变的状态     dm_device_rec_for_0325_table
+13. 新建临时表，包括本次所有0326推荐设备数据     dm_device_rec_for_0326_pre_table
+14. 新建临时表，包括本次所有0326推荐设备数据+pre表中没有但在0326表次新分区中有，且未发回安装数据且不在黑名单的设备     dm_device_rec_for_0326_pre_second_table
+15. 更新至0326规则结果表最新分区，增加增改、删、不变的状态     dm_device_rec_for_0326_table
+16. rta历史请求时存疑的ieid,oiid      dw_gaasid_doubtful_table
+17. 新建临时表，包括本次所有0327推荐设备数据     dm_device_rec_for_0327_pre_table
+18. 更新至0327规则结果表最新分区，增加增改、删、不变的状态     dm_device_rec_for_0327_table
+19. 汇总规则数据(0.5.1后的版本使用)     dm_device_rec_for_all_table
 '
 
 set -e -x
