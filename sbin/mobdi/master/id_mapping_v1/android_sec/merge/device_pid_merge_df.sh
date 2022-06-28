@@ -112,8 +112,8 @@ function qc_id_mapping(){
 qc_id_mapping $insert_day
 
 
-# full表分区清理，保留最近10天数据，同时保留每月最后一天的数据
-delete_day=`date +%Y%m%d -d "${insert_day} -10 day"`
+# full表分区清理，保留最近14天数据，同时保留每月最后一天的数据
+delete_day=`date +%Y%m%d -d "${insert_day} -14 day"`
 #上个月
 LastMonth=`date -d "last month" +"%Y%m"`
 #这个月

@@ -66,8 +66,8 @@ where pid is not null and length(pid)>0
 group by device
 "
 
-# 分区清理，保留最近5个分区
-for old_version in `hive -e "show partitions $dws_device_sms_pid_di" | grep -v '_bak' | sort | head -n -5`
+# 分区清理，保留最近14个分区
+for old_version in `hive -e "show partitions $dws_device_sms_pid_di" | grep -v '_bak' | sort | head -n -14`
 do
   echo "rm $old_version"
   hive -e "alter table $dws_device_sms_pid_di drop if exists partition ($old_version)"
