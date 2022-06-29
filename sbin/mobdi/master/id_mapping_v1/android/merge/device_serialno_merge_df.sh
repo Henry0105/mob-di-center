@@ -91,7 +91,7 @@ where serialno is not null and length(serialno)>0
 # qc 数据条数
 function qc_id_mapping(){
   cd `dirname $0`
-  sh /home/dba/mobdi/qc/real_time_mobdi_qc/qc_id_mapping_view_merge.sh  "$dim_device_serialno_merge_df" "${insert_day}" "$last_par" || qc_fail_flag=1
+  sh /home/dba/mobdi_center/qc/real_time_mobdi_qc/qc_id_mapping_view_merge.sh  "$dim_device_serialno_merge_df" "${insert_day}" "$last_par" || qc_fail_flag=1
   if [[ ${qc_fail_flag} -eq 1 ]]; then
     echo 'qc失败，流程停止'
     exit 1

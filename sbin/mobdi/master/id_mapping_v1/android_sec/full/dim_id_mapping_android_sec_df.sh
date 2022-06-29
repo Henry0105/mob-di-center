@@ -135,7 +135,7 @@ left join
 function qc_id_mapping(){
 
   cd `dirname $0`
-  sh /home/dba/mobdi/qc/real_time_mobdi_qc/qc_id_mapping_view.sh  "$dim_id_mapping_android_sec_df" "${insert_day}.1000" "$dim_id_mapping_android_sec_df_view" || qc_fail_flag=1
+  sh /home/dba/mobdi_center/qc/real_time_mobdi_qc/qc_id_mapping_view.sh  "$dim_id_mapping_android_sec_df" "${insert_day}.1000" "$dim_id_mapping_android_sec_df_view" || qc_fail_flag=1
   if [[ ${qc_fail_flag} -eq 1 ]]; then
     echo 'qc失败，阻止生成view'
     exit 1
