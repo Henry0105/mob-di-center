@@ -24,6 +24,10 @@ dim_device_pid_merge_df=dim_mobdi_mapping.dim_device_pid_merge_df
 # output
 dim_device_id_abnormal_sec_df=dim_mobdi_mapping.dim_device_id_abnormal_sec_df
 
+#delete_table
+i_p=mobdi_test.i_p
+imei14_exchange=mobdi_test.android_imei14_exchange
+ext_phoneno_v=mobdi_test.ext_phoneno_v
 
 
 full_par=`hive -e "show partitions $dim_device_id_abnormal_sec_df" | grep "flag=ieid" |sort -rn |awk -F "/" '{print $1}'| awk -F "=" '{print $2}' | head -n 1`
@@ -114,3 +118,12 @@ full join
 )d
 on c.device = d.device and c.pid = d.pid;
 "
+wait
+
+#删除临时表
+echo "delete table:  mobdi_test.i_p if exists"
+HADOOP_USER_NAME=dba hive -v -e "drop table if exists $i_p;"
+echo "delete table:  mobdi_test.android_imei14_exchange if exists"
+HADOOP_USER_NAME=dba hive -v -e "drop table if exists $imei14_exchange;"
+echo "delete table:  mobdi_test.ext_phoneno_v if exists"
+HADOOP_USER_NAME=dba hive -v -e "drop table if exists $ext_phoneno_v;"
