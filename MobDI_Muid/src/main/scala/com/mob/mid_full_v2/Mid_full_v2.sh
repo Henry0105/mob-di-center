@@ -214,11 +214,3 @@ select rnid, count(distinct pkg ) pkg_cnt
 
 ;
 "
-
-
-
-----
-insert overwrite table dm_mid_master.pkg_it_duid_category_tmp_rid partition(month='202110-11')
-select rnid ,pkg,firstinstalltime,version,duid,ieid,oiid,factory,model,unid
-from dm_mid_master.pkg_it_duid_category_tmp_rid
-where firstinstalltime is not null and firstinstalltime<>'' and  firstinstalltime not like '%000'
