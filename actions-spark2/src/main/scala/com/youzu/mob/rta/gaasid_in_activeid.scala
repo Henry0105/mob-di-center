@@ -45,8 +45,7 @@ object gaasid_in_activeid {
          |     select ieid,oiid,pkg as apppkg,day
          |     from $DWD_PKG_RUNTIMES_SEC_DI
          |     where day >=date_format(date_sub(current_date,31),'yyyyMMdd')
-         |     and ((oiid is not null and trim(oiid)!='')
-         |     or (ieid is not null and trim(ieid)!=''))
+         |     and concat_ws('',ieid,oiid)!=''
          |     and pkg is not null and trim(pkg)!=''
          |     group by ieid,oiid,pkg,day
          |""".stripMargin)
