@@ -12,78 +12,77 @@ object gaasid_in_activeid {
       .getOrCreate()
     spark.sparkContext.setLogLevel("ERROR")
 
-    //从pv与mdata表，取oiid/ieid，apppkg维度的月活
+
+    //--插入30天内包名不为空且ieid/oiid任一不为空的活跃数据
+    dw_active_app_all_rta_table(spark, insert_day)
+    println("step1: dw_install_app_all_rta_table 执行完毕")
+
+    //RTA,7天设备池与一个月活跃应用取交集
+    dw_gaasid_in_activeid_table(spark, insert_day)
+    println("step5: dw_gaasid_in_installid_table 执行完毕")
+
+    spark.stop()
+  }
+
+  def dw_active_app_all_rta_table(spark: SparkSession, insert_day: String): Unit = {
     spark.sql(
       s"""
-        |insert overwrite table $OIID_IEID_ACTIVE_MONTH
-        |select 'oiid' as idtype,oiid as idvalue,apppkg,day
-        |from(
-        |     select oiid,apppkg,day
-        |     from $DWD_PV_SEC_DI
-        |     where day >=date_format(date_sub(current_date,31),'yyyyMMdd')
-        |     and oiid is not null and trim(oiid)!='' and apppkg is not null and trim(apppkg)!=''
-        |     group by oiid,apppkg,day
-        |     union
-        |     select oiid,apppkg,day
-        |     from $DWD_MDATA_NGINX_PV_DI
-        |     where day >=date_format(date_sub(current_date,31),'yyyyMMdd')
-        |     and oiid is not null and trim(oiid)!='' and apppkg is not null and trim(apppkg)!=''
-        |     group by oiid,apppkg,day
-        |     union
-        |     select oiid,pkg as apppkg,day
-        |     from $DWD_PKG_RUNTIMES_SEC_DI
-        |     where day >=date_format(date_sub(current_date,31),'yyyyMMdd')
-        |     and oiid is not null and trim(oiid)!='' and pkg is not null and trim(pkg)!=''
-        |     group by oiid,pkg,day
-        |)bb
-        |group by oiid,apppkg,day
-        |union
-        |select  'ieid' as idtype, ieid as idvalue,apppkg,day
-        |from(
-        |     select ieid,apppkg,day
-        |     from $DWD_PV_SEC_DI
-        |     where day >=date_format(date_sub(current_date,31),'yyyyMMdd')
-        |     and ieid is not null and trim(ieid)!='' and apppkg is not null and trim(apppkg)!=''
-        |     group by ieid,apppkg,day
-        |     union
-        |     select ieid,apppkg,day
-        |     from $DWD_MDATA_NGINX_PV_DI
-        |     where day >=date_format(date_sub(current_date,31),'yyyyMMdd')
-        |     and ieid is not null and trim(ieid)!='' and apppkg is not null and trim(apppkg)!=''
-        |     group by ieid,apppkg,day
-        |     union
-        |     select ieid,pkg as apppkg,day
-        |     from $DWD_PKG_RUNTIMES_SEC_DI
-        |     where day >=date_format(date_sub(current_date,31),'yyyyMMdd')
-        |     and ieid is not null and trim(ieid)!='' and pkg is not null and trim(pkg)!=''
-        |     group by ieid,pkg,day
-        |)bb
-        |group by ieid,apppkg,day
-        |""".stripMargin)
+         |insert overwrite table $DW_ACTIVE_APP_ALL_RTA
+         |select ieid,oiid,apppkg,day
+         |from(
+         |     select ieid,oiid,apppkg,day
+         |     from $DWD_PV_SEC_DI
+         |     where day >=date_format(date_sub(current_date,31),'yyyyMMdd')
+         |     and oiid is not null and trim(oiid)!=''
+         |     and ieid is not null and trim(ieid)!=''
+         |     and apppkg is not null and trim(apppkg)!=''
+         |     group by ieid,oiid,apppkg,day
+         |     union
+         |     select ieid,oiid,apppkg,day
+         |     from $DWD_MDATA_NGINX_PV_DI
+         |     where day >=date_format(date_sub(current_date,31),'yyyyMMdd')
+         |     and oiid is not null and trim(oiid)!=''
+         |     and ieid is not null and trim(ieid)!=''
+         |     and apppkg is not null and trim(apppkg)!=''
+         |     group by ieid,oiid,apppkg,day
+         |     union
+         |     select ieid,oiid,pkg as apppkg,day
+         |     from $DWD_PKG_RUNTIMES_SEC_DI
+         |     where day >=date_format(date_sub(current_date,31),'yyyyMMdd')
+         |     and oiid is not null and trim(oiid)!=''
+         |     and ieid is not null and trim(ieid)!=''
+         |     and pkg is not null and trim(pkg)!=''
+         |     group by ieid,oiid,pkg,day
+         |)bb
+         |group by ieid,oiid,apppkg,day
+         |""".stripMargin)
+  }
 
+  def dw_gaasid_in_activeid_table(spark: SparkSession, insert_day: String) {
     //mob月活数据与rta设备池数据取交集
     spark.sql(
       s"""
-        |insert overwrite table $DW_GAASID_IN_ACTIVEID
-        |select idtype, idvalue,apppkg,day
-        |from (
-        |select idtype, idvalue,apppkg,day
-        |from $OIID_IEID_ACTIVE_MONTH
-        |where idtype='ieid'
-        |) a
-        |left semi join $DW_GAASID_FINAL b
-        |on a.idvalue=b.ieid
-        |union
-        |select idtype, idvalue,apppkg,day
-        |from (
-        |select idtype, idvalue,apppkg,day
-        |from $OIID_IEID_ACTIVE_MONTH
-        |where idtype='oiid'
-        |) c
-        |left semi join $DW_GAASID_FINAL d
-        |on c.idvalue=d.oiid
-        |""".stripMargin)
-
-    spark.stop()
+         |insert overwrite table $DW_GAASID_IN_ACTIVEID
+         |select a.ieid, a.oiid, b.apppkg,b.day
+         |from $DW_GAASID_FINAL a
+         |join (
+         |      select ieid, apppkg,day
+         |      from $DW_ACTIVE_APP_ALL_RTA
+         |      where ieid is not null and trim(ieid)!=''
+         |      group by ieid,apppkg,day
+         |) b on a.ieid=b.ieid
+         |group by a.ieid,a.oiid,b.apppkg,b.day
+         |union
+         |select a.ieid, a.oiid, b.apppkg,b.day
+         |from $DW_GAASID_FINAL a
+         |join (
+         |      select oiid, apppkg,day
+         |      from $DW_ACTIVE_APP_ALL_RTA
+         |      where oiid is not null and trim(oiid)!=''
+         |      group by oiid,apppkg,day
+         |) b on a.oiid=b.oiid
+         |group by a.ieid,a.oiid,b.apppkg,b.day
+         |""".stripMargin
+    )
   }
 }

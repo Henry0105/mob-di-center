@@ -29,6 +29,7 @@ object gassid_in_rta {
     //RTA设备信息池(RTA请求设备信息去重表过滤黑名单，不继承历史数据)
     dw_gaasid_final_table(spark, insert_day)
     println("step4: dw_gaasid_final_table 执行完毕")
+    spark.stop()
   }
 
   def dw_gaas_id_data_di_rta_table(spark: SparkSession): Unit = {

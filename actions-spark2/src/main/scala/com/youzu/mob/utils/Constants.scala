@@ -107,7 +107,7 @@ object Constants {
   lazy val DWD_PV_SEC_DI: String = prop("dwd_pv_sec_di")
   lazy val DWD_MDATA_NGINX_PV_DI:String=prop("dwd_mdata_nginx_pv_di")
   lazy val DWD_PKG_RUNTIMES_SEC_DI:String = prop("dwd_pkg_runtimes_sec_di")
-  lazy val OIID_IEID_ACTIVE_MONTH:String=prop("oiid_ieid_active_month")
+  lazy val DW_ACTIVE_APP_ALL_RTA:String=prop("dw_active_app_all_rta")
   lazy val DW_GAASID_IN_ACTIVEID:String=prop("dw_gaasid_in_activeid")
   lazy val DW_APP_CATE_MAPPING:String=prop("dw_app_cate_mapping")
 }

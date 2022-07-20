@@ -25,6 +25,7 @@ object gaasid_in_installid {
     //RTA,7天设备池与一个月在装应用清洗表取交集
     dw_gaasid_in_installid_table(spark, insert_day)
     println("step5: dw_gaasid_in_installid_table 执行完毕")
+    spark.stop()
   }
 
   def dw_install_app_all_rta_table(spark: SparkSession, insert_day: String): Unit = {
