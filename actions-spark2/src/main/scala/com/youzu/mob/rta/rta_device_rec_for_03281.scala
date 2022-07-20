@@ -10,22 +10,22 @@ object rta_device_rec_for_03281 {
       s"""
          |insert overwrite table $DM_DEVICE_REC_FOR_03281_PRE
          |select code,idtype,idvalue,
-         |case when recommend <=5 then '1'
-         |     when recommend <=10 then '2'
-         |     when recommend <=15 then '3'
-         |     when recommend <=20 then '4'
-         |     when recommend <=25 then '5'
-         |     when recommend <=30 then '6'
-         |     when recommend <=35 then '7'
-         |     when recommend <=40 then '8'
-         |     when recommend <=45 then '9'
-         |     when recommend <=50 then '10'
-         |     when recommend <=55 then '11'
-         |     when recommend <=60 then '12'
-         |     when recommend >=61 then '13'
+         |case when appsum <=5 then '1'
+         |     when appsum <=10 then '2'
+         |     when appsum <=15 then '3'
+         |     when appsum <=20 then '4'
+         |     when appsum <=25 then '5'
+         |     when appsum <=30 then '6'
+         |     when appsum <=35 then '7'
+         |     when appsum <=40 then '8'
+         |     when appsum <=45 then '9'
+         |     when appsum <=50 then '10'
+         |     when appsum <=55 then '11'
+         |     when appsum <=60 then '12'
+         |     when appsum >=61 then '13'
          |end as recommend,1 as status
          |from (
-         |      select idtype,idvalue,code_id as code,count(1) as recommend
+         |      select idtype,idvalue,code_id as code,count(1) as appsum
          |from (
          |    select /*+ BROADCASTJOIN(b) */ a.idtype,a.idvalue,a.apppkg,a.day,b.code_id
          |    from (
@@ -51,7 +51,7 @@ object rta_device_rec_for_03281 {
          |)c
          |group by idtype,idvalue,code_id
          |union
-         |select idtype,idvalue,code_id as code,count(1) as recommend
+         |select idtype,idvalue,code_id as code,count(1) as appsum
          |from (
          |    select /*+ BROADCASTJOIN(b) */ a.idtype,a.idvalue,a.apppkg,a.day,b.code_id
          |    from (

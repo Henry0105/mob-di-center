@@ -14,35 +14,31 @@ object gaasid_in_activeid {
 
 
     //--插入30天内包名不为空且ieid/oiid任一不为空的活跃数据
-    dw_active_app_all_rta_table(spark, insert_day)
+    dw_active_app_all_rta_table(spark)
     println("step1: dw_install_app_all_rta_table 执行完毕")
 
     //RTA,7天设备池与一个月活跃应用取交集
-    dw_gaasid_in_activeid_table(spark, insert_day)
+    dw_gaasid_in_activeid_table(spark)
     println("step5: dw_gaasid_in_installid_table 执行完毕")
 
     spark.stop()
   }
 
-  def dw_active_app_all_rta_table(spark: SparkSession, insert_day: String): Unit = {
+  def dw_active_app_all_rta_table(spark: SparkSession): Unit = {
     spark.sql(
       s"""
          |insert overwrite table $DW_ACTIVE_APP_ALL_RTA
-         |select ieid,oiid,apppkg,day
-         |from(
          |     select ieid,oiid,apppkg,day
          |     from $DWD_PV_SEC_DI
          |     where day >=date_format(date_sub(current_date,31),'yyyyMMdd')
-         |     and ((oiid is not null and trim(oiid)!='')
-         |     or (ieid is not null and trim(ieid)!=''))
+         |     and concat_ws('',ieid,oiid)!=''
          |     and apppkg is not null and trim(apppkg)!=''
          |     group by ieid,oiid,apppkg,day
          |     union
          |     select ieid,oiid,apppkg,day
          |     from $DWD_MDATA_NGINX_PV_DI
          |     where day >=date_format(date_sub(current_date,31),'yyyyMMdd')
-         |     and ((oiid is not null and trim(oiid)!='')
-         |     or (ieid is not null and trim(ieid)!=''))
+         |     and concat_ws('',ieid,oiid)!=''
          |     and apppkg is not null and trim(apppkg)!=''
          |     group by ieid,oiid,apppkg,day
          |     union
@@ -53,12 +49,10 @@ object gaasid_in_activeid {
          |     or (ieid is not null and trim(ieid)!=''))
          |     and pkg is not null and trim(pkg)!=''
          |     group by ieid,oiid,pkg,day
-         |)bb
-         |group by ieid,oiid,apppkg,day
          |""".stripMargin)
   }
 
-  def dw_gaasid_in_activeid_table(spark: SparkSession, insert_day: String) {
+  def dw_gaasid_in_activeid_table(spark: SparkSession) {
     //mob月活数据与rta设备池数据取交集
     spark.sql(
       s"""

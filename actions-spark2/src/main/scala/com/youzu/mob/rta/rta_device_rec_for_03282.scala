@@ -9,12 +9,10 @@ object rta_device_rec_for_03282 {
     spark.sql(
       s"""
          |insert overwrite table $DM_DEVICE_REC_FOR_03282_PRE
-         |select code,idtype,idvalue,recommend,status
-         |from (
-         |    select 'ieid'as idtype,idvalue,code_id as code,
+         |    select code_id as code,'ieid'as idtype,idvalue,
          |    case when diffdays <=7 then '1'
          |         when diffdays <=14 then '2'
-         |         when diffdays <30 then '3'
+         |         when diffdays <=30 then '3'
          |    end as recommend,1 as status
          |    from (
          |        select idvalue,b.code_id,min(a.diffdays) as diffdays
@@ -43,15 +41,11 @@ object rta_device_rec_for_03282 {
          |        on a.apppkg=b.apppkg
          |        group by idvalue,b.code_id
          |    )c
-         |)d
-         |where recommend is not null
-         |union all
-         |select code,idtype,idvalue,recommend,status
-         |from (
-         |    select 'oiid' as idtype,idvalue,code_id as code,
+         |union
+         |    select code_id as code,'oiid' as idtype,idvalue,
          |    case when diffdays <=7 then '1'
          |         when diffdays <=14 then '2'
-         |         when diffdays <30 then '3'
+         |         when diffdays <=30 then '3'
          |    end as recommend,1 as status
          |    from (
          |        select idvalue,f.code_id,min(e.diffdays) as diffdays
@@ -80,8 +74,6 @@ object rta_device_rec_for_03282 {
          |        on e.apppkg=f.apppkg
          |        group by idvalue,f.code_id
          |    )g
-         |)h
-         |where recommend is not null
          |""".stripMargin)
   }
 
