@@ -56,8 +56,6 @@ object gaasid_in_activeid {
     spark.sql(
       s"""
          |insert overwrite table $DW_GAASID_IN_ACTIVEID
-         |select ieid,oiid,apppkg,day
-         |from(
          |select a.ieid, a.oiid, b.apppkg,b.day
          |from $DW_GAASID_FINAL a
          |join (
@@ -77,8 +75,6 @@ object gaasid_in_activeid {
          |      group by oiid,apppkg,day
          |) b on a.oiid=b.oiid
          |group by a.ieid,a.oiid,b.apppkg,b.day
-         |) aa
-         |group by ieid,oiid,apppkg,day
          |""".stripMargin
     )
   }
