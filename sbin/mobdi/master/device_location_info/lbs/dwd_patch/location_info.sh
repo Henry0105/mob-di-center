@@ -6,25 +6,26 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-source /home/dba/mobdi_center/conf/hive-env.sh
+#source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+#source /home/dba/mobdi_center/conf/hive_db_tb_sdk_mapping.properties
+#source /home/dba/mobdi_center/conf/hive_db_tb_mobdi_mapping.properties
 
 ###源表
-#dwd_location_info_sec_di=dm_mobdi_master.dwd_location_info_sec_di
-location_info_db=${dwd_location_info_sec_di%.*}
-location_info_tb=${dwd_location_info_sec_di#*.}
+dwd_location_info_sec_di=dm_mobdi_master.dwd_location_info_sec_di
 
 ###映射表
-#dim_latlon_blacklist_mf=dim_mobdi_mapping.dim_latlon_blacklist_mf
-#dim_geohash6_china_area_mapping_par
-#geohash6_area_mapping_par=dm_sdk_mapping.geohash6_area_mapping_par
-#dim_geohash8_china_area_mapping_par
-#dim_geohash8_china_area_mapping_par=dm_sdk_mapping.dim_geohash8_china_area_mapping_par
+dim_latlon_blacklist_mf=dm_mobdi_mapping.dim_latlon_blacklist_mf
+geohash6_area_mapping_par=dm_sdk_mapping.geohash6_area_mapping_par
+geohash8_lbs_info_mapping_par=dm_sdk_mapping.geohash8_lbs_info_mapping_par
 
 ###目标表
-#dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
+dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
 
 day=$1
+plus_1day=`date +%Y%m%d -d "${day} +1 day"`
+plus_2day=`date +%Y%m%d -d "${day} +2 day"`
 echo "startday: "$day
+echo "endday:   "$plus_2day
 
 #ip_mapping_sql="
 #    add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.7-SNAPSHOT-jar-with-dependencies.jar;
@@ -33,7 +34,8 @@ echo "startday: "$day
 #"
 #last_ip_mapping_partition=(`hive -e "$ip_mapping_sql"`)
 #获取小于当前日期的最大分区
-par_arr=(`hive -e "show partitions $dim_latlon_blacklist_mf" |awk -F '=' '{print $2}'|xargs`)
+par_arr=(`hive -e "show partitions dm_mobdi_mapping.dim_latlon_blacklist_mf" |awk -F '=' '{print $2}'|xargs`)
+# shellcheck disable=SC2068
 for par in ${par_arr[@]}
 do
   if [ $par -le $day ]
@@ -45,28 +47,10 @@ do
 done
 
 
-# check source data: #######################
-CHECK_DATA()
-{
-  local src_path=$1
-  hadoop fs -test -e $src_path
-  if [[ $? -eq 0 ]] ; then
-    # path存在
-    src_data_du=`hadoop fs -du -s $src_path | awk '{print $1}'`
-    # 文件夹大小不为0
-    if [[ $src_data_du != 0 ]] ;then
-      return 0
-    else
-      return 1
-    fi
-  else
-      return 1
-  fi
-}
-CHECK_DATA "hdfs://ShareSdkHadoop/user/hive/warehouse/$location_info_db.db/$location_info_tb/day=${day}"
+
 # ##########################################
 
-hive -v -e "
+HADOOP_USER_NAME=dba hive -v -e "
 SET hive.exec.parallel=true;
 SET hive.exec.parallel.thread.number=10;
 SET hive.auto.convert.join=true;
@@ -77,6 +61,7 @@ set mapred.min.split.size.per.node=32000000;
 set mapred.min.split.size.per.rack=32000000;
 set hive.merge.size.per.task=256000000;
 set hive.merge.smallfiles.avgsize=32000000;
+set mapreduce.job.queuename=root.yarn_data_compliance2;
 
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/dependencies/lib/lamfire-2.1.4.jar;
 add jar hdfs://ShareSdkHadoop/dmgroup/dba/commmon/udf/udf-manager-0.0.1-SNAPSHOT.jar;
@@ -103,7 +88,7 @@ with location_info as (
   where day = '$day'
   and from_unixtime(CAST(clienttime/1000 as BIGINT), 'yyyyMMdd') = '$day'
   and trim(lower(muid)) rlike '^[a-f0-9]{40}$' and trim(muid)!='0000000000000000000000000000000000000000'
-  and plat = '1'
+  and plat != '2'
   union all
   select
       nvl(deviceid, '') as device,
@@ -126,7 +111,6 @@ with location_info as (
   and trim(lower(deviceid)) rlike '^[a-f0-9]{40}$' and trim(deviceid)!='0000000000000000000000000000000000000000'
   and plat = '2'
 )
-
 insert overwrite table $dwd_device_location_info_di partition (day='$day', source_table='location_info')
 select
     nvl(device,'') as device,
@@ -150,7 +134,8 @@ select
     nvl(apppkg,'') as apppkg,
     nvl(orig_note3,'') as orig_note3,
     nvl(abnormal_flag,'') as abnormal_flag,
-    nvl(ga_abnormal_flag,'') as ga_abnormal_flag
+    nvl(ga_abnormal_flag,'') as ga_abnormal_flag,
+	'' as level
 from (
     select
         trim(lower(device)) device,
@@ -194,15 +179,15 @@ from (
                     geohash6_mapping.geohash_6_code,
                     plat, network, type, data_source, orig_note1, orig_note2, accuracy,apppkg,ipaddr,serdatetime,language
                 from location_info log
-                left join (select * from $dim_geohash6_china_area_mapping_par where version='1000') geohash6_mapping
+                left join (select * from $geohash6_area_mapping_par where version='1000') geohash6_mapping
                 on (get_geohash(lat, lon, 6) = geohash6_mapping.geohash_6_code) --根据geohash6关联
           ) geo6
-          left join (select * from $dim_geohash8_china_area_mapping_par where version='1000') geohash8_mapping
+          left join (select * from $geohash8_lbs_info_mapping_par where version='1000') geohash8_mapping
           on (case when geo6.geohash_6_code is null then get_geohash(lat, lon, 8) else concat('', rand()) end = geohash8_mapping.geohash_8_code)  --未关联上的再根据geohash8关联
     )a
     left join (select lat,lon from $dim_latlon_blacklist_mf where day='$last_ip_mapping_partition' and stage='A') b
     on round(a.lat,5)=round(b.lat,5) and round(a.lon,5)=round(b.lon,5)
 )a
-group by  device,duid,lat,lon,time,processtime,country,province,city,area,street,plat,network,type,data_source,orig_note1,orig_note2,accuracy,apppkg,orig_note3,abnormal_flag,ga_abnormal_flag
+ group by nvl(device,''),nvl(duid,''),nvl(lat,''),nvl(lon,''),nvl(time,''),nvl(processtime,''),nvl(country,''),nvl(province,''),nvl(city,''),nvl(area,''),nvl(street,''),nvl(plat,''),nvl(network,''),nvl(type,''),nvl(data_source,''),nvl(orig_note1,''),nvl(orig_note2,''),nvl(accuracy,''),nvl(apppkg,''),nvl(orig_note3,''),nvl(abnormal_flag,''),nvl(ga_abnormal_flag,'')
 ;
 "

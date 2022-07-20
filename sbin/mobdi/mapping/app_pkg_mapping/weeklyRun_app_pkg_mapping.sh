@@ -64,7 +64,6 @@ app_pkg_clean_byhand_partition=(`hive -e "$app_pkg_clean_byhand_sql"`)
 			from dm_mobdi_tmp.master_pkg_name
 			group by pkg,arr,arr_size";
 	   echo "$sql"; hive -e "$sql";
-//啥呀
 	   sql="insert overwrite table dm_mobdi_tmp.app_pkg_mapping
 	        select pkg,apppkg,tag
 			from dim_sdk_mapping.dim_app_pkg_mapping_par
