@@ -19,13 +19,13 @@ object rta_device_rec_for_03282 {
          |    from (
          |        select idvalue,b.code_id,min(a.diffdays) as diffdays
          |        from (
-         |            select idvalue,coalesce(bb.apppkg,aa.apppkg) as apppkg,diffdays
+         |            select ieid as idvalue,coalesce(bb.apppkg,aa.apppkg) as apppkg,diffdays
          |            from (
-         |                select idvalue,apppkg,
+         |                select ieid,apppkg,
          |                cast(datediff(current_date,to_date(max(day),'yyyyMMdd')) as int) as diffdays
          |                from $DW_GAASID_IN_ACTIVEID
-         |                where idtype='ieid'
-         |                group by idvalue,apppkg
+         |                where ieid is not null and trim(ieid)!=''
+         |                group by ieid,apppkg
          |            ) aa left join (
          |                select pkg, apppkg
          |                from $DIM_APP_PKG_MAPPING_PAR
@@ -56,13 +56,13 @@ object rta_device_rec_for_03282 {
          |    from (
          |        select idvalue,f.code_id,min(e.diffdays) as diffdays
          |        from (
-         |             select idvalue,coalesce(bb.apppkg,aa.apppkg) as apppkg,diffdays
+         |             select oiid as idvalue,coalesce(bb.apppkg,aa.apppkg) as apppkg,diffdays
          |             from (
-         |                 select idvalue,apppkg,
+         |                 select oiid,apppkg,
          |                     cast(datediff(current_date,to_date(max(day),'yyyyMMdd')) as int) as diffdays
          |                 from $DW_GAASID_IN_ACTIVEID
-         |                 where idtype='oiid'
-         |                 group by idvalue,apppkg
+         |                 where oiid is not null and trim(oiid)!=''
+         |                 group by oiid,apppkg
          |             ) aa left join (
          |                 select pkg, apppkg
          |                 from $DIM_APP_PKG_MAPPING_PAR

@@ -29,11 +29,11 @@ object rta_device_rec_for_03281 {
          |from (
          |    select /*+ BROADCASTJOIN(b) */ a.idtype,a.idvalue,a.apppkg,a.day,b.code_id
          |    from (
-         |        select idtype,idvalue,coalesce(bb.apppkg,aa.apppkg) as apppkg,day
+         |        select 'ieid' as idtype,ieid as idvalue,coalesce(bb.apppkg,aa.apppkg) as apppkg,day
          |        from (
-         |            select *
+         |            select ieid,apppkg,day
          |            from $DW_GAASID_IN_ACTIVEID
-         |            where idtype='ieid'
+         |            where ieid is not null and trim(ieid)!=''
          |        ) aa left join (
          |            select pkg, apppkg
          |            from $DIM_APP_PKG_MAPPING_PAR
@@ -55,11 +55,11 @@ object rta_device_rec_for_03281 {
          |from (
          |    select /*+ BROADCASTJOIN(b) */ a.idtype,a.idvalue,a.apppkg,a.day,b.code_id
          |    from (
-         |        select idtype,idvalue,coalesce(bb.apppkg,aa.apppkg) as apppkg,day
+         |        select 'oiid' as idtype,oiid as idvalue,coalesce(bb.apppkg,aa.apppkg) as apppkg,day
          |        from (
-         |            select *
+         |            select oiid,apppkg,day
          |            from $DW_GAASID_IN_ACTIVEID
-         |            where idtype='oiid'
+         |            where oiid is not null and trim(oiid)!=''
          |        ) aa left join (
          |            select pkg, apppkg
          |            from $DIM_APP_PKG_MAPPING_PAR

@@ -33,24 +33,24 @@ object gaasid_in_activeid {
          |     select ieid,oiid,apppkg,day
          |     from $DWD_PV_SEC_DI
          |     where day >=date_format(date_sub(current_date,31),'yyyyMMdd')
-         |     and oiid is not null and trim(oiid)!=''
-         |     and ieid is not null and trim(ieid)!=''
+         |     and ((oiid is not null and trim(oiid)!='')
+         |     or (ieid is not null and trim(ieid)!=''))
          |     and apppkg is not null and trim(apppkg)!=''
          |     group by ieid,oiid,apppkg,day
          |     union
          |     select ieid,oiid,apppkg,day
          |     from $DWD_MDATA_NGINX_PV_DI
          |     where day >=date_format(date_sub(current_date,31),'yyyyMMdd')
-         |     and oiid is not null and trim(oiid)!=''
-         |     and ieid is not null and trim(ieid)!=''
+         |     and ((oiid is not null and trim(oiid)!='')
+         |     or (ieid is not null and trim(ieid)!=''))
          |     and apppkg is not null and trim(apppkg)!=''
          |     group by ieid,oiid,apppkg,day
          |     union
          |     select ieid,oiid,pkg as apppkg,day
          |     from $DWD_PKG_RUNTIMES_SEC_DI
          |     where day >=date_format(date_sub(current_date,31),'yyyyMMdd')
-         |     and oiid is not null and trim(oiid)!=''
-         |     and ieid is not null and trim(ieid)!=''
+         |     and ((oiid is not null and trim(oiid)!='')
+         |     or (ieid is not null and trim(ieid)!=''))
          |     and pkg is not null and trim(pkg)!=''
          |     group by ieid,oiid,pkg,day
          |)bb
@@ -63,6 +63,8 @@ object gaasid_in_activeid {
     spark.sql(
       s"""
          |insert overwrite table $DW_GAASID_IN_ACTIVEID
+         |select ieid,oiid,apppkg,day
+         |from(
          |select a.ieid, a.oiid, b.apppkg,b.day
          |from $DW_GAASID_FINAL a
          |join (
@@ -82,6 +84,8 @@ object gaasid_in_activeid {
          |      group by oiid,apppkg,day
          |) b on a.oiid=b.oiid
          |group by a.ieid,a.oiid,b.apppkg,b.day
+         |) aa
+         |group by ieid,oiid,apppkg,day
          |""".stripMargin
     )
   }
