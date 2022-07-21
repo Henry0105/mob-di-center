@@ -41,6 +41,7 @@ object gaasid_in_installid {
          |where day>=date_format(date_sub(current_date,31),'yyyyMMdd')
          |    and pkg is not null and trim(pkg)!='' and substr(firstinstalltime,-3)!='000'
          |    and ((ieid is not null and trim(ieid)!='') or (oiid is not null and trim(oiid)!=''))
+         |    and regexp_extract(trim(pkg),'^[a-zA-Z]+[0-9a-zA-Z_]*(\.[a-zA-Z]+[0-9a-zA-Z_]*)+',0)=trim(pkg)
          |group by ieid,oiid,pkg
          |""".stripMargin)
   }

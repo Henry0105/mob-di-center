@@ -12,7 +12,7 @@ object rta_device_rec_for_03282 {
          |    select code_id as code,'ieid'as idtype,idvalue,
          |    case when diffdays <=7 then '1'
          |         when diffdays <=14 then '2'
-         |         when diffdays <=30 then '3'
+         |         when diffdays >14 then '3'
          |    end as recommend,1 as status
          |    from (
          |        select idvalue,b.code_id,min(a.diffdays) as diffdays

@@ -33,6 +33,7 @@ object gaasid_in_activeid {
          |     where day >=date_format(date_sub(current_date,31),'yyyyMMdd')
          |     and concat_ws('',ieid,oiid)!=''
          |     and apppkg is not null and trim(apppkg)!=''
+         |     and regexp_extract(trim(apppkg),'^[a-zA-Z]+[0-9a-zA-Z_]*(\.[a-zA-Z]+[0-9a-zA-Z_]*)+',0)=trim(apppkg)
          |     group by ieid,oiid,apppkg,day
          |     union
          |     select ieid,oiid,apppkg,day
@@ -40,6 +41,7 @@ object gaasid_in_activeid {
          |     where day >=date_format(date_sub(current_date,31),'yyyyMMdd')
          |     and concat_ws('',ieid,oiid)!=''
          |     and apppkg is not null and trim(apppkg)!=''
+         |     and regexp_extract(trim(apppkg),'^[a-zA-Z]+[0-9a-zA-Z_]*(\.[a-zA-Z]+[0-9a-zA-Z_]*)+',0)=trim(apppkg)
          |     group by ieid,oiid,apppkg,day
          |     union
          |     select ieid,oiid,pkg as apppkg,day
@@ -47,6 +49,7 @@ object gaasid_in_activeid {
          |     where day >=date_format(date_sub(current_date,31),'yyyyMMdd')
          |     and concat_ws('',ieid,oiid)!=''
          |     and pkg is not null and trim(pkg)!=''
+         |     and regexp_extract(trim(pkg),'^[a-zA-Z]+[0-9a-zA-Z_]*(\.[a-zA-Z]+[0-9a-zA-Z_]*)+',0)=trim(pkg)
          |     group by ieid,oiid,pkg,day
          |""".stripMargin)
   }

@@ -1,6 +1,5 @@
 package com.youzu.mob.utils
 
-import scala.tools.nsc.backend.jvm.BTypes.Lazy
 
 object Constants {
 
