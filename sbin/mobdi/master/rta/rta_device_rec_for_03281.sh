@@ -17,7 +17,7 @@ insert_day=$1
 #导入配置文件
 source /home/dba/mobdi_center/conf/hive-env.sh
 
-#dm_device_rec_for_0328xx_1=sdk_public.dm_device_rec_for_0328xx_1
+#dm_device_rec_for_03281=sdk_public.dm_device_rec_for_03281
 
 #获取最新分区
 full_par=`hive -e  "show partitions $dm_device_rec_for_03281" |tail -1 |awk -F '=' '{print $2}'`
