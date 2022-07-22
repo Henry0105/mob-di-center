@@ -21,7 +21,7 @@ source /home/dba/mobdi_center/conf/hive-env.sh
 
 
 #获取最新分区
-full_par=`hive -e "show partitions $dm_device_rec_for_0326;"  |sort -rn | awk -F "=" '{print $2}' | head -n 1`
+full_par=`hive -e  "show partitions $dm_device_rec_for_0326" |tail -1 |awk -F '=' '{print $2}'`
 
 /opt/mobdata/sbin/spark-submit --master yarn \
 --executor-memory 20G \

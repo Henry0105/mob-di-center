@@ -15,8 +15,8 @@ object device_with_cate_installcount {
 
     //传入日期参数
     val insert_day = args(0)
-    val dim_app_pkg_par = args(2)
-    val app_category_par = args(3)
+    val dim_app_pkg_par = args(1)
+    val app_category_par = args(2)
 
     //RTA最终设备池打一、二级标签
     dw_app_cate_mapping_table(spark: SparkSession,app_category_par: String)
@@ -48,7 +48,7 @@ object device_with_cate_installcount {
         |  from
         |  (
         |    select apppkg, cate_l1, cate_l2,1 as flag
-        |      from $DIM_APP_PKG_MAPPING_PAR
+        |      from $APP_CATEGORY_MAPPING_PAR
         |      where version='$app_category_par'
         |      group by apppkg,cate_l1,cate_l2
         |  union all

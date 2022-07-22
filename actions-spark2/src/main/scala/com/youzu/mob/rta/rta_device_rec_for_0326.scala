@@ -29,7 +29,7 @@ object rta_device_rec_for_0326 {
          |        ) a
          |    join
          |        (
-         |        select game_cat,concode_id from $RTA_GAMEAPP_CATE_40
+         |        select game_cat,code_id from $RTA_GAMEAPP_CATE_40
          |        ) b
          |        on a.cate_l2_clean=b.game_cat
          |      ) c
