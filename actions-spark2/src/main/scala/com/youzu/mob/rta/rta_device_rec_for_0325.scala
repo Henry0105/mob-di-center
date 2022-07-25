@@ -4,113 +4,94 @@ import com.youzu.mob.utils.Constants._
 import org.apache.spark.sql.SparkSession
 
 object rta_device_rec_for_0325 {
+  def dpi_feedback_ieid_table(spark: SparkSession):Unit={
+    spark.sql(
+      s"""
+         |insert overwrite table $DPI_FEEDBACK_IEID
+         |select id,day
+         |from $ODS_DPI_MKT_FEEDBACK_INCR
+         |where load_day>='20220328' and source='guangdong_mobile' and model_type='timewindow' and tag!='mb11'
+         |group by id,day
+         |union
+         |select b.ieid as id ,day
+         |from(
+         |    select id,day
+         |    from $ODS_DPI_MKT_FEEDBACK_INCR
+         |    where load_day>='20220604' and source='unicom' and model_type='timewindow' and tag!='mb11'
+         |    group by id,day
+         |)a
+         |inner join
+         |$RTA_DIP_CUCC_IEID_WITH_RN b
+         |on a.id=b.id
+        |""".stripMargin)
+  }
 
   def dm_device_rec_for_0325_pre_table(spark: SparkSession): Unit = {
     spark.sql(
       s"""
          |insert overwrite table $DM_DEVICE_REC_FOR_0325_PRE
-         | select
-         | '03251' as code,
-         | 'ieid' as idtype,
-         | id as idvalue,
-         | recommend,
-         | 1 as stauts
-         |   from
-         |   (
-         |    select
-         |      a.id, case when cnt is null then 1 when cnt=1 then 1.01 when cnt=2 then 1.02 when cnt=3 then 1.03
-         |        when cnt=4 then 1.04 when cnt=5 then 1.05 when cnt=6 then 1.06 when cnt=7 then 1.07
-         |        when cnt=8 then 1.08 when cnt=9 then 1.09 when cnt=10 then 1.1 when cnt=11 then 1.11
-         |        when cnt=12 then 1.12 when cnt=13 then 1.13 when cnt=14 then 1.14
-         |        end as recommend
-         |         from
-         |         (
-         |           select distinct(id)
-         |            from $ODS_DPI_MKT_FEEDBACK_INCR
-         |            where load_day>='20220328' and source='guangdong_mobile' and model_type='timewindow' and tag!='mb11') a
-         |            left join
-         |             (
-         |              select a.id, count(1) as cnt
-         |               from
-         |                (
-         |                 select id
-         |                  from $ODS_DPI_MKT_FEEDBACK_INCR
-         |                  where datediff(current_date,date(concat(substr(day,1,4),'-',substr(day,5,2),'-',substr(day,-2))))<=14
-         |                      and source='guangdong_mobile' and model_type='timewindow' and tag!='mb11'
-         |                  group by id,day
-         |                ) a
-         |             group by id
-         |             ) b
-         |             on a.id=b.id
-         |          ) c
-         | union
-         |    select
-         |    '03251' as code,
-         |    'oiid' as idtype,
-         |    d.oiid as idvalue,
-         |    recommend,
-         |    1 as status
-         |    from
-         |      (
-         |        select
-         |           a.id, case when cnt is null then 1 when cnt=1 then 1.01 when cnt=2 then 1.02 when cnt=3 then 1.03
-         |             when cnt=4 then 1.04 when cnt=5 then 1.05 when cnt=6 then 1.06 when cnt=7 then 1.07
-         |             when cnt=8 then 1.08 when cnt=9 then 1.09 when cnt=10 then 1.1 when cnt=11 then 1.11
-         |             when cnt=12 then 1.12 when cnt=13 then 1.13 when cnt=14 then 1.14
-         |             end as recommend
-         |          from
-         |            (
-         |             select distinct(id)
-         |               from $ODS_DPI_MKT_FEEDBACK_INCR
-         |               where  load_day>='20220328' and source='guangdong_mobile' and model_type='timewindow' and tag!='mb11') a
-         |             left join
-         |              (
-         |               select a.id, count(1) as cnt
-         |               from
-         |                 (
-         |                 select id
-         |                 from $ODS_DPI_MKT_FEEDBACK_INCR
-         |                 where datediff(current_date,date(concat(substr(day,1,4),'-',substr(day,5,2),'-',substr(day,-2))))<=14
-         |                     and source='guangdong_mobile' and model_type='timewindow' and tag!='mb11'
-         |                 group by id,day
-         |                 ) a
-         |             group by id
-         |              ) b on a.id=b.id
-         |         ) c
-         |          join  $DPI_IEID_OIID_20220329 d
-         |         on c.id=d.ieid
-         | union
-         |     select
-         |      '03252' as code,
-         |      'ieid' as idtype,
-         |      a.id as idvalue,
-         |      case when diffdays<=7 then 0.9 when diffdays>7 and diffdays<=14 then 1 when diffdays>14 then 1.1 end as recommend,
-         |      1 as status
-         |     from
-         |        (
-         |          select id, cast(datediff(current_date,date(concat(substr(max(day),1,4),'-',substr(max(day),5,2),'-',substr(max(day),-2)))) as int) as diffdays
-         |          from $ODS_DPI_MKT_FEEDBACK_INCR
-         |          where load_day>='20220328' and source='guangdong_mobile' and model_type='timewindow' and tag!='mb11'
-         |          group by id
-         |        ) a
-         | union
-         |     select
-         |      '03252' as code,
-         |      'oiid' as idtype,
-         |      b.oiid as idvalue,
-         |      case when diffdays<=7 then 0.9 when diffdays>7 and diffdays<=14 then 1 when diffdays>14 then 1.1 end as recommend,
-         |      1 as status
-         |     from
-         |       (
-         |        select
-         |        id,
-         |        cast(datediff(current_date,date(concat(substr(max(day),1,4),'-',substr(max(day),5,2),'-',substr(max(day),-2)))) as int) as diffdays
-         |        from $ODS_DPI_MKT_FEEDBACK_INCR
-         |        where load_day>='20220328' and source='guangdong_mobile' and model_type='timewindow' and tag!='mb11'
-         |        group by id
-         |       ) a
-         |        join  $DPI_IEID_OIID_20220329 b
-         |       on a.id=b.ieid
+         |select '03251' as code,'ieid' as idtype,a.id as idvalue,
+         |    case when cnt =0 then 1 when cnt=1 then 1.01 when cnt=2 then 1.02 when cnt=3 then 1.03
+         |    when cnt=4 then 1.04 when cnt=5 then 1.05 when cnt=6 then 1.06 when cnt=7 then 1.07
+         |    when cnt=8 then 1.08 when cnt=9 then 1.09 when cnt=10 then 1.1 when cnt=11 then 1.11
+         |    when cnt=12 then 1.12 when cnt=13 then 1.13 when cnt=14 then 1.14
+         |    end as recommend,
+         |    1 as stauts
+         |from
+         |(
+         |   select id,sum(if(datediff(current_date,to_date(day,'yyyyMMdd'))<=14,1,0)) as cnt
+         |   from $DPI_FEEDBACK_IEID
+         |   group by id
+         |) a
+         |union
+         |select '03251' as code,'oiid' as idtype,oiid as idvalue,
+         |      case when cnt=0 then 1 when cnt=1 then 1.01 when cnt=2 then 1.02 when cnt=3 then 1.03
+         |      when cnt=4 then 1.04 when cnt=5 then 1.05 when cnt=6 then 1.06 when cnt=7 then 1.07
+         |      when cnt=8 then 1.08 when cnt=9 then 1.09 when cnt=10 then 1.1 when cnt=11 then 1.11
+         |      when cnt=12 then 1.12 when cnt=13 then 1.13 when cnt=14 then 1.14
+         |      end as recommend,1 as stauts
+         |from
+         |(
+         |   select oiid,sum(if(datediff(current_date,to_date(day,'yyyyMMdd'))<=14,1,0)) as cnt
+         |   from (
+         |   select b.oiid,a.day
+         |   from $DPI_FEEDBACK_IEID a
+         |   inner join
+         |   $DW_GAAS_ID_DATA_DI_RTA b
+         |   on a.id=b.ieid
+         |   group by b.oiid,a.day
+         |   )d
+         |   group by oiid
+         |) c
+         |union
+         |select '03252' as code, 'ieid' as idtype, a.id as idvalue,
+         |      case when diffdays<=7 then 0.9 when diffdays>7 and diffdays<=14 then 1
+         |           when diffdays>14 then 1.1
+         |      end as recommend,1 as status
+         |from
+         |(
+         |  select id, cast(datediff(current_date,to_date(max(day),'yyyyMMdd')) as int) as diffdays
+         |  from $DPI_FEEDBACK_IEID
+         |  group by id
+         |) a
+         |union
+         |select '03252' as code, 'oiid' as idtype, oiid as idvalue,
+         |      case when diffdays<=7 then 0.9 when diffdays>7 and diffdays<=14 then 1
+         |           when diffdays>14 then 1.1
+         |      end as recommend,1 as status
+         |from
+         |(
+         | select oiid, cast(datediff(current_date,to_date(max(day),'yyyyMMdd')) as int) as diffdays
+         |  from (
+         |  select b.oiid,a.day
+         |   from $DPI_FEEDBACK_IEID a
+         |   inner join
+         |   $DW_GAAS_ID_DATA_DI_RTA b
+         |   on a.id=b.ieid
+         |   group by b.oiid,a.day
+         |  )d
+         |  group by oiid
+         |) c
          |""".stripMargin)
   }
 
@@ -150,6 +131,9 @@ object rta_device_rec_for_0325 {
 
     val insert_day = args(0)
     val full_par = args(1)
+
+    //新建联通和移动的ieid临时表，仅包含付费时间维度
+    dpi_feedback_ieid_table(spark)
 
     //新建0325临时结果表，包括付费天数及距今付费间隔时间维度的设备
     dm_device_rec_for_0325_pre_table(spark)
