@@ -1,5 +1,6 @@
 package com.youzu.mob.utils
 
+
 object Constants {
 
   private def prop(key: String): String = PropUtils.getProperty(key)
@@ -85,6 +86,8 @@ object Constants {
   lazy val DM_DEVICE_REC_FOR_0324 =prop("dm_device_rec_for_0324")
   lazy val DM_DEVICE_REC_FOR_0325_PRE =prop("dm_device_rec_for_0325_pre")
   lazy val DM_DEVICE_REC_FOR_0325 =prop("dm_device_rec_for_0325")
+  lazy val RTA_DIP_CUCC_IEID_WITH_RN=prop("rta_dip_cucc_ieid_with_rn")
+  lazy val DPI_FEEDBACK_IDS=prop("dpi_feedback_ids")
   lazy val DM_DEVICE_REC_FOR_0326_PRE =prop("dm_device_rec_for_0326_pre")
   lazy val DM_DEVICE_REC_FOR_0326_PRE_SECOND =prop("dm_device_rec_for_0326_pre_second")
   lazy val DM_DEVICE_REC_FOR_0326 =prop("dm_device_rec_for_0326")
@@ -98,4 +101,14 @@ object Constants {
   lazy val ODS_DPI_MKT_FEEDBACK_INCR =prop("ods_dpi_mkt_feedback_incr")
   lazy val RTA_GAMEAPP_CATE_40 =prop("rta_gameapp_cate_40")
 
+  lazy val DM_DEVICE_REC_FOR_03281: String = prop("dm_device_rec_for_03281")
+  lazy val DM_DEVICE_REC_FOR_03281_PRE: String = prop("dm_device_rec_for_03281_pre")
+  lazy val DM_DEVICE_REC_FOR_03282: String = prop("dm_device_rec_for_03282")
+  lazy val DM_DEVICE_REC_FOR_03282_PRE: String = prop("dm_device_rec_for_03282_pre")
+  lazy val DWD_PV_SEC_DI: String = prop("dwd_pv_sec_di")
+  lazy val DWD_MDATA_NGINX_PV_DI:String=prop("dwd_mdata_nginx_pv_di")
+  lazy val DWD_PKG_RUNTIMES_SEC_DI:String = prop("dwd_pkg_runtimes_sec_di")
+  lazy val DW_ACTIVE_APP_ALL_RTA:String=prop("dw_active_app_all_rta")
+  lazy val DW_GAASID_IN_ACTIVEID:String=prop("dw_gaasid_in_activeid")
+  lazy val DW_APP_CATE_MAPPING:String=prop("dw_app_cate_mapping")
 }
