@@ -19,18 +19,18 @@ fi
 day=$1
 
 
-#source /home/dba/mobdi_center/conf/hive_db_tb_master.properties
+source /home/dba/mobdi_center/conf/hive-env.sh
 
 
 ###源表
-dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
+#dwd_device_location_info_di=dm_mobdi_master.dwd_device_location_info_di
 
 ###目标表
-dwd_device_location_info_di_v2=dm_mobdi_master.dwd_device_location_info_di_v2
+#dwd_device_location_info_di_v2=dm_mobdi_master.dwd_device_location_info_di_v2
 
 #set dfs.replication=3;
 #set mapreduce.job.queuename=${queue};
-HADOOP_USER_NAME=dba hive -v -e "
+hive -S -v -e "
 set mapred.job.name='insert ${dwd_device_location_info_di_v2} day=${day}';
 set mapred.min.split.size.per.node=32000000;
 set mapred.min.split.size.per.rack=32000000;
@@ -53,11 +53,11 @@ set hive.exec.max.dynamic.partitions.pernode=200;
 set hive.exec.default.partition.name='cn_unknow_province';
 
 set yarn.scheduler.minimum-allocation-mb=1024;
-set mapreduce.map.memory.mb=4096;
-set mapreduce.map.java.opts='-Xmx3680m';
-set mapreduce.child.map.java.opts='-Xmx3680m';
-set mapreduce.reduce.memory.mb=8192;
-set mapreduce.reduce.java.opts='-Xmx7360m';
+set mapreduce.map.memory.mb=2048;
+set mapreduce.map.java.opts='-Xmx1840m';
+set mapreduce.child.map.java.opts='-Xmx1840m';
+set mapreduce.reduce.memory.mb=4096;
+set mapreduce.reduce.java.opts='-Xmx3680m';
 set mapred.job.reuse.jvm.num.tasks=10;
 set mapred.tasktracker.map.tasks.maximum=24;
 set mapred.tasktracker.reduce.tasks.maximum=24;
@@ -73,7 +73,7 @@ set hive.mapred.reduce.tasks.speculative.execution=false;
 set mapreduce.map.speculative=false;
 set mapreduce.reduce.speculative=false;
 set mapreduce.job.reduce.slowstart.completedmaps=0.9;
-set mapreduce.job.queuename=root.yarn_data_compliance2;
+
 
 insert overwrite table ${dwd_device_location_info_di_v2} partition(day='${day}',province_cn)
 select device,
@@ -98,7 +98,6 @@ select device,
        orig_note3,
        abnormal_flag,
        ga_abnormal_flag,
-       nvl(level,'') as level,
        case  when country='cn' and province is not null and province <>''
                then province
              when country='cn' and ( province ='' or province is null )
