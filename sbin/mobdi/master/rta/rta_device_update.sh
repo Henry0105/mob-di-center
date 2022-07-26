@@ -68,4 +68,4 @@ spark2-submit --master yarn \
 --conf spark.rpc.askTimeout=300000 \
 --conf spark.rpc.lookupTimeout=300000 \
 --queue root.sdk.mobdashboard_test \
-/home/dba/mobdi_center/lib//MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar $insert_day $full_par $dim_app_pkg_par $app_category_par
+/home/dba/mobdi_center/lib/MobDI-center-spark2-1.0-SNAPSHOT-jar-with-dependencies.jar $insert_day $full_par $dim_app_pkg_par $app_category_par
