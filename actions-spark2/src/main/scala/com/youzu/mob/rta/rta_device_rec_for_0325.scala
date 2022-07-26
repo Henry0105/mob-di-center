@@ -7,7 +7,6 @@ object rta_device_rec_for_0325 {
   def dpi_feedback_ieid_table(spark: SparkSession):Unit={
     spark.sql(
       s"""
-         |insert overwrite table $DPI_FEEDBACK_IEID
          |select id,day
          |from $ODS_DPI_MKT_FEEDBACK_INCR
          |where load_day>='20220328' and source='guangdong_mobile' and model_type='timewindow' and tag!='mb11'
@@ -23,6 +22,20 @@ object rta_device_rec_for_0325 {
          |inner join
          |$RTA_DIP_CUCC_IEID_WITH_RN b
          |on a.id=b.id
+        |""".stripMargin).createTempView("feedback_ieid")
+
+    spark.sql(
+      s"""
+        |insert overwrite table $DPI_FEEDBACK_IDS
+        |select 'ieid' as idtype,id as idvalue,day
+        |from feedback_ieid
+        |union
+        |select 'oiid' as idtype,b.oiid as idvalue,a.day
+        |from feedback_ieid a
+        |inner join
+        |$DW_GAAS_ID_DATA_DI_RTA b
+        |on a.id=b.ieid
+        |group by b.oiid,a.day
         |""".stripMargin)
   }
 
@@ -30,7 +43,7 @@ object rta_device_rec_for_0325 {
     spark.sql(
       s"""
          |insert overwrite table $DM_DEVICE_REC_FOR_0325_PRE
-         |select '03251' as code,'ieid' as idtype,a.id as idvalue,
+         |select '03251' as code,idtype,idvalue,
          |    case when cnt =0 then 1 when cnt=1 then 1.01 when cnt=2 then 1.02 when cnt=3 then 1.03
          |    when cnt=4 then 1.04 when cnt=5 then 1.05 when cnt=6 then 1.06 when cnt=7 then 1.07
          |    when cnt=8 then 1.08 when cnt=9 then 1.09 when cnt=10 then 1.1 when cnt=11 then 1.11
@@ -39,59 +52,21 @@ object rta_device_rec_for_0325 {
          |    1 as stauts
          |from
          |(
-         |   select id,sum(if(datediff(current_date,to_date(day,'yyyyMMdd'))<=14,1,0)) as cnt
-         |   from $DPI_FEEDBACK_IEID
-         |   group by id
+         |   select idtype,idvalue,sum(if(datediff(current_date,to_date(day,'yyyyMMdd'))<=14,1,0)) as cnt
+         |   from $DPI_FEEDBACK_IDS
+         |   group by idtype,idvalue
          |) a
          |union
-         |select '03251' as code,'oiid' as idtype,oiid as idvalue,
-         |      case when cnt=0 then 1 when cnt=1 then 1.01 when cnt=2 then 1.02 when cnt=3 then 1.03
-         |      when cnt=4 then 1.04 when cnt=5 then 1.05 when cnt=6 then 1.06 when cnt=7 then 1.07
-         |      when cnt=8 then 1.08 when cnt=9 then 1.09 when cnt=10 then 1.1 when cnt=11 then 1.11
-         |      when cnt=12 then 1.12 when cnt=13 then 1.13 when cnt=14 then 1.14
-         |      end as recommend,1 as stauts
-         |from
-         |(
-         |   select oiid,sum(if(datediff(current_date,to_date(day,'yyyyMMdd'))<=14,1,0)) as cnt
-         |   from (
-         |   select b.oiid,a.day
-         |   from $DPI_FEEDBACK_IEID a
-         |   inner join
-         |   $DW_GAAS_ID_DATA_DI_RTA b
-         |   on a.id=b.ieid
-         |   group by b.oiid,a.day
-         |   )d
-         |   group by oiid
-         |) c
-         |union
-         |select '03252' as code, 'ieid' as idtype, a.id as idvalue,
+         |select '03252' as code,idtype,idvalue,
          |      case when diffdays<=7 then 0.9 when diffdays>7 and diffdays<=14 then 1
          |           when diffdays>14 then 1.1
          |      end as recommend,1 as status
          |from
          |(
-         |  select id, cast(datediff(current_date,to_date(max(day),'yyyyMMdd')) as int) as diffdays
-         |  from $DPI_FEEDBACK_IEID
-         |  group by id
+         |  select idtype,idvalue, cast(datediff(current_date,to_date(max(day),'yyyyMMdd')) as int) as diffdays
+         |  from $DPI_FEEDBACK_IDS
+         |  group by idtype,idvalue
          |) a
-         |union
-         |select '03252' as code, 'oiid' as idtype, oiid as idvalue,
-         |      case when diffdays<=7 then 0.9 when diffdays>7 and diffdays<=14 then 1
-         |           when diffdays>14 then 1.1
-         |      end as recommend,1 as status
-         |from
-         |(
-         | select oiid, cast(datediff(current_date,to_date(max(day),'yyyyMMdd')) as int) as diffdays
-         |  from (
-         |  select b.oiid,a.day
-         |   from $DPI_FEEDBACK_IEID a
-         |   inner join
-         |   $DW_GAAS_ID_DATA_DI_RTA b
-         |   on a.id=b.ieid
-         |   group by b.oiid,a.day
-         |  )d
-         |  group by oiid
-         |) c
          |""".stripMargin)
   }
 

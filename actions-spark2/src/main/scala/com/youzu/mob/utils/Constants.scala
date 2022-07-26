@@ -87,7 +87,7 @@ object Constants {
   lazy val DM_DEVICE_REC_FOR_0325_PRE =prop("dm_device_rec_for_0325_pre")
   lazy val DM_DEVICE_REC_FOR_0325 =prop("dm_device_rec_for_0325")
   lazy val RTA_DIP_CUCC_IEID_WITH_RN=prop("rta_dip_cucc_ieid_with_rn")
-  lazy val DPI_FEEDBACK_IEID=prop("dpi_feedback_ieid")
+  lazy val DPI_FEEDBACK_IDS=prop("dpi_feedback_ids")
   lazy val DM_DEVICE_REC_FOR_0326_PRE =prop("dm_device_rec_for_0326_pre")
   lazy val DM_DEVICE_REC_FOR_0326_PRE_SECOND =prop("dm_device_rec_for_0326_pre_second")
   lazy val DM_DEVICE_REC_FOR_0326 =prop("dm_device_rec_for_0326")
